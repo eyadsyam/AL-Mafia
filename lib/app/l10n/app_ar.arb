@@ -3349,17 +3349,56 @@
   "profileStatOnlineMatches": "ماتش أونلاين",
   "profileStatCoins": "عملة",
   "profileLevel": "المستوى {level}",
-  "@profileLevel": {"placeholders": {"level": {"type": "int"}}},
+  "@profileLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "profileLevelXp": "{xp} من {next} خبرة",
-  "@profileLevelXp": {"placeholders": {"xp": {"type": "int"}, "next": {"type": "int"}}},
+  "@profileLevelXp": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
+  },
   "profileRecordOnline": "أونلاين: كسبت {won} من {played}",
-  "@profileRecordOnline": {"placeholders": {"won": {"type": "int"}, "played": {"type": "int"}}},
+  "@profileRecordOnline": {
+    "placeholders": {
+      "won": {
+        "type": "int"
+      },
+      "played": {
+        "type": "int"
+      }
+    }
+  },
   "profileRecordWins": "{won} من {played}",
-  "@profileRecordWins": {"placeholders": {"won": {"type": "int"}, "played": {"type": "int"}}},
+  "@profileRecordWins": {
+    "placeholders": {
+      "won": {
+        "type": "int"
+      },
+      "played": {
+        "type": "int"
+      }
+    }
+  },
   "profileRecordTown": "مع المواطنين",
   "profileRecordMafia": "مع المافيا",
   "profileRecordFavourite": "أكتر دور لعبته: {role}",
-  "@profileRecordFavourite": {"placeholders": {"role": {"type": "String"}}},
+  "@profileRecordFavourite": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "profileRecordRecent": "آخر النتايج",
   "profileRecordWon": "كسبت",
   "profileRecordLost": "خسرت",
@@ -3548,7 +3587,16 @@
   "adminUsageOnlinePlayers": "لعّيبة أونلاين",
   "adminUsageOnlineMatches": "ماتشات أونلاين",
   "adminUsageAds": "إعلانات المكافأة: {paid} اتصرفت من {asked}",
-  "@adminUsageAds": {"placeholders": {"paid": {"type": "int"}, "asked": {"type": "int"}}},
+  "@adminUsageAds": {
+    "placeholders": {
+      "paid": {
+        "type": "int"
+      },
+      "asked": {
+        "type": "int"
+      }
+    }
+  },
   "adminUsageEvents": "من الأجهزة",
   "adminReviewSearch": "دوّر باسم اللاعب",
   "adminReviewEmpty": "مفيش حاجة للعرض",
@@ -3693,5 +3741,61 @@
       }
     }
   },
-  "suspectFailed": "شكّك ماوصلش. جرّب تاني."
+  "suspectFailed": "شكّك ماوصلش. جرّب تاني.",
+  "rolesWaitSeats": "هيدخل لما تبقوا {count}",
+  "@rolesWaitSeats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roomRoleNeedsBiggerRoom": "الدور ده محتاج {count} لاعبين، كبّر عدد الأوضة عشان يدخل الماتش.",
+  "@roomRoleNeedsBiggerRoom": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roomSilencerHint": "واحد من المافيا بيسكّت بدل ما يقتل. لو التوزيع فيه مافيا واحد، بنزوّد التاني لوحده.",
+  "roomLookSection": "شكل القعدة",
+  "roomLookMore": "هات من المتجر",
+  "lobbyMyLook": "شكلي وأدواتي",
+  "lobbyLookItem": "{label}: {value}",
+  "@lobbyLookItem": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "roomRolesBasic": "الأساسية بس",
+  "roomVoiceOn": "شغال",
+  "roomVoiceOff": "مقفول",
+  "roomInfoOn": "{count} من ٤ شغالين",
+  "@roomInfoOn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roomPlaySummary": "كلام {seconds} ثانية · نقاش {minutes} دقايق · {mode}",
+  "@roomPlaySummary": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  }
 }

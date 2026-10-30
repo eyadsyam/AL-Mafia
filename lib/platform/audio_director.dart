@@ -495,7 +495,9 @@ class AudioDirector {
     NarratorBeat beat = NarratorBeat.discussion,
   }) {
     if (_location == PhoneLocation.inHand || muted || !narrationEnabled) return;
-    final clip = narratorBanks[code]?.pick(
+    // 'classic' is the free voice every room has until a host picks another.
+    final bank = code == 'classic' ? _defaultNarrator : narratorBanks[code];
+    final clip = bank?.pick(
       beat,
       NarrationFacts.none,
       familyOnly: familyNarration,

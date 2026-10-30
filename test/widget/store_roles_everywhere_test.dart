@@ -231,6 +231,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(RoomSettingsPanel.section('roles')));
+      await tester.pumpAndSettle();
       return sent;
     }
 
@@ -253,6 +255,19 @@ void main() {
       ]) {
         expect(tester.widget<Switch>(find.byKey(key)).onChanged, isNull);
       }
+    });
+
+    testWidgets('a wallet not read yet: the roles this phone knows stay open', (
+      tester,
+    ) async {
+      phone(tester, const Size(500, 2400));
+      await pumpPanel(tester, const {'role_sniper'});
+      expect(
+        tester
+            .widget<Switch>(find.byKey(RoomSettingsPanel.sniperKey))
+            .onChanged,
+        isNotNull,
+      );
     });
 
     testWidgets('nothing owned: no role switch can send anything', (

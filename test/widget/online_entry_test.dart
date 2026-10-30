@@ -16,6 +16,7 @@ import 'package:mafia_master/ui/missions/thursday.dart';
 import 'package:mafia_master/ui/screens/online/online_entry_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/voice_session.dart';
+import 'package:mafia_master/ui/screens/online/room_look_picker.dart';
 import 'package:mafia_master/ui/screens/online/room_settings_panel.dart';
 import 'package:mafia_master/ui/screens/online/safety_center.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
@@ -929,12 +930,15 @@ void main() {
         await pumpEntry(tester, container, surface: const Size(500, 2200));
         await openCreate(tester);
         await tester.pump();
+        await tester.tap(find.byKey(RoomSettingsPanel.section('look')));
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
         expect(
-          find.byKey(const ValueKey('room_pack_old_town')),
+          find.byKey(RoomLookPicker.tile('pack_old_town')),
           findsOneWidget,
         );
         expect(
-          find.byKey(const ValueKey('room_pack_midnight_manor')),
+          find.byKey(RoomLookPicker.tile('pack_midnight_manor')),
           findsNothing,
         );
         await tester.tap(find.byKey(const ValueKey('online_create_confirm')));
@@ -988,8 +992,14 @@ void main() {
       await tester.pump();
       // Structured is the default, so free is the one a host has to be able to
       // reach — and the one the mic policy reads.
+      await tester.tap(find.byKey(RoomSettingsPanel.section('play')));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
       await tester.tap(find.byKey(RoomSettingsPanel.discussionFree));
       await tester.pump();
+      await tester.tap(find.byKey(RoomSettingsPanel.section('voice')));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
       await tester.tap(find.byKey(RoomSettingsPanel.muteAtNightSwitch));
       await tester.pump();
 
@@ -1023,7 +1033,8 @@ void main() {
       await pumpEntry(tester, containerWith(), surface: const Size(500, 2200));
       await openCreate(tester);
 
-      expect(find.text(arStrings.onlineNightPrivacyHint), findsOneWidget);
+      await tester.tap(find.byKey(RoomSettingsPanel.section('voice')));
+      await tester.pumpAndSettle();
       final before = tester.widget<Switch>(
         find.byKey(RoomSettingsPanel.muteAtNightSwitch),
       );

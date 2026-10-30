@@ -425,6 +425,12 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     if (mounted) await _loadResume();
   }
 
+  /// The form opens before the wallet has answered; its equipped packs apply
+  /// when it does. A choice the host already made there stays (see above).
+  void _walletAnswered() {
+    if (_step == _Step.create) setState(_applyEquippedPacks);
+  }
+
   void _go(_Step step) {
     if (_step != step) ref.read(audioDirectorProvider).playCardTurn();
     ref.read(onlineSessionProvider.notifier).clearError();
@@ -471,6 +477,9 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     final s = context.spacing;
     final c = context.colors;
     final l = context.l10n;
+    ref.listen(walletProvider, (_, next) {
+      if (next.valueOrNull != null) _walletAnswered();
+    });
     final state = ref.watch(onlineSessionProvider);
     final visibleRooms = _nearlyReadyOnly
         ? _rooms

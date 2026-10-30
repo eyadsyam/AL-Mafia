@@ -27,11 +27,57 @@ void main() {
     }
   });
 
-  test('five players skip all three sold roles and say so', () {
+  test('five players: the silencer gets its partner, the others wait', () {
     final deal = lobbyDeal(5, allOn);
-    expect(deal.skipped, OptionalRole.values);
-    expect(deal.settings.silencerEnabled, isFalse);
-    expect(deal.counts.containsKey(Role.elder), isFalse);
+    expect(deal.skipped, [OptionalRole.elder, OptionalRole.sniper]);
+    expect(deal.settings.silencerEnabled, isTrue);
+    expect(deal.settings.elderEnabled, isFalse);
+    expect(deal.counts, {
+      Role.mafia: 1,
+      Role.silencer: 1,
+      Role.detective: 1,
+      Role.citizen: 2,
+    });
+  });
+
+  test('a host still alone in the room can already set the deal', () {
+    const base = (mafia: 2, detective: 1, doctor: 1);
+    for (final n in [1, 2, 3, 4]) {
+      final deal = lobbyDeal(n, const MatchSettings(), base: base);
+      expect(deal.reset, isFalse, reason: '$n');
+      expect(deal.counts, {
+        Role.mafia: 2,
+        Role.detective: 1,
+        Role.doctor: 1,
+        Role.citizen: 1,
+      });
+    }
+  });
+
+  test('alone in a room of ten, the host plans for ten', () {
+    const base = (mafia: 3, detective: 1, doctor: 2);
+    final plan = lobbyDeal(1, const MatchSettings(), base: base, capacity: 10);
+    expect(plan.reset, isFalse);
+    expect(plan.counts[Role.mafia], 3);
+    expect(plan.counts[Role.citizen], 4);
+    // Five came, not ten: the split no longer fits, and the deal says so.
+    expect(
+      lobbyDeal(5, const MatchSettings(), base: base, capacity: 10).reset,
+      isTrue,
+    );
+    // And it comes back once the seats do.
+    expect(
+      lobbyDeal(8, const MatchSettings(), base: base, capacity: 10).reset,
+      isFalse,
+    );
+  });
+
+  test('a role wished for too early joins when the seats arrive', () {
+    const wish = MatchSettings(sniperEnabled: true);
+    expect(lobbyDeal(1, wish).skipped, [OptionalRole.sniper]);
+    expect(lobbyDeal(6, wish).settings.sniperEnabled, isFalse);
+    expect(lobbyDeal(7, wish).counts[Role.sniper], 1);
+    expect(lobbyDeal(7, wish).settings.sniperEnabled, isTrue);
   });
 
   test('a big enough table deals every sold role the host switched on', () {

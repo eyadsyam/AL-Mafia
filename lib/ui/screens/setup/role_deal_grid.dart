@@ -119,7 +119,10 @@ class RoleDealCard extends StatelessWidget {
     final c = spec;
     final off = c.locked
         ? RolesTokens.dealLockedAlpha
-        : (c.owned && c.count == 0 ? RolesTokens.dealOffAlpha : 1.0);
+        // Switched on and waiting for seats is not off.
+        : (c.owned && c.count == 0 && c.onMinus == null
+              ? RolesTokens.dealOffAlpha
+              : 1.0);
     final ring = c.owned || c.locked
         ? Border.all(
             color: VaultTokens.gold.withValues(
@@ -227,31 +230,43 @@ class RoleDealCard extends StatelessWidget {
               ),
             ),
           )
-        : Row(
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              step(
-                Icons.add,
-                l.increaseRole,
-                c.onPlus,
-                RoleDealGrid.plus(c.role),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  step(
+                    Icons.add,
+                    l.increaseRole,
+                    c.onPlus,
+                    RoleDealGrid.plus(c.role),
+                  ),
+                  step(
+                    Icons.remove,
+                    l.decreaseRole,
+                    c.onMinus,
+                    RoleDealGrid.minus(c.role),
+                  ),
+                ],
               ),
-              Expanded(
-                child: Text(
-                  c.blocked ?? c.rule ?? '',
-                  maxLines: 1,
+              // Under the buttons, on its own line: between them a card this
+              // narrow cut it to «هيدخ…», and this is the line that says why.
+              if ((c.blocked ?? c.rule) case final words?) ...[
+                SizedBox(height: context.spacing.xs),
+                Text(
+                  words,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: DeckTokens.meta(
-                    type,
-                  ).copyWith(color: colors.textSecondary),
+                  style: DeckTokens.meta(type).copyWith(
+                    color: c.blocked == null
+                        ? colors.textSecondary
+                        : colors.accentGold,
+                  ),
                 ),
-              ),
-              step(
-                Icons.remove,
-                l.decreaseRole,
-                c.onMinus,
-                RoleDealGrid.minus(c.role),
-              ),
+              ],
             ],
           );
 
@@ -265,14 +280,17 @@ class RoleDealCard extends StatelessWidget {
           children: [
             art,
             SizedBox(height: context.spacing.xs),
-            Text(
-              c.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: DeckTokens.card(type).copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w800,
+            // The whole name, smaller if it must be: «مافيا التس…» named nobody.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                c.name,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: DeckTokens.card(type).copyWith(
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             SizedBox(height: context.spacing.xs),
@@ -443,9 +461,11 @@ class _RoleSheet extends ConsumerWidget {
 
     final primaryAction = c.locked
         ? null
-        : (sold ? (c.count == 0 ? c.onPlus : c.onMinus) : c.onPlus);
+        : (sold ? (c.onMinus ?? c.onPlus) : c.onPlus);
+    // A role switched on but waiting for seats is dealt 0 and is still taken
+    // off with this button.
     final primaryLabel = sold
-        ? (c.count == 0 ? l.rolesSheetAdd : l.rolesSheetRemove)
+        ? (c.onMinus == null ? l.rolesSheetAdd : l.rolesSheetRemove)
         : l.rolesSheetMore;
 
     return SafeArea(

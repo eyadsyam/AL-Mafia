@@ -1,25 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/asset_constants.dart';
+import '../../../platform/reduce_motion.dart';
 import '../../../transport/game_snapshot.dart';
 import '../../../transport/online_transport.dart';
 import '../../l10n_ext.dart';
+import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/settings_kit.dart';
 import '../../economy/cosmetics.dart';
+import '../../economy/my_cosmetics.dart';
+import '../../economy/store_art.dart';
 import '../../economy/wallet.dart';
+import '../setup/optional_roles.dart';
+import '../setup/role_deal_grid.dart' show roleFace;
+import '../setup/role_rows.dart' show StoreDoor;
 import '../setup/scenario_store.dart';
+import 'lobby_deal.dart';
+import 'room_look_picker.dart';
 
 /// The host's room settings, as a layer over the lobby (task 10).
 ///
-/// ## Why every control says what it does
+/// ## Why the words are where they are
 ///
-/// A settings screen whose rows are four words each is a screen that gets read
-/// once, by the person who wrote it. «الأثر» means nothing to a host who has
-/// not yet played a match with it on, and the cost of guessing wrong is nine
-/// other people's evening. So each control carries one line underneath saying
-/// what turning it does — never what it *is*.
+/// A sentence under every control is a wall nobody reads (owner, 2026-10-30), so
+/// a control whose name already says it carries none. «الأثر» means nothing to a
+/// host who has not played with it on, so that one, and its like, keep theirs.
 ///
 /// ## Why numbers are segments and flags are switches
 ///
@@ -78,17 +86,13 @@ class RoomSettingsPanel extends ConsumerStatefulWidget {
   static const Key silencerKey = ValueKey('room_settings_silencer');
   static const Key elderKey = ValueKey('room_settings_elder');
   static const Key sniperKey = ValueKey('room_settings_sniper');
+  static Key section(String id) => ValueKey('room_settings_section_$id');
 
   @override
   ConsumerState<RoomSettingsPanel> createState() => _RoomSettingsPanelState();
 }
 
 class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
-  /// A new role switches on only for a host who bought it (the server
-  /// refuses otherwise); an unread wallet counts as not owned.
-  bool _ownsRole(String code) =>
-      ref.watch(walletProvider).valueOrNull?.owned.contains(code) ?? false;
-
   final TextEditingController _title = TextEditingController();
   String _committed = '';
 
@@ -111,22 +115,60 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
     });
   }
 
-  /// Classic, every owned code for [slot], and the room's current code even
-  /// if this host does not own it (a hand-over keeps the previous host's).
-  List<(String, String, Key?)> _cosmeticOptions(
-    CosmeticSlot slot,
-    String current,
-  ) {
+  /// One bought role: its card, what it does, and its switch. A host may switch
+  /// on a role they own before the seats are here (a room fills up after it is
+  /// set); it joins the deal when the table can take it, and the row says when.
+  /// A role not bought opens the store instead.
+  Widget _roleRow({
+    required OptionalRole role,
+    required String label,
+    required String hint,
+    required bool on,
+    required Key switchKey,
+    required String flag,
+  }) {
     final l10n = context.l10n;
-    final owned = ref.watch(walletProvider).valueOrNull?.ownedFor(slot) ?? [];
-    final codes = {...owned, if (current != 'classic') current};
-    return [
-      ('classic', l10n.cosmeticClassic, null),
-      for (final code in codes)
-        if (Cosmetics.items[code] != null)
-          (code, Cosmetics.items[code]!.name(l10n), ValueKey('room_$code')),
-    ];
+    final owns = ref.watch(hostOwnedRolesProvider).contains(role.code);
+    final room = widget.snapshot.room;
+    final live = widget.onChanged == null;
+    final seats = lobbyDealSeats(widget.snapshot.public.players.length);
+    final words = !owns && !on
+        ? l10n.roleLockedHint
+        : on && room.maxPlayers < role.minPlayers
+        ? l10n.roomRoleNeedsBiggerRoom(role.minPlayers)
+        : on && live && seats < role.minPlayers
+        ? l10n.rolesWaitSeats(role.minPlayers)
+        : hint;
+    Widget row(VoidCallback? store) => SettingsSwitchRow(
+      switchKey: switchKey,
+      label: label,
+      hint: words,
+      pill: owns || on ? null : l10n.roleLockedPill,
+      value: on,
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(RolesTokens.dealRadius),
+        child: Opacity(
+          opacity: owns || on ? 1 : RolesTokens.dealLockedAlpha,
+          child: Image.asset(
+            roleFace(role.role),
+            width: RoomLookTokens.roleCard,
+            height: RoomLookTokens.roleCardHeight,
+            fit: BoxFit.cover,
+            alignment: RolesTokens.dealFocus,
+            excludeFromSemantics: true,
+          ),
+        ),
+      ),
+      onChanged: owns || on ? (value) => _send(settings: {flag: value}) : null,
+      onDisabledTap: store,
+    );
+    if (owns || on) return row(null);
+    return StoreDoor(builder: (context, open) => row(open));
   }
+
+  /// The one group open. A room is set from the top, so that one starts open.
+  String? _open = 'room';
+  final _sectionKeys = <String, GlobalKey>{};
 
   @override
   void didUpdateWidget(RoomSettingsPanel old) {
@@ -172,24 +214,29 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
     if (!widget.visible) return const SizedBox.shrink();
     final l10n = context.l10n;
     final colors = context.colors;
-    final type = context.typography;
     final spacing = context.spacing;
     final room = widget.snapshot.room;
     final match = widget.snapshot.settings;
-    // A live room: every change is already on the other screens. Before the
-    // room exists (the create form) nothing has been sent yet.
-    final live = widget.onChanged == null;
+
+    String look(String code) =>
+        Cosmetics.items[code]?.name(l10n) ?? l10n.cosmeticClassic;
+    final wantedRoles = [
+      if (match.silencerEnabled) l10n.settingSilencer,
+      if (match.elderEnabled) l10n.settingElder,
+      if (match.sniperEnabled) l10n.settingSniper,
+    ];
+    final infoOn = [
+      match.traceEnabled,
+      match.confrontationEnabled,
+      match.whisperEnabled,
+      match.revealWhisperContent,
+    ].where((on) => on).length;
 
     return Positioned.fill(
       key: RoomSettingsPanel.panel,
-      // The same painted ground and the same panels as the general settings
-      // (owner, 2026-09-24): one settings look across the app.
       child: Material(
         type: MaterialType.transparency,
         child: ExperienceSurface(
-          // The same reading column the door and the lobby keep on a wide
-          // screen: a full-screen sheet that ran the whole width of a desktop
-          // put its segments and switches a screen's breadth apart.
           child: SafeArea(
             child: Center(
               child: ConstrainedBox(
@@ -197,338 +244,301 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                        spacing.screenMargin,
-                        spacing.md,
-                        spacing.sm,
-                        spacing.md,
-                      ),
-                      child: Row(
-                        children: [
-                          const SettingsBadge(icon: Icons.tune),
-                          SizedBox(width: spacing.sm + spacing.xs),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.onlineRoomSettings,
-                                  style: type.headline.copyWith(
-                                    color: colors.textPrimary,
-                                  ),
-                                ),
-                                if (live)
-                                  Text(
-                                    l10n.onlineRoomSettingsHint,
-                                    style: type.caption.copyWith(
-                                      color: colors.textMuted,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: MaterialLocalizations.of(
-                              context,
-                            ).closeButtonTooltip,
-                            onPressed: widget.onClose,
-                            icon: Icon(
-                              Icons.close,
-                              color: colors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    _hero(context),
                     Expanded(
-                      child: ListView(
+                      child: SingleChildScrollView(
                         padding: EdgeInsets.fromLTRB(
                           spacing.screenMargin,
                           0,
                           spacing.screenMargin,
                           spacing.lg,
                         ),
-                        children: [
-                          SettingsPanel(
-                            icon: Icons.meeting_room_outlined,
-                            title: l10n.onlineSettingsRoom,
-                            children: [
-                              SettingsSegments<String>(
-                                label: l10n.onlineRoomVisibility,
-                                hint: l10n.onlineRoomVisibilityHint,
-                                value: room.visibility,
-                                options: [
-                                  (
-                                    'private',
-                                    l10n.onlineRoomPrivate,
-                                    RoomSettingsPanel.visibilityPrivate,
-                                  ),
-                                  (
-                                    'public',
-                                    l10n.onlineRoomPublic,
-                                    RoomSettingsPanel.visibilityPublic,
-                                  ),
-                                ],
-                                onChanged: (value) => _send(visibility: value),
-                              ),
-                              // Only a public room has a name worth typing: a
-                              // private one is never listed anywhere the name
-                              // could be read.
-                              if (room.isPublic)
-                                _titleField(
-                                  l10n.onlineRoomTitle,
-                                  l10n.onlineRoomTitleHint,
-                                ),
-                              SettingsSegments<int>(
-                                label: l10n.onlineMaxPlayers,
-                                hint: l10n.onlineMaxPlayersHint,
-                                value: room.maxPlayers,
-                                options: const [
-                                  (5, '5', null),
-                                  (8, '8', null),
-                                  (10, '10', null),
-                                  (15, '15', null),
-                                ],
-                                onChanged: (value) =>
-                                    _send(settings: {'maxPlayers': value}),
-                              ),
-                              if (ref.watch(scenarioPurchaseProvider).owned ||
-                                  room.scenarioCode == 'shadows')
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _section(
+                              id: 'room',
+                              icon: Icons.meeting_room_outlined,
+                              title: l10n.onlineSettingsRoom,
+                              summary: [
+                                room.isPublic
+                                    ? l10n.onlineRoomPublic
+                                    : l10n.onlineRoomPrivate,
+                                l10n.playerCountShort(room.maxPlayers),
+                              ].join(' · '),
+                              children: [
                                 SettingsSegments<String>(
-                                  label: l10n.premiumScenarioUse,
-                                  hint: l10n.premiumScenarioUseHint,
-                                  value: room.scenarioCode,
+                                  label: l10n.onlineRoomVisibility,
+                                  hint: l10n.onlineRoomVisibilityHint,
+                                  value: room.visibility,
                                   options: [
-                                    ('classic', l10n.presetClassic, null),
-                                    ('shadows', l10n.premiumScenarioUse, null),
+                                    (
+                                      'private',
+                                      l10n.onlineRoomPrivate,
+                                      RoomSettingsPanel.visibilityPrivate,
+                                    ),
+                                    (
+                                      'public',
+                                      l10n.onlineRoomPublic,
+                                      RoomSettingsPanel.visibilityPublic,
+                                    ),
                                   ],
                                   onChanged: (value) =>
-                                      _send(settings: {'scenarioCode': value}),
+                                      _send(visibility: value),
                                 ),
-                              for (final (slot, key, label, current) in [
-                                (
-                                  CosmeticSlot.roomPack,
-                                  'presentationPack',
-                                  l10n.roomPackLabel,
-                                  room.presentationPack,
+                                // Only a public room has a name worth typing: a
+                                // private one is never listed anywhere the name
+                                // could be read.
+                                if (room.isPublic)
+                                  _titleField(
+                                    l10n.onlineRoomTitle,
+                                    l10n.onlineRoomTitleHint,
+                                  ),
+                                SettingsSegments<int>(
+                                  label: l10n.onlineMaxPlayers,
+                                  value: room.maxPlayers,
+                                  options: const [
+                                    (5, '5', null),
+                                    (8, '8', null),
+                                    (10, '10', null),
+                                    (15, '15', null),
+                                  ],
+                                  onChanged: (value) =>
+                                      _send(settings: {'maxPlayers': value}),
                                 ),
-                                (
-                                  CosmeticSlot.narrator,
-                                  'narratorPack',
-                                  l10n.roomNarratorLabel,
-                                  room.narratorPack,
-                                ),
-                              ])
-                                if (_cosmeticOptions(slot, current).length > 1)
+                                if (ref.watch(scenarioPurchaseProvider).owned ||
+                                    room.scenarioCode == 'shadows')
                                   SettingsSegments<String>(
-                                    label: label,
-                                    hint: l10n.storeHostPackNote,
-                                    value: current,
-                                    options: _cosmeticOptions(slot, current),
-                                    onChanged: (value) =>
-                                        _send(settings: {key: value}),
+                                    label: l10n.premiumScenarioUse,
+                                    hint: l10n.premiumScenarioUseHint,
+                                    value: room.scenarioCode,
+                                    options: [
+                                      ('classic', l10n.presetClassic, null),
+                                      (
+                                        'shadows',
+                                        l10n.premiumScenarioUse,
+                                        null,
+                                      ),
+                                    ],
+                                    onChanged: (value) => _send(
+                                      settings: {'scenarioCode': value},
+                                    ),
                                   ),
-                            ],
-                          ),
-                          SettingsPanel(
-                            icon: Icons.mic_none_outlined,
-                            title: l10n.onlineSettingsVoice,
-                            children: [
-                              SettingsSwitchRow(
-                                switchKey: RoomSettingsPanel.voiceSwitch,
-                                label: l10n.onlineVoiceEnabled,
-                                hint: l10n.onlineVoiceEnabledHint,
-                                value: room.voice,
-                                onChanged: (value) =>
-                                    _send(settings: {'voice': value}),
-                              ),
-                              SettingsSwitchRow(
-                                switchKey: RoomSettingsPanel.muteAtNightSwitch,
-                                label: l10n.onlineMuteAtNight,
-                                hint: l10n.onlineNightPrivacyHint,
-                                value: room.muteAllAtNight,
-                                onChanged: (value) =>
-                                    _send(settings: {'muteAllAtNight': value}),
-                              ),
-                            ],
-                          ),
-                          SettingsPanel(
-                            icon: Icons.timer_outlined,
-                            title: l10n.onlineSettingsPlay,
-                            children: [
-                              SettingsSegments<int>(
-                                label:
-                                    '${l10n.onlineSpeakDuration} (${l10n.onlineSeconds})',
-                                hint: l10n.onlineSpeakDurationHint,
-                                value: match.speechSeconds,
-                                options: const [
-                                  (30, '30', null),
-                                  (45, '45', null),
-                                  (60, '60', null),
+                              ],
+                            ),
+                            _section(
+                              id: 'roles',
+                              icon: Icons.style_outlined,
+                              title: l10n.rolesTitle,
+                              summary: wantedRoles.isEmpty
+                                  ? l10n.roomRolesBasic
+                                  : wantedRoles.join('، '),
+                              children: [
+                                if (widget.dealEntry != null) ...[
+                                  widget.dealEntry!,
+                                  SizedBox(height: spacing.sm),
                                 ],
-                                onChanged: (value) =>
-                                    _send(settings: {'speechSeconds': value}),
-                              ),
-                              SettingsSegments<int>(
-                                label:
-                                    '${l10n.onlineDiscussDuration} (${l10n.onlineMinutes})',
-                                hint: l10n.onlineDiscussDurationHint,
-                                value: match.discussionSeconds,
-                                options: const [
-                                  (180, '3', null),
-                                  (300, '5', null),
-                                  (420, '7', null),
-                                ],
-                                onChanged: (value) => _send(
-                                  settings: {'discussionSeconds': value},
+                                _roleRow(
+                                  role: OptionalRole.silencer,
+                                  label: l10n.settingSilencer,
+                                  hint: l10n.roomSilencerHint,
+                                  on: match.silencerEnabled,
+                                  switchKey: RoomSettingsPanel.silencerKey,
+                                  flag: 'silencerEnabled',
                                 ),
-                              ),
-                              // Not cosmetic online: structured discussion is
-                              // what lets the mic policy hand the floor to one
-                              // speaker at a time. A host who could not choose
-                              // it here would get turn-taking they never asked
-                              // for, and a table that reads two silent players
-                              // as a broken call.
-                              SettingsSegments<String>(
-                                label: l10n.discussionModeLabel,
-                                hint: l10n.settingDiscussionModeHint,
-                                value: match.discussionMode.name,
-                                options: [
-                                  (
-                                    'structured',
-                                    l10n.discussionStructured,
-                                    RoomSettingsPanel.discussionStructured,
-                                  ),
-                                  (
-                                    'free',
-                                    l10n.discussionFree,
-                                    RoomSettingsPanel.discussionFree,
-                                  ),
-                                ],
-                                onChanged: (value) =>
-                                    _send(settings: {'discussionMode': value}),
-                              ),
-                              SettingsSwitchRow(
-                                label: l10n.onlineOpenVoting,
-                                hint: l10n.onlineOpenVotingHint,
-                                value: match.openVoting,
-                                onChanged: (value) =>
-                                    _send(settings: {'openVoting': value}),
-                              ),
-                            ],
-                          ),
-                          SettingsPanel(
-                            icon: Icons.style_outlined,
-                            title: l10n.rolesTitle,
-                            children: [
-                              if (widget.dealEntry != null) widget.dealEntry!,
-                              SettingsSwitchRow(
-                                switchKey: RoomSettingsPanel.silencerKey,
-                                label: l10n.settingSilencer,
-                                hint: _ownsRole('role_silencer')
-                                    ? l10n.settingSilencerHint
-                                    : l10n.roleLockedHint,
-                                pill: _ownsRole('role_silencer')
-                                    ? null
-                                    : l10n.roleLockedPill,
-                                value: match.silencerEnabled,
-                                onChanged:
-                                    (_ownsRole('role_silencer') ||
-                                            match.silencerEnabled) &&
-                                        widget.snapshot.public.players.length >=
-                                            7
-                                    ? (value) => _send(
-                                        settings: {'silencerEnabled': value},
-                                      )
-                                    : null,
-                              ),
-                              SettingsSwitchRow(
-                                switchKey: RoomSettingsPanel.elderKey,
-                                label: l10n.settingElder,
-                                hint: _ownsRole('role_elder')
-                                    ? l10n.settingElderHint
-                                    : l10n.roleLockedHint,
-                                pill: _ownsRole('role_elder')
-                                    ? null
-                                    : l10n.roleLockedPill,
-                                value: match.elderEnabled,
-                                onChanged:
-                                    (_ownsRole('role_elder') ||
-                                            match.elderEnabled) &&
-                                        widget.snapshot.public.players.length >=
-                                            6
-                                    ? (value) => _send(
-                                        settings: {'elderEnabled': value},
-                                      )
-                                    : null,
-                              ),
-                              SettingsSwitchRow(
-                                switchKey: RoomSettingsPanel.sniperKey,
-                                label: l10n.settingSniper,
-                                hint: _ownsRole('role_sniper')
-                                    ? l10n.settingSniperHint
-                                    : l10n.roleLockedHint,
-                                pill: _ownsRole('role_sniper')
-                                    ? null
-                                    : l10n.roleLockedPill,
-                                value: match.sniperEnabled,
-                                onChanged:
-                                    (_ownsRole('role_sniper') ||
-                                            match.sniperEnabled) &&
-                                        widget.snapshot.public.players.length >=
-                                            7
-                                    ? (value) => _send(
-                                        settings: {'sniperEnabled': value},
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                          SettingsPanel(
-                            icon: Icons.manage_search_outlined,
-                            title: l10n.onlineSettingsInfo,
-                            children: [
-                              SettingsSwitchRow(
-                                label: l10n.onlineTrace,
-                                hint: l10n.onlineTraceHint,
-                                value: match.traceEnabled,
-                                onChanged: (value) =>
-                                    _send(settings: {'traceEnabled': value}),
-                              ),
-                              SettingsSwitchRow(
-                                label: l10n.onlineConfrontation,
-                                hint: l10n.onlineConfrontationHint,
-                                value: match.confrontationEnabled,
-                                onChanged: (value) => _send(
-                                  settings: {'confrontationEnabled': value},
+                                _roleRow(
+                                  role: OptionalRole.elder,
+                                  label: l10n.settingElder,
+                                  hint: l10n.settingElderHint,
+                                  on: match.elderEnabled,
+                                  switchKey: RoomSettingsPanel.elderKey,
+                                  flag: 'elderEnabled',
                                 ),
+                                _roleRow(
+                                  role: OptionalRole.sniper,
+                                  label: l10n.settingSniper,
+                                  hint: l10n.settingSniperHint,
+                                  on: match.sniperEnabled,
+                                  switchKey: RoomSettingsPanel.sniperKey,
+                                  flag: 'sniperEnabled',
+                                ),
+                              ],
+                            ),
+                            _section(
+                              id: 'look',
+                              icon: Icons.auto_awesome_outlined,
+                              title: l10n.roomLookSection,
+                              summary: {
+                                look(room.presentationPack),
+                                look(room.narratorPack),
+                              }.join(' · '),
+                              children: [
+                                RoomLookPicker(
+                                  slot: CosmeticSlot.roomPack,
+                                  title: l10n.roomPackLabel,
+                                  current: room.presentationPack,
+                                  onChanged: (value) => _send(
+                                    settings: {'presentationPack': value},
+                                  ),
+                                ),
+                                RoomLookPicker(
+                                  slot: CosmeticSlot.narrator,
+                                  title: l10n.roomNarratorLabel,
+                                  current: room.narratorPack,
+                                  onChanged: (value) =>
+                                      _send(settings: {'narratorPack': value}),
+                                ),
+                                Text(
+                                  l10n.storeHostPackNote,
+                                  style: context.typography.caption.copyWith(
+                                    color: colors.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            _section(
+                              id: 'play',
+                              icon: Icons.timer_outlined,
+                              title: l10n.onlineSettingsPlay,
+                              summary: l10n.roomPlaySummary(
+                                match.speechSeconds,
+                                match.discussionSeconds ~/ 60,
+                                match.discussionMode.name == 'free'
+                                    ? l10n.discussionFree
+                                    : l10n.discussionStructured,
                               ),
-                              SettingsSwitchRow(
-                                label: l10n.onlineWhispers,
-                                hint: l10n.onlineWhispersHint,
-                                value: match.whisperEnabled,
-                                onChanged: (value) =>
-                                    _send(settings: {'whisperEnabled': value}),
-                              ),
-                              // Doc 09 §7, default off. Every seat sees the
-                              // choice in the lobby and on the composer.
-                              SettingsSwitchRow(
-                                switchKey: RoomSettingsPanel.revealWhispersKey,
-                                label: l10n.settingRevealWhispers,
-                                hint: l10n.settingRevealWhispersHint,
-                                value: match.revealWhisperContent,
-                                onChanged: match.whisperEnabled
-                                    ? (value) => _send(
-                                        settings: {
-                                          'revealWhisperContent': value,
-                                        },
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ],
+                              children: [
+                                SettingsSegments<int>(
+                                  label:
+                                      '${l10n.onlineSpeakDuration} (${l10n.onlineSeconds})',
+                                  value: match.speechSeconds,
+                                  options: const [
+                                    (30, '30', null),
+                                    (45, '45', null),
+                                    (60, '60', null),
+                                  ],
+                                  onChanged: (value) =>
+                                      _send(settings: {'speechSeconds': value}),
+                                ),
+                                SettingsSegments<int>(
+                                  label:
+                                      '${l10n.onlineDiscussDuration} (${l10n.onlineMinutes})',
+                                  value: match.discussionSeconds,
+                                  options: const [
+                                    (180, '3', null),
+                                    (300, '5', null),
+                                    (420, '7', null),
+                                  ],
+                                  onChanged: (value) => _send(
+                                    settings: {'discussionSeconds': value},
+                                  ),
+                                ),
+                                // Not cosmetic online: structured discussion is
+                                // what lets the mic policy hand the floor to one
+                                // speaker at a time.
+                                SettingsSegments<String>(
+                                  label: l10n.discussionModeLabel,
+                                  value: match.discussionMode.name,
+                                  options: [
+                                    (
+                                      'structured',
+                                      l10n.discussionStructured,
+                                      RoomSettingsPanel.discussionStructured,
+                                    ),
+                                    (
+                                      'free',
+                                      l10n.discussionFree,
+                                      RoomSettingsPanel.discussionFree,
+                                    ),
+                                  ],
+                                  onChanged: (value) => _send(
+                                    settings: {'discussionMode': value},
+                                  ),
+                                ),
+                                SettingsSwitchRow(
+                                  label: l10n.onlineOpenVoting,
+                                  hint: l10n.onlineOpenVotingHint,
+                                  value: match.openVoting,
+                                  onChanged: (value) =>
+                                      _send(settings: {'openVoting': value}),
+                                ),
+                              ],
+                            ),
+                            _section(
+                              id: 'voice',
+                              icon: Icons.mic_none_outlined,
+                              title: l10n.onlineSettingsVoice,
+                              summary: room.voice
+                                  ? l10n.roomVoiceOn
+                                  : l10n.roomVoiceOff,
+                              children: [
+                                SettingsSwitchRow(
+                                  switchKey: RoomSettingsPanel.voiceSwitch,
+                                  label: l10n.onlineVoiceEnabled,
+                                  value: room.voice,
+                                  onChanged: (value) =>
+                                      _send(settings: {'voice': value}),
+                                ),
+                                SettingsSwitchRow(
+                                  switchKey:
+                                      RoomSettingsPanel.muteAtNightSwitch,
+                                  label: l10n.onlineMuteAtNight,
+                                  value: room.muteAllAtNight,
+                                  onChanged: (value) => _send(
+                                    settings: {'muteAllAtNight': value},
+                                  ),
+                                ),
+                              ],
+                            ),
+                            _section(
+                              id: 'info',
+                              icon: Icons.manage_search_outlined,
+                              title: l10n.onlineSettingsInfo,
+                              summary: l10n.roomInfoOn(infoOn),
+                              children: [
+                                SettingsSwitchRow(
+                                  label: l10n.onlineTrace,
+                                  hint: l10n.onlineTraceHint,
+                                  value: match.traceEnabled,
+                                  onChanged: (value) =>
+                                      _send(settings: {'traceEnabled': value}),
+                                ),
+                                SettingsSwitchRow(
+                                  label: l10n.onlineConfrontation,
+                                  hint: l10n.onlineConfrontationHint,
+                                  value: match.confrontationEnabled,
+                                  onChanged: (value) => _send(
+                                    settings: {'confrontationEnabled': value},
+                                  ),
+                                ),
+                                SettingsSwitchRow(
+                                  label: l10n.onlineWhispers,
+                                  hint: l10n.onlineWhispersHint,
+                                  value: match.whisperEnabled,
+                                  onChanged: (value) => _send(
+                                    settings: {'whisperEnabled': value},
+                                  ),
+                                ),
+                                // Doc 09 §7, default off. Every seat sees the
+                                // choice in the lobby and on the composer.
+                                SettingsSwitchRow(
+                                  switchKey:
+                                      RoomSettingsPanel.revealWhispersKey,
+                                  label: l10n.settingRevealWhispers,
+                                  hint: l10n.settingRevealWhispersHint,
+                                  value: match.revealWhisperContent,
+                                  onChanged: match.whisperEnabled
+                                      ? (value) => _send(
+                                          settings: {
+                                            'revealWhisperContent': value,
+                                          },
+                                        )
+                                      : null,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     if (widget.footer != null)
@@ -551,6 +561,196 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
           ),
         ),
       ),
+    );
+  }
+
+  /// The room as it will look: the scene the host chose fading into the ground,
+  /// and the narrator's portrait on it. It answers «how does my room look» before
+  /// a single row is read, and changes the moment a choice does.
+  Widget _hero(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = context.colors;
+    final type = context.typography;
+    final spacing = context.spacing;
+    final room = widget.snapshot.room;
+    final short = MediaQuery.sizeOf(context).height < RolesTokens.fanShort;
+    final art =
+        StoreArt.forCode(room.presentationPack) ?? AppCouncilArt.backdropDay;
+    final narrator = StoreArt.forCode(room.narratorPack);
+    return SizedBox(
+      height: short ? RoomLookTokens.heroShort : RoomLookTokens.hero,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ShaderMask(
+            blendMode: BlendMode.dstIn,
+            shaderCallback: (bounds) => LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                colors.surfaceBase.withValues(
+                  alpha: RoomLookTokens.heroArtAlpha,
+                ),
+                colors.surfaceBase.withValues(alpha: 0),
+              ],
+            ).createShader(bounds),
+            child: Image.asset(
+              art,
+              key: ValueKey(art),
+              fit: BoxFit.cover,
+              excludeFromSemantics: true,
+            ),
+          ),
+          PositionedDirectional(
+            top: spacing.xs,
+            end: spacing.xs,
+            child: IconButton(
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              onPressed: widget.onClose,
+              icon: Icon(Icons.close, color: colors.textPrimary),
+            ),
+          ),
+          PositionedDirectional(
+            start: spacing.screenMargin,
+            end: spacing.screenMargin,
+            bottom: spacing.sm,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.onlineRoomSettings,
+                    style: type.headline.copyWith(color: colors.textPrimary),
+                  ),
+                ),
+                if (narrator != null && !short)
+                  Container(
+                    width: EntranceTokens.medallion,
+                    height: EntranceTokens.medallion,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: VaultTokens.gold,
+                        width: EntranceTokens.ring,
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      narrator,
+                      fit: BoxFit.cover,
+                      excludeFromSemantics: true,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// One group of settings: a plain row saying what it is and what it is set to,
+  /// opening in place. One is open at a time, so the screen stays a short list
+  /// and a host never hunts through six full groups for one switch.
+  Widget _section({
+    required String id,
+    required IconData icon,
+    required String title,
+    required String summary,
+    required List<Widget> children,
+  }) {
+    final colors = context.colors;
+    final type = context.typography;
+    final spacing = context.spacing;
+    final open = _open == id;
+    final duration = ReduceMotion.of(context)
+        ? Duration.zero
+        : context.motion.standard;
+    return Column(
+      key: _sectionKeys.putIfAbsent(id, GlobalKey.new),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          button: true,
+          expanded: open,
+          child: InkWell(
+            key: RoomSettingsPanel.section(id),
+            onTap: () {
+              setState(() => _open = open ? null : id);
+              if (open) return;
+              // A group opened near the foot of a short phone comes up to be read.
+              final row = _sectionKeys[id]?.currentContext;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted || row == null || !row.mounted) return;
+                Scrollable.ensureVisible(row, duration: duration);
+              });
+            },
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: RoomLookTokens.sectionRow,
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: spacing.sm),
+                child: Row(
+                  children: [
+                    Icon(
+                      icon,
+                      size: SettingsTokens.iconSize,
+                      color: open ? colors.accentGold : colors.textSecondary,
+                    ),
+                    SizedBox(width: spacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: type.title.copyWith(
+                              color: colors.textPrimary,
+                            ),
+                          ),
+                          if (!open)
+                            Text(
+                              summary,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: type.caption.copyWith(
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    AnimatedRotation(
+                      turns: open ? 0.5 : 0,
+                      duration: duration,
+                      child: Icon(
+                        Icons.expand_more_rounded,
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: duration,
+          curve: context.motion.standardCurve,
+          alignment: Alignment.topCenter,
+          child: open
+              ? Padding(
+                  padding: EdgeInsets.only(bottom: spacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
+                  ),
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+        Divider(height: 1, color: colors.borderSubtle),
+      ],
     );
   }
 

@@ -29,6 +29,7 @@ import 'voice_session.dart';
 import 'room_invite.dart';
 import '../../economy/cosmetic_paint.dart';
 import '../../economy/cosmetics.dart';
+import '../../economy/wallet.dart';
 import '../../economy/vault_kit.dart'
     show ClaimedMark, VaultBar, VaultPress, vaultGoldStyle;
 import '../../theme/design_tokens.dart';
@@ -41,6 +42,7 @@ import 'host_handover.dart';
 import 'host_sheet.dart';
 import 'invite_sheet.dart';
 import '../setup/optional_roles.dart';
+import 'my_match_panel.dart';
 import 'online_deal_panel.dart';
 import 'room_settings_panel.dart';
 import 'scene_sheet.dart';
@@ -126,6 +128,8 @@ class LobbyScreen extends ConsumerStatefulWidget {
   static const Key shareButton = ValueKey('lobby_share');
   static const Key friendsButton = ValueKey('lobby_friends');
   static const Key playerCount = ValueKey('lobby_player_count');
+  static const Key myLookButton = ValueKey('lobby_my_look');
+  static const Key roomLookLine = ValueKey('lobby_room_look');
   static const Key ghostRule = ValueKey('lobby_ghost_rule');
   static const Key storageWarning = ValueKey('lobby_storage_warning');
   static const Key readyButton = ValueKey('lobby_ready_button');
@@ -171,6 +175,9 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   LobbyBase? _base;
   bool _dealing = false;
 
+  /// «شكلي وأدواتي» is open.
+  bool _myLook = false;
+
   /// «ادعي صحابك», in the scene.
   bool _inviting = false;
 
@@ -207,6 +214,15 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     _join.addListener(() {
       if (mounted) setState(() {});
     });
+    // The deal editor offers what this host bought, so their wallet is read as
+    // the lobby opens rather than when a settings screen happens to.
+    if (_snapshot?.canAdvance ?? false) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && ref.read(walletProvider).valueOrNull == null) {
+          ref.read(walletProvider.notifier).refresh();
+        }
+      });
+    }
     _feed = transport?.watch().listen((snapshot) {
       if (!mounted) return;
       _sound(snapshot);
@@ -286,6 +302,18 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     _seatsHeard = now;
   }
 
+  /// «الأجواء: … · الراوي: …», or null for a classic room.
+  String? _roomLook(RoomOptions room) {
+    final l = context.l10n;
+    final parts = [
+      if (Cosmetics.items[room.presentationPack] case final pack?)
+        l.lobbyLookItem(l.roomPackLabel, pack.name(l)),
+      if (Cosmetics.items[room.narratorPack] case final narrator?)
+        l.lobbyLookItem(l.roomNarratorLabel, narrator.name(l)),
+    ];
+    return parts.isEmpty ? null : parts.join(' · ');
+  }
+
   Future<void> _start() async {
     final snapshot = _snapshot;
     if (snapshot == null) return;
@@ -295,6 +323,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
       snapshot.public.players.length,
       snapshot.settings,
       base: _base,
+      capacity: snapshot.room.maxPlayers,
     );
     final started = await ref
         .read(onlineSessionProvider.notifier)
@@ -685,6 +714,25 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                     SizedBox(height: spacing.xs),
                                     const RevealWhispersNotice(),
                                   ],
+                                  // The scene and the narrator the host chose,
+                                  // said to every seat before the deal.
+                                  if ((snapshot == null
+                                          ? null
+                                          : _roomLook(snapshot.room))
+                                      case final look?)
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        bottom: spacing.xs,
+                                      ),
+                                      child: Text(
+                                        look,
+                                        key: LobbyScreen.roomLookLine,
+                                        textAlign: TextAlign.center,
+                                        style: type.caption.copyWith(
+                                          color: colors.textSecondary,
+                                        ),
+                                      ),
+                                    ),
                                   Text(
                                     key: LobbyScreen.playerCount,
                                     l10n.onlinePlayersOfMax(
@@ -717,6 +765,17 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     children: [
+                                      Align(
+                                        child: TextButton.icon(
+                                          key: LobbyScreen.myLookButton,
+                                          onPressed: () =>
+                                              setState(() => _myLook = true),
+                                          icon: const Icon(
+                                            Icons.checkroom_rounded,
+                                          ),
+                                          label: Text(l10n.lobbyMyLook),
+                                        ),
+                                      ),
                                       // F8 Ready, in the vault's hand: a
                                       // struck-gold press until you are
                                       // ready, then the gold mark with a
@@ -819,6 +878,8 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                               players.length,
                                               snapshot.settings,
                                               base: _base,
+                                              capacity:
+                                                  snapshot.room.maxPlayers,
                                             );
                                             return LobbyDeckStrip(
                                               counts: deal.counts,
@@ -870,6 +931,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                           players.length,
                                           snapshot.settings,
                                           base: _base,
+                                          capacity: snapshot.room.maxPlayers,
                                         ).skipped)
                                           Padding(
                                             padding: EdgeInsets.only(
@@ -970,6 +1032,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
               OnlineDealPanel(
                 visible: _dealing && isHost,
                 players: snapshot.public.players.length,
+                capacity: snapshot.room.maxPlayers,
                 settings: snapshot.settings,
                 base: _base,
                 onBase: (base) => setState(() => _base = base),
@@ -984,6 +1047,11 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                 ),
                 onClose: () => setState(() => _dealing = false),
               ),
+            // «شكلي وأدواتي», for every seat.
+            MyMatchPanel(
+              visible: _myLook,
+              onClose: () => setState(() => _myLook = false),
+            ),
             // Task 10 — the whole settings screen, in the scene.
             if (snapshot != null)
               RoomSettingsPanel(
@@ -996,6 +1064,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                       snapshot.public.players.length,
                       snapshot.settings,
                       base: _base,
+                      capacity: snapshot.room.maxPlayers,
                     );
                     return LobbyDeckStrip(
                       counts: deal.counts,

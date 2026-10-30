@@ -3281,6 +3281,25 @@ abstract final class LobbyDeckTokens {
   static const double cardHeight = 40;
 }
 
+/// The room's scene and narrator, chosen by picture and voice.
+abstract final class RoomLookTokens {
+  static const double tile = 104;
+  static const double art = 88;
+
+  /// A bought role's card beside its switch in the room settings.
+  static const double roleCard = 44;
+  static const double roleCardHeight = 62;
+
+  /// The room settings: the scene over them, and one group's row.
+  static const double hero = 148;
+  static const double heroShort = 64;
+  static const double heroArtAlpha = 0.85;
+  static const double sectionRow = 64;
+
+  /// «شكلي وأدواتي», as a share of the screen.
+  static const double mySheetHeight = 0.82;
+}
+
 /// «العب ضد الكمبيوتر»: the table, the levels.
 abstract final class BotTokens {
   static const Size tableCard = Size(52, 78);

@@ -8,7 +8,7 @@
  * the deal here is that no client ever holds the table.
  */
 import { fail, handler, ok } from "../_shared/api.ts";
-import { roomConfiguration } from "../_shared/room_configuration.ts";
+import { flagsFollowDeal, roomConfiguration } from "../_shared/room_configuration.ts";
 import { deadlineFor } from "../_shared/phases.ts";
 import { ensureRoleAccess, ensureScenarioAccess } from "../_shared/purchase_access.ts";
 
@@ -66,6 +66,7 @@ Deno.serve(handler(async (req, userId, db) => {
       ...(room.settings ?? {}),
     }}).settings;
   } catch { return fail("BAD_REQUEST", "invalid match settings"); }
+  effectiveSettings = flagsFollowDeal(effectiveSettings ?? {}, counts);
   if (!await ensureScenarioAccess(db, userId, effectiveSettings)) {
     return fail("PURCHASE_REQUIRED", "scenario is not owned", 403);
   }

@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import '../../../engine/balance_guard.dart';
 import '../../../engine/models/enums.dart';
 import '../../../engine/models/match_settings.dart';
+import '../../../transport/game_snapshot.dart' show PublicRoom;
 import '../setup/optional_roles.dart';
 
 /// What an online room deals at [players] seats: the recommended split
@@ -24,18 +27,33 @@ typedef LobbyDeal = ({
 /// joining or leaving changes the citizens and nothing else.
 typedef LobbyBase = ({int mafia, int detective, int doctor});
 
-LobbyDeal lobbyDeal(int players, MatchSettings settings, {LobbyBase? base}) {
-  var start = BalanceGuard.recommended(players);
+/// The table a deal is planned for. A host is alone when the room opens, so
+/// until a match could start the plan is for the room they opened ([capacity]):
+/// otherwise every split they chose would "not fit" and fall back the moment
+/// they made it. From five seats on, the deal is for who is really here.
+int lobbyDealSeats(int players, {int capacity = 0}) =>
+    players >= PublicRoom.defaultMinPlayers
+    ? players
+    : math.max(capacity, PublicRoom.defaultMinPlayers);
+
+LobbyDeal lobbyDeal(
+  int players,
+  MatchSettings settings, {
+  LobbyBase? base,
+  int capacity = 0,
+}) {
+  final seats = lobbyDealSeats(players, capacity: capacity);
+  var start = BalanceGuard.recommended(seats);
   var reset = false;
   if (base != null) {
     final custom = {
       Role.mafia: base.mafia,
       Role.detective: base.detective,
       Role.doctor: base.doctor,
-      Role.citizen: players - base.mafia - base.detective - base.doctor,
+      Role.citizen: seats - base.mafia - base.detective - base.doctor,
     };
     if ((custom[Role.citizen] ?? 0) >= 1 &&
-        BalanceGuard.evaluate(playerCount: players, roleCounts: custom).valid) {
+        BalanceGuard.evaluate(playerCount: seats, roleCounts: custom).valid) {
       start = {
         for (final e in custom.entries)
           if (e.value > 0) e.key: e.value,
@@ -49,9 +67,18 @@ LobbyDeal lobbyDeal(int players, MatchSettings settings, {LobbyBase? base}) {
     if (settings.elderEnabled) OptionalRole.elder,
     if (settings.sniperEnabled) OptionalRole.sniper,
   };
+  // The silencer works beside another Mafioso. A host who switched it on asked
+  // for that, so a one-Mafioso split takes a second from the citizens, when the
+  // table can spare one.
+  if (wanted.contains(OptionalRole.silencer) &&
+      (start[Role.mafia] ?? 0) < 2 &&
+      (start[Role.citizen] ?? 0) >= 2 &&
+      2 * 2 < seats) {
+    start = {...start, Role.mafia: 2, Role.citizen: start[Role.citizen]! - 1};
+  }
   final usable = OptionalRole.usable(
     wanted,
-    players: players,
+    players: seats,
     mafia: start[Role.mafia] ?? 0,
     citizens: start[Role.citizen] ?? 0,
   );

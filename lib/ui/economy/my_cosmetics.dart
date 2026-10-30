@@ -141,6 +141,15 @@ class OwnedRolesController extends AccountCache<Set<String>> {
       : null;
 }
 
+/// The roles a room's host may switch on: the wallet's word, or until it answers
+/// what this phone last heard, so a lobby opened straight after the app never
+/// shows a bought role as locked. The server checks ownership regardless.
+final hostOwnedRolesProvider = Provider<Set<String>>(
+  (ref) =>
+      ref.watch(walletProvider).valueOrNull?.owned ??
+      ref.watch(ownedRolesProvider),
+);
+
 /// What both caches above share: the last wallet answer, kept on the device
 /// with the account it belongs to.
 ///

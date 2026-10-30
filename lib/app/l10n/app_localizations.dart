@@ -14124,6 +14124,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your suspicion did not go through. Try again.'**
   String get suspectFailed;
+
+  /// No description provided for @rolesWaitSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Joins at {count} players'**
+  String rolesWaitSeats(int count);
+
+  /// No description provided for @roomRoleNeedsBiggerRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'This role needs {count} players. Make the room bigger for it to join the match.'**
+  String roomRoleNeedsBiggerRoom(int count);
+
+  /// No description provided for @roomSilencerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One of the Mafia silences instead of killing. A split with one Mafioso gets a second automatically.'**
+  String get roomSilencerHint;
+
+  /// No description provided for @roomLookSection.
+  ///
+  /// In en, this message translates to:
+  /// **'The look of the room'**
+  String get roomLookSection;
+
+  /// No description provided for @roomLookMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Get more in the store'**
+  String get roomLookMore;
+
+  /// No description provided for @lobbyMyLook.
+  ///
+  /// In en, this message translates to:
+  /// **'My look and tools'**
+  String get lobbyMyLook;
+
+  /// No description provided for @lobbyLookItem.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {value}'**
+  String lobbyLookItem(String label, String value);
+
+  /// No description provided for @roomRolesBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'The basic roles only'**
+  String get roomRolesBasic;
+
+  /// No description provided for @roomVoiceOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get roomVoiceOn;
+
+  /// No description provided for @roomVoiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get roomVoiceOff;
+
+  /// No description provided for @roomInfoOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 4 on'**
+  String roomInfoOn(int count);
+
+  /// No description provided for @roomPlaySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk {seconds}s · discussion {minutes} min · {mode}'**
+  String roomPlaySummary(int seconds, int minutes, String mode);
 }
 
 class _AppLocalizationsDelegate

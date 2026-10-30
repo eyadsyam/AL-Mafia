@@ -4624,17 +4624,56 @@
   "profileStatOnlineMatches": "Online matches",
   "profileStatCoins": "Coins",
   "profileLevel": "Level {level}",
-  "@profileLevel": {"placeholders": {"level": {"type": "int"}}},
+  "@profileLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "profileLevelXp": "{xp} of {next} XP",
-  "@profileLevelXp": {"placeholders": {"xp": {"type": "int"}, "next": {"type": "int"}}},
+  "@profileLevelXp": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
+  },
   "profileRecordOnline": "Online: won {won} of {played}",
-  "@profileRecordOnline": {"placeholders": {"won": {"type": "int"}, "played": {"type": "int"}}},
+  "@profileRecordOnline": {
+    "placeholders": {
+      "won": {
+        "type": "int"
+      },
+      "played": {
+        "type": "int"
+      }
+    }
+  },
   "profileRecordWins": "{won} of {played}",
-  "@profileRecordWins": {"placeholders": {"won": {"type": "int"}, "played": {"type": "int"}}},
+  "@profileRecordWins": {
+    "placeholders": {
+      "won": {
+        "type": "int"
+      },
+      "played": {
+        "type": "int"
+      }
+    }
+  },
   "profileRecordTown": "With the town",
   "profileRecordMafia": "With the mafia",
   "profileRecordFavourite": "Most played role: {role}",
-  "@profileRecordFavourite": {"placeholders": {"role": {"type": "String"}}},
+  "@profileRecordFavourite": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "profileRecordRecent": "Latest results",
   "profileRecordWon": "Won",
   "profileRecordLost": "Lost",
@@ -4851,7 +4890,16 @@
   "adminUsageOnlinePlayers": "Online players",
   "adminUsageOnlineMatches": "Online matches",
   "adminUsageAds": "Rewarded ads: {paid} paid of {asked}",
-  "@adminUsageAds": {"placeholders": {"paid": {"type": "int"}, "asked": {"type": "int"}}},
+  "@adminUsageAds": {
+    "placeholders": {
+      "paid": {
+        "type": "int"
+      },
+      "asked": {
+        "type": "int"
+      }
+    }
+  },
   "adminUsageEvents": "From devices",
   "adminReviewSearch": "Search display name",
   "adminReviewEmpty": "Nothing to show",
@@ -4996,5 +5044,61 @@
       }
     }
   },
-  "suspectFailed": "Your suspicion did not go through. Try again."
+  "suspectFailed": "Your suspicion did not go through. Try again.",
+  "rolesWaitSeats": "Joins at {count} players",
+  "@rolesWaitSeats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roomRoleNeedsBiggerRoom": "This role needs {count} players. Make the room bigger for it to join the match.",
+  "@roomRoleNeedsBiggerRoom": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roomSilencerHint": "One of the Mafia silences instead of killing. A split with one Mafioso gets a second automatically.",
+  "roomLookSection": "The look of the room",
+  "roomLookMore": "Get more in the store",
+  "lobbyMyLook": "My look and tools",
+  "lobbyLookItem": "{label}: {value}",
+  "@lobbyLookItem": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "roomRolesBasic": "The basic roles only",
+  "roomVoiceOn": "On",
+  "roomVoiceOff": "Off",
+  "roomInfoOn": "{count} of 4 on",
+  "@roomInfoOn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roomPlaySummary": "Talk {seconds}s · discussion {minutes} min · {mode}",
+  "@roomPlaySummary": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  }
 }

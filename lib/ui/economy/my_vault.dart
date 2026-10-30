@@ -72,12 +72,12 @@ class _MyVaultTabState extends State<MyVaultTab> {
         busy: widget.busy,
         onEquip: widget.onEquip,
       ),
-      MyVaultPage.look => _LookRoom(
+      MyVaultPage.look => VaultLookRoom(
         wallet: widget.wallet,
         busy: widget.busy,
         onEquip: widget.onEquip,
       ),
-      MyVaultPage.tools => const _ToolBag(),
+      MyVaultPage.tools => const VaultToolBag(),
     };
     if (_page == MyVaultPage.hub) return body;
     // System back steps out of a room, not out of the vault.
@@ -806,11 +806,13 @@ class _SceneRoomState extends State<_SceneRoom> {
   }
 }
 
-class _LookRoom extends ConsumerWidget {
+/// The player's own seat, as the table draws it, and what they can dress it in.
+class VaultLookRoom extends ConsumerWidget {
   final WalletState wallet;
   final bool busy;
   final Future<void> Function(CosmeticSlot, String?) onEquip;
-  const _LookRoom({
+  const VaultLookRoom({
+    super.key,
     required this.wallet,
     required this.busy,
     required this.onEquip,
@@ -1004,8 +1006,8 @@ class _Nothing extends StatelessWidget {
 
 /// The tool bag: every tool the player holds, its art, when it works, and how
 /// many are left, or «من غير عدد» on an owner grant.
-class _ToolBag extends ConsumerWidget {
-  const _ToolBag();
+class VaultToolBag extends ConsumerWidget {
+  const VaultToolBag({super.key});
 
   static String phaseLabel(BuildContext context, String phase) {
     final l = context.l10n;

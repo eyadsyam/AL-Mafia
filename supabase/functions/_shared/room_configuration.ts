@@ -12,6 +12,29 @@ export interface RoomConfiguration {
   [field: string]: unknown;
 }
 
+const BOUGHT_ROLE_FLAGS: Record<string, string> = {
+  silencer: "silencerEnabled",
+  elder: "elderEnabled",
+  sniper: "sniperEnabled",
+};
+
+/**
+ * A bought role switched on in the room is what the host wants when the table
+ * can take it. A table too small for it deals without it, so the match's own
+ * flag follows the deal. The other way (a role dealt with its flag off) is still
+ * refused by `start_match`.
+ */
+export function flagsFollowDeal(
+  settings: Record<string, unknown>,
+  counts: Record<string, number>,
+): Record<string, unknown> {
+  const out = { ...settings };
+  for (const [role, flag] of Object.entries(BOUGHT_ROLE_FLAGS)) {
+    if ((counts[role] ?? 0) === 0 && out[flag] === true) out[flag] = false;
+  }
+  return out;
+}
+
 export function roomConfiguration(body: Record<string, unknown>, current: Record<string, unknown> = {}): RoomConfiguration {
   const patch: RoomConfiguration = {};
   if (body.visibility !== undefined) {

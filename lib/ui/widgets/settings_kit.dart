@@ -200,6 +200,13 @@ class SettingsSwitchRow extends StatelessWidget {
   final bool value;
   final ValueChanged<bool>? onChanged;
 
+  /// Drawn before the words: a role's card, say.
+  final Widget? leading;
+
+  /// What a tap does while the switch is off limits (opening the store for a
+  /// role not bought). Null leaves a disabled row inert.
+  final VoidCallback? onDisabledTap;
+
   const SettingsSwitchRow({
     super.key,
     this.switchKey,
@@ -208,6 +215,8 @@ class SettingsSwitchRow extends StatelessWidget {
     this.pill,
     required this.value,
     required this.onChanged,
+    this.leading,
+    this.onDisabledTap,
   });
 
   @override
@@ -215,11 +224,12 @@ class SettingsSwitchRow extends StatelessWidget {
     final spacing = context.spacing;
     return InkWell(
       borderRadius: BorderRadius.circular(context.radii.button),
-      onTap: onChanged == null ? null : () => onChanged!(!value),
+      onTap: onChanged == null ? onDisabledTap : () => onChanged!(!value),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: spacing.sm),
         child: Row(
           children: [
+            if (leading != null) ...[leading!, SizedBox(width: spacing.sm)],
             Expanded(
               child: _Label(
                 label: label,

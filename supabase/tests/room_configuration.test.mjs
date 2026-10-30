@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { durationFor } from '../functions/_shared/phases.ts';
-import { roomConfiguration } from '../functions/_shared/room_configuration.ts';
+import { flagsFollowDeal, roomConfiguration } from '../functions/_shared/room_configuration.ts';
 const chosen = { maxPlayers: 8, voice: true, speechSeconds: 60, discussionSeconds: 420, openVoting: true, muteAllAtNight: true };
 const created = roomConfiguration({ visibility: 'public', title: ' Table ', settings: chosen });
 assert.equal(created.title, 'Table');
@@ -45,3 +45,9 @@ assert.throws(() => roomConfiguration({ settings: { revealWhisperContent: 'true'
 const kept = roomConfiguration({ settings: { speechSeconds: 30 } }, dressed).settings;
 assert.equal(kept.presentationPack, 'pack_old_town', 'a later edit keeps the pack');
 console.log('PASS room configuration: cosmetics validated; : create, edit, preserve, scenarios, types, unknown fields, night privacy');
+// A bought role the table is too small for: the room keeps asking, the match's flag follows the deal.
+const wished = { elderEnabled: true, sniperEnabled: true, silencerEnabled: false, speechSeconds: 45 };
+assert.deepEqual(flagsFollowDeal(wished, { elder: 1, citizen: 3 }), { elderEnabled: true, sniperEnabled: false, silencerEnabled: false, speechSeconds: 45 });
+assert.equal(wished.sniperEnabled, true, 'the room setting itself is untouched');
+// It never turns a flag on: a role dealt with its flag off is still refused by start_match.
+assert.equal(flagsFollowDeal({}, { sniper: 1 }).sniperEnabled, undefined);

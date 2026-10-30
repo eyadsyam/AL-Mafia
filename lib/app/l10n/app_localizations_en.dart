@@ -8219,4 +8219,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get suspectFailed => 'Your suspicion did not go through. Try again.';
+
+  @override
+  String rolesWaitSeats(int count) {
+    return 'Joins at $count players';
+  }
+
+  @override
+  String roomRoleNeedsBiggerRoom(int count) {
+    return 'This role needs $count players. Make the room bigger for it to join the match.';
+  }
+
+  @override
+  String get roomSilencerHint =>
+      'One of the Mafia silences instead of killing. A split with one Mafioso gets a second automatically.';
+
+  @override
+  String get roomLookSection => 'The look of the room';
+
+  @override
+  String get roomLookMore => 'Get more in the store';
+
+  @override
+  String get lobbyMyLook => 'My look and tools';
+
+  @override
+  String lobbyLookItem(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String get roomRolesBasic => 'The basic roles only';
+
+  @override
+  String get roomVoiceOn => 'On';
+
+  @override
+  String get roomVoiceOff => 'Off';
+
+  @override
+  String roomInfoOn(int count) {
+    return '$count of 4 on';
+  }
+
+  @override
+  String roomPlaySummary(int seconds, int minutes, String mode) {
+    return 'Talk ${seconds}s · discussion $minutes min · $mode';
+  }
 }

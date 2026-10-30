@@ -8095,4 +8095,51 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get suspectFailed => 'شكّك ماوصلش. جرّب تاني.';
+
+  @override
+  String rolesWaitSeats(int count) {
+    return 'هيدخل لما تبقوا $count';
+  }
+
+  @override
+  String roomRoleNeedsBiggerRoom(int count) {
+    return 'الدور ده محتاج $count لاعبين، كبّر عدد الأوضة عشان يدخل الماتش.';
+  }
+
+  @override
+  String get roomSilencerHint =>
+      'واحد من المافيا بيسكّت بدل ما يقتل. لو التوزيع فيه مافيا واحد، بنزوّد التاني لوحده.';
+
+  @override
+  String get roomLookSection => 'شكل القعدة';
+
+  @override
+  String get roomLookMore => 'هات من المتجر';
+
+  @override
+  String get lobbyMyLook => 'شكلي وأدواتي';
+
+  @override
+  String lobbyLookItem(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String get roomRolesBasic => 'الأساسية بس';
+
+  @override
+  String get roomVoiceOn => 'شغال';
+
+  @override
+  String get roomVoiceOff => 'مقفول';
+
+  @override
+  String roomInfoOn(int count) {
+    return '$count من ٤ شغالين';
+  }
+
+  @override
+  String roomPlaySummary(int seconds, int minutes, String mode) {
+    return 'كلام $seconds ثانية · نقاش $minutes دقايق · $mode';
+  }
 }

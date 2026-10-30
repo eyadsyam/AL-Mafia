@@ -91,6 +91,38 @@ void main() {
     expect(out.roles.single, (OptionalRole.elder, true));
   });
 
+  testWidgets('a bought role can be switched on before the seats are here', (
+    tester,
+  ) async {
+    final out = await pump(tester, players: 1, owns: {'role_sniper'});
+    await tester.ensureVisible(find.byKey(RoleDealGrid.plus(Role.sniper)));
+    await tester.tap(find.byKey(RoleDealGrid.plus(Role.sniper)));
+    expect(out.roles.single, (OptionalRole.sniper, true));
+  });
+
+  testWidgets('switched on and waiting: it says so and can be taken off', (
+    tester,
+  ) async {
+    final out = await pump(
+      tester,
+      players: 3,
+      owns: {'role_sniper'},
+      settings: const MatchSettings(sniperEnabled: true),
+    );
+    expect(find.textContaining('7'), findsWidgets);
+    await tester.ensureVisible(find.byKey(RoleDealGrid.minus(Role.sniper)));
+    await tester.tap(find.byKey(RoleDealGrid.minus(Role.sniper)));
+    expect(out.roles.single, (OptionalRole.sniper, false));
+  });
+
+  testWidgets('the host edits the deal while alone in the room', (
+    tester,
+  ) async {
+    final out = await pump(tester, players: 1);
+    await tester.tap(find.byKey(RoleDealGrid.plus(Role.mafia)));
+    expect(out.bases.single.mafia, 2);
+  });
+
   testWidgets('the counts shown add up to the table', (tester) async {
     await pump(tester, base: (mafia: 3, detective: 1, doctor: 2));
     var sum = 0;

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../engine/balance_guard.dart';
 import '../../../engine/models/enums.dart';
 import '../../../engine/models/match_settings.dart';
-import '../../economy/wallet.dart';
+import '../../economy/my_cosmetics.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
@@ -28,20 +27,18 @@ class OnlineDealCards {
     required Set<String> owned,
     required void Function(LobbyBase base) onBase,
     required void Function(OptionalRole role, bool on) onRole,
+    int capacity = 0,
   }) {
     final l = context.l10n;
-    final deal = lobbyDeal(players, settings, base: base);
+    final deal = lobbyDeal(players, settings, base: base, capacity: capacity);
     final counts = deal.counts;
-    final now = deal.reset || base == null
-        ? (() {
-            final r = BalanceGuard.recommended(players);
-            return (
-              mafia: r[Role.mafia] ?? 1,
-              detective: r[Role.detective] ?? 0,
-              doctor: r[Role.doctor] ?? 0,
-            );
-          })()
-        : base;
+    final seats = lobbyDealSeats(players, capacity: capacity);
+    // What is really being dealt, so a − / + moves from what the host sees.
+    final now = (
+      mafia: (counts[Role.mafia] ?? 0) + (counts[Role.silencer] ?? 0),
+      detective: counts[Role.detective] ?? 0,
+      doctor: counts[Role.doctor] ?? 0,
+    );
     final on = {
       if (deal.settings.silencerEnabled) OptionalRole.silencer,
       if (deal.settings.elderEnabled) OptionalRole.elder,
@@ -49,41 +46,33 @@ class OnlineDealCards {
     };
     final citizens = counts[Role.citizen] ?? 0;
     final canGrow = citizens > 1;
-    final baseCitizens = players - now.mafia - now.detective - now.doctor;
 
-    String? blocked(OptionalRole r) {
-      final others = on
-          .where((o) => o != r && o != OptionalRole.silencer)
-          .length;
-      return switch (r.blockedBy(
-        players: players,
-        mafia: now.mafia,
-        citizens: baseCitizens - others,
-      )) {
-        null => null,
-        'silencer_needs_two_mafia' => l.balanceSilencerNeedsTwoMafia,
-        'elder_min_players' => l.balanceElderMinPlayers,
-        'sniper_min_players' => l.balanceSniperMinPlayers,
-        _ => l.rolesNoCitizenLeft,
-      };
+    // Why a role the host switched on is not in the deal yet. It waits rather
+    // than refuses: a room fills up after its host has set it.
+    String? waiting(OptionalRole r) {
+      if (!deal.skipped.contains(r)) return null;
+      if (seats < r.minPlayers) return l.rolesWaitSeats(r.minPlayers);
+      return r == OptionalRole.silencer
+          ? l.balanceSilencerNeedsTwoMafia
+          : l.rolesNoCitizenLeft;
     }
 
     RoleDealSpec sold(OptionalRole r, String rule) {
       final has = owned.contains(r.code);
       final isOn = on.contains(r);
-      final why = has && !isOn ? blocked(r) : null;
+      final wanted = isOn || deal.skipped.contains(r);
       return RoleDealSpec(
         role: r.role,
         name: EngineCopy.roleName(l, r.role),
         count: isOn ? 1 : 0,
         rule: rule,
         owned: has,
-        locked: !has && !isOn,
-        blocked: why,
+        locked: !has && !wanted,
+        blocked: waiting(r),
         minPlayers: r.minPlayers,
         max: 1,
-        onPlus: has && !isOn && why == null ? () => onRole(r, true) : null,
-        onMinus: isOn ? () => onRole(r, false) : null,
+        onPlus: has && !wanted ? () => onRole(r, true) : null,
+        onMinus: wanted ? () => onRole(r, false) : null,
       );
     }
 
@@ -98,7 +87,7 @@ class OnlineDealCards {
         role: Role.mafia,
         name: l.roleGroupMafia,
         count: counts[Role.mafia] ?? 0,
-        onPlus: canGrow && (now.mafia + 1) * 2 < players
+        onPlus: canGrow && (now.mafia + 1) * 2 < seats
             ? () => edit(mafia: now.mafia + 1)
             : null,
         onMinus: now.mafia > (on.contains(OptionalRole.silencer) ? 2 : 1)
@@ -266,6 +255,9 @@ class LobbyDeckStrip extends StatelessWidget {
 class OnlineDealPanel extends ConsumerWidget {
   final bool visible;
   final int players;
+
+  /// The room's size: what the deal is planned for until five are here.
+  final int capacity;
   final MatchSettings settings;
   final LobbyBase? base;
   final void Function(LobbyBase base) onBase;
@@ -276,6 +268,7 @@ class OnlineDealPanel extends ConsumerWidget {
     super.key,
     required this.visible,
     required this.players,
+    this.capacity = 0,
     required this.settings,
     required this.base,
     required this.onBase,
@@ -292,9 +285,9 @@ class OnlineDealPanel extends ConsumerWidget {
     final colors = context.colors;
     final type = context.typography;
     final s = context.spacing;
-    final owned =
-        ref.watch(walletProvider).valueOrNull?.owned ?? const <String>{};
-    final deal = lobbyDeal(players, settings, base: base);
+    final owned = ref.watch(hostOwnedRolesProvider);
+    final seats = lobbyDealSeats(players, capacity: capacity);
+    final deal = lobbyDeal(players, settings, base: base, capacity: capacity);
     final mafia =
         (deal.counts[Role.mafia] ?? 0) + (deal.counts[Role.silencer] ?? 0);
     final compact = MediaQuery.sizeOf(context).height < RolesTokens.fanShort;
@@ -317,11 +310,11 @@ class OnlineDealPanel extends ConsumerWidget {
                         ).copyWith(color: colors.textPrimary),
                       ),
                     ),
-                    DeckPill(l.playerCountShort(players)),
+                    DeckPill(l.playerCountShort(seats)),
                   ],
                 ),
                 SizedBox(height: s.md),
-                RoleBalanceBar(mafia: mafia, town: players - mafia),
+                RoleBalanceBar(mafia: mafia, town: seats - mafia),
                 if (deal.reset) ...[
                   SizedBox(height: s.xs),
                   Text(
@@ -339,6 +332,7 @@ class OnlineDealPanel extends ConsumerWidget {
                       cards: OnlineDealCards.specs(
                         context,
                         players: players,
+                        capacity: capacity,
                         settings: settings,
                         base: base,
                         owned: owned,
