@@ -1201,6 +1201,15 @@ class MatchEngine {
     if (voterSeat == targetSeat && targetSeat != null) {
       throw ArgumentError('submitVote: cannot vote for yourself');
     }
+    // The ballot belongs to the seat whose turn it is, and only in the vote:
+    // a ballot logged under another seat would carry that seat's weight (the
+    // revealed Elder counts three) and its name into the record.
+    if (voterSeat != seat) {
+      throw ArgumentError('submitVote: voter $voterSeat is not seat $seat');
+    }
+    if (match.phase != GamePhase.voting) {
+      throw StateError('submitVote: not the vote (${match.phase.name})');
+    }
 
     if (match.currentActorSeat != seat) {
       throw StateError('submitVote: seat $seat is not current actor');

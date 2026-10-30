@@ -53,10 +53,18 @@ class NightResolver {
         e.phaseRef.phase == GamePhase.night &&
         e.phaseRef.number == match.dayNumber;
 
+    // A move counts only while its actor is still in the match. A player the
+    // host removed after choosing (they left the table) takes the choice with
+    // them, as online resolution does (night_core.ts). Deaths of tonight
+    // have not been applied yet, so every simultaneous move still stands.
+    bool inMatch(int seat) => match.players[seat].status == PlayerStatus.alive;
+
     // Gather mafia votes from tonight's event log
     final mafiaVotes = <int, int>{}; // targetSeat -> count
     for (final event in match.eventLog) {
-      if (event is MafiaVoteCast && tonight(event)) {
+      if (event is MafiaVoteCast &&
+          tonight(event) &&
+          inMatch(event.actorSeat)) {
         mafiaVotes[event.targetSeat] = (mafiaVotes[event.targetSeat] ?? 0) + 1;
       }
     }
@@ -102,7 +110,7 @@ class NightResolver {
     // a stream of its own so the two draws never correlate.
     final protectVotes = <int, int>{};
     for (final event in match.eventLog) {
-      if (event is ProtectCast && tonight(event)) {
+      if (event is ProtectCast && tonight(event) && inMatch(event.actorSeat)) {
         protectVotes[event.targetSeat] =
             (protectVotes[event.targetSeat] ?? 0) + 1;
       }
@@ -169,6 +177,7 @@ class NightResolver {
     // the resolver. A miss kills both target and sniper.
     for (final spent in match.eventLog.whereType<BulletSpent>()) {
       if (!tonight(spent) || spent.kind != BulletKind.sniperShot) continue;
+      if (!inMatch(spent.actorSeat)) continue;
       SuspectCast? shot;
       for (final event in match.eventLog.whereType<SuspectCast>()) {
         if (tonight(event) && event.actorSeat == spent.actorSeat) shot = event;
@@ -182,7 +191,9 @@ class NightResolver {
 
     int? silencedSeat;
     for (final event in match.eventLog.whereType<SilenceCast>()) {
-      if (tonight(event)) silencedSeat = event.targetSeat;
+      if (tonight(event) && inMatch(event.actorSeat)) {
+        silencedSeat = event.targetSeat;
+      }
     }
     // A seat that dies tonight is not silenced tomorrow: the morning would
     // otherwise read out a dead player as silenced. Online drops it the same
