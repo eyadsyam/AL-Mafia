@@ -155,6 +155,7 @@ flutter:
     - assets/audio/
     - assets/voice/kratos/
     - assets/voice/narrator/
+    - assets/voice/roles/
     - assets/voice/stories/
     - assets/voice/stories_v2/
     - assets/voice/narrator_storyteller/

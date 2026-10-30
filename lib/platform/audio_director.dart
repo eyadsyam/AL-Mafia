@@ -505,6 +505,18 @@ class AudioDirector {
     unawaited(backend.play(_assetKey(clip.file), volume: narratorVolume));
   }
 
+  /// Reads one role's card out in the deal (owner, 2026-10-29: the deal by
+  /// pictures and sound). A setup surface the player asked to hear, never a
+  /// private turn: refused silently while the phone is in a hand, and quiet
+  /// when muted or when the host turned narration off.
+  final List<String> emittedRoleVoices = [];
+
+  void sayRole(String assetPath) {
+    if (_location == PhoneLocation.inHand || muted || !narrationEnabled) return;
+    emittedRoleVoices.add(assetPath);
+    unawaited(backend.play(_assetKey(assetPath), volume: narratorVolume));
+  }
+
   /// Presentation accents the host's room pack or narrator adds (docs/
   /// CLAUDE-UX-ECONOMY-NEXT.md §89), and the store's previews of them.
   ///

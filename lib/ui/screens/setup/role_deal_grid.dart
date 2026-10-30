@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/asset_constants.dart';
 import '../../../engine/models/enums.dart' as engine show Alignment;
 import '../../../engine/models/enums.dart' show Role, RoleX;
+import '../../../platform/audio_director.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
@@ -385,15 +387,16 @@ Future<void> showRoleSheet(
   builder: (context) => _RoleSheet(spec: spec, actions: actions),
 );
 
-class _RoleSheet extends StatelessWidget {
+class _RoleSheet extends ConsumerWidget {
   final RoleDealSpec spec;
   final bool actions;
   const _RoleSheet({required this.spec, required this.actions});
 
   static const Key addKey = ValueKey('role_sheet_add');
+  static const Key listenKey = ValueKey('role_sheet_listen');
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final colors = context.colors;
     final type = context.typography;
@@ -511,6 +514,17 @@ class _RoleSheet extends StatelessWidget {
                                 type,
                               ).copyWith(color: colors.textPrimary),
                             ),
+                          ),
+                          // The card said out loud: the deal by sound as well as
+                          // by pictures (owner, 2026-10-29).
+                          IconButton(
+                            key: listenKey,
+                            tooltip: l.storeListen,
+                            icon: const Icon(Icons.volume_up_rounded),
+                            color: VaultTokens.gold,
+                            onPressed: () => ref
+                                .read(audioDirectorProvider)
+                                .sayRole(AppRoleVoice.of(c.role.name)),
                           ),
                           Text(
                             mafiaSide ? l.roleTeamMafia : l.roleTeamTown,

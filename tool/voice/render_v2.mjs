@@ -5,6 +5,7 @@
 //
 //   assets/voice/narrator/<id>.ogg + manifest.json   the match narrator
 //   assets/voice/<pack>/<id>.ogg + manifest.json      the three store packs
+//   assets/voice/roles/<role>.ogg                     each role read out on its card in the deal
 //   assets/voice/stories/<story id>.ogg               each case's opening,
 //                                                     and `narrationAudio` in
 //                                                     assets/stories/<id>.json
@@ -32,7 +33,7 @@ const opt = (name, fallback) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : fallback;
 };
-const only = new Set(opt("only", "main,narrator_storyteller,narrator_keeper,narrator_noir,stories").split(","));
+const only = new Set(opt("only", "main,narrator_storyteller,narrator_keeper,narrator_noir,roles,stories").split(","));
 const ids = opt("ids", null) ? new Set(opt("ids").split(",")) : null;
 const model = opt("model", "eleven_v4");
 
@@ -119,6 +120,20 @@ for (const [code, dir, lines] of groups) {
     clips.push({ id: code === "main" ? l.id : `${code}_${l.id}`, beat: l.beat, when: l.when, family: true, file: `voice/${dir}/${l.id}.ogg` });
   }
   writeFileSync(join(out, "manifest.json"), JSON.stringify({ voice: dir, voiceId: voice.id, model, clips }, null, 2) + "\n");
+}
+
+// The deal's «اسمع»: each role's card said once in the match narrator's voice.
+if (only.has("roles") && script.roles) {
+  const voice = script.voices.main;
+  const out = join(root, "assets", "voice", "roles");
+  mkdirSync(out, { recursive: true });
+  for (const [id, text] of Object.entries(script.roles)) {
+    const ogg = join(out, `${id}.ogg`);
+    if (!ids || ids.has(id)) {
+      await render(voice, text, ogg);
+      console.log(`roles/${id}.ogg`);
+    }
+  }
 }
 
 if (only.has("stories")) {

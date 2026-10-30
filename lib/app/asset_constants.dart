@@ -229,6 +229,12 @@ abstract final class AppIcons {
   ];
 }
 
+/// Each role's card read out in the deal's «اسمع» (tool/voice/render_v2.mjs
+/// --only roles). A public setup surface only, never a private turn.
+abstract final class AppRoleVoice {
+  static String of(String roleName) => 'assets/voice/roles/$roleName.ogg';
+}
+
 /// Table cues. Never played while the phone is in a player's hand — see AudioDirector.
 abstract final class AppAudio {
   static const String academyGraduation = 'assets/audio/academy_graduation.ogg';
