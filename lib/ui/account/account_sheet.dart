@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../transport/account_auth.dart';
+import '../../data/player_profile.dart'
+    show ProfileStore, playerProfileProvider;
+import '../../data/remembered_accounts.dart';
 import '../../transport/account_service.dart' show AccountFailure;
 import '../../transport/supabase_backend.dart';
 import '../economy/account_status.dart' show accountStatusProvider;
@@ -61,9 +64,13 @@ final accountAuthProvider = Provider<AccountAuth>((ref) {
 final accountProfileProvider = StreamProvider<AccountProfile>((ref) async* {
   final auth = ref.read(accountAuthProvider);
   var last = await auth.profile();
+  await _switchLocalAccount(last.userId);
+  if (last.signedIn) await _rememberAccount(last);
   yield last;
-  yield* auth.changes().map((now) {
+  yield* auth.changes().asyncMap((now) async {
     if (last.differs(now)) {
+      await _switchLocalAccount(now.userId);
+      ref.invalidate(playerProfileProvider);
       ref.invalidate(accountStatusProvider);
       ref.invalidate(economyCapabilitiesProvider);
       ref.invalidate(walletProvider);
@@ -71,10 +78,36 @@ final accountProfileProvider = StreamProvider<AccountProfile>((ref) async* {
       // next player's to see or to try.
       ref.invalidate(tableToolsProvider);
     }
+    if (now.signedIn) await _rememberAccount(now);
     last = now;
     return now;
   });
 });
+
+Future<void> _switchLocalAccount(String? userId) async {
+  try {
+    await ProfileStore.switchAccount(userId);
+  } catch (_) {
+    // An unavailable preferences store must not hide the authenticated user.
+  }
+}
+
+Future<void> _rememberAccount(AccountProfile profile) async {
+  if (profile.userId == null || profile.email == null) return;
+  try {
+    await RememberedAccounts().add(
+      RememberedAccount(
+        userId: profile.userId!,
+        email: profile.email!,
+        displayName: profile.name ?? profile.email!,
+        provider: profile.google ? 'google' : 'email',
+        lastUsedAt: DateTime.now(),
+      ),
+    );
+  } catch (_) {
+    // A storage failure cannot prevent a successful sign-in.
+  }
+}
 
 /// Opens the account sheet from the bottom: guest → create/sign in; account →
 /// manage.
@@ -144,6 +177,11 @@ class AccountSheet extends ConsumerStatefulWidget {
   static const signOutKey = ValueKey('account_sign_out');
   static const rememberKey = ValueKey('account_remember');
   static const errorKey = ValueKey('account_error');
+  static const rememberedKey = ValueKey('account_memory_list');
+  static Key rememberedCardKey(String userId) =>
+      ValueKey('account_memory_$userId');
+  static Key removeRememberedKey(String userId) =>
+      ValueKey('account_memory_remove_$userId');
 
   @override
   ConsumerState<AccountSheet> createState() => _AccountSheetState();
@@ -155,6 +193,8 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   final _code = TextEditingController();
+  final _passwordFocus = FocusNode();
+  List<RememberedAccount> _remembered = [];
   bool _busy = false;
   bool _hidden = true;
   bool _remember = true;
@@ -182,6 +222,12 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     AccountAuth.remember().then((v) {
       if (mounted) setState(() => _remember = v);
     });
+    _loadRemembered();
+  }
+
+  Future<void> _loadRemembered() async {
+    final entries = await RememberedAccounts().load();
+    if (mounted) setState(() => _remembered = entries);
   }
 
   @override
@@ -211,6 +257,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     _timer?.cancel();
     _email.dispose();
     _password.dispose();
+    _passwordFocus.dispose();
     _confirm.dispose();
     _code.dispose();
     super.dispose();
@@ -265,18 +312,31 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
     setState(() {
       _busy = true;
       _error = null;
+      _notice = null;
     });
     try {
-      await step(ref.read(accountAuthProvider));
+      final task = step(ref.read(accountAuthProvider));
+      await (google ? task.timeout(AccountMemoryTokens.googleWait) : task);
     } on AccountFailure catch (failure) {
       if (mounted) {
         setState(() {
+          if (failure.code == 'CANCELLED') return;
           // A guest with coins or items to lose is asked: switch or stay.
           _googleTaken = google && failure.code == 'EMAIL_TAKEN';
           _error = _googleTaken
               ? context.l10n.authGoogleTaken
+              : google
+              ? context.l10n.accountMemoryGoogleFailed
               : _message(failure.code);
         });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error = google
+              ? context.l10n.accountMemoryGoogleFailed
+              : _message('UNAVAILABLE'),
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -287,6 +347,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   /// The Google account the guest tried to link is already a player's: sign
   /// in to it straight away. Only a second refusal in a row asks (D1).
   Future<void> _switchToTakenGoogle() async {
+    final googleFailed = context.l10n.accountMemoryGoogleFailed;
     setState(() {
       _busy = true;
       _notice = null;
@@ -294,17 +355,26 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       _googleTaken = false;
     });
     var switched = false;
+    var cancelled = false;
     String? error;
     try {
-      switched = await ref.read(accountAuthProvider).switchToTakenGoogle();
+      switched = await ref
+          .read(accountAuthProvider)
+          .switchToTakenGoogle()
+          .timeout(AccountMemoryTokens.googleWait);
     } on AccountFailure catch (failure) {
-      error = _message(failure.code);
+      cancelled = failure.code == 'CANCELLED';
+      if (!cancelled) error = googleFailed;
+    } catch (_) {
+      error = googleFailed;
     }
     if (!mounted) return;
     setState(() {
       _busy = false;
       if (switched) {
         _notice = _browserNotice;
+      } else if (cancelled) {
+        _googleTaken = false;
       } else {
         _googleTaken = error == null;
         _error = error ?? context.l10n.authGoogleTaken;
@@ -355,7 +425,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
         _busy = false;
         _notice = null;
         _googleTaken = false;
-        _error = _message(failure.code);
+        _error = context.l10n.accountMemoryGoogleFailed;
       });
     });
     final profile =
@@ -505,6 +575,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       child: TextField(
         key: key,
         controller: controller ?? _password,
+        focusNode: key == AccountSheet.passwordKey ? _passwordFocus : null,
         obscureText: _hidden,
         textInputAction: last ? TextInputAction.done : TextInputAction.next,
         onSubmitted: (_) => onEnter(last),
@@ -569,10 +640,115 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       label: Text(l.authGoogle),
     );
 
+    Widget rememberedCards() => _remembered.isEmpty
+        ? const SizedBox.shrink()
+        : Column(
+            key: AccountSheet.rememberedKey,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l.accountMemoryBefore, style: type.title),
+              const SizedBox(height: AccountMemoryTokens.sectionGap),
+              for (final account in _remembered)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: AccountMemoryTokens.cardGap,
+                  ),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: colors.textSecondary),
+                      borderRadius: BorderRadius.circular(
+                        AccountMemoryTokens.radius,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ListTile(
+                            key: AccountSheet.rememberedCardKey(account.userId),
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: AccountMemoryTokens.cardGap,
+                            ),
+                            horizontalTitleGap: AccountMemoryTokens.cardGap,
+                            minLeadingWidth: 0,
+                            leading: Icon(
+                              account.provider == 'google'
+                                  ? Icons.g_mobiledata_rounded
+                                  : Icons.mail_outline,
+                            ),
+                            title: Text(
+                              account.displayName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(
+                              account.maskedEmail,
+                              textDirection: TextDirection.ltr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: _busy
+                                ? null
+                                : () async {
+                                    if (account.provider == 'email') {
+                                      _email.text = account.email;
+                                      _go(AccountStep.signIn);
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                            if (mounted) {
+                                              _passwordFocus.requestFocus();
+                                            }
+                                          });
+                                    } else {
+                                      if (await sentToRealBrowser(
+                                        context,
+                                        ref,
+                                      )) {
+                                        return;
+                                      }
+                                      await _run((auth) async {
+                                        await auth.googleSignInForAccount(
+                                          account.email,
+                                        );
+                                        if (mounted) {
+                                          setState(
+                                            () => _notice = _browserNotice,
+                                          );
+                                        }
+                                      }, google: true);
+                                    }
+                                  },
+                          ),
+                        ),
+                        // An icon, not a worded button: the card can be a
+                        // narrow column on a small phone.
+                        IconButton(
+                          key: AccountSheet.removeRememberedKey(account.userId),
+                          tooltip: l.accountMemoryRemove,
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: _busy
+                              ? null
+                              : () async {
+                                  await RememberedAccounts().remove(
+                                    account.userId,
+                                  );
+                                  await _loadRemembered();
+                                },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          );
+
     switch (_step) {
       case AccountStep.hub:
         if (profile.signedIn) return _manage(context, profile);
         final actions = <Widget>[
+          if (_remembered.isNotEmpty) ...[
+            rememberedCards(),
+            SizedBox(height: s.md),
+          ],
           BoneButton(
             key: AccountSheet.googleKey,
             label: l.accountContinueGoogle,
@@ -688,6 +864,10 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       case AccountStep.signIn:
         return [
           title(l.authSignIn, l.authSignInBody),
+          if (_remembered.isNotEmpty) ...[
+            rememberedCards(),
+            SizedBox(height: s.md),
+          ],
           google(),
           SizedBox(height: s.md),
           emailField(),
@@ -809,7 +989,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
       ),
       SizedBox(height: s.sm),
       Text(
-        profile.email ?? '',
+        profile.email == null ? '' : profile.email!,
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.start,
         style: type.title.copyWith(color: colors.textPrimary),

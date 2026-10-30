@@ -61,6 +61,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
   static const Key nameKey = ValueKey('profile_name');
   static const Key saveKey = ValueKey('profile_save');
+  static const Key feedbackKey = ValueKey('profile_feedback');
   static const Key historyKey = ValueKey('profile_history');
   static const Key friendsKey = ValueKey('profile_friends');
   static const Key titlesKey = ValueKey('profile_titles');
@@ -156,16 +157,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final now = ref.watch(profileClockProvider)();
     final onJoin = widget.onJoinRoom;
     return [
-      MafiaListRow(
-        title: l.feedbackTitle,
-        subtitle: l.feedbackSubtitle,
-        leading: Icon(
-          Icons.chat_bubble_outline,
-          color: context.colors.accentGold,
-        ),
-        trailing: Icon(Icons.chevron_right, color: context.colors.textMuted),
-        onTap: () => showFeedbackSheet(context),
-      ),
       if (onJoin != null && accounts && caps?.friends != false)
         ProfileRow(
           key: ProfileScreen.friendsKey,
@@ -331,9 +322,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     if (widget.onBack != null)
                       Padding(
                         padding: EdgeInsets.all(s.sm),
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: BackAction(onPressed: widget.onBack!),
+                        child: Row(
+                          children: [
+                            BackAction(onPressed: widget.onBack!),
+                            const Spacer(),
+                            // «اقترح تحسين»: at the top, so the profile's rows
+                            // still fit a phone on its side.
+                            IconButton(
+                              key: ProfileScreen.feedbackKey,
+                              tooltip: l.feedbackTitle,
+                              icon: Icon(
+                                Icons.chat_bubble_outline,
+                                color: context.colors.accentGold,
+                              ),
+                              onPressed: () => showFeedbackSheet(context),
+                            ),
+                          ],
                         ),
                       ),
                     if (editing) ...[

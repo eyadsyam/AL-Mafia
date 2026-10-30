@@ -73,6 +73,7 @@ class AccountAuth {
     try {
       token = await native.pick();
     } on NativeGoogleCancelled {
+      // Backing out of the picker is a choice, not a failure: nothing to say.
       return true;
     } catch (_) {
       return false;
@@ -269,6 +270,7 @@ class AccountAuth {
           OAuthProvider.google,
           redirectTo: redirect,
           authScreenLaunchMode: LaunchMode.externalApplication,
+          queryParams: const {'prompt': 'select_account'},
         );
         return;
       } on AuthException catch (error) {
@@ -279,6 +281,7 @@ class AccountAuth {
       OAuthProvider.google,
       redirectTo: redirect,
       authScreenLaunchMode: LaunchMode.externalApplication,
+      queryParams: const {'prompt': 'select_account'},
     );
   });
 
@@ -373,7 +376,11 @@ class AccountAuth {
   /// Google, straight to sign-in: the choice a guest makes after learning the
   /// Google account already belongs to another player. This device leaves the
   /// guest identity for that account.
-  Future<void> googleSignIn() => _guard(() async {
+  Future<void> googleSignIn() => _googleSignIn(null);
+
+  Future<void> googleSignInForAccount(String email) => _googleSignIn(email);
+
+  Future<void> _googleSignIn(String? loginHint) => _guard(() async {
     final auth = await _auth();
     if (await _nativeGoogle(auth, link: false)) return;
     await markPendingReturn();
@@ -381,6 +388,10 @@ class AccountAuth {
       OAuthProvider.google,
       redirectTo: _oauthReturn,
       authScreenLaunchMode: LaunchMode.externalApplication,
+      queryParams: {
+        'prompt': 'select_account',
+        if (loginHint != null) 'login_hint': loginHint,
+      },
     );
   });
 
@@ -523,6 +534,7 @@ class AccountAuth {
 /// The signed-in identity as the profile shows it.
 class AccountProfile {
   final bool signedIn;
+  final String? userId;
   final String? email;
   final bool emailConfirmed;
   final bool google;
@@ -535,6 +547,7 @@ class AccountProfile {
 
   const AccountProfile({
     required this.signedIn,
+    this.userId,
     this.email,
     this.emailConfirmed = false,
     this.google = false,
@@ -545,7 +558,9 @@ class AccountProfile {
 
   /// Whether [other] is a different identity, not just a refreshed token.
   bool differs(AccountProfile other) =>
-      signedIn != other.signedIn || email != other.email;
+      signedIn != other.signedIn ||
+      userId != other.userId ||
+      email != other.email;
 
   static const guest = AccountProfile(signedIn: false);
 
@@ -557,6 +572,7 @@ class AccountProfile {
     };
     return AccountProfile(
       signedIn: true,
+      userId: user.id,
       email: user.email,
       emailConfirmed: user.emailConfirmedAt != null,
       google: providers.contains('google'),

@@ -33,6 +33,46 @@ class PlayerProfile {
 class ProfileStore {
   static const profileKey = 'mafia.playerProfile.v1';
   static const introKey = 'mafia.introSeen.v1';
+  static const activeAccountKey = 'mafia.profile.activeAccount.v1';
+
+  /// The old keys are the active account's working copy. A missing pointer is
+  /// the pre-upgrade installation, whose working copy belongs to this user.
+  static Future<void> switchAccount(String? userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final next = userId ?? 'guest';
+    final previous = prefs.getString(activeAccountKey);
+    if (previous == next) return;
+    const keys = [
+      profileKey,
+      introKey,
+      FirstRunProgress.key,
+      WelcomeGreeting.key,
+    ];
+    if (previous != null) {
+      for (final key in keys) {
+        final scoped = '$key.$previous';
+        final value = prefs.get(key);
+        await prefs.remove(scoped);
+        if (value is String) await prefs.setString(scoped, value);
+        if (value is bool) await prefs.setBool(scoped, value);
+        await prefs.remove(key);
+      }
+    } else {
+      // One-time migration: attribute the legacy keys to the current user.
+      for (final key in keys) {
+        final value = prefs.get(key);
+        if (value is String) await prefs.setString('$key.$next', value);
+        if (value is bool) await prefs.setBool('$key.$next', value);
+        await prefs.remove(key);
+      }
+    }
+    for (final key in keys) {
+      final value = prefs.get('$key.$next');
+      if (value is String) await prefs.setString(key, value);
+      if (value is bool) await prefs.setBool(key, value);
+    }
+    await prefs.setString(activeAccountKey, next);
+  }
 
   Future<PlayerProfile?> load() async {
     // Storage that cannot be opened at all is the same as storage with nothing
