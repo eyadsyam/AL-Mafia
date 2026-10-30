@@ -13554,6 +13554,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No tool fits this moment. See below what opens later.'**
   String get toolBagNothingNow;
+
+  /// No description provided for @adminReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner review'**
+  String get adminReviewTitle;
+
+  /// No description provided for @adminReviewOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get adminReviewOverview;
+
+  /// No description provided for @adminReviewPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get adminReviewPlayers;
+
+  /// No description provided for @adminReviewRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Rooms'**
+  String get adminReviewRooms;
+
+  /// No description provided for @adminReviewStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get adminReviewStore;
+
+  /// No description provided for @adminReviewConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Config'**
+  String get adminReviewConfig;
+
+  /// No description provided for @adminReviewPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get adminReviewPush;
+
+  /// No description provided for @adminReviewTesters.
+  ///
+  /// In en, this message translates to:
+  /// **'Testers'**
+  String get adminReviewTesters;
+
+  /// No description provided for @adminReviewSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search display name'**
+  String get adminReviewSearch;
+
+  /// No description provided for @adminReviewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to show'**
+  String get adminReviewEmpty;
+
+  /// No description provided for @adminReviewError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load review data'**
+  String get adminReviewError;
+
+  /// No description provided for @adminReviewRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get adminReviewRetry;
+
+  /// No description provided for @adminReviewAllAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All access'**
+  String get adminReviewAllAccess;
+
+  /// No description provided for @adminReviewGrants.
+  ///
+  /// In en, this message translates to:
+  /// **'All-access grants'**
+  String get adminReviewGrants;
+
+  /// No description provided for @adminReviewAccountsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts total'**
+  String get adminReviewAccountsTotal;
+
+  /// No description provided for @adminReviewAccountsNew7d.
+  ///
+  /// In en, this message translates to:
+  /// **'New accounts (7 days)'**
+  String get adminReviewAccountsNew7d;
+
+  /// No description provided for @adminReviewSignedIn7d.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in (7 days)'**
+  String get adminReviewSignedIn7d;
+
+  /// No description provided for @adminReviewRoomsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open rooms'**
+  String get adminReviewRoomsOpen;
+
+  /// No description provided for @adminReviewMatches7d.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches (7 days)'**
+  String get adminReviewMatches7d;
+
+  /// No description provided for @adminReviewMatchesEver.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches ever'**
+  String get adminReviewMatchesEver;
+
+  /// No description provided for @adminReviewPushTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'Push tokens'**
+  String get adminReviewPushTokens;
+
+  /// No description provided for @adminReviewSafetyOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open safety reports'**
+  String get adminReviewSafetyOpen;
+
+  /// No description provided for @adminReviewPendingItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending items'**
+  String get adminReviewPendingItems;
+
+  /// No description provided for @adminReviewCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get adminReviewCreated;
+
+  /// No description provided for @adminReviewLastSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sign in'**
+  String get adminReviewLastSignIn;
+
+  /// No description provided for @adminReviewLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get adminReviewLevel;
+
+  /// No description provided for @adminReviewStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get adminReviewStatus;
+
+  /// No description provided for @adminReviewPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Phase'**
+  String get adminReviewPhase;
+
+  /// No description provided for @adminReviewPlayerCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get adminReviewPlayerCount;
+
+  /// No description provided for @adminReviewHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get adminReviewHost;
+
+  /// No description provided for @adminReviewKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind'**
+  String get adminReviewKind;
+
+  /// No description provided for @adminReviewPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins'**
+  String get adminReviewPrice;
+
+  /// No description provided for @adminReviewActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminReviewActive;
+
+  /// No description provided for @adminReviewOwners.
+  ///
+  /// In en, this message translates to:
+  /// **'Owners'**
+  String get adminReviewOwners;
+
+  /// No description provided for @adminReviewSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Since'**
+  String get adminReviewSince;
+
+  /// No description provided for @adminReviewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get adminReviewCount;
+
+  /// No description provided for @adminReviewAppConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'App config'**
+  String get adminReviewAppConfig;
+
+  /// No description provided for @adminReviewEconomyConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Economy config'**
+  String get adminReviewEconomyConfig;
+
+  /// No description provided for @adminReviewYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get adminReviewYes;
+
+  /// No description provided for @adminReviewNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get adminReviewNo;
 }
 
 class _AppLocalizationsDelegate

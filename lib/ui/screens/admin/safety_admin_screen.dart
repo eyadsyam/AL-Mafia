@@ -23,9 +23,15 @@ import '../online/safety_center.dart' show safetyCategories;
 /// words. Never a role, an action, a whisper or voice.
 class SafetyAdminScreen extends ConsumerStatefulWidget {
   final VoidCallback? onBack;
+  final VoidCallback? onReview;
   final bool web;
 
-  const SafetyAdminScreen({super.key, this.onBack, this.web = kIsWeb});
+  const SafetyAdminScreen({
+    super.key,
+    this.onBack,
+    this.onReview,
+    this.web = kIsWeb,
+  });
 
   static Key report(String id) => ValueKey('safety_admin_report_$id');
   static Key action(String id, String action) =>
@@ -139,6 +145,12 @@ class _SafetyAdminScreenState extends ConsumerState<SafetyAdminScreen> {
             ? null
             : BackButton(onPressed: widget.onBack),
         actions: [
+          if (_admin == true && widget.onReview != null)
+            IconButton(
+              onPressed: widget.onReview,
+              tooltip: l.adminReviewTitle,
+              icon: const Icon(Icons.dashboard_outlined),
+            ),
           if (_admin == true)
             IconButton(
               onPressed: _busy ? null : _load,

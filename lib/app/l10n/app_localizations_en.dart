@@ -7877,4 +7877,124 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get toolBagNothingNow =>
       'No tool fits this moment. See below what opens later.';
+
+  @override
+  String get adminReviewTitle => 'Owner review';
+
+  @override
+  String get adminReviewOverview => 'Overview';
+
+  @override
+  String get adminReviewPlayers => 'Players';
+
+  @override
+  String get adminReviewRooms => 'Rooms';
+
+  @override
+  String get adminReviewStore => 'Store';
+
+  @override
+  String get adminReviewConfig => 'Config';
+
+  @override
+  String get adminReviewPush => 'Push';
+
+  @override
+  String get adminReviewTesters => 'Testers';
+
+  @override
+  String get adminReviewSearch => 'Search display name';
+
+  @override
+  String get adminReviewEmpty => 'Nothing to show';
+
+  @override
+  String get adminReviewError => 'Could not load review data';
+
+  @override
+  String get adminReviewRetry => 'Retry';
+
+  @override
+  String get adminReviewAllAccess => 'All access';
+
+  @override
+  String get adminReviewGrants => 'All-access grants';
+
+  @override
+  String get adminReviewAccountsTotal => 'Accounts total';
+
+  @override
+  String get adminReviewAccountsNew7d => 'New accounts (7 days)';
+
+  @override
+  String get adminReviewSignedIn7d => 'Signed in (7 days)';
+
+  @override
+  String get adminReviewRoomsOpen => 'Open rooms';
+
+  @override
+  String get adminReviewMatches7d => 'Matches (7 days)';
+
+  @override
+  String get adminReviewMatchesEver => 'Matches ever';
+
+  @override
+  String get adminReviewPushTokens => 'Push tokens';
+
+  @override
+  String get adminReviewSafetyOpen => 'Open safety reports';
+
+  @override
+  String get adminReviewPendingItems => 'Pending items';
+
+  @override
+  String get adminReviewCreated => 'Created';
+
+  @override
+  String get adminReviewLastSignIn => 'Last sign in';
+
+  @override
+  String get adminReviewLevel => 'Level';
+
+  @override
+  String get adminReviewStatus => 'Status';
+
+  @override
+  String get adminReviewPhase => 'Phase';
+
+  @override
+  String get adminReviewPlayerCount => 'Players';
+
+  @override
+  String get adminReviewHost => 'Host';
+
+  @override
+  String get adminReviewKind => 'Kind';
+
+  @override
+  String get adminReviewPrice => 'Coins';
+
+  @override
+  String get adminReviewActive => 'Active';
+
+  @override
+  String get adminReviewOwners => 'Owners';
+
+  @override
+  String get adminReviewSince => 'Since';
+
+  @override
+  String get adminReviewCount => 'Count';
+
+  @override
+  String get adminReviewAppConfig => 'App config';
+
+  @override
+  String get adminReviewEconomyConfig => 'Economy config';
+
+  @override
+  String get adminReviewYes => 'Yes';
+
+  @override
+  String get adminReviewNo => 'No';
 }

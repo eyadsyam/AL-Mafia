@@ -7758,4 +7758,124 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get toolBagNothingNow =>
       'مفيش أداة تنفع في اللحظة دي. بص تحت على اللي بيتفتح بعدين.';
+
+  @override
+  String get adminReviewTitle => 'مراجعة المالك';
+
+  @override
+  String get adminReviewOverview => 'نظرة عامة';
+
+  @override
+  String get adminReviewPlayers => 'اللاعبين';
+
+  @override
+  String get adminReviewRooms => 'الأوض';
+
+  @override
+  String get adminReviewStore => 'المتجر';
+
+  @override
+  String get adminReviewConfig => 'الإعدادات';
+
+  @override
+  String get adminReviewPush => 'الإشعارات';
+
+  @override
+  String get adminReviewTesters => 'المجربين';
+
+  @override
+  String get adminReviewSearch => 'دوّر باسم اللاعب';
+
+  @override
+  String get adminReviewEmpty => 'مفيش حاجة للعرض';
+
+  @override
+  String get adminReviewError => 'معرفناش نحمّل البيانات';
+
+  @override
+  String get adminReviewRetry => 'جرّب تاني';
+
+  @override
+  String get adminReviewAllAccess => 'دخول كامل';
+
+  @override
+  String get adminReviewGrants => 'الدخول الكامل';
+
+  @override
+  String get adminReviewAccountsTotal => 'كل الحسابات';
+
+  @override
+  String get adminReviewAccountsNew7d => 'حسابات جديدة خلال ٧ أيام';
+
+  @override
+  String get adminReviewSignedIn7d => 'دخلوا خلال ٧ أيام';
+
+  @override
+  String get adminReviewRoomsOpen => 'أوض مفتوحة';
+
+  @override
+  String get adminReviewMatches7d => 'مباريات خلال ٧ أيام';
+
+  @override
+  String get adminReviewMatchesEver => 'كل المباريات';
+
+  @override
+  String get adminReviewPushTokens => 'أجهزة الإشعارات';
+
+  @override
+  String get adminReviewSafetyOpen => 'بلاغات مفتوحة';
+
+  @override
+  String get adminReviewPendingItems => 'طلبات مستنية';
+
+  @override
+  String get adminReviewCreated => 'اتعمل';
+
+  @override
+  String get adminReviewLastSignIn => 'آخر دخول';
+
+  @override
+  String get adminReviewLevel => 'المستوى';
+
+  @override
+  String get adminReviewStatus => 'الحالة';
+
+  @override
+  String get adminReviewPhase => 'المرحلة';
+
+  @override
+  String get adminReviewPlayerCount => 'اللاعبين';
+
+  @override
+  String get adminReviewHost => 'المضيف';
+
+  @override
+  String get adminReviewKind => 'النوع';
+
+  @override
+  String get adminReviewPrice => 'عملات';
+
+  @override
+  String get adminReviewActive => 'نشط';
+
+  @override
+  String get adminReviewOwners => 'المالكين';
+
+  @override
+  String get adminReviewSince => 'من';
+
+  @override
+  String get adminReviewCount => 'العدد';
+
+  @override
+  String get adminReviewAppConfig => 'إعدادات التطبيق';
+
+  @override
+  String get adminReviewEconomyConfig => 'إعدادات الاقتصاد';
+
+  @override
+  String get adminReviewYes => 'أيوه';
+
+  @override
+  String get adminReviewNo => 'لأ';
 }
