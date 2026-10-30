@@ -812,6 +812,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
             confrontation,
             names,
             female: _controller.snapshot.isFemale(confrontation.targetSeat),
+            isFemale: _controller.snapshot.isFemale,
           );
 
     // A confrontation the renderer cannot express is not shown at all — the

@@ -10,6 +10,7 @@ import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { deadlineFor } from "../_shared/phases.ts";
 import { voteFingerprint } from "../_shared/vote_fingerprint.ts";
 import { resolveBallotCore } from "../_shared/ballot_core.ts";
+import { isMafiaTeam } from "../_shared/teams.ts";
 import {
   lastWordOf,
   loadToolUses,
@@ -151,6 +152,20 @@ Deno.serve(handler(async (req, userId, db) => {
           ...(lastWord ? { lastWord } : {}),
         },
         ...(lastWord && !outcome ? { lastWordFloor: { ...lastWord, day } } : {}),
+        // The confrontation's public archive of day eliminations (C12, C14):
+        // who went out and whether the card shown was the Mafia's.
+        ...(eliminatedSeat !== null
+          ? {
+            dayResults: {
+              ...(((state?.public_data as Record<string, unknown> | null)
+                ?.dayResults as Record<string, unknown> | undefined) ?? {}),
+              [String(day)]: {
+                seat: eliminatedSeat,
+                mafia: isMafiaTeam(eliminatedRole),
+              },
+            },
+          }
+          : {}),
         outcome,
         // The next night starts clean; the archives are not in this list and so
         // survive (see `clearedFor`).

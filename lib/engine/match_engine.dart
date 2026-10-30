@@ -1040,6 +1040,7 @@ class MatchEngine {
         dayNumber: match.dayNumber,
         matchSeed: match.seed,
         settings: match.settings,
+        silencedSeat: silencedSeatToday,
       );
       if (confrontation != null) {
         final now = clock();

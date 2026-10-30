@@ -7878,4 +7878,58 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminReviewNo => 'لأ';
+
+  @override
+  String confrontationC12(String x, String xg) {
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'طلعت مش مافيا',
+      'other': 'طلع مش مافيا',
+    });
+    return 'اتهمت $x في أول يوم، و$_temp0. لسه شايف نفس اللي شايفه؟';
+  }
+
+  @override
+  String confrontationC12Female(String x, String xg) {
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'طلعت مش مافيا',
+      'other': 'طلع مش مافيا',
+    });
+    return 'اتهمتي $x في أول يوم، و$_temp0. لسه شايفة نفس اللي شايفاه؟';
+  }
+
+  @override
+  String confrontationC13(String x, String xg) {
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'اتقتلت',
+      'other': 'اتقتل',
+    });
+    return 'همست لـ$x امبارح، و$_temp0 بالليل. قلت إيه في الهمسة؟';
+  }
+
+  @override
+  String confrontationC13Female(String x, String xg) {
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'اتقتلت',
+      'other': 'اتقتل',
+    });
+    return 'همستي لـ$x امبارح، و$_temp0 بالليل. قلتي إيه في الهمسة؟';
+  }
+
+  @override
+  String confrontationC14(String x, String xg) {
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'طلعت مافيا',
+      'other': 'طلع مافيا',
+    });
+    return 'كنت بتهمس لـ$x، و$_temp0. إيه اللي بينكم؟';
+  }
+
+  @override
+  String confrontationC14Female(String x, String xg) {
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'طلعت مافيا',
+      'other': 'طلع مافيا',
+    });
+    return 'كنتي بتهمسي لـ$x، و$_temp0. إيه اللي بينكم؟';
+  }
 }

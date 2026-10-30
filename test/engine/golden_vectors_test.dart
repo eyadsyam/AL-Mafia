@@ -89,6 +89,8 @@ void main() {
           toSeat: w['toSeat'] as int,
         ),
     ],
+    eliminated: json['eliminated'] as int?,
+    eliminatedWasMafia: json['eliminatedWasMafia'] as bool?,
   );
 
   List<Player> roster(Set<int> alive) => [
@@ -193,6 +195,7 @@ void main() {
             survivorConfrontationEnabled:
                 settings['survivorConfrontationEnabled'] as bool,
           ),
+          silencedSeat: c['silencedSeat'] as int?,
         );
         final expected = c['expected'] as Map<String, dynamic>?;
         if (expected == null) {

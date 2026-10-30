@@ -99,14 +99,29 @@ enum ConfrontationType {
   /// loud that a save occurred *and* names who was saved, which is most of the
   /// Doctor's aim in one sentence. Gated behind
   /// `MatchSettings.survivorConfrontationEnabled`.
-  c11(3.0);
+  c11(3.0),
+
+  /// اتهام طلع غلط — named X in the Day-1 opener, and X was voted out and
+  /// shown not to be Mafia. Both halves were said to the whole table.
+  c12(8.0),
+
+  /// همسة للي اتقتل — whispered to X by day, and X was killed that night. The
+  /// whisper graph and the death are public; the words never are.
+  c13(7.5),
+
+  /// همسة للي طلع مافيا — whispered to X, and X was voted out and shown to be
+  /// Mafia.
+  c14(9.0);
 
   const ConfrontationType(this.severity);
 
   final double severity;
 
   /// Whether this type needs the whisper layer to be running.
-  bool get requiresWhispers => this == ConfrontationType.c8;
+  bool get requiresWhispers =>
+      this == ConfrontationType.c8 ||
+      this == ConfrontationType.c13 ||
+      this == ConfrontationType.c14;
 
   /// Whether this type is gated behind an opt-in setting.
   bool get isGated => this == ConfrontationType.c11;

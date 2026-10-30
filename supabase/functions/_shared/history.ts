@@ -100,6 +100,8 @@ export async function buildHistory(
       count: number | null;
     }>;
     speakingSeconds?: Record<string, Record<string, number>>;
+    /** Day -> who was voted out and whether the card shown was the Mafia's. */
+    dayResults?: Record<string, { seat: number; mafia: boolean }>;
   };
 
   // ── nights ──────────────────────────────────────────────────────────────
@@ -133,6 +135,9 @@ export async function buildHistory(
   for (const v of votes ?? []) dayNumbers.add(v.day);
   for (const w of whispers ?? []) dayNumbers.add(w.day);
   for (const key of Object.keys(archive.confrontations ?? {})) {
+    dayNumbers.add(Number(key));
+  }
+  for (const key of Object.keys(archive.dayResults ?? {})) {
     dayNumbers.add(Number(key));
   }
   if (Object.keys(archive.openingAccusations ?? {}).length > 0) dayNumbers.add(1);
@@ -180,6 +185,9 @@ export async function buildHistory(
           toSeat: seatOf.get(w.to_id) ?? -1,
         }))
         .filter((w) => w.fromSeat >= 0 && w.toSeat >= 0),
+      // Public: a day elimination always shows the card (FR-019).
+      eliminated: archive.dayResults?.[String(d)]?.seat ?? null,
+      eliminatedWasMafia: archive.dayResults?.[String(d)]?.mafia ?? null,
     });
   }
 

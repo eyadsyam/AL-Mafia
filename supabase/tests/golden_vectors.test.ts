@@ -126,6 +126,7 @@ Deno.test("confrontations match the Dart reference", () => {
       dayNumber: v.dayNumber,
       matchSeed: v.matchSeed,
       settings: v.settings,
+      silencedSeat: v.silencedSeat ?? null,
     });
     if (v.expected === null) {
       assertEquals(result, null, `confrontation "${v.name}" should be null`);

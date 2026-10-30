@@ -1829,6 +1829,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
                 confrontation,
                 names,
                 female: snapshot.isFemale(confrontation.targetSeat),
+                isFemale: snapshot.isFemale,
               ) ??
               l10n.confrontationExplain,
           support: deadline == null

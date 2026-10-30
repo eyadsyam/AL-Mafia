@@ -4861,5 +4861,71 @@
   "adminReviewAppConfig": "App config",
   "adminReviewEconomyConfig": "Economy config",
   "adminReviewYes": "Yes",
-  "adminReviewNo": "No"
+  "adminReviewNo": "No",
+  "confrontationC12": "You named {x} on day one, and {xg, select, female{she} other{he}} was not Mafia. Do you still see it the same way?",
+  "@confrontationC12": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC12Female": "You named {x} on day one, and {xg, select, female{she} other{he}} was not Mafia. Do you still see it the same way?",
+  "@confrontationC12Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC13": "You whispered to {x} yesterday, and {xg, select, female{she} other{he}} was killed in the night. What did you say?",
+  "@confrontationC13": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC13Female": "You whispered to {x} yesterday, and {xg, select, female{she} other{he}} was killed in the night. What did you say?",
+  "@confrontationC13Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC14": "You were whispering to {x}, and {xg, select, female{she} other{he}} was Mafia. What is between you two?",
+  "@confrontationC14": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC14Female": "You were whispering to {x}, and {xg, select, female{she} other{he}} was Mafia. What is between you two?",
+  "@confrontationC14Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  }
 }

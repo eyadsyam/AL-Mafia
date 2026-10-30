@@ -78,8 +78,15 @@ class InformationText {
     Confrontation confrontation,
     Map<int, String> names, {
     bool female = false,
+
+    /// Whether a seat named inside the sentence chose the feminine form.
+    bool Function(int seat)? isFemale,
   }) {
     String? name(int? seat) => seat == null ? null : names[seat];
+    final evidence = confrontation.evidenceSeat;
+    final xg = evidence != null && (isFemale?.call(evidence) ?? false)
+        ? 'female'
+        : 'other';
 
     switch (confrontation.type) {
       case ConfrontationType.c1:
@@ -110,6 +117,24 @@ class InformationText {
             : l10n.confrontationC8(other);
       case ConfrontationType.c11:
         return l10n.confrontationC11;
+      case ConfrontationType.c12:
+        final accused = name(evidence);
+        if (accused == null) return null;
+        return female
+            ? l10n.confrontationC12Female(accused, xg)
+            : l10n.confrontationC12(accused, xg);
+      case ConfrontationType.c13:
+        final victim = name(evidence);
+        if (victim == null) return null;
+        return female
+            ? l10n.confrontationC13Female(victim, xg)
+            : l10n.confrontationC13(victim, xg);
+      case ConfrontationType.c14:
+        final mafia = name(evidence);
+        if (mafia == null) return null;
+        return female
+            ? l10n.confrontationC14Female(mafia, xg)
+            : l10n.confrontationC14(mafia, xg);
       case ConfrontationType.c2:
       case ConfrontationType.c3:
       case ConfrontationType.c9:

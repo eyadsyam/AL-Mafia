@@ -13794,6 +13794,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No'**
   String get adminReviewNo;
+
+  /// No description provided for @confrontationC12.
+  ///
+  /// In en, this message translates to:
+  /// **'You named {x} on day one, and {xg, select, female{she} other{he}} was not Mafia. Do you still see it the same way?'**
+  String confrontationC12(String x, String xg);
+
+  /// No description provided for @confrontationC12Female.
+  ///
+  /// In en, this message translates to:
+  /// **'You named {x} on day one, and {xg, select, female{she} other{he}} was not Mafia. Do you still see it the same way?'**
+  String confrontationC12Female(String x, String xg);
+
+  /// No description provided for @confrontationC13.
+  ///
+  /// In en, this message translates to:
+  /// **'You whispered to {x} yesterday, and {xg, select, female{she} other{he}} was killed in the night. What did you say?'**
+  String confrontationC13(String x, String xg);
+
+  /// No description provided for @confrontationC13Female.
+  ///
+  /// In en, this message translates to:
+  /// **'You whispered to {x} yesterday, and {xg, select, female{she} other{he}} was killed in the night. What did you say?'**
+  String confrontationC13Female(String x, String xg);
+
+  /// No description provided for @confrontationC14.
+  ///
+  /// In en, this message translates to:
+  /// **'You were whispering to {x}, and {xg, select, female{she} other{he}} was Mafia. What is between you two?'**
+  String confrontationC14(String x, String xg);
+
+  /// No description provided for @confrontationC14Female.
+  ///
+  /// In en, this message translates to:
+  /// **'You were whispering to {x}, and {xg, select, female{she} other{he}} was Mafia. What is between you two?'**
+  String confrontationC14Female(String x, String xg);
 }
 
 class _AppLocalizationsDelegate

@@ -68,6 +68,7 @@ for (const v of vectors.confrontations) {
     dayNumber: v.dayNumber,
     matchSeed: v.matchSeed,
     settings: v.settings,
+    silencedSeat: v.silencedSeat ?? null,
   });
   if (v.expected === null) {
     check(`confrontation "${v.name}"`, result, null);

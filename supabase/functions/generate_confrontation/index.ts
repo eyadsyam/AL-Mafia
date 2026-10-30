@@ -34,10 +34,17 @@ Deno.serve(handler(async (req, userId, db) => {
   }
 
   const history = await buildHistory(db, roomId);
+  // Today's silenced seat, as this morning announced it to the table.
+  const { data: room, error: roomError } = await db.from("room_state")
+    .select("public_data").eq("room_id", roomId).maybeSingle();
+  if (roomError) throw roomError;
+  const morning = (room?.public_data as Record<string, unknown> | null)
+    ?.morning as { silencedSeat?: number | null } | null | undefined;
   const confrontation = selectConfrontation({
     history,
     dayNumber: me.phaseNumber,
     matchSeed: me.matchSeed,
+    silencedSeat: morning?.silencedSeat ?? null,
     settings: {
       whisperEnabled: me.settings.whisperEnabled !== false,
       survivorConfrontationEnabled:

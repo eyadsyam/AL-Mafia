@@ -64,7 +64,9 @@ export function enabledTypes(
 ): ConfrontationType[] {
   return shippedTypes().filter((t) => {
     if (t === "c11" && !settings.survivorConfrontationEnabled) return false;
-    if (t === "c8" && !settings.whisperEnabled) return false;
+    if ((t === "c8" || t === "c13" || t === "c14") && !settings.whisperEnabled) {
+      return false;
+    }
     return true;
   });
 }
@@ -327,6 +329,80 @@ export function findConfrontations(
       return out;
     }
 
+    // ── C12 اتهام طلع غلط ──────────────────────────────────────────────
+    case "c12": {
+      const out: Candidate[] = [];
+      const opener = dayAt(history, 1)?.openingAccusations ?? {};
+      for (const [seatKey, accused] of Object.entries(opener)) {
+        const seat = Number(seatKey);
+        if (!alive.has(seat)) continue;
+        for (let d = 1; d < dayNumber; d++) {
+          const day = dayAt(history, d);
+          if (day?.eliminated !== accused || day?.eliminatedWasMafia !== false) {
+            continue;
+          }
+          out.push(make({
+            type: "c12",
+            targetSeat: seat,
+            evidenceSeat: accused,
+            evidenceDay: d,
+          }));
+          break;
+        }
+      }
+      return out;
+    }
+
+    // ── C13 همسة للي اتقتل ─────────────────────────────────────────────
+    case "c13": {
+      const nights = resolvedNights(history);
+      if (nights.length === 0) return [];
+      const last = nights[nights.length - 1];
+      if (last.victim === null || last.nightNumber !== dayNumber) return [];
+      const yesterday = dayAt(history, dayNumber - 1);
+      if (!yesterday) return [];
+      const senders = new Set<number>();
+      for (const w of yesterday.whispers) {
+        if (w.toSeat === last.victim && alive.has(w.fromSeat)) {
+          senders.add(w.fromSeat);
+        }
+      }
+      return [...senders].map((from) =>
+        make({
+          type: "c13",
+          targetSeat: from,
+          evidenceSeat: last.victim,
+          evidenceDay: dayNumber - 1,
+        })
+      );
+    }
+
+    // ── C14 همسة للي طلع مافيا ─────────────────────────────────────────
+    case "c14": {
+      const out: Candidate[] = [];
+      for (let d = dayNumber - 1; d >= 1; d--) {
+        const day = dayAt(history, d);
+        const mafia = day?.eliminated ?? null;
+        if (mafia === null || day?.eliminatedWasMafia !== true) continue;
+        const senders = new Set<number>();
+        for (const w of allWhispers(history)) {
+          if (w.toSeat === mafia && w.day <= d && alive.has(w.fromSeat)) {
+            senders.add(w.fromSeat);
+          }
+        }
+        for (const from of senders) {
+          out.push(make({
+            type: "c14",
+            targetSeat: from,
+            evidenceSeat: mafia,
+            evidenceDay: d,
+          }));
+        }
+        if (out.length > 0) break;
+      }
+      return out;
+    }
+
     // ── C11 الناجي (opt-in) ────────────────────────────────────────────
     case "c11": {
       const out: Candidate[] = [];
@@ -350,6 +426,8 @@ export function selectConfrontation(args: {
   dayNumber: number;
   matchSeed: number;
   settings: GeneratorSettings;
+  /** Today's silenced seat: it cannot answer out loud, so it is never asked. */
+  silencedSeat?: number | null;
 }): ConfrontationRecord | null {
   if (args.dayNumber <= 1) return null;
 
@@ -365,6 +443,7 @@ export function selectConfrontation(args: {
   const lastType = lastConfrontationTypeOf(args.history);
   candidates = candidates.filter((c) =>
     alive.has(c.confrontation.targetSeat) &&
+    c.confrontation.targetSeat !== (args.silencedSeat ?? null) &&
     c.confrontation.targetSeat !== lastPlayer &&
     c.confrontation.type !== lastType
   );

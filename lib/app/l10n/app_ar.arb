@@ -3558,5 +3558,71 @@
   "adminReviewAppConfig": "إعدادات التطبيق",
   "adminReviewEconomyConfig": "إعدادات الاقتصاد",
   "adminReviewYes": "أيوه",
-  "adminReviewNo": "لأ"
+  "adminReviewNo": "لأ",
+  "confrontationC12": "اتهمت {x} في أول يوم، و{xg, select, female{طلعت مش مافيا} other{طلع مش مافيا}}. لسه شايف نفس اللي شايفه؟",
+  "@confrontationC12": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC12Female": "اتهمتي {x} في أول يوم، و{xg, select, female{طلعت مش مافيا} other{طلع مش مافيا}}. لسه شايفة نفس اللي شايفاه؟",
+  "@confrontationC12Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC13": "همست لـ{x} امبارح، و{xg, select, female{اتقتلت} other{اتقتل}} بالليل. قلت إيه في الهمسة؟",
+  "@confrontationC13": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC13Female": "همستي لـ{x} امبارح، و{xg, select, female{اتقتلت} other{اتقتل}} بالليل. قلتي إيه في الهمسة؟",
+  "@confrontationC13Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC14": "كنت بتهمس لـ{x}، و{xg, select, female{طلعت مافيا} other{طلع مافيا}}. إيه اللي بينكم؟",
+  "@confrontationC14": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  },
+  "confrontationC14Female": "كنتي بتهمسي لـ{x}، و{xg, select, female{طلعت مافيا} other{طلع مافيا}}. إيه اللي بينكم؟",
+  "@confrontationC14Female": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "xg": {
+        "type": "String"
+      }
+    }
+  }
 }

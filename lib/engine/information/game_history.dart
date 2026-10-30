@@ -275,6 +275,10 @@ GameHistory buildHistory(Match match) {
         votes: byRound[lastRound] ?? const {},
         votesByRound: byRound,
         eliminated: eliminated,
+        // The card shown at the elimination, as the table saw it.
+        eliminatedWasMafia: eliminated == null
+            ? null
+            : match.players[eliminated].role.alignment == Alignment.mafia,
         speakingSeconds: speaking,
         whispers: whispers.values.toList(),
       ),

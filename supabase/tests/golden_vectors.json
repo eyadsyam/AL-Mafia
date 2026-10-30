@@ -770,6 +770,7 @@
       "name": "day one is refused",
       "matchSeed": 21,
       "dayNumber": 1,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -789,7 +790,9 @@
           "confrontation": null,
           "votes": {},
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -802,6 +805,7 @@
       "name": "empty history",
       "matchSeed": 22,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -823,6 +827,7 @@
       "name": "c1 contradiction",
       "matchSeed": 23,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -844,7 +849,9 @@
             "3": 2
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -864,6 +871,7 @@
       "name": "c5 twins",
       "matchSeed": 24,
       "dayNumber": 4,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -884,7 +892,9 @@
             "2": 4
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 2,
@@ -895,7 +905,9 @@
             "2": 4
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 3,
@@ -906,7 +918,9 @@
             "2": 4
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -926,6 +940,7 @@
       "name": "c6 quietest",
       "matchSeed": 25,
       "dayNumber": 3,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -943,7 +958,9 @@
             "1": 10,
             "2": 60
           },
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 2,
@@ -955,7 +972,9 @@
             "1": 5,
             "2": 60
           },
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -975,6 +994,7 @@
       "name": "c7 the dead speak",
       "matchSeed": 26,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1014,6 +1034,7 @@
       "name": "c8 whisperer",
       "matchSeed": 27,
       "dayNumber": 3,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1037,7 +1058,9 @@
               "fromSeat": 0,
               "toSeat": 4
             }
-          ]
+          ],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 2,
@@ -1051,7 +1074,9 @@
               "fromSeat": 0,
               "toSeat": 4
             }
-          ]
+          ],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -1071,6 +1096,7 @@
       "name": "c8 excluded with whispers off",
       "matchSeed": 28,
       "dayNumber": 3,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1094,7 +1120,9 @@
               "fromSeat": 0,
               "toSeat": 4
             }
-          ]
+          ],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 2,
@@ -1108,7 +1136,9 @@
               "fromSeat": 0,
               "toSeat": 4
             }
-          ]
+          ],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -1121,6 +1151,7 @@
       "name": "c11 off by default",
       "matchSeed": 29,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1152,6 +1183,7 @@
       "name": "c11 on",
       "matchSeed": 30,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1190,6 +1222,7 @@
       "name": "back-to-back player is skipped",
       "matchSeed": 31,
       "dayNumber": 3,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1211,7 +1244,9 @@
             "3": 2
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 2,
@@ -1226,7 +1261,9 @@
           },
           "votes": {},
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -1239,6 +1276,7 @@
       "name": "fairness cap hands the day on",
       "matchSeed": 32,
       "dayNumber": 5,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1331,7 +1369,9 @@
             "4": 1
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 2,
@@ -1346,7 +1386,9 @@
           },
           "votes": {},
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 3,
@@ -1361,7 +1403,9 @@
           },
           "votes": {},
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         },
         {
           "dayNumber": 4,
@@ -1376,7 +1420,9 @@
           },
           "votes": {},
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -1393,9 +1439,318 @@
       }
     },
     {
+      "name": "c12 named an innocent on day one",
+      "matchSeed": 33,
+      "dayNumber": 3,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "nights": [],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {
+            "2": 5
+          },
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        },
+        {
+          "dayNumber": 2,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "eliminated": 5,
+          "eliminatedWasMafia": false
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": {
+        "type": "c12",
+        "targetSeat": 2,
+        "evidenceSeat": 5,
+        "evidenceSeat2": null,
+        "evidenceDay": 2,
+        "count": null
+      }
+    },
+    {
+      "name": "c12 not when the accused was Mafia",
+      "matchSeed": 34,
+      "dayNumber": 3,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "nights": [],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {
+            "2": 5
+          },
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        },
+        {
+          "dayNumber": 2,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "eliminated": 5,
+          "eliminatedWasMafia": true
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": null
+    },
+    {
+      "name": "c13 whispered to last night's victim",
+      "matchSeed": 35,
+      "dayNumber": 2,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
+      "nights": [
+        {
+          "nightNumber": 1,
+          "suspicions": {},
+          "victim": null,
+          "saveOccurred": false,
+          "savedSeat": null,
+          "revealedTrace": null,
+          "resolved": true
+        },
+        {
+          "nightNumber": 2,
+          "suspicions": {},
+          "victim": 4,
+          "saveOccurred": false,
+          "savedSeat": null,
+          "revealedTrace": null,
+          "resolved": true
+        }
+      ],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [
+            {
+              "day": 1,
+              "fromSeat": 1,
+              "toSeat": 4
+            }
+          ],
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": {
+        "type": "c13",
+        "targetSeat": 1,
+        "evidenceSeat": 4,
+        "evidenceSeat2": null,
+        "evidenceDay": 1,
+        "count": null
+      }
+    },
+    {
+      "name": "c14 whispered to the Mafioso voted out",
+      "matchSeed": 36,
+      "dayNumber": 3,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "nights": [],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [
+            {
+              "day": 1,
+              "fromSeat": 3,
+              "toSeat": 6
+            }
+          ],
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        },
+        {
+          "dayNumber": 2,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "eliminated": 6,
+          "eliminatedWasMafia": true
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": {
+        "type": "c14",
+        "targetSeat": 3,
+        "evidenceSeat": 6,
+        "evidenceSeat2": null,
+        "evidenceDay": 2,
+        "count": null
+      }
+    },
+    {
+      "name": "c13 and c14 off with whispers off",
+      "matchSeed": 37,
+      "dayNumber": 2,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
+      "nights": [
+        {
+          "nightNumber": 1,
+          "suspicions": {},
+          "victim": null,
+          "saveOccurred": false,
+          "savedSeat": null,
+          "revealedTrace": null,
+          "resolved": true
+        },
+        {
+          "nightNumber": 2,
+          "suspicions": {},
+          "victim": 4,
+          "saveOccurred": false,
+          "savedSeat": null,
+          "revealedTrace": null,
+          "resolved": true
+        }
+      ],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [
+            {
+              "day": 1,
+              "fromSeat": 1,
+              "toSeat": 4
+            }
+          ],
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        }
+      ],
+      "settings": {
+        "whisperEnabled": false,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": null
+    },
+    {
+      "name": "the silenced player is never asked",
+      "matchSeed": 38,
+      "dayNumber": 2,
+      "silencedSeat": 3,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "nights": [],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {
+            "3": 5
+          },
+          "confrontation": null,
+          "votes": {
+            "3": 2
+          },
+          "speakingSeconds": {},
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": null
+    },
+    {
       "name": "two-way tie seed 601",
       "matchSeed": 601,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1419,7 +1774,9 @@
             "4": 1
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -1439,6 +1796,7 @@
       "name": "two-way tie seed 602",
       "matchSeed": 602,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1462,7 +1820,9 @@
             "4": 1
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -1482,6 +1842,7 @@
       "name": "two-way tie seed 603",
       "matchSeed": 603,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1505,7 +1866,9 @@
             "4": 1
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -1525,6 +1888,7 @@
       "name": "two-way tie seed 604",
       "matchSeed": 604,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1548,7 +1912,9 @@
             "4": 1
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {
@@ -1568,6 +1934,7 @@
       "name": "two-way tie seed 605",
       "matchSeed": 605,
       "dayNumber": 2,
+      "silencedSeat": null,
       "alive": [
         0,
         1,
@@ -1591,7 +1958,9 @@
             "4": 1
           },
           "speakingSeconds": {},
-          "whispers": []
+          "whispers": [],
+          "eliminated": null,
+          "eliminatedWasMafia": null
         }
       ],
       "settings": {

@@ -130,6 +130,10 @@ class DayRecord {
   /// Who the table voted out, or null.
   final int? eliminated;
 
+  /// Whether [eliminated] was shown to be on the Mafia's side. Public: a day
+  /// elimination always reveals the card (FR-019). Null when nobody went out.
+  final bool? eliminatedWasMafia;
+
   /// Floor time per seat. Absent seats spoke for zero seconds.
   final Map<int, int> speakingSeconds;
 
@@ -144,6 +148,7 @@ class DayRecord {
     this.votes = const {},
     this.votesByRound = const {},
     this.eliminated,
+    this.eliminatedWasMafia,
     this.speakingSeconds = const {},
     this.whispers = const [],
   });

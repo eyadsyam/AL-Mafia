@@ -13,7 +13,7 @@ export type TraceType =
 
 export type ConfrontationType =
   | "c1" | "c2" | "c3" | "c4" | "c5"
-  | "c6" | "c7" | "c8" | "c9" | "c10" | "c11";
+  | "c6" | "c7" | "c8" | "c9" | "c10" | "c11" | "c12" | "c13" | "c14";
 
 /** Mirrors `TraceType.dramaWeight` (doc 09 §1.5). */
 export const TRACE_DRAMA: Record<TraceType, number> = {
@@ -45,10 +45,13 @@ export const CONFRONTATION_SEVERITY: Record<ConfrontationType, number> = {
   c9: 5.5,
   c10: 4.5,
   c11: 3.0,
+  c12: 8.0,
+  c13: 7.5,
+  c14: 9.0,
 };
 
 export const CONFRONTATION_ORDER: ConfrontationType[] =
-  ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11"];
+  ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "c13", "c14"];
 
 /**
  * The three types held back for announcing a living player's role.
@@ -103,6 +106,10 @@ export interface DayRecord {
   votes: Record<number, number | null>;
   speakingSeconds: Record<number, number>;
   whispers: WhisperEdge[];
+  /** Who the table voted out, or null. Mirrors `DayRecord.eliminated`. */
+  eliminated?: number | null;
+  /** Whether the card shown at that elimination was the Mafia's (public). */
+  eliminatedWasMafia?: boolean | null;
 }
 
 export interface GameHistory {

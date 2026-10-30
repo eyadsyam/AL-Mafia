@@ -91,6 +91,11 @@ Confrontation? selectConfrontation({
   required int dayNumber,
   required int matchSeed,
   required MatchSettings settings,
+
+  /// The seat silenced for today. It cannot answer out loud, so it is never
+  /// the one asked to (a silenced player named for a timed answer they are
+  /// forbidden to give would be the app setting them up).
+  int? silencedSeat,
 }) {
   // Day 1 runs the «اسم واحد» opener instead — there is no behavioural history
   // on day 1, so a confrontation could only be invented (C-E1, §2.2).
@@ -117,6 +122,7 @@ Confrontation? selectConfrontation({
   candidates.removeWhere(
     (c) =>
         !alive.contains(c.target) ||
+        c.target == silencedSeat ||
         c.target == history.lastConfrontedPlayer ||
         c.type == history.lastConfrontationType,
   );
@@ -466,6 +472,92 @@ List<ConfrontationCandidate> findConfrontations({
           ),
         );
       });
+      return out;
+
+    // ─── C12 اتهام طلع غلط ──────────────────────────────────────────────
+    // Named X in the Day-1 opener, and the table later voted X out and saw a
+    // card that was not the Mafia's. Both facts were said to everyone.
+    case ConfrontationType.c12:
+      final out = <ConfrontationCandidate>[];
+      final opener = history.dayAt(1)?.openingAccusations ?? const {};
+      for (final entry in opener.entries) {
+        final seat = entry.key;
+        final accused = entry.value;
+        if (!alive.contains(seat)) continue;
+        for (var d = 1; d < dayNumber; d++) {
+          final day = history.dayAt(d);
+          if (day?.eliminated != accused || day?.eliminatedWasMafia != false) {
+            continue;
+          }
+          out.add(
+            ConfrontationCandidate(
+              Confrontation(
+                type: ConfrontationType.c12,
+                targetSeat: seat,
+                evidenceSeat: accused,
+                evidenceDay: d,
+              ),
+            ),
+          );
+          break;
+        }
+      }
+      return out;
+
+    // ─── C13 همسة للي اتقتل ─────────────────────────────────────────────
+    // Whispered to X yesterday, and X was last night's victim. Only the edge
+    // of the whisper graph and the death are used, never the words.
+    case ConfrontationType.c13:
+      final nights = history.resolvedNights;
+      if (nights.isEmpty) return const [];
+      final last = nights.last;
+      final victim = last.victim;
+      if (victim == null || last.nightNumber != dayNumber) return const [];
+      final yesterday = history.dayAt(dayNumber - 1);
+      if (yesterday == null) return const [];
+      return [
+        for (final from in {
+          for (final w in yesterday.whispers)
+            if (w.toSeat == victim && alive.contains(w.fromSeat)) w.fromSeat,
+        })
+          ConfrontationCandidate(
+            Confrontation(
+              type: ConfrontationType.c13,
+              targetSeat: from,
+              evidenceSeat: victim,
+              evidenceDay: dayNumber - 1,
+            ),
+          ),
+      ];
+
+    // ─── C14 همسة للي طلع مافيا ─────────────────────────────────────────
+    // Whispered to X on some day, and X was later voted out and shown to be
+    // Mafia. The most recent such elimination is the one quoted.
+    case ConfrontationType.c14:
+      final out = <ConfrontationCandidate>[];
+      for (var d = dayNumber - 1; d >= 1; d--) {
+        final day = history.dayAt(d);
+        final mafia = day?.eliminated;
+        if (mafia == null || day?.eliminatedWasMafia != true) continue;
+        final senders = {
+          for (final w in history.allWhispers)
+            if (w.toSeat == mafia && w.day <= d && alive.contains(w.fromSeat))
+              w.fromSeat,
+        };
+        for (final from in senders) {
+          out.add(
+            ConfrontationCandidate(
+              Confrontation(
+                type: ConfrontationType.c14,
+                targetSeat: from,
+                evidenceSeat: mafia,
+                evidenceDay: d,
+              ),
+            ),
+          );
+        }
+        if (out.isNotEmpty) break;
+      }
       return out;
 
     // ─── C11 الناجي (opt-in, off by default) ────────────────────────────
