@@ -20,6 +20,7 @@ enum PushDestination {
 /// The owner's notices (20261030000200_owner_push.sql) and the admin page
 /// each one opens, under the public web origin.
 const Map<String, String> kOwnerPushPaths = {
+  'owner_feedback': '/admin/review',
   'owner_order': '/admin',
   'owner_claimed': '/admin',
   'owner_play': '/admin',

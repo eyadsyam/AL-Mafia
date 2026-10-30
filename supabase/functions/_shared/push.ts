@@ -309,7 +309,7 @@ export function eventMessage(t: PushTarget, token: string, platform: "android" |
 }
 
 /** Notices for the owner's account only (20261030000200_owner_push.sql). */
-export type OwnerKind = "owner_order" | "owner_claimed" | "owner_play" | "owner_report" | "owner_tester";
+export type OwnerKind = "owner_order" | "owner_claimed" | "owner_play" | "owner_report" | "owner_tester" | "owner_feedback";
 
 /**
  * What each owner notice says and the admin page it opens on the website.
@@ -317,6 +317,7 @@ export type OwnerKind = "owner_order" | "owner_claimed" | "owner_play" | "owner_
  * the signed-in admin.
  */
 export const OWNER_TEXT: Record<OwnerKind, { title: string; body: string; path: string }> = {
+  owner_feedback: { title: "اقتراح جديد", body: "فيه لاعب بعت اقتراح. افتح لوحة المراجعة.", path: "/admin/review" },
   owner_order: { title: "طلب دفع جديد", body: "فيه حد طلب يشتري كوينز. افتح لوحة الإدارة.", path: "/admin" },
   owner_claimed: { title: "حد بيقول إنه حوّل", body: "فيه طلب مستني مراجعتك. افتح لوحة الإدارة.", path: "/admin" },
   owner_play: { title: "شراء جديد من جوجل بلاي", body: "فيه حد اشترى من المتجر. افتح لوحة الإدارة.", path: "/admin" },

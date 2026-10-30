@@ -3624,5 +3624,51 @@
         "type": "String"
       }
     }
-  }
+  },
+  "feedbackTitle": "اقترح تحسين",
+  "feedbackSubtitle": "رأيك بيوصل لصاحب اللعبة على طول",
+  "feedbackStep1": "اختار نوع الاقتراح من الصور.",
+  "feedbackStep2": "اكتب اللي عايزه يتغيّر أو يتضاف، بكلامك.",
+  "feedbackStep3": "اضغط ابعت. صاحب اللعبة بيقرا كل اقتراح بنفسه.",
+  "feedbackRoles": "الأدوار",
+  "feedbackOnline": "الأونلاين",
+  "feedbackStore": "المتجر",
+  "feedbackLook": "الشكل",
+  "feedbackIdea": "فكرة جديدة",
+  "feedbackProblem": "مشكلة",
+  "feedbackHint": "اكتب اقتراحك هنا",
+  "feedbackSend": "ابعت",
+  "feedbackSentTitle": "اقتراحك وصل",
+  "feedbackSentLine": "صاحب اللعبة بيقرا كل اقتراح بنفسه.",
+  "feedbackDone": "تمام",
+  "feedbackRateLimited": "ابعت اقتراح تاني بعد شوية.",
+  "feedbackError": "ماوصلش. جرّب تاني.",
+  "feedbackAdminTitle": "الاقتراحات",
+  "feedbackFilterAll": "الكل",
+  "feedbackFilterNew": "جديد",
+  "feedbackFilterRead": "اتقرا",
+  "feedbackFilterPlanned": "هيتعمل",
+  "feedbackBuild": "نسخة",
+  "accountMemoryBefore": "دخلت قبل كده بـ",
+  "accountMemoryRemove": "شيله من هنا",
+  "accountMemoryGoogleFailed": "ماقدرناش ندخلك بجوجل. جرّب تاني.",
+  "suspectAction": "أنا شاكك فيه",
+  "suspectClear": "مش شاكك فيه تاني",
+  "suspectCount": "{count} شاكّين فيه",
+  "@suspectCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectCountShort": "{count}",
+  "@suspectCountShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectFailed": "شكّك ماوصلش. جرّب تاني."
 }

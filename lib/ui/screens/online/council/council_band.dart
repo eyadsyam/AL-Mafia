@@ -277,6 +277,10 @@ class CouncilBand extends StatefulWidget {
   /// A whisper in flight.
   final CouncilSpark? spark;
 
+  /// «أنا شاكك في»: today's public suspicions as (from seat, to seat), drawn
+  /// as one thin thread each, the same for every viewer.
+  final List<(int, int)> threads;
+
   /// How open the confrontation spotlight is, 0 to 1.
   final double spotlight;
 
@@ -317,6 +321,7 @@ class CouncilBand extends StatefulWidget {
     this.crackingSeat,
     this.crackProgress = 0,
     this.spark,
+    this.threads = const [],
     this.spotlight = 0,
     this.revealProgress = 0,
     this.joinProgress = const {},
@@ -487,6 +492,8 @@ class _CouncilBandState extends State<CouncilBand>
                       crackingSeat: widget.crackingSeat,
                       crackProgress: widget.crackProgress,
                       spark: widget.spark,
+                      threads: widget.threads,
+                      threadColor: colors.roleMafia,
                       spotlightOpen: widget.spotlight,
                       revealProgress: widget.revealProgress,
                       portraitIn: portraitIn,
@@ -598,6 +605,8 @@ class CouncilPainter extends CustomPainter {
   final int? crackingSeat;
   final double crackProgress;
   final CouncilSpark? spark;
+  final List<(int, int)> threads;
+  final Color? threadColor;
   final double spotlightOpen;
 
   /// 0 to 1, shared by every seat. See [CouncilBand.revealProgress].
@@ -639,6 +648,8 @@ class CouncilPainter extends CustomPainter {
     required this.crackingSeat,
     required this.crackProgress,
     required this.spark,
+    this.threads = const [],
+    this.threadColor,
     required this.spotlightOpen,
     this.revealProgress = 0,
     this.portraitIn = 1,
@@ -690,10 +701,45 @@ class CouncilPainter extends CustomPainter {
         _paintSpotlight(canvas, size, positions[target]);
       }
     }
+    _paintThreads(canvas);
     for (var index = 0; index < positions.length; index++) {
       _paintSeat(canvas, seats[index], positions[index]);
     }
     _paintSpark(canvas);
+  }
+
+  /// One dashed thread per public suspicion, ending in a small arrowhead at
+  /// the seat named. Under the seats, so a ring is never crossed out.
+  void _paintThreads(Canvas canvas) {
+    final color = threadColor;
+    if (threads.isEmpty || color == null) return;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = CouncilTokens.threadWidth
+      ..strokeCap = StrokeCap.round
+      ..color = color.withValues(alpha: CouncilTokens.threadAlpha);
+    for (final (fromSeat, toSeat) in threads) {
+      final from = _centreOf(fromSeat);
+      final to = _centreOf(toSeat);
+      if (from == null || to == null) continue;
+      final line = to - from;
+      final length = line.distance;
+      if (length <= 0) continue;
+      final unit = line / length;
+      // Stop short of both rings.
+      final start = from + unit * CouncilTokens.threadInset;
+      final end = to - unit * CouncilTokens.threadInset;
+      final span = (end - start).distance;
+      for (var at = 0.0; at < span; at += CouncilTokens.threadDash * 2) {
+        final a = start + unit * at;
+        final b = start + unit * math.min(at + CouncilTokens.threadDash, span);
+        canvas.drawLine(a, b, paint);
+      }
+      final normal = Offset(-unit.dy, unit.dx);
+      const head = CouncilTokens.threadHead;
+      canvas.drawLine(end, end - unit * head + normal * head * 0.6, paint);
+      canvas.drawLine(end, end - unit * head - normal * head * 0.6, paint);
+    }
   }
 
   void _paintSpotlight(Canvas canvas, Size size, CouncilSeatLayout on) {
@@ -1271,6 +1317,8 @@ class CouncilPainter extends CustomPainter {
       old.crackingSeat != crackingSeat ||
       old.crackProgress != crackProgress ||
       old.spark != spark ||
+      !listEquals(old.threads, threads) ||
+      old.threadColor != threadColor ||
       old.spotlightOpen != spotlightOpen ||
       old.revealProgress != revealProgress ||
       old.portraitIn != portraitIn ||

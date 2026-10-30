@@ -7932,4 +7932,104 @@ class AppLocalizationsAr extends AppLocalizations {
     });
     return 'كنتي بتهمسي لـ$x، و$_temp0. إيه اللي بينكم؟';
   }
+
+  @override
+  String get feedbackTitle => 'اقترح تحسين';
+
+  @override
+  String get feedbackSubtitle => 'رأيك بيوصل لصاحب اللعبة على طول';
+
+  @override
+  String get feedbackStep1 => 'اختار نوع الاقتراح من الصور.';
+
+  @override
+  String get feedbackStep2 => 'اكتب اللي عايزه يتغيّر أو يتضاف، بكلامك.';
+
+  @override
+  String get feedbackStep3 => 'اضغط ابعت. صاحب اللعبة بيقرا كل اقتراح بنفسه.';
+
+  @override
+  String get feedbackRoles => 'الأدوار';
+
+  @override
+  String get feedbackOnline => 'الأونلاين';
+
+  @override
+  String get feedbackStore => 'المتجر';
+
+  @override
+  String get feedbackLook => 'الشكل';
+
+  @override
+  String get feedbackIdea => 'فكرة جديدة';
+
+  @override
+  String get feedbackProblem => 'مشكلة';
+
+  @override
+  String get feedbackHint => 'اكتب اقتراحك هنا';
+
+  @override
+  String get feedbackSend => 'ابعت';
+
+  @override
+  String get feedbackSentTitle => 'اقتراحك وصل';
+
+  @override
+  String get feedbackSentLine => 'صاحب اللعبة بيقرا كل اقتراح بنفسه.';
+
+  @override
+  String get feedbackDone => 'تمام';
+
+  @override
+  String get feedbackRateLimited => 'ابعت اقتراح تاني بعد شوية.';
+
+  @override
+  String get feedbackError => 'ماوصلش. جرّب تاني.';
+
+  @override
+  String get feedbackAdminTitle => 'الاقتراحات';
+
+  @override
+  String get feedbackFilterAll => 'الكل';
+
+  @override
+  String get feedbackFilterNew => 'جديد';
+
+  @override
+  String get feedbackFilterRead => 'اتقرا';
+
+  @override
+  String get feedbackFilterPlanned => 'هيتعمل';
+
+  @override
+  String get feedbackBuild => 'نسخة';
+
+  @override
+  String get accountMemoryBefore => 'دخلت قبل كده بـ';
+
+  @override
+  String get accountMemoryRemove => 'شيله من هنا';
+
+  @override
+  String get accountMemoryGoogleFailed => 'ماقدرناش ندخلك بجوجل. جرّب تاني.';
+
+  @override
+  String get suspectAction => 'أنا شاكك فيه';
+
+  @override
+  String get suspectClear => 'مش شاكك فيه تاني';
+
+  @override
+  String suspectCount(int count) {
+    return '$count شاكّين فيه';
+  }
+
+  @override
+  String suspectCountShort(int count) {
+    return '$count';
+  }
+
+  @override
+  String get suspectFailed => 'شكّك ماوصلش. جرّب تاني.';
 }

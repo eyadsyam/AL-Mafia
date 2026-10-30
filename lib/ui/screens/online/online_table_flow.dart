@@ -42,6 +42,7 @@ import 'council/revealed_whispers.dart';
 import 'council/council_band.dart';
 import 'host_handover.dart';
 import 'host_sheet.dart';
+import 'suspect_sheet.dart';
 import 'scene_sheet.dart';
 import 'online_session.dart';
 import 'rewarded_reward_button.dart';
@@ -314,6 +315,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   /// second waits for the first to go — [_pullWhisper] is re-entered on the
   /// next fold either way.
   _Incoming? _incoming;
+
+  /// The seat whose «أنا شاكك في» sheet is open, during the discussion.
+  int? _suspect;
 
   /// True while a body fetch is in flight, so a rebuild does not start a
   /// second one for the same whisper.
@@ -915,6 +919,15 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   // ── commands ─────────────────────────────────────────────────────────────
 
   void _pick(int seat) {
+    // The discussion has no choice to submit: a tap on a seat opens the
+    // public «أنا شاكك في» for it.
+    if (_controller.snapshot.phase == GamePhase.discussion) {
+      if (SuspectSheet.mayName(_controller.snapshot, seat)) {
+        Haptics.select();
+        setState(() => _suspect = seat);
+      }
+      return;
+    }
     if (_submitted) return;
     if (_controller.snapshot.phase == GamePhase.voting &&
         _controller.snapshot.viewerSilenced) {
@@ -1462,6 +1475,18 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
                   seat: _inspect,
                   onDismiss: () => setState(() => _inspect = null),
                 ),
+                SuspectSheet(
+                  snapshot: snapshot,
+                  transport: ref.read(onlineSessionProvider).transport,
+                  seat: _suspect,
+                  onDismiss: () => setState(() => _suspect = null),
+                  onFailed: () {
+                    if (!mounted) return;
+                    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+                      SnackBar(content: Text(context.l10n.suspectFailed)),
+                    );
+                  },
+                ),
                 // Task 5 — the deliberate ending, never the accidental one.
                 // Everybody else has gone. A match with one person left at the table
                 // is not a match; say so and offer the way home rather than run the
@@ -1551,6 +1576,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
       !_roster &&
       !_whispers &&
       _inspect == null &&
+      _suspect == null &&
       _dossier == null &&
       _letter == null &&
       _witnessPage == null;
@@ -1596,9 +1622,14 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   }
 
   void _keyboardClose() {
-    if (_inspect != null || _dossier != null || _composing || _closing) {
+    if (_inspect != null ||
+        _suspect != null ||
+        _dossier != null ||
+        _composing ||
+        _closing) {
       setState(() {
         _inspect = null;
+        _suspect = null;
         _dossier = null;
         _composing = false;
         _closing = false;
@@ -1640,6 +1671,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
               snapshot.viewerLastProtectSeat,
             ))
           snapshot.viewerSeat!,
+      },
+      GamePhase.discussion => {
+        for (final p in snapshot.public.players)
+          if (SuspectSheet.mayName(snapshot, p.seat)) p.seat,
       },
       GamePhase.openingRound || GamePhase.voting => {
         for (final p in snapshot.public.players)

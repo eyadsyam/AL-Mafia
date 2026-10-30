@@ -8,8 +8,9 @@ import { OWNER_TEXT, WEB_ORIGIN, isOwnerKind, messageFor } from '../functions/_s
 const forbidden = ['جنيه', 'EGP', 'instapay', 'vodafone', 'فودافون', 'انستاباي', '@'];
 
 assert.deepEqual(Object.keys(OWNER_TEXT).sort(), [
-  'owner_claimed', 'owner_order', 'owner_play', 'owner_report', 'owner_tester',
+  'owner_claimed', 'owner_feedback', 'owner_order', 'owner_play', 'owner_report', 'owner_tester',
 ]);
+assert.equal(OWNER_TEXT.owner_feedback.path, '/admin/review');
 for (const [kind, spec] of Object.entries(OWNER_TEXT)) {
   assert.ok(isOwnerKind(kind));
   assert.ok(spec.path.startsWith('/admin'), `${kind} opens an admin page`);

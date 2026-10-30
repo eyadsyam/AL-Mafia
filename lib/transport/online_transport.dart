@@ -1184,6 +1184,14 @@ class OnlineTransport implements GameTransport {
     await _send('open_phase', {'phase': 'vote'}, hostOnly: true);
   }
 
+  /// «أنا شاكك في»: names [targetSeat] out loud for today, or clears the
+  /// pick with null. Public by design; the server keeps the rules (discussion
+  /// only, alive, not silenced, one per day).
+  Future<void> setPublicSuspicion(int? targetSeat) async {
+    await _send('public_suspicion', {'targetSeat': targetSeat});
+    await resync();
+  }
+
   @override
   Future<void> setReadyToVote(bool ready) async {
     await _send('ready_to_vote', {'ready': ready});

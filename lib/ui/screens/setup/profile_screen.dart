@@ -16,6 +16,7 @@ import '../../economy/wallet.dart' show walletProvider;
 import '../../economy/waiting_banner.dart';
 import '../../fun/founder_badge.dart';
 import '../../fun/loaded_capabilities.dart';
+import '../../feedback/feedback_sheet.dart';
 import '../../l10n_ext.dart';
 import '../../social/friends.dart';
 import '../../social/titles_partner.dart';
@@ -155,6 +156,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final now = ref.watch(profileClockProvider)();
     final onJoin = widget.onJoinRoom;
     return [
+      MafiaListRow(
+        title: l.feedbackTitle,
+        subtitle: l.feedbackSubtitle,
+        leading: Icon(
+          Icons.chat_bubble_outline,
+          color: context.colors.accentGold,
+        ),
+        trailing: Icon(Icons.chevron_right, color: context.colors.textMuted),
+        onTap: () => showFeedbackSheet(context),
+      ),
       if (onJoin != null && accounts && caps?.friends != false)
         ProfileRow(
           key: ProfileScreen.friendsKey,

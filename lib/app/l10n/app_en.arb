@@ -4927,5 +4927,51 @@
         "type": "String"
       }
     }
-  }
+  },
+  "feedbackTitle": "Suggest an improvement",
+  "feedbackSubtitle": "Your idea goes straight to the game owner",
+  "feedbackStep1": "Choose the suggestion type from the pictures.",
+  "feedbackStep2": "Write what you want changed or added, in your own words.",
+  "feedbackStep3": "Tap Send. The game owner reads every suggestion personally.",
+  "feedbackRoles": "Roles",
+  "feedbackOnline": "Online",
+  "feedbackStore": "Store",
+  "feedbackLook": "Look",
+  "feedbackIdea": "New idea",
+  "feedbackProblem": "Problem",
+  "feedbackHint": "Write your suggestion here",
+  "feedbackSend": "Send",
+  "feedbackSentTitle": "Suggestion sent",
+  "feedbackSentLine": "The game owner reads every suggestion personally.",
+  "feedbackDone": "Done",
+  "feedbackRateLimited": "Send another suggestion in a little while.",
+  "feedbackError": "Didn't send. Try again.",
+  "feedbackAdminTitle": "Suggestions",
+  "feedbackFilterAll": "All",
+  "feedbackFilterNew": "New",
+  "feedbackFilterRead": "Read",
+  "feedbackFilterPlanned": "Planned",
+  "feedbackBuild": "Build",
+  "accountMemoryBefore": "Previously signed in with",
+  "accountMemoryRemove": "Remove from this device",
+  "accountMemoryGoogleFailed": "Could not sign in with Google. Try again.",
+  "suspectAction": "I suspect them",
+  "suspectClear": "Take it back",
+  "suspectCount": "{count} suspect them",
+  "@suspectCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectCountShort": "{count}",
+  "@suspectCountShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suspectFailed": "Your suspicion did not go through. Try again."
 }

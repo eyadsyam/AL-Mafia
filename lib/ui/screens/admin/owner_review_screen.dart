@@ -29,6 +29,7 @@ class OwnerReviewScreen extends ConsumerStatefulWidget {
 class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
   static const _actions = [
     'overview',
+    'feedback',
     'players',
     'rooms',
     'store',
@@ -38,6 +39,8 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
   ];
   String _action = 'overview';
   String _query = '';
+  String? _feedbackStatus;
+  String? _marking;
   Map<String, dynamic>? _data;
   String? _error;
   bool? _admin;
@@ -56,6 +59,8 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
       final answer = await backend.call('owner_review', {
         'action': _action,
         if (_action == 'players') 'query': _query,
+        if (_action == 'feedback' && _feedbackStatus != null)
+          'status': _feedbackStatus,
       });
       if (!mounted || request != _request) return;
       setState(() {
@@ -85,6 +90,45 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
       _data = null;
     });
     _load();
+  }
+
+  Future<void> _mark(String id, String status) async {
+    if (_marking != null) return;
+    setState(() => _marking = id);
+    try {
+      final backend = await ref.read(onlineBackendFactoryProvider)();
+      await backend.ensureSession();
+      await backend.call('owner_review', {
+        'action': 'feedbackMark',
+        'id': id,
+        'status': status,
+      });
+      if (!mounted) return;
+      final items = (_data?['items'] as List? ?? const [])
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+      for (final item in items) {
+        if (item['id'] == id) item['status'] = status;
+      }
+      setState(() {
+        _marking = null;
+        _data = {
+          ...?_data,
+          'items': _feedbackStatus == null
+              ? items
+              : items
+                    .where((item) => item['status'] == _feedbackStatus)
+                    .toList(),
+        };
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _marking = null;
+        _error = context.l10n.adminReviewError;
+      });
+    }
   }
 
   @override
@@ -164,6 +208,28 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
                       },
                     ),
                   ],
+                  if (_action == 'feedback') ...[
+                    SizedBox(height: s.sm),
+                    Wrap(
+                      spacing: AdminTokens.tabGap,
+                      children: [
+                        for (final (status, label) in [
+                          (null, l.feedbackFilterAll),
+                          ('new', l.feedbackFilterNew),
+                          ('read', l.feedbackFilterRead),
+                          ('planned', l.feedbackFilterPlanned),
+                        ])
+                          ChoiceChip(
+                            label: Text(label),
+                            selected: _feedbackStatus == status,
+                            onSelected: (_) {
+                              setState(() => _feedbackStatus = status);
+                              _load();
+                            },
+                          ),
+                      ],
+                    ),
+                  ],
                   SizedBox(height: s.md),
                   if (_loading)
                     const SizedBox(
@@ -191,6 +257,7 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
   String _tabLabel(String action) {
     final l = context.l10n;
     return switch (action) {
+      'feedback' => l.feedbackAdminTitle,
       'players' => l.adminReviewPlayers,
       'rooms' => l.adminReviewRooms,
       'store' => l.adminReviewStore,
@@ -274,6 +341,77 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
     final l = context.l10n;
     String field(String key) => '${row[key] ?? ''}';
     switch (_action) {
+      case 'feedback':
+        final kind = field('kind');
+        final icon = switch (kind) {
+          'roles' => Icons.theater_comedy_outlined,
+          'online' => Icons.public,
+          'store' => Icons.storefront_outlined,
+          'look' => Icons.palette_outlined,
+          'idea' => Icons.lightbulb_outline,
+          _ => Icons.bug_report_outlined,
+        };
+        final name = switch (kind) {
+          'roles' => l.feedbackRoles,
+          'online' => l.feedbackOnline,
+          'store' => l.feedbackStore,
+          'look' => l.feedbackLook,
+          'idea' => l.feedbackIdea,
+          _ => l.feedbackProblem,
+        };
+        final statusLabel = switch (field('status')) {
+          'read' => l.feedbackFilterRead,
+          'planned' => l.feedbackFilterPlanned,
+          _ => l.feedbackFilterNew,
+        };
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AdminTokens.rowGap),
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(context.spacing.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icon(icon),
+                      SizedBox(width: context.spacing.sm),
+                      Expanded(
+                        child: Text(
+                          '$name · ${field('displayName')}',
+                          style: context.typography.body,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(field('body'), style: context.typography.body),
+                  Text(statusLabel, style: context.typography.bodySmall),
+                  Text(
+                    '${field('createdAt')} · ${l.feedbackBuild} ${field('appBuild')}',
+                    style: context.typography.bodySmall,
+                  ),
+                  Wrap(
+                    spacing: AdminTokens.tabGap,
+                    children: [
+                      TextButton(
+                        onPressed: _marking == field('id')
+                            ? null
+                            : () => _mark(field('id'), 'read'),
+                        child: Text(l.feedbackFilterRead),
+                      ),
+                      TextButton(
+                        onPressed: _marking == field('id')
+                            ? null
+                            : () => _mark(field('id'), 'planned'),
+                        child: Text(l.feedbackFilterPlanned),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
       case 'players':
         return _tile(
           field('displayName'),

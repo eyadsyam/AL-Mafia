@@ -8051,4 +8051,109 @@ class AppLocalizationsEn extends AppLocalizations {
     });
     return 'You were whispering to $x, and $_temp0 Mafia. What is between you two?';
   }
+
+  @override
+  String get feedbackTitle => 'Suggest an improvement';
+
+  @override
+  String get feedbackSubtitle => 'Your idea goes straight to the game owner';
+
+  @override
+  String get feedbackStep1 => 'Choose the suggestion type from the pictures.';
+
+  @override
+  String get feedbackStep2 =>
+      'Write what you want changed or added, in your own words.';
+
+  @override
+  String get feedbackStep3 =>
+      'Tap Send. The game owner reads every suggestion personally.';
+
+  @override
+  String get feedbackRoles => 'Roles';
+
+  @override
+  String get feedbackOnline => 'Online';
+
+  @override
+  String get feedbackStore => 'Store';
+
+  @override
+  String get feedbackLook => 'Look';
+
+  @override
+  String get feedbackIdea => 'New idea';
+
+  @override
+  String get feedbackProblem => 'Problem';
+
+  @override
+  String get feedbackHint => 'Write your suggestion here';
+
+  @override
+  String get feedbackSend => 'Send';
+
+  @override
+  String get feedbackSentTitle => 'Suggestion sent';
+
+  @override
+  String get feedbackSentLine =>
+      'The game owner reads every suggestion personally.';
+
+  @override
+  String get feedbackDone => 'Done';
+
+  @override
+  String get feedbackRateLimited =>
+      'Send another suggestion in a little while.';
+
+  @override
+  String get feedbackError => 'Didn\'t send. Try again.';
+
+  @override
+  String get feedbackAdminTitle => 'Suggestions';
+
+  @override
+  String get feedbackFilterAll => 'All';
+
+  @override
+  String get feedbackFilterNew => 'New';
+
+  @override
+  String get feedbackFilterRead => 'Read';
+
+  @override
+  String get feedbackFilterPlanned => 'Planned';
+
+  @override
+  String get feedbackBuild => 'Build';
+
+  @override
+  String get accountMemoryBefore => 'Previously signed in with';
+
+  @override
+  String get accountMemoryRemove => 'Remove from this device';
+
+  @override
+  String get accountMemoryGoogleFailed =>
+      'Could not sign in with Google. Try again.';
+
+  @override
+  String get suspectAction => 'I suspect them';
+
+  @override
+  String get suspectClear => 'Take it back';
+
+  @override
+  String suspectCount(int count) {
+    return '$count suspect them';
+  }
+
+  @override
+  String suspectCountShort(int count) {
+    return '$count';
+  }
+
+  @override
+  String get suspectFailed => 'Your suspicion did not go through. Try again.';
 }

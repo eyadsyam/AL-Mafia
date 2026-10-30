@@ -316,6 +316,9 @@ GameSnapshot snapshotFrom({
     trace: traceFromJson((data['morning'] as Map?)?['trace']),
     confrontation: confrontationFromJson(data['confrontation']),
     openingAccusations: accusationsFromJson(data['openingAccusations']),
+    publicSuspicions: accusationsFromJson(
+      (data['suspicions'] as Map?)?['${state.phaseNumber}'],
+    ),
     whisperGraph: whisperGraph(whispers, state.phaseNumber),
     morning: morningFromJson(data['morning']),
     lastVote: voteFromJson(data['lastVote']),

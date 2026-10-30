@@ -279,6 +279,10 @@ class GameSnapshot {
   /// Today's «اسم واحد» accusations, seat → seat. Public.
   final Map<int, int> openingAccusations;
 
+  /// «أنا شاكك في» (online): today's public suspicions, seat -> the seat it
+  /// named. Public by design: every seat draws the same threads. Empty offline.
+  final Map<int, int> publicSuspicions;
+
   /// Today's whisper graph. Public by design; bodies are never here.
   final List<WhisperMeta> whisperGraph;
 
@@ -525,6 +529,7 @@ class GameSnapshot {
     this.trace,
     this.confrontation,
     this.openingAccusations = const {},
+    this.publicSuspicions = const {},
     this.whisperGraph = const [],
     this.morning,
     this.lastVote,
@@ -587,6 +592,7 @@ class GameSnapshot {
     TraceResult? trace,
     Confrontation? confrontation,
     Map<int, int>? openingAccusations,
+    Map<int, int>? publicSuspicions,
     List<WhisperMeta>? whisperGraph,
     MorningReport? morning,
     DayVoteResult? lastVote,
@@ -631,6 +637,7 @@ class GameSnapshot {
     trace: trace ?? this.trace,
     confrontation: confrontation ?? this.confrontation,
     openingAccusations: openingAccusations ?? this.openingAccusations,
+    publicSuspicions: publicSuspicions ?? this.publicSuspicions,
     whisperGraph: whisperGraph ?? this.whisperGraph,
     morning: clearMorning ? null : (morning ?? this.morning),
     lastVote: clearVote ? null : (lastVote ?? this.lastVote),

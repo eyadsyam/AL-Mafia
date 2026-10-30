@@ -37,6 +37,23 @@ void main() {
 
   final answers = <String, Map<String, dynamic>>{
     'overview': {'accountsTotal': 23},
+    'feedback': {
+      'items': [
+        {
+          'id': '11111111-1111-1111-1111-111111111111',
+          'kind': 'idea',
+          'body': 'More scenes please',
+          'status': 'new',
+          'displayName': 'Mona',
+          'createdAt': '2026-10-30',
+          'appBuild': 18,
+        },
+      ],
+    },
+    'feedbackMark': {
+      'id': '11111111-1111-1111-1111-111111111111',
+      'status': 'read',
+    },
     'players': {
       'items': [
         {
@@ -95,6 +112,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('23'), findsOneWidget);
     for (final (action, expected) in [
+      ('feedback', 'More scenes please'),
       ('players', 'Mona'),
       ('rooms', 'ABCDEF'),
       ('store', 'frame_gilded'),
@@ -106,6 +124,21 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(expected), findsWidgets);
     }
+  });
+
+  testWidgets('feedback page marks a suggestion', (tester) async {
+    final server = backend()
+      ..responders['owner_review'] = (body) => answers[body['action']]!;
+    await tester.pumpWidget(app(server));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(OwnerReviewScreen.tab('feedback')));
+    await tester.pumpAndSettle();
+    expect(find.text('More scenes please'), findsOneWidget);
+    await tester.tap(find.text(arStrings.feedbackFilterRead).last);
+    await tester.pumpAndSettle();
+    expect(server.calls.last.body['action'], 'feedbackMark');
+    expect(server.calls.last.body['status'], 'read');
+    expect(find.text(arStrings.feedbackFilterRead), findsNWidgets(3));
   });
 
   testWidgets('empty state and retry after error', (tester) async {
@@ -147,6 +180,7 @@ void main() {
       await tester.pumpWidget(app(server));
       await tester.pumpAndSettle();
       for (final action in [
+        'feedback',
         'players',
         'rooms',
         'store',

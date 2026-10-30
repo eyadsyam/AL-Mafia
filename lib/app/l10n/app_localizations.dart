@@ -13830,6 +13830,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You were whispering to {x}, and {xg, select, female{she was} other{he was}} Mafia. What is between you two?'**
   String confrontationC14Female(String x, String xg);
+
+  /// No description provided for @feedbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest an improvement'**
+  String get feedbackTitle;
+
+  /// No description provided for @feedbackSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your idea goes straight to the game owner'**
+  String get feedbackSubtitle;
+
+  /// No description provided for @feedbackStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the suggestion type from the pictures.'**
+  String get feedbackStep1;
+
+  /// No description provided for @feedbackStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Write what you want changed or added, in your own words.'**
+  String get feedbackStep2;
+
+  /// No description provided for @feedbackStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Send. The game owner reads every suggestion personally.'**
+  String get feedbackStep3;
+
+  /// No description provided for @feedbackRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles'**
+  String get feedbackRoles;
+
+  /// No description provided for @feedbackOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get feedbackOnline;
+
+  /// No description provided for @feedbackStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get feedbackStore;
+
+  /// No description provided for @feedbackLook.
+  ///
+  /// In en, this message translates to:
+  /// **'Look'**
+  String get feedbackLook;
+
+  /// No description provided for @feedbackIdea.
+  ///
+  /// In en, this message translates to:
+  /// **'New idea'**
+  String get feedbackIdea;
+
+  /// No description provided for @feedbackProblem.
+  ///
+  /// In en, this message translates to:
+  /// **'Problem'**
+  String get feedbackProblem;
+
+  /// No description provided for @feedbackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your suggestion here'**
+  String get feedbackHint;
+
+  /// No description provided for @feedbackSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get feedbackSend;
+
+  /// No description provided for @feedbackSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestion sent'**
+  String get feedbackSentTitle;
+
+  /// No description provided for @feedbackSentLine.
+  ///
+  /// In en, this message translates to:
+  /// **'The game owner reads every suggestion personally.'**
+  String get feedbackSentLine;
+
+  /// No description provided for @feedbackDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get feedbackDone;
+
+  /// No description provided for @feedbackRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Send another suggestion in a little while.'**
+  String get feedbackRateLimited;
+
+  /// No description provided for @feedbackError.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t send. Try again.'**
+  String get feedbackError;
+
+  /// No description provided for @feedbackAdminTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions'**
+  String get feedbackAdminTitle;
+
+  /// No description provided for @feedbackFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get feedbackFilterAll;
+
+  /// No description provided for @feedbackFilterNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get feedbackFilterNew;
+
+  /// No description provided for @feedbackFilterRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get feedbackFilterRead;
+
+  /// No description provided for @feedbackFilterPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get feedbackFilterPlanned;
+
+  /// No description provided for @feedbackBuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Build'**
+  String get feedbackBuild;
+
+  /// No description provided for @accountMemoryBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Previously signed in with'**
+  String get accountMemoryBefore;
+
+  /// No description provided for @accountMemoryRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from this device'**
+  String get accountMemoryRemove;
+
+  /// No description provided for @accountMemoryGoogleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign in with Google. Try again.'**
+  String get accountMemoryGoogleFailed;
+
+  /// No description provided for @suspectAction.
+  ///
+  /// In en, this message translates to:
+  /// **'I suspect them'**
+  String get suspectAction;
+
+  /// No description provided for @suspectClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Take it back'**
+  String get suspectClear;
+
+  /// No description provided for @suspectCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} suspect them'**
+  String suspectCount(int count);
+
+  /// No description provided for @suspectCountShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}'**
+  String suspectCountShort(int count);
+
+  /// No description provided for @suspectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your suspicion did not go through. Try again.'**
+  String get suspectFailed;
 }
 
 class _AppLocalizationsDelegate

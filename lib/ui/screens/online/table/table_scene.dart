@@ -25,6 +25,7 @@ import '../safety_center.dart';
 import '../../../economy/cosmetic_paint.dart';
 import '../../../economy/cosmetics.dart';
 import 'room_presentation.dart';
+import 'suspicion_threads.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../economy/table_tools.dart';
 import '../online_session.dart';
@@ -351,10 +352,11 @@ class TableScene extends StatelessWidget {
     crackingSeat: tearingSeat,
     crackProgress: tearProgress,
     spark: spark,
+    threads: suspicionThreads(snapshot),
     spotlight: spotlight,
     revealProgress: revealProgress,
     leftLabel: context.l10n.onlineLeftRoom,
-    seatMarks: seatMarks,
+    seatMarks: {...suspicionMarks(context, snapshot), ...seatMarks},
   );
 
   Widget _voiceBand(BuildContext context) => AnimatedSwitcher(
@@ -510,10 +512,14 @@ class TableScene extends StatelessWidget {
                     crackingSeat: tearingSeat,
                     crackProgress: tearProgress,
                     spark: spark,
+                    threads: suspicionThreads(snapshot),
                     spotlight: spotlight,
                     revealProgress: revealProgress,
                     leftLabel: context.l10n.onlineLeftRoom,
-                    seatMarks: seatMarks,
+                    seatMarks: {
+                      ...suspicionMarks(context, snapshot),
+                      ...seatMarks,
+                    },
                   ),
                 ),
                 Wrap(

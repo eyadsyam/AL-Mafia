@@ -873,6 +873,18 @@ abstract final class CouncilTokens {
   /// the distance it travels.
   static const double whisperArcLift = 0.28;
 
+  /// «أنا شاكك في» threads: stroke, opacity, dash, the gap kept from each
+  /// ring, and the arrowhead's length.
+  static const double threadWidth = 1.6;
+  static const double threadAlpha = 0.85;
+  static const double threadDash = 5;
+  static const double threadInset = 22;
+  static const double threadHead = 7;
+
+  /// The count pill on a seat that was named.
+  static const double suspicionPillRadius = 9;
+  static const double suspicionPillPadding = 6;
+
   /// How far a cracked seat drops and shakes while it tears.
   static const double crackShakeAmplitude = 5;
   static const int crackShakeCycles = 4;
@@ -2728,6 +2740,13 @@ abstract final class AccountTokens {
   static const Duration pendingReturn = Duration(minutes: 15);
 }
 
+abstract final class AccountMemoryTokens {
+  static const double sectionGap = 8;
+  static const double cardGap = 8;
+  static const double radius = 12;
+  static const Duration googleWait = Duration(seconds: 30);
+}
+
 /// The full profile (`lib/ui/account/profile_panels.dart`).
 abstract final class ProfileTokens {
   static const double statArt = 56.0;
@@ -3468,4 +3487,16 @@ abstract final class StoriesLampTokens {
 abstract final class AddToHomeTokens {
   /// The square each step's mark sits in.
   static const double mark = 28;
+}
+
+abstract final class FeedbackTokens {
+  static const double tileHeight = 74;
+  static const double tileIcon = 25;
+  static const double sealSize = 76;
+  static const double selectedBorder = 2;
+  static const double sheetMaxWidth = 520;
+  static const int fieldMinLines = 3;
+  static const double progressSize = 20;
+  static const int maxLength = 500;
+  static const int gridColumns = 3;
 }

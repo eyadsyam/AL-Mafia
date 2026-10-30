@@ -14,6 +14,7 @@ import '../../widgets/back_action.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/settings_kit.dart';
 import '../../economy/web_ads.dart';
+import '../../feedback/feedback_sheet.dart';
 
 /// Settings screen (S-04).
 ///
@@ -273,7 +274,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _reveal(l10n),
       _voting(l10n),
     ];
-    final panels = [...rules, _audio(l10n)];
+    final panels = [
+      ...rules,
+      _audio(l10n),
+      if (widget.playerCount == null)
+        SettingsLinkRow(
+          icon: Icons.chat_bubble_outline,
+          label: l10n.feedbackTitle,
+          hint: l10n.feedbackSubtitle,
+          onTap: () => showFeedbackSheet(context),
+        ),
+    ];
 
     return MafiaScaffold(
       backgroundColor: colors.surfaceBase,
