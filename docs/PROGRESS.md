@@ -3992,7 +3992,7 @@ Verified:   vote matrix generator twice (second byte-identical; 117 known diverg
 Gate:       PASS (orchestrator rerun: flutter analyze 0 issues; full flutter test 4169 passed, 0 failed)
 Open:       The 3 failures above were in two unfinished reconnect/rotation test files from a Codex run that hit its usage limit; they are held outside the repo until Codex finishes them (client_resync_clock_rotation brief). client_clock_skew_test.dart from that run passes (3/3) and is kept.
 
-## PHASE finish open tests — blocked
+## PHASE finish open tests ï¿½ blocked
 Built:      Moved X10/X18 Dart tests into test/online and test/widget, bounded widget pumps, removed pending_tests, and corrected D6 quiet-night and T25 night-one Doctor fixtures without changing assertions.
 Files:      test/online/phase_resync_privacy_test.dart; test/widget/rotation_no_double_submit_test.dart; supabase/tests/silence_floor_match.py; supabase/tests/hosted_night_tools_match.py; docs/PROGRESS.md.
 Verified:   python -m py_compile passed; focused Flutter run: 9 passed, 3 failed. Initial analyze ran during move and reported 11 stale pending_tests import errors; final analyze and full suite not run after app defects surfaced.
@@ -4048,7 +4048,7 @@ Files:      lib/data/online_match_history.dart, lib/ui/account/{profile_panels,p
 Verified:   flutter analyze --no-pub on 11 touched Dart paths: 0 issues; flutter test --no-pub --concurrency=2 scoped files + test/web + directory_api: 95 passed, 0 failed; node tool/test_sql_without_docker.mjs live_lobby_heir.sql, lobby_departures.sql, host_continuity.sql: 3/3 passed against 186 migrations; node --check web/offline_service_worker.js passed.
 Gate:       PASS for local checks
 Open:       Apply 20261030006000_live_lobby_heir.sql before using the new server behavior. No deploy, live SQL, release build, network call, browser runtime, or device run was done.
-## PHASE match defects (2026-10-30) — done
+## PHASE match defects (2026-10-30) ï¿½ done
 Built:      Closed early night, vote and discussion transitions; made Day-1 opener optional; made offline whisper writes atomic from the match's view and persisted online read receipts.
 Files:      lib/engine/match_engine.dart; lib/transport/{local_transport,online_transport}.dart; lib/data/read_whisper_store.dart; supabase/functions/{resolve_night,resolve_vote,open_phase,advance_phase,ready_to_vote}/index.ts; supabase/functions/_shared/phase_guards.ts; supabase/migrations/20261030006100_atomic_ready_open.sql; supabase/tests/{phase_guards.test.mjs,atomic_ready_open.sql}; test/transport/{local_transport_test,online_transport_test}.dart; test/online/{day_whisper_delivery_test,phase_resync_privacy_test}.dart; docs/PROGRESS.md
 Verified:   flutter analyze --no-pub on 8 touched Dart paths: no issues; flutter test --no-pub --concurrency=2 on touched transport tests plus test/online and test/transport: 598 passed; node phase_guards: 16 checks; node server_fixes: pass; node night_matrix: 6412 passed; local PGlite: 187 migrations and 3 phase SQL contracts passed; engine purity clean.
@@ -4066,4 +4066,4 @@ Built:      Offline: each step saved before the phone changes hands; unowned sav
 Files:      lib/ui/screens/{match_flow,day/voting_screen,night/night_action_screen,distribution/role_reveal_screen,setup/roles_screen,online/room_closed_notice}.dart; lib/app/router.dart; supabase/migrations/20261030007200,7300; supabase/functions/open_phase; supabase/tests/struck_seat_phases.test.mjs
 Verified:   flutter test full suite 4758/4758; 121/121 SQL; every supabase/tests/*.test.mjs; live migrations applied, open_phase deployed; Play production commit; web deployed and stamp read back.
 Gate:       PASS for local checks. No device or multi-device match was run.
-Open:       Play review pending. A live match on real phones is the owner's check (Q10). Codex hit its usage limit (back 2026-11-04) mid-pass with no report; its online list (bullets end to end, whispers, tools per phase, ties, races, reconnect per phase) was not confirmed complete beyond the existing tests.
+Open:       Play review pending. A live match on real phones is the owner's check (Q10). Codex hit its usage limit (back 2026-11-04) mid-pass with no report; ties, whispers to and from a struck seat, racing requests and a return in each phase were then covered by supabase/tests/match_edges.test.mjs (15/15, no bug found). Its races run on a single PGlite connection, so true parallel transactions on the live database remain unproven.
