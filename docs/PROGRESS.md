@@ -4054,3 +4054,10 @@ Files:      lib/engine/match_engine.dart; lib/transport/{local_transport,online_
 Verified:   flutter analyze --no-pub on 8 touched Dart paths: no issues; flutter test --no-pub --concurrency=2 on touched transport tests plus test/online and test/transport: 598 passed; node phase_guards: 16 checks; node server_fixes: pass; node night_matrix: 6412 passed; local PGlite: 187 migrations and 3 phase SQL contracts passed; engine purity clean.
 Gate:       PASS for local checks
 Open:       Edge Functions and migration are not deployed; live backend and multi-device behavior remain unverified under the no-network instruction.
+
+## PHASE online room and match rules (2026-10-30) — done
+Built:      Host sets the whole deal and bought roles before seats arrive; redesigned room settings; scene and narrator by picture and voice; «شكلي وأدواتي» for every seat; a frame change reaches the lobby; host gone closes the room, other seats struck after 90 s, nobody inherits; no move lands in a closed room; a reward waits for the result to open. Build 1.6.0+20.
+Files:      lib/ui/screens/online/{lobby_deal,online_deal_panel,room_settings_panel,room_look_picker,my_match_panel,lobby_screen,online_table_flow}.dart; lib/ui/screens/setup/role_deal_grid.dart; lib/ui/economy/my_cosmetics.dart; supabase/functions/{start_match,public_suspicion}; supabase/migrations/20261030006000 to 20261030007100; tool/edge_harness/index.mjs
+Verified:   flutter test full suite 4751 passed with 1 stale test, which was then fixed and passed alone; flutter analyze lib: no errors; 121/121 SQL files and every supabase/tests/*.test.mjs pass on PGlite; live migrations applied, 7 functions deployed, live function bodies checked by query; web deployed and stamp read back; Play production commit of versionCode 20 accepted.
+Gate:       PASS for local checks. No device, emulator or multi-device match was run.
+Open:       Play review pending. Live online match on real phones is the owner's check (Q10). Codex's match pass stopped at its usage limit with no report; what it left was reviewed and landed, the rest of its list was not covered.
