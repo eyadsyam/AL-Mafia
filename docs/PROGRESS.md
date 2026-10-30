@@ -4030,3 +4030,9 @@ Files:      lib/transport/online_transport.dart, lib/ui/screens/setup/role_deal_
 Verified:   flutter test --coverage --concurrency=2: 4620 passed, 0 failed; line coverage 80.6% → 82.5%; directory_api_test 19 passed after the run; flutter analyze: only pre-existing infos.
 Gate:       PASS
 Open:       live_local_*/edge harness need the local Supabase stack (not running); no device run (no emulator). Remaining low coverage is mostly platform glue (browser/web, AdMob, Isar, WebRTC, Supabase client) that needs a real device or stack. Nothing shipped; rides with the next update.
+## PHASE deal by sound (2026-10-30) — done
+Built:      Seven role clips in the match narrator's voice (lines from each card's own rule, tool/voice/script_v2.json `roles`, rendered with render_v2.mjs --only roles, 707 characters); «اسمع» on the big role card (deal offline, deal online, the vault's roles room) through AudioDirector.sayRole, which refuses in a hand, when muted or with narration off. Witness layer tests.
+Files:      assets/voice/roles/*, tool/voice/{render_v2.mjs,script_v2.json}, lib/app/asset_constants.dart, lib/platform/audio_director.dart, lib/ui/screens/setup/role_deal_grid.dart, pubspec.yaml, test/widget/role_voice_test.dart, test/online/witness_layer_test.dart
+Verified:   role_voice 10 + deal/sheet/panel 27 passed; leakage/architecture/platform/golden 274 passed; flutter analyze clean on touched files.
+Gate:       PASS
+Open:       The clips were not listened to by a person yet (owner's ear). Left for the owner: the ads plan questions (docs/plans/ADS-PLAN.md), usage counts and one-tap quick match (NEXT-UPDATE-IDEAS.md). Blocked here: local Supabase stack (no Docker/CLI) and a device (no adb).
