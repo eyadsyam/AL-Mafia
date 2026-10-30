@@ -135,7 +135,20 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   }
 
   int get _baseCitizens => _n - _mafia - _detective - _doctor;
-  int get _taken => _on.where((r) => r != OptionalRole.silencer).length;
+  Set<OptionalRole> get _effectiveOn {
+    final wallet = ref.read(walletProvider).valueOrNull;
+    final kept = ref.read(ownedRolesProvider);
+    return {
+      for (final r in _on)
+        if (wallet != null
+            ? wallet.owned.contains(r.code)
+            : kept.contains(r.code))
+          r,
+    };
+  }
+
+  int get _taken =>
+      _effectiveOn.where((r) => r != OptionalRole.silencer).length;
   int get _citizens => _baseCitizens - _taken;
 
   Map<Role, int> get _counts => OptionalRole.apply({
@@ -143,7 +156,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
     Role.detective: _detective,
     Role.doctor: _doctor,
     Role.citizen: _baseCitizens,
-  }, _on);
+  }, _effectiveOn);
 
   BalanceReport get _report =>
       BalanceGuard.evaluate(playerCount: _n, roleCounts: _counts);
@@ -164,17 +177,8 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   void _next() {
     // Only roles this player owns go into the match, whatever the switches
     // say: the wallet when it has answered, the device copy until then.
-    final wallet = ref.read(walletProvider).valueOrNull;
-    final kept = ref.read(ownedRolesProvider);
-    final owned = {
-      for (final r in OptionalRole.values)
-        if (wallet != null
-            ? wallet.owned.contains(r.code)
-            : kept.contains(r.code))
-          r,
-    };
-    if (!owned.containsAll(_on)) _on = _on.intersection(owned);
-    widget.onOptionalRoles?.call(_on);
+    final effective = _effectiveOn;
+    widget.onOptionalRoles?.call(effective);
     widget.onNext(_counts);
   }
 
@@ -190,7 +194,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   /// Why [r] cannot join this table now, in the balance guard's words.
   String? _blocked(OptionalRole r) {
     final l = context.l10n;
-    final others = _on
+    final others = _effectiveOn
         .where((o) => o != r && o != OptionalRole.silencer)
         .length;
     final code = r.blockedBy(
@@ -210,7 +214,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   RoleDealSpec _sold(OptionalRole r, String rule) {
     final l = context.l10n;
     final owned = _owns(r);
-    final on = _on.contains(r);
+    final on = _effectiveOn.contains(r);
     final blocked = owned && !on ? _blocked(r) : null;
     return RoleDealSpec(
       role: r.role,
@@ -239,7 +243,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
         onPlus: canGrow && (_mafia + 1) * 2 < _n
             ? () => _edit(() => _mafia++)
             : null,
-        onMinus: _mafia > (_on.contains(OptionalRole.silencer) ? 2 : 1)
+        onMinus: _mafia > (_effectiveOn.contains(OptionalRole.silencer) ? 2 : 1)
             ? () => _edit(() => _mafia--)
             : null,
       ),

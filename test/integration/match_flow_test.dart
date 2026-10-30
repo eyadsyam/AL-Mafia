@@ -7,6 +7,8 @@ import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:mafia_master/ui/screens/match_controller.dart';
 import 'package:mafia_master/ui/screens/match_flow.dart';
+import 'package:mafia_master/ui/screens/night/morning_screen.dart';
+import 'package:mafia_master/ui/screens/day/discussion_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
 import 'package:mafia_master/ui/widgets/night_grid.dart';
@@ -32,7 +34,10 @@ void main() {
   MatchController controller() =>
       container.read(matchControllerProvider.notifier);
 
-  Future<void> pumpFlow(WidgetTester tester) async {
+  Future<void> pumpFlow(
+    WidgetTester tester, {
+    VoidCallback? onStepCommitted,
+  }) async {
     await tester.binding.setSurfaceSize(surface);
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -57,12 +62,36 @@ void main() {
         child: localizedApp(
           MediaQuery(
             data: const MediaQueryData(disableAnimations: true),
-            child: MatchFlow(onExit: () {}, onAnalytics: () {}),
+            child: MatchFlow(
+              onExit: () {},
+              onAnalytics: () {},
+              onStepCommitted: onStepCommitted,
+            ),
           ),
         ),
       ),
     );
   }
+
+  testWidgets(
+    'each dismissed card is committed before another player takes the phone',
+    (tester) async {
+      var commits = 0;
+      await pumpFlow(tester, onStepCommitted: () => commits++);
+      await tester.pumpAndSettle();
+      await tester.confirmIdentity(hold: MafiaTiming.defaults.holdToReveal);
+      await tester.swipeToFlip();
+      await tester.awaitConceal();
+      await tester.tap(find.byKey(RoleCard.dismiss));
+      await tester.pumpAndSettle();
+      expect(controller().engine.match.currentActorSeat, 1);
+      expect(
+        commits,
+        1,
+        reason: 'a restart after this hand-off must resume at seat 1',
+      );
+    },
+  );
 
   /// Completes a hold-to-reveal gesture on the first [HoldPad] on screen.
   Future<void> hold(WidgetTester tester) async {
@@ -106,6 +135,28 @@ void main() {
     }
   }
 
+  testWidgets('a confirmed night action is committed before the hand-off', (
+    tester,
+  ) async {
+    var commits = 0;
+    await pumpFlow(tester, onStepCommitted: () => commits++);
+    await distribute(tester);
+    await tester.pumpAndSettle();
+    final beforeAction = commits;
+    await hold(tester);
+    await tester.tap(
+      find
+          .byWidgetPredicate((w) => w is NightGridTile && w.onTap != null)
+          .first,
+    );
+    await tester.pump();
+    await tester.pump(MafiaTiming.defaults.dwellGate);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(TurnShell.actionButton));
+    await tester.pumpAndSettle();
+    expect(commits, greaterThan(beforeAction));
+  });
+
   /// Runs one night: every living actor takes the phone, picks the first legal
   /// target, waits out both gates and passes on.
   Future<void> playNight(WidgetTester tester) async {
@@ -137,6 +188,36 @@ void main() {
     }
     await finishAnnouncement(tester);
   }
+
+  testWidgets(
+    'a cast ballot is committed before the next voter takes the phone',
+    (tester) async {
+      var commits = 0;
+      await pumpFlow(tester, onStepCommitted: () => commits++);
+      await distribute(tester);
+      await playNight(tester);
+      tester.widget<MorningScreen>(find.byType(MorningScreen)).onContinue();
+      await tester.pumpAndSettle();
+      while (controller().engine.match.phase == GamePhase.openingRound) {
+        await tester.tap(find.byType(PlayerTile).first);
+        await tester.pumpAndSettle();
+      }
+      tester
+          .widget<DiscussionScreen>(find.byType(DiscussionScreen))
+          .onFinished();
+      await tester.pump();
+      await finishAnnouncement(tester);
+      expect(controller().engine.match.phase, GamePhase.voting);
+      final beforeBallot = commits;
+      await hold(tester);
+      await tester.tap(find.byType(PlayerTile).first);
+      await tester.pump();
+      await tester.tap(find.text('أكد صوتك'));
+      await tester.pumpAndSettle();
+      expect(controller().engine.match.currentActorSeat, isNotNull);
+      expect(commits, greaterThan(beforeBallot));
+    },
+  );
 
   /// Runs one day: morning briefing and trace, then whichever opening surface
   /// the engine chose for the day, then discussion and a full ballot.

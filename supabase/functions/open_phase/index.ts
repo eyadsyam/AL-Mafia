@@ -136,6 +136,7 @@ Deno.serve(handler(async (req, userId, db) => {
       .from("room_players")
       .select("seat")
       .eq("room_id", roomId)
+      .eq("alive", true)
       .eq("kicked", false)
       .eq("saw_role", false);
     if (unseenError) throw unseenError;

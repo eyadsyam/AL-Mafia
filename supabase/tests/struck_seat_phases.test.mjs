@@ -41,7 +41,7 @@ test('the ballot of a struck seat does not count', async () => {
   try {
     const r=await t.roster();
     const voter=r.find(p=>p.seat!==0&&p.role==='citizen');
-    const named=r.find(p=>p.seat!==0&&p.seat!==voter.seat&&p.role==='doctor');
+    const named=r.find(p=>p.seat!==0&&p.seat!==voter.seat);
     await phase(t,'vote',1);
     assert.equal((await t.h.call('submit_vote',`u${voter.seat}`,{roomId:t.roomId,targetSeat:named.seat})).status,200);
     await fresh(t);
@@ -83,6 +83,21 @@ test('a struck seat holding the opening floor does not hold the table', async ()
   } finally { await t.close(); }
 });
 
+test('a struck speaker releases the discussion floor immediately', async () => {
+  const t=await table(7,{settings:{discussionMode:'structured'}});
+  try {
+    await phase(t,'discuss');
+    const first=await t.h.call('claim_floor','u1',{roomId:t.roomId});
+    assert.equal(first.status,200,JSON.stringify(first.json));
+    assert.equal(first.json.granted,true);
+    await fresh(t);
+    await strike(t,1);
+    const next=await t.h.call('claim_floor','u2',{roomId:t.roomId});
+    assert.equal(next.status,200,JSON.stringify(next.json));
+    assert.equal(next.json.granted,true,'the absent speaker kept the floor');
+  } finally { await t.close(); }
+});
+
 test('a seat struck during the deal does not hold the night back past its clock', async () => {
   const t=await table();
   try {
@@ -92,6 +107,19 @@ test('a seat struck during the deal does not hold the night back past its clock'
     await expire(t);
     const opened=await t.h.call('open_phase','u2',{roomId:t.roomId,phase:'night'});
     assert.equal(opened.status,200,JSON.stringify(opened.json));
+  } finally { await t.close(); }
+});
+
+test('a struck seat with an unseen card does not hold the deal while its clock is still running', async () => {
+  const t=await table();
+  try {
+    for(const p of await t.roster()) if(p.seat!==1) {
+      assert.equal((await t.h.call('saw_role',`u${p.seat}`,{roomId:t.roomId})).status,200);
+    }
+    await strike(t,1);
+    const opened=await t.h.call('open_phase','u0',{roomId:t.roomId,phase:'night'});
+    assert.equal(opened.status,200,JSON.stringify(opened.json));
+    assert.equal((await state(t)).phase,'night');
   } finally { await t.close(); }
 });
 
@@ -107,5 +135,22 @@ test('the last of the Mafia gone in the night ends it for the town, and nothing 
     const s=await state(t);
     assert.equal(s.public_data.outcome,'town');
     assert.equal((await t.h.sql('select count(*)::int n from economy_void_rooms where room_id=$1',[t.roomId])).rows[0].n,1);
+  } finally { await t.close(); }
+});
+
+test('a seat struck during the verdict cannot hold the next night or reveal its role', async () => {
+  const t=await table();
+  try {
+    const gone=(await t.roster()).find(p=>p.seat!==0&&p.role==='citizen');
+    assert.ok(gone);
+    await phase(t,'verdict');
+    await fresh(t);
+    await strike(t,gone.seat);
+    const opened=await t.h.call('open_phase','u0',{roomId:t.roomId,phase:'night'});
+    assert.equal(opened.status,200,JSON.stringify(opened.json));
+    const s=await state(t);
+    assert.equal(s.phase,'night');
+    assert.equal(s.public_data.eliminations[String(gone.seat)].phase,'day');
+    assert.equal(JSON.stringify(s.public_data).includes(gone.role),false);
   } finally { await t.close(); }
 });

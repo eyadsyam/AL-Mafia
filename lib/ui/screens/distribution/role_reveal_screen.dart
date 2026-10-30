@@ -33,8 +33,13 @@ import '../match_controller.dart';
 class RoleRevealScreen extends ConsumerWidget {
   /// Called once every seat has seen their card.
   final VoidCallback onDistributionComplete;
+  final VoidCallback? onStepCommitted;
 
-  const RoleRevealScreen({super.key, required this.onDistributionComplete});
+  const RoleRevealScreen({
+    super.key,
+    required this.onDistributionComplete,
+    this.onStepCommitted,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -81,6 +86,8 @@ class RoleRevealScreen extends ConsumerWidget {
             controller.confirmRevealed();
             if (controller.snapshot.currentActorSeat == null) {
               onDistributionComplete();
+            } else {
+              onStepCommitted?.call();
             }
           },
         ),

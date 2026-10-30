@@ -76,6 +76,7 @@ NightActionKind nightActionFor(Role role) {
 class NightActionScreen extends ConsumerWidget {
   /// Called once the last actor has passed and the night can be resolved.
   final VoidCallback onNightComplete;
+  final VoidCallback? onStepCommitted;
 
   /// Called when the holder says "this is not me" — routes back to the pass
   /// screen without exposing any game content (L-12).
@@ -84,6 +85,7 @@ class NightActionScreen extends ConsumerWidget {
   const NightActionScreen({
     super.key,
     required this.onNightComplete,
+    this.onStepCommitted,
     this.onWrongPerson,
   });
 
@@ -191,21 +193,25 @@ class NightActionScreen extends ConsumerWidget {
       onNotYou: onWrongPerson,
       onConfirmed: (seat) {
         if (seat == NightChoice.skipSeat) {
-          controller.skipNightAction(
-            // The Mafia's skip *is* «الليلة الهادية» when they still have it:
-            // it is what makes the morning ambiguous. The other two roles are
-            // simply declining to act.
-            useBullet: role == Role.mafia && hasAbility && !spent,
-          );
+          controller
+              .skipNightAction(
+                // The Mafia's skip *is* «الليلة الهادية» when they still have it:
+                // it is what makes the morning ambiguous. The other two roles are
+                // simply declining to act.
+                useBullet: role == Role.mafia && hasAbility && !spent,
+              )
+              .then((_) => onStepCommitted?.call());
           return;
         }
-        controller.submitNightAction(
-          kind: nightActionFor(role),
-          targetSeat: seat,
-          useBullet:
-              (role == Role.doctor && seat == actorSeat) ||
-              (role == Role.sniper && hasAbility && !spent),
-        );
+        controller
+            .submitNightAction(
+              kind: nightActionFor(role),
+              targetSeat: seat,
+              useBullet:
+                  (role == Role.doctor && seat == actorSeat) ||
+                  (role == Role.sniper && hasAbility && !spent),
+            )
+            .then((_) => onStepCommitted?.call());
       },
       onPass: () {
         // Drops the Detective result and every other secret before the phone

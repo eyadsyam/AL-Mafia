@@ -19,6 +19,7 @@ import '../../widgets/textured_surface.dart';
 class VotingScreen extends ConsumerStatefulWidget {
   /// Called once the last living player has voted.
   final VoidCallback onVotingComplete;
+  final VoidCallback? onStepCommitted;
 
   /// Whether abstaining is offered. Comes from match settings.
   final bool allowAbstain;
@@ -26,6 +27,7 @@ class VotingScreen extends ConsumerStatefulWidget {
   const VotingScreen({
     super.key,
     required this.onVotingComplete,
+    this.onStepCommitted,
     this.allowAbstain = true,
   });
 
@@ -50,16 +52,22 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
     });
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final controller = ref.read(matchControllerProvider.notifier);
-    controller.submitVote(targetSeat: _abstaining ? null : _selectedSeat);
+    final target = _abstaining ? null : _selectedSeat;
+    // Closed before the save: a second tap on a ballot still open while the save
+    // runs would be counted as the next voter's.
     setState(() {
       _openedSeat = null;
       _selectedSeat = null;
       _abstaining = false;
     });
+    await controller.submitVote(targetSeat: target);
+    if (!mounted) return;
     if (controller.snapshot.currentActorSeat == null) {
       widget.onVotingComplete();
+    } else {
+      widget.onStepCommitted?.call();
     }
   }
 
@@ -70,6 +78,8 @@ class _VotingScreenState extends ConsumerState<VotingScreen> {
     setState(() => _openedSeat = null);
     if (controller.snapshot.currentActorSeat == null) {
       widget.onVotingComplete();
+    } else {
+      widget.onStepCommitted?.call();
     }
   }
 

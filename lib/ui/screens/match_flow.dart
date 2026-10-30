@@ -582,6 +582,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       GamePhase.setup || GamePhase.rolesConfigured => const SizedBox.shrink(),
       GamePhase.distributing => RoleRevealScreen(
         onDistributionComplete: _commit,
+        onStepCommitted: _commit,
       ),
       // Also upgrades saved matches stopped at the former start-night step.
       GamePhase.preNightLobby => _AutoAdvance(onReady: _beginNight),
@@ -601,6 +602,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       GamePhase.voting || GamePhase.voteResolving => VotingScreen(
         allowAbstain: _controller.settings.abstainAllowed,
         onVotingComplete: _resolveDayVote,
+        onStepCommitted: _commit,
       ),
       GamePhase.reveal || GamePhase.winCheck => _voteResult(state),
       GamePhase.result || GamePhase.analytics => _result(state),
@@ -722,7 +724,10 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         onReady: _resolveNight,
       );
     }
-    return NightActionScreen(onNightComplete: _resolveNight);
+    return NightActionScreen(
+      onNightComplete: _resolveNight,
+      onStepCommitted: _commit,
+    );
   }
 
   Widget _morningOrDay(MatchUiState state) {

@@ -47,6 +47,7 @@ void main() {
     int players = 8,
     Set<String> owns = const {},
     bool still = false,
+    Map<Role, int>? initialCounts,
   }) async {
     final dealt = <Map<Role, int>>[];
     final optional = <Set<OptionalRole>>[];
@@ -74,6 +75,7 @@ void main() {
             ),
             child: RolesScreen(
               playerCount: players,
+              initialCounts: initialCounts,
               onBack: () {},
               onNext: dealt.add,
               onOptionalRoles: optional.add,
@@ -222,6 +224,40 @@ void main() {
     expect(counts.values.fold<int>(0, (a, b) => a + b), 8);
     expect(out.optional.single, OptionalRole.values.toSet());
   });
+
+  testWidgets(
+    'an unowned saved role is absent from the preview and final deal',
+    (tester) async {
+      phone(tester, phones[1]);
+      final out = await pump(
+        tester,
+        owns: {'role_elder'},
+        initialCounts: const {
+          Role.mafia: 2,
+          Role.doctor: 1,
+          Role.detective: 1,
+          Role.elder: 1,
+          Role.sniper: 1,
+          Role.citizen: 2,
+        },
+      );
+      int shown(Role role) => int.parse(
+        tester
+            .widget<Text>(
+              find.descendant(
+                of: find.byKey(RoleDealGrid.count(role)),
+                matching: find.byType(Text),
+              ),
+            )
+            .data!,
+      );
+      expect(shown(Role.sniper), 0);
+      expect(shown(Role.elder), 1);
+      await tester.tap(find.byKey(RolesScreen.nextButton));
+      expect(out.dealt.single[Role.sniper], isNull);
+      expect(out.dealt.single[Role.elder], 1);
+    },
+  );
 
   testWidgets('a small table says why it cannot take a role', (tester) async {
     phone(tester, phones[1]);
