@@ -101,6 +101,8 @@ void main() {
         'admob_ssv': 'verifySsv(url, loadKeys)',
         'play_voided_sync':
             'sameSecret(request.headers.get("x-sync-secret") ?? "", secret)',
+        'play_release_watch':
+            'sameSecret(request.headers.get("x-sync-secret") ?? "", secret)',
         'tester_signup': 'db.rpc("tester_signup_attempt"',
         // Answers the welcome-mail script yes/no on an HMAC only the server
         // can mint; it reads one row and changes nothing.

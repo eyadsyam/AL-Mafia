@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mafia_master/app/app_build.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/social/directory.dart';
@@ -197,6 +198,7 @@ void main() {
       backend.responses['friends'] = const {};
       await api.registerPush('tok', 'android');
       expect(sent('registerPush'), containsPair('platform', 'android'));
+      expect(sent('registerPush'), containsPair('build', kAppBuildNumber));
       await api.unregisterPush('tok');
       expect(sent('unregisterPush'), containsPair('token', 'tok'));
     });

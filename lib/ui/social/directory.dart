@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/app_build.dart' show kAppBuildNumber;
 import '../../engine/models/player.dart' show PlayerGender;
 import '../../transport/online_backend.dart';
 import '../screens/online/online_session.dart';
@@ -239,7 +240,12 @@ class DirectoryApi {
   }
 
   Future<void> registerPush(String token, String platform) =>
-      _call({'action': 'registerPush', 'token': token, 'platform': platform});
+      _call({
+        'action': 'registerPush',
+        'token': token,
+        'platform': platform,
+        'build': kAppBuildNumber,
+      });
 
   /// The settings switch: this device stops receiving notifications.
   Future<void> unregisterPush(String token) =>

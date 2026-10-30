@@ -15,6 +15,9 @@ enum PushDestination {
   /// A notice for the owner's account only (commerce admins): opens the
   /// admin page on the website.
   ownerAdmin,
+
+  /// A new build was approved on Play: opens the game's store page.
+  storeUpdate,
 }
 
 /// The owner's notices (20261030000200_owner_push.sql) and the admin page
@@ -35,6 +38,8 @@ class PushOpen {
     'daily' => PushDestination.daily,
     'order_paid' || 'order_rejected' => PushDestination.orders,
     'friend_request' || 'friend_accepted' => PushDestination.friends,
+    'app_update' => PushDestination.storeUpdate,
+    _ when kOwnerPushPaths.containsKey(kind) => PushDestination.ownerAdmin,
     _ => PushDestination.invite,
   };
   final String kind;
@@ -55,6 +60,9 @@ class PushOpen {
   static PushOpen? fromData(Map<String, Object?> data) {
     final kind = data['kind'];
     if (kind != 'invite') {
+      if (kOwnerPushPaths.containsKey(kind)) {
+        return PushOpen(kind: kind as String);
+      }
       return switch (kind) {
         'room_start' ||
         'night' ||
@@ -64,7 +72,8 @@ class PushOpen {
         'order_paid' ||
         'order_rejected' ||
         'friend_request' ||
-        'friend_accepted' => PushOpen(kind: kind as String),
+        'friend_accepted' ||
+        'app_update' => PushOpen(kind: kind as String),
         _ => null,
       };
     }

@@ -12,7 +12,7 @@
 
 export interface PushTarget {
   enabled: boolean;
-  kind?: "invite" | "friend_request" | "friend_accepted" | "order_paid" | "order_rejected" | EventKind | OwnerKind;
+  kind?: "invite" | "friend_request" | "friend_accepted" | "order_paid" | "order_rejected" | EventKind | OwnerKind | "app_update";
   /** Stable number that picks one of an event's wordings (the outbox row id). */
   variant?: number;
   inviteId?: string;
@@ -354,8 +354,43 @@ export function ownerMessage(t: PushTarget, token: string, platform: "android" |
   } } };
 }
 
+/** This app's Play page: where «فيه تحديث جديد» takes the player. */
+export const PLAY_STORE_LINK = "https://play.google.com/store/apps/details?id=com.mafiamaster.mafia_master";
+
+/** The words of the update notice (20261030005000_app_update_push.sql). */
+export const UPDATE_TEXT = {
+  title: "فيه تحديث جديد لسيد المافيا",
+  body: "دوس هنا وحدّث اللعبة من جوجل بلاي.",
+};
+
+/**
+ * A new Android build is live on Play. The tap opens the Play page (builds
+ * from 20 on read `kind`; older ones open the game, whose «فيه نسخة جديدة»
+ * takes them there). Only Android devices are sent it: the web updates itself.
+ */
+export function updateMessage(token: string, platform: "android" | "web") {
+  const data = { kind: "app_update", link: PLAY_STORE_LINK };
+  if (platform === "android") {
+    return { message: {
+      token, data, notification: { title: UPDATE_TEXT.title, body: UPDATE_TEXT.body },
+      android: { priority: "HIGH", collapse_key: "app_update", notification: {
+        channel_id: "mafia_social", icon: "ic_stat_mafia", color: INVITE_ACCENT,
+        tag: "app_update", default_sound: true,
+      } },
+    } };
+  }
+  return { message: { token, data, webpush: {
+    notification: {
+      title: UPDATE_TEXT.title, body: UPDATE_TEXT.body, icon: "/icons/Icon-192.png",
+      badge: "/icons/badge-72.png", tag: "app_update", dir: "rtl", lang: "ar", data: { link: PLAY_STORE_LINK },
+    },
+    fcm_options: { link: PLAY_STORE_LINK },
+  } } };
+}
+
 /** The message for one device, by kind. */
 export function messageFor(t: PushTarget, token: string, platform: "android" | "web") {
+  if (t.kind === "app_update") return updateMessage(token, platform);
   if (t.kind === "order_paid" || t.kind === "order_rejected") return paymentMessage(t, token, platform);
   if (isOwnerKind(t.kind)) return ownerMessage(t, token, platform);
   if (t.kind && t.kind in EVENT_TEXT) return eventMessage(t, token, platform);

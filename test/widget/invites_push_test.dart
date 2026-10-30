@@ -537,6 +537,13 @@ void main() {
         'order_rejected': PushDestination.orders,
         'friend_request': PushDestination.friends,
         'friend_accepted': PushDestination.friends,
+        'app_update': PushDestination.storeUpdate,
+        'owner_order': PushDestination.ownerAdmin,
+        'owner_claimed': PushDestination.ownerAdmin,
+        'owner_play': PushDestination.ownerAdmin,
+        'owner_report': PushDestination.ownerAdmin,
+        'owner_tester': PushDestination.ownerAdmin,
+        'owner_feedback': PushDestination.ownerAdmin,
       };
       for (final entry in routes.entries) {
         final open = PushOpen.fromData({'kind': entry.key, 'role': 'ignored'});

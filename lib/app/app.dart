@@ -109,6 +109,9 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
           ),
         );
         return;
+      case PushDestination.storeUpdate:
+        unawaited(ref.read(storeOpenerProvider)());
+        return;
       case PushDestination.daily:
       case PushDestination.orders:
       case PushDestination.friends:
