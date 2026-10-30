@@ -225,6 +225,37 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('each open room shows how close it is to the start', (
+    tester,
+  ) async {
+    final container = containerWith(
+      rooms: [
+        {'code': 'NEARAA', 'players': 4, 'voice': true},
+        {'code': 'READYA', 'players': 5, 'voice': false},
+        {'code': 'EMPTYA', 'players': 0, 'waiting': true},
+      ],
+    );
+    await pumpEntry(tester, container);
+    LinearProgressIndicator bar(String code) =>
+        tester.widget(find.byKey(ValueKey('public_room_bar_$code')));
+    expect(bar('NEARAA').value, closeTo(0.8, 1e-9));
+    expect(bar('READYA').value, 1);
+    expect(find.byKey(const ValueKey('public_room_bar_EMPTYA')), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('an empty list offers to open a room, never joins one', (
+    tester,
+  ) async {
+    await pumpEntry(tester, containerWith());
+    expect(find.text(arStrings.onlineNoPublicRooms), findsOneWidget);
+    await tester.tap(find.byKey(OnlineEntryScreen.emptyCreateButton));
+    await tester.pump();
+    expect(backend.calls.where((c) => c.function == 'join_room'), isEmpty);
+    expect(backend.calls.where((c) => c.function == 'quick_match'), isEmpty);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('code entry opens as a sheet and closes back to rooms', (
     tester,
   ) async {
@@ -407,7 +438,9 @@ void main() {
             matching: find.byType(ListTile),
           ),
         );
-        return (tile.subtitle! as Text).data!;
+        // The status line, above the seat bar.
+        final column = tile.subtitle! as Column;
+        return (column.children.first as Text).data!;
       }
 
       expect(

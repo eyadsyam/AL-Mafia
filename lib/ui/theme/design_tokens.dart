@@ -3010,6 +3010,9 @@ abstract final class OnlineEntryTokens {
   /// field, the join button and the close control on one line, so a phone on
   /// its side with the keyboard up still shows all three.
   static const double compactSheetScreenHeight = 480.0;
+
+  /// The bar under a public room: seats taken toward the start minimum.
+  static const double seatBarHeight = 3.0;
 }
 
 abstract final class ConnectionProblemTokens {

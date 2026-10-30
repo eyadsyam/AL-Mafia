@@ -74,6 +74,7 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
   static const storageWarning = ValueKey('online_storage_warning');
   static const backButton = ValueKey('online_back');
   static const staleNotice = ValueKey('online_rooms_stale');
+  static const emptyCreateButton = ValueKey('online_rooms_empty_create');
   @override
   ConsumerState<OnlineEntryScreen> createState() => _OnlineEntryScreenState();
 }
@@ -796,7 +797,12 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       !_browseFailed &&
                                       !_nearlyReadyOnly &&
                                       _rooms.isEmpty)
-                                    _EmptyRooms(title: l.onlineNoPublicRooms),
+                                    _EmptyRooms(
+                                      title: l.onlineNoPublicRooms,
+                                      onCreate: state.busy
+                                          ? null
+                                          : () => _go(_Step.create),
+                                    ),
                                 ],
                               ),
                             ),
@@ -1227,7 +1233,10 @@ class _ResumeBanner extends StatelessWidget {
 
 class _EmptyRooms extends StatelessWidget {
   final String title;
-  const _EmptyRooms({required this.title});
+
+  /// Opens the create step: an empty list leads somewhere instead of ending.
+  final VoidCallback? onCreate;
+  const _EmptyRooms({required this.title, this.onCreate});
 
   @override
   Widget build(BuildContext context) {
@@ -1241,6 +1250,12 @@ class _EmptyRooms extends StatelessWidget {
           Icon(Icons.meeting_room_outlined, color: c.accentGold),
           SizedBox(width: s.sm),
           Expanded(child: Text(title, style: context.typography.body)),
+          if (onCreate != null)
+            TextButton(
+              key: OnlineEntryScreen.emptyCreateButton,
+              onPressed: onCreate,
+              child: Text(context.l10n.onlineOpenPublicRoom),
+            ),
         ],
       ),
     );
@@ -1286,13 +1301,37 @@ class _PublicRoomTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: context.typography.body,
             ),
-            subtitle: Text(
-              status,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: context.typography.caption.copyWith(
-                color: room.isFull ? c.textMuted : c.textSecondary,
-              ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  status,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.typography.caption.copyWith(
+                    color: room.isFull ? c.textMuted : c.textSecondary,
+                  ),
+                ),
+                if (!room.waiting && !room.isFull) ...[
+                  SizedBox(height: spacing.xs),
+                  // How close the room is to the start minimum, at a glance.
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(context.radii.button),
+                    child: LinearProgressIndicator(
+                      key: ValueKey('public_room_bar_${room.code}'),
+                      minHeight: OnlineEntryTokens.seatBarHeight,
+                      value: room.minPlayers <= 0
+                          ? 1
+                          : (room.players / room.minPlayers).clamp(0.0, 1.0),
+                      color: room.missingToStart <= 0
+                          ? c.accentGold
+                          : c.textSecondary,
+                      backgroundColor: c.borderSubtle,
+                    ),
+                  ),
+                ],
+              ],
             ),
             leading: Tooltip(
               message: room.voice ? l.onlineRoomVoiceOn : l.onlineRoomVoiceOff,

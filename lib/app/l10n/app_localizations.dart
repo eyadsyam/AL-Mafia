@@ -2396,6 +2396,12 @@ abstract class AppLocalizations {
   /// **'No public rooms open right now'**
   String get onlineNoPublicRooms;
 
+  /// No description provided for @onlineOpenPublicRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a room'**
+  String get onlineOpenPublicRoom;
+
   /// No description provided for @publicRoomSeats.
   ///
   /// In en, this message translates to:

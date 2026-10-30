@@ -682,6 +682,7 @@
   "onlinePublicRooms": "أوض عامة",
   "onlinePublicRoomsHint": "ادخل أوضة مفتوحة من غير كود",
   "onlineNoPublicRooms": "مفيش أوض عامة مفتوحة دلوقتي",
+  "onlineOpenPublicRoom": "افتح أوضة",
   "publicRoomSeats": "{players}/{capacity} لاعب",
   "publicRoomMissing": "{count, plural, =1{ناقص لاعب واحد عشان المضيف يقدر يبدأ} =2{ناقص لاعبين عشان المضيف يقدر يبدأ} few{ناقص {count} لاعبين عشان المضيف يقدر يبدأ} other{ناقص {count} لاعب عشان المضيف يقدر يبدأ}}",
   "publicRoomReady": "العدد كفاية — البداية بقرار المضيف",

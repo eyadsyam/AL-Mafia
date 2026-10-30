@@ -806,6 +806,7 @@
   "onlinePublicRooms": "Public rooms",
   "onlinePublicRoomsHint": "Join an open room without a code",
   "onlineNoPublicRooms": "No public rooms open right now",
+  "onlineOpenPublicRoom": "Open a room",
   "publicRoomSeats": "{players}/{capacity} players",
   "@publicRoomSeats": {
     "placeholders": {

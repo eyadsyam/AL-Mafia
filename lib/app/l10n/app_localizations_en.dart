@@ -1317,6 +1317,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineNoPublicRooms => 'No public rooms open right now';
 
   @override
+  String get onlineOpenPublicRoom => 'Open a room';
+
+  @override
   String publicRoomSeats(int players, int capacity) {
     return '$players/$capacity players';
   }
