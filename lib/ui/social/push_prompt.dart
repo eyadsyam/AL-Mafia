@@ -17,6 +17,7 @@ class PushPrompt {
   /// The settings switch. Absent until the player decides or the in-context
   /// prompt was answered; `false` is an explicit «no» that nothing overrides.
   static const onKey = 'push_on_v1';
+  static const pendingRemovalKey = 'push_pending_removal_v1';
 
   bool _busy = false;
 
@@ -37,11 +38,20 @@ class PushPrompt {
     try {
       final token = await _ref.read(pushServiceProvider).token();
       if (token != null) {
-        await _ref.read(directoryApiProvider).unregisterPush(token);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(pendingRemovalKey, token);
+        await _retryRemoval(prefs);
       }
     } catch (_) {
       // A failed cleanup must not prevent signing out or deleting an account.
     }
+  }
+
+  Future<void> _retryRemoval(SharedPreferences prefs) async {
+    final pending = prefs.getString(pendingRemovalKey);
+    if (pending == null) return;
+    await _ref.read(directoryApiProvider).unregisterPush(pending);
+    await prefs.remove(pendingRemovalKey);
   }
 
   Future<void> askInContext() async {
@@ -87,7 +97,8 @@ class PushPrompt {
       try {
         final token = await push.token();
         if (token != null) {
-          await _ref.read(directoryApiProvider).unregisterPush(token);
+          await prefs.setString(pendingRemovalKey, token);
+          await _retryRemoval(prefs);
         }
       } catch (_) {
         // The server drops a dead token on its next send anyway.
@@ -144,9 +155,10 @@ class PushPrompt {
   /// without asking for permission.
   Future<void> onPlayerReady() async {
     final push = _ref.read(pushServiceProvider);
-    if (_busy || push.platform == null || !_enabled) return;
-    if (await _explicitlyOff()) return;
+    if (_busy || push.platform == null) return;
     try {
+      await _retryRemoval(await SharedPreferences.getInstance());
+      if (!_enabled || await _explicitlyOff()) return;
       final prefs = await SharedPreferences.getInstance();
       final asked = prefs.getBool(askedKey) ?? false;
       if (asked || await push.isGranted()) {
@@ -162,6 +174,7 @@ class PushPrompt {
     if (_busy || push.platform == null) return;
     try {
       final prefs = await SharedPreferences.getInstance();
+      await _retryRemoval(prefs);
       if ((prefs.getBool(askedKey) ?? false) && prefs.getBool(onKey) != false) {
         await _register(push);
       }
@@ -169,6 +182,9 @@ class PushPrompt {
   }
 
   Future<void> _register(PushService push) async {
+    // The endpoint drops by token, so the next authenticated guest or account
+    // can finish a removal that could not reach the server before sign-out.
+    await _retryRemoval(await SharedPreferences.getInstance());
     final token = await push.token();
     final platform = push.platform;
     if (token == null || platform == null) return;

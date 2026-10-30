@@ -2,6 +2,8 @@ import 'dart:async';
 import '../../../data/online_match_history.dart';
 import '../../../data/online_session_store.dart';
 import '../../../data/request_id.dart';
+import '../../account/profile_panels.dart'
+    show profileStatsProvider, profileRecordProvider;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -375,6 +377,7 @@ class OnlineSession extends Notifier<OnlineSessionState> {
               .where((s) => s.seat == snapshot.viewerSeat)
               .firstOrNull;
           await OnlineMatchHistory.save(
+            userId: backend.userId,
             roomId: handle.roomId,
             names: snapshot.public.players.map((p) => p.name).toList(),
             winner: snapshot.outcome!.winner.name,
@@ -386,6 +389,8 @@ class OnlineSession extends Notifier<OnlineSessionState> {
           );
 
           saved = true;
+          ref.invalidate(profileStatsProvider);
+          ref.invalidate(profileRecordProvider);
         } catch (_) {
           // History failure must never stop the match — it is over anyway —
           // but a result this device could not keep is worth one sentence.

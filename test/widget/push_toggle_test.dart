@@ -87,7 +87,46 @@ void main() {
     api.failDrop = true;
     await container.read(pushPromptProvider).unregisterThisDevice();
     expect(api.dropped, isEmpty);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString(PushPrompt.pendingRemovalKey), isNotNull);
+    await container.read(pushPromptProvider).setOn(true);
+    expect(
+      api.registered,
+      isEmpty,
+      reason: 'no new identity may claim a pending token',
+    );
+    api.failDrop = false;
+    await container.read(pushPromptProvider).setOn(true);
+    expect(api.dropped, hasLength(1));
+    expect(api.registered, hasLength(1));
+    expect(prefs.getString(PushPrompt.pendingRemovalKey), isNull);
   });
+  test(
+    'a later directory session retries removal even with push switched off',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        PushPrompt.onKey: false,
+        PushPrompt.pendingRemovalKey: 'tok-${'x' * 30}',
+      });
+      late _Api api;
+      final container = ProviderContainer(
+        overrides: [
+          pushServiceProvider.overrideWithValue(_Push()),
+          directoryApiProvider.overrideWith((ref) => api = _Api(ref)),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(pushPromptProvider).onPlayerReady();
+      expect(api.dropped, hasLength(1));
+      expect(api.registered, isEmpty);
+      expect(
+        (await SharedPreferences.getInstance()).getString(
+          PushPrompt.pendingRemovalKey,
+        ),
+        isNull,
+      );
+    },
+  );
   testWidgets('hidden where this build has no push', (tester) async {
     await _pump(tester, _Push(platformName: null));
     expect(find.byKey(PushSettingsRow.switchKey), findsNothing);

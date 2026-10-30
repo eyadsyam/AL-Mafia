@@ -11,6 +11,7 @@ import 'package:mafia_master/transport/game_snapshot.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/transport/online_transport.dart';
 import 'package:mafia_master/ui/economy/table_tools.dart';
+import 'package:mafia_master/ui/account/profile_panels.dart';
 import 'package:mafia_master/ui/information_text.dart';
 import 'package:mafia_master/ui/l10n_ext.dart';
 import 'package:mafia_master/ui/screens/match_controller.dart';
@@ -507,6 +508,39 @@ void main() {
         .where((c) => c.function == 'economy' && c.body['action'] == 'sync')
         .length;
 
+    test('saving a result refreshes both profile totals and record', () async {
+      var statsReads = 0;
+      var recordReads = 0;
+      final backend = fake();
+      final container = ProviderContainer(
+        overrides: [
+          onlineBackendFactoryProvider.overrideWithValue(() async => backend),
+          onlineHeartbeatProvider.overrideWithValue(Duration.zero),
+          profileStatsProvider.overrideWith((ref) async {
+            statsReads++;
+            return (0, 0);
+          }),
+          profileRecordProvider.overrideWith((ref) async {
+            recordReads++;
+            return ProfileRecord.empty;
+          }),
+        ],
+      );
+      addTearDown(container.dispose);
+      final stats = container.listen(profileStatsProvider, (_, __) {});
+      final record = container.listen(profileRecordProvider, (_, __) {});
+      addTearDown(stats.close);
+      addTearDown(record.close);
+      await container.read(profileStatsProvider.future);
+      await container.read(profileRecordProvider.future);
+      await container
+          .read(onlineSessionProvider.notifier)
+          .join(code: 'ABCDEF', name: 'A');
+      await pumpEventQueue();
+      expect(statsReads, greaterThan(1));
+      expect(recordReads, greaterThan(1));
+    });
+
     Future<void> reconnect(
       FakeBackend backend,
       OnlineTransport transport,
@@ -530,7 +564,7 @@ void main() {
           .join(code: 'ABCDEF', name: 'A');
       await pumpEventQueue();
 
-      expect(await OnlineMatchHistory.load(), hasLength(1));
+      expect(await OnlineMatchHistory.load(userId: 'u0'), hasLength(1));
       expect(syncs(backend), 1);
       final transport = container.read(onlineSessionProvider).transport!;
 
@@ -539,7 +573,7 @@ void main() {
       expect(transport.snapshot.phase, GamePhase.result);
       expect(transport.snapshot.outcome?.winner, Alignment.town);
       expect(transport.snapshot.connection, ConnectionQuality.connected);
-      final rows = await OnlineMatchHistory.load();
+      final rows = await OnlineMatchHistory.load(userId: 'u0');
       expect(rows, hasLength(1), reason: 'written once');
       expect(rows.single['roomId'], 'room-1');
       expect(rows.single['winner'], 'town');
@@ -566,7 +600,7 @@ void main() {
       await reconnect(backend, transport);
 
       expect(transport.snapshot.phase, GamePhase.result);
-      expect(await OnlineMatchHistory.load(), hasLength(1));
+      expect(await OnlineMatchHistory.load(userId: 'u0'), hasLength(1));
       expect(syncs(backend), 1, reason: 'attempted once, outage or not');
       expect(container.read(onlineSessionProvider).isInRoom, isTrue);
     });
@@ -579,7 +613,7 @@ void main() {
           .read(onlineSessionProvider.notifier)
           .join(code: 'ABCDEF', name: 'A');
       await pumpEventQueue();
-      expect(await OnlineMatchHistory.load(), hasLength(1));
+      expect(await OnlineMatchHistory.load(userId: 'u0'), hasLength(1));
 
       // The process dies and a new one rejoins the room by code.
       before.dispose();
@@ -594,7 +628,7 @@ void main() {
         after.read(onlineSessionProvider).transport!.snapshot.phase,
         GamePhase.result,
       );
-      expect(await OnlineMatchHistory.load(), hasLength(1));
+      expect(await OnlineMatchHistory.load(userId: 'u0'), hasLength(1));
       expect(syncs(second), 1);
     });
   });

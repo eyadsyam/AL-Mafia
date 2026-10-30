@@ -26,6 +26,7 @@ import { silencedSeatOf } from "../_shared/silence.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
 import { defaultProtectTargets, nightDefaultFor, previousProtectTarget } from "../_shared/night_rules.ts";
 import { deriveSeed, SeedSalt, tieBreakIndex } from "../_shared/seed.ts";
+import { firstDayPhase } from "../_shared/phase_guards.ts";
 
 /**
  * The phase guard on `night_actions` / `votes` refuses a row for a phase the
@@ -191,6 +192,31 @@ Deno.serve(handler(async (req, userId, db) => {
     // C-E5 — the window closes and the day proceeds. The silence is recorded
     // because it is information, not because something failed.
     return await move("discuss", { confrontationSilent: true }, "silence");
+  }
+
+  if (me.phase === "morning" && me.phaseNumber === 1) {
+    const { data: state, error } = await db.from("room_state")
+      .select("public_data").eq("room_id", roomId).maybeSingle();
+    if (error) throw error;
+    const archive = (state?.public_data ?? {}) as Record<string, unknown>;
+    if (archive.outcome) {
+      const eliminations = (archive.eliminations ?? {}) as Record<string, { phase: string; number: number }>;
+      const { data: allPlayers, error: rosterError } = await db.from("room_players")
+        .select("seat, role").eq("room_id", roomId).not("role", "is", null).order("seat");
+      if (rosterError) throw rosterError;
+      const standings = (allPlayers ?? []).map((p) => ({
+        seat: p.seat, role: p.role,
+        eliminatedPhase: eliminations[String(p.seat)]?.phase ?? null,
+        eliminatedNumber: eliminations[String(p.seat)]?.number ?? null,
+      }));
+      return await move("result", { ...clearedFor("result"), standings }, "result-opened");
+    }
+    if (firstDayPhase(me.settings) === "opening") {
+      const first = roster.map((p) => p.seat).sort((a, b) => a - b)[0];
+      if (first === undefined) return fail("PHASE_CLOSED", "nobody is alive");
+      return await move("opening", { ...clearedFor("opening"), openingSeat: first }, "opening-opened");
+    }
+    return await move("discuss", clearedFor("discuss"), "discussion-opened");
   }
 
   if (me.phase === "opening") {

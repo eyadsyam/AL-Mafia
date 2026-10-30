@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/transport/online_backend.dart';
@@ -13,6 +14,7 @@ import '../support/fake_backend.dart';
 import '../support/localized.dart';
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   const phases = <String, GamePhase>{
     'reveal': GamePhase.distributing,
     'night': GamePhase.night,

@@ -1523,6 +1523,33 @@ class MatchEngine {
     required int toSeat,
     required String body,
   }) {
+    final id = prepareWhisper(fromSeat: fromSeat, toSeat: toSeat, body: body);
+    final now = clock();
+    match = match.copyWith(
+      eventLog: [
+        ...match.eventLog,
+        WhisperSent(
+          at: now,
+          phaseRef: PhaseRef(
+            phase: GamePhase.discussion,
+            number: match.dayNumber,
+          ),
+          id: id,
+          fromSeat: fromSeat,
+          toSeat: toSeat,
+        ),
+      ],
+    );
+    assertMatchInvariants(match, 'sendWhisper');
+    return id;
+  }
+
+  /// Validates and names a whisper without committing its public edge.
+  String prepareWhisper({
+    required int fromSeat,
+    required int toSeat,
+    required String body,
+  }) {
     if (!match.settings.whisperEnabled) {
       throw StateError('sendWhisper: whispers are switched off for this match');
     }
@@ -1569,29 +1596,11 @@ class MatchEngine {
       );
     }
 
-    final id = WhisperMeta.idFor(
+    return WhisperMeta.idFor(
       day: match.dayNumber,
       fromSeat: fromSeat,
       toSeat: toSeat,
     );
-    final now = clock();
-    match = match.copyWith(
-      eventLog: [
-        ...match.eventLog,
-        WhisperSent(
-          at: now,
-          phaseRef: PhaseRef(
-            phase: GamePhase.discussion,
-            number: match.dayNumber,
-          ),
-          id: id,
-          fromSeat: fromSeat,
-          toSeat: toSeat,
-        ),
-      ],
-    );
-    assertMatchInvariants(match, 'sendWhisper');
-    return id;
   }
 
   /// The whisper graph for [day] — senders and recipients, never bodies.

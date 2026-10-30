@@ -251,13 +251,14 @@ class ProfileIdentityHeader extends ConsumerWidget {
 /// A player's record at a glance, from what this device knows: matches on
 /// one phone and matches online.
 final profileStatsProvider = FutureProvider<(int, int)>((ref) async {
+  final userId = ref.watch(accountProfileProvider).valueOrNull?.userId;
   var local = 0;
   var online = 0;
   try {
     local = (await ref.read(matchRepositoryProvider).listHistory()).length;
   } catch (_) {}
   try {
-    online = (await OnlineMatchHistory.load()).length;
+    online = (await OnlineMatchHistory.load(userId: userId)).length;
   } catch (_) {}
   return (local, online);
 });
@@ -452,8 +453,9 @@ class ProfileRecord {
 }
 
 final profileRecordProvider = FutureProvider<ProfileRecord>((ref) async {
+  final userId = ref.watch(accountProfileProvider).valueOrNull?.userId;
   try {
-    return ProfileRecord.from(await OnlineMatchHistory.load());
+    return ProfileRecord.from(await OnlineMatchHistory.load(userId: userId));
   } catch (_) {
     return ProfileRecord.empty;
   }

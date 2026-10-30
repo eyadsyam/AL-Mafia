@@ -21,6 +21,7 @@ import { selectTrace } from "../_shared/trace.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
 import { halfDoorSeats, loadToolUses, lockedSeats, unsilenceable } from "../_shared/tools.ts";
 import { resolveNightCore } from "../_shared/night_core.ts";
+import { nightComplete } from "../_shared/phase_guards.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId } = await req.json();
@@ -32,16 +33,9 @@ Deno.serve(handler(async (req, userId, db) => {
   // row, but the commit refuses it: answer once instead of retrying.
   if (me.status !== "playing") return fail("PHASE_CLOSED", "no match is running");
   if (me.phase !== "night") return fail("PHASE_CLOSED", "not the night");
-  // The host resolves, and so does anybody else once the server's own clock has
-  // run out — the same rule as the ballot's, for the same reason: a match must
-  // not stop because one phone went to sleep. Read from `phase_ends_at`, never
-  // from the caller, and `submit_night_action` brings that timestamp forward to
-  // now the moment every living player has acted, so the ordinary case is not
-  // "the timer expired" but "the room is finished".
+  // Any member may request resolution, but nobody may end another player's
+  // turn. The server clock or a complete set of owed actions is the gate.
   const expired = !!me.phaseEndsAt && new Date(me.phaseEndsAt) <= new Date();
-  if (me.hostId !== userId && !expired) {
-    return fail("NOT_HOST", "the host resolves", 403);
-  }
 
   const night = me.phaseNumber;
 
@@ -69,6 +63,13 @@ Deno.serve(handler(async (req, userId, db) => {
       .eq("room_id", roomId)
       .eq("night", night);
     if (actionsError) throw actionsError;
+    // The host has no right to close another player's unfinished turn.
+    // Citizens and Elders have no online night action, as in submit_night_action.
+    if (!expired) {
+      if (!nightComplete(roster, actions ?? [])) {
+        return fail("PHASE_CLOSED", "the night is still running");
+      }
+    }
 
     const { data: state, error: stateError } = await db.from("room_state")
       .select("public_data").eq("room_id", roomId).maybeSingle();

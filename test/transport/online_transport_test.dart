@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/transport/game_snapshot.dart';
 import 'package:mafia_master/transport/online_backend.dart';
@@ -50,7 +51,10 @@ void main() {
     return transport;
   }
 
-  setUp(() => localNow = DateTime.utc(2026, 9, 2, 12));
+  setUp(() {
+    localNow = DateTime.utc(2026, 9, 2, 12);
+    SharedPreferences.setMockInitialValues({});
+  });
 
   group('a room deleted while background work is in flight', () {
     test(
@@ -553,7 +557,13 @@ void main() {
   // to a function that honestly answered it had applied nothing.
   group('a phase that ends on a decision', () {
     test('the morning opens day 1 rather than asking for a default', () async {
-      await connect(state: roomState(phase: 'morning', phaseNumber: 1));
+      await connect(
+        state: roomState(
+          phase: 'morning',
+          phaseNumber: 1,
+          settings: const {'openingRoundEnabled': true},
+        ),
+      );
       await transport.advancePhase();
 
       expect(backend.called('advance_phase'), isFalse);
@@ -883,6 +893,40 @@ void main() {
   });
 
   group('one device drives (doc 10 §7)', () {
+    test('running clock refusals leave resolution waiting', () async {
+      await connect(state: roomState(phase: 'night'));
+      backend.refusals['resolve_night'] = const BackendException(
+        'PHASE_CLOSED',
+        'night running',
+      );
+      await transport.resolveNight();
+      expect(transport.snapshot.phase, GamePhase.night);
+      backend.setState(roomState(phase: 'vote'), push: false);
+      await transport.resync();
+      backend.refusals['resolve_vote'] = const BackendException(
+        'PHASE_CLOSED',
+        'ballot running',
+      );
+      await transport.resolveDayVote();
+      expect(transport.snapshot.phase, GamePhase.voting);
+    });
+
+    test('day one skips the opener when disabled', () async {
+      await connect(state: roomState(phase: 'morning', phaseNumber: 1));
+      await transport.beginDay();
+      expect(backend.lastCall('open_phase')?.body['phase'], 'discuss');
+    });
+
+    test('an early ballot refusal leaves discussion in place', () async {
+      await connect(state: roomState(phase: 'discuss'));
+      backend.refusals['open_phase'] = const BackendException(
+        'PHASE_CLOSED',
+        'discussion running',
+      );
+      await transport.beginVoting();
+      expect(transport.snapshot.phase, GamePhase.discussion);
+    });
+
     test('a guest makes no phase call the host owns', () async {
       await connect(
         userId: 'u3',
@@ -930,7 +974,13 @@ void main() {
     test(
       'day 1 opens the naming round, day 2 asks for a confrontation',
       () async {
-        await connect(state: roomState(phase: 'morning', phaseNumber: 1));
+        await connect(
+          state: roomState(
+            phase: 'morning',
+            phaseNumber: 1,
+            settings: const {'openingRoundEnabled': true},
+          ),
+        );
         await transport.beginDay();
         expect(
           backend.lastCall('open_phase')?.body['phase'],
@@ -1143,6 +1193,51 @@ void main() {
   });
 
   group('whispers', () {
+    test('damaged read receipt storage does not block delivery', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('mafia.readWhispers.v1', '{broken');
+      const whisper = WhisperRow(
+        id: 'w1',
+        day: 1,
+        fromSeat: 2,
+        toSeat: 0,
+        toMe: true,
+      );
+      await connect(
+        own: const OwnSeat(seat: 0, role: 'citizen'),
+        whispers: [whisper],
+      );
+      backend.bodies['w1'] = 'private';
+      expect((await transport.secretsFor(0))!.whisperBody, 'private');
+    });
+
+    test(
+      'a read whisper stays read after reconnecting the same room',
+      () async {
+        const whisper = WhisperRow(
+          id: 'w1',
+          day: 1,
+          fromSeat: 2,
+          toSeat: 0,
+          toMe: true,
+        );
+        await connect(
+          own: const OwnSeat(seat: 0, role: 'citizen'),
+          whispers: [whisper],
+        );
+        backend.bodies['w1'] = 'private';
+        expect((await transport.secretsFor(0))!.whisperBody, 'private');
+        await transport.markWhisperDelivered('w1');
+        await transport.dispose();
+        await connect(
+          own: const OwnSeat(seat: 0, role: 'citizen'),
+          whispers: [whisper],
+        );
+        backend.bodies['w1'] = 'private';
+        expect((await transport.secretsFor(0))!.whisperBody, isNull);
+      },
+    );
+
     test(
       'the body is fetched for the recipient and never held in the graph',
       () async {

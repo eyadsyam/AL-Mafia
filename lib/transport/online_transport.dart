@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import '../data/read_whisper_store.dart';
 
 import 'package:flutter/foundation.dart' show mapEquals;
 
@@ -147,6 +148,7 @@ class OnlineTransport implements GameTransport {
   /// Whispers this client has already been shown. Online delivery is instant,
   /// so "delivered" is a fact about this screen, not about the server.
   final Set<String> _read = <String>{};
+  bool _readLoaded = false;
 
   GameSnapshot _snapshot;
 
@@ -157,6 +159,8 @@ class OnlineTransport implements GameTransport {
     required RoomState state,
     OwnSeat? own,
     List<WhisperRow> whispers = const [],
+    Set<String> readWhispers = const {},
+    bool readLoaded = false,
     this.heartbeatInterval = MafiaTiming.onlineHeartbeat,
     this.now = DateTime.now,
   }) : _snapshot = const GameSnapshot(
@@ -170,6 +174,8 @@ class OnlineTransport implements GameTransport {
     _players = players;
     _own = own;
     _whispers = whispers;
+    _read.addAll(readWhispers);
+    _readLoaded = readLoaded;
     _skew = state.serverNow.difference(now().toUtc());
     _publish();
   }
@@ -189,6 +195,11 @@ class OnlineTransport implements GameTransport {
   }) async {
     await backend.ensureSession();
     final rows = await backend.fetchRows(roomId);
+    final shouldLoadRead =
+        rows.whispers.any((w) => w.toMe) && backend.userId != null;
+    final readWhispers = !shouldLoadRead
+        ? <String>{}
+        : await ReadWhisperStore.load(roomId, backend.userId!);
     final transport = OnlineTransport(
       backend: backend,
       roomId: roomId,
@@ -196,6 +207,8 @@ class OnlineTransport implements GameTransport {
       players: rows.players,
       own: rows.own,
       whispers: rows.whispers,
+      readWhispers: readWhispers,
+      readLoaded: shouldLoadRead,
       heartbeatInterval: heartbeatInterval,
       now: now,
     );
@@ -641,6 +654,12 @@ class OnlineTransport implements GameTransport {
       _state = rows.state;
       _players = rows.players;
       _own = rows.own;
+      if (!_readLoaded &&
+          rows.whispers.any((w) => w.toMe) &&
+          backend.userId != null) {
+        _read.addAll(await ReadWhisperStore.load(roomId, backend.userId!));
+        _readLoaded = true;
+      }
       _whispers = rows.whispers;
       _skew = rows.state.serverNow.difference(now().toUtc());
       _restore();
@@ -659,6 +678,8 @@ class OnlineTransport implements GameTransport {
   void _markRoomGone() {
     if (_roomGone || _controller.isClosed) return;
     _roomGone = true;
+    final userId = backend.userId;
+    if (userId != null) unawaited(ReadWhisperStore.clear(roomId, userId));
     _ticker?.cancel();
     _deadlineAlarm?.cancel();
     _earlyAlarm?.cancel();
@@ -799,6 +820,9 @@ class OnlineTransport implements GameTransport {
     _foreground = status == 'connected';
     try {
       await backend.call('set_presence', {'roomId': roomId, 'status': status});
+      if (status == 'left' && backend.userId != null) {
+        await ReadWhisperStore.clear(roomId, backend.userId!);
+      }
       _restore();
     } on BackendException catch (e) {
       // An explicit leave is already tearing down the session. A background
@@ -920,6 +944,12 @@ class OnlineTransport implements GameTransport {
       return (payload: result, superseded: false);
     } on BackendException catch (e) {
       if (e.isPhaseClosed) {
+        // A resolution requested before the server clock is due waits for the
+        // next tick or room push. Resyncing here would rearm an overdue local
+        // alarm immediately and spin on the same refusal.
+        if (function == 'resolve_night' || function == 'resolve_vote') {
+          return (payload: null, superseded: true);
+        }
         await resync();
         // A night choice or a ballot that arrived late is told so («الوقت
         // خلص قبل ما اختيارك يوصل»); every other move is simply overtaken.
@@ -1105,10 +1135,16 @@ class OnlineTransport implements GameTransport {
     // run out — otherwise the one beat with nothing to answer would be the one
     // beat that could strand the match.
     if (state == null || (!isHost && !_mayDrive)) return;
+    if (state.publicData['outcome'] != null) {
+      await _send('open_phase', {'phase': 'result'}, hostOnly: !_mayDrive);
+      return;
+    }
     // Day 1 opens on «اسم واحد»; every later day opens on the confrontation the
     // server chooses, or on discussion when it finds nothing true to say.
-    if (state.phaseNumber <= 1) {
+    if (state.phaseNumber <= 1 && _snapshot.settings.openingRoundEnabled) {
       await _send('open_phase', {'phase': 'opening'}, hostOnly: !_mayDrive);
+    } else if (state.phaseNumber <= 1) {
+      await _send('open_phase', {'phase': 'discuss'}, hostOnly: !_mayDrive);
     } else {
       await _send('generate_confrontation', const {}, hostOnly: !_mayDrive);
     }
@@ -1176,6 +1212,13 @@ class OnlineTransport implements GameTransport {
     // reached exactly one client. What "read" means here is "this screen has
     // shown it", which is this device's business alone.
     _read.add(id);
+    while (_read.length > 128) {
+      _read.remove(_read.first);
+    }
+    final userId = backend.userId;
+    if (userId != null) {
+      await ReadWhisperStore.save(roomId, userId, _read);
+    }
     _publish();
   }
 

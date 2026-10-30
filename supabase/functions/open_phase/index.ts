@@ -35,9 +35,11 @@
 
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import { clearedFor, deadlineFor, TRANSITIONS } from "../_shared/phases.ts";
+import { discussionComplete, firstDayPhase } from "../_shared/phase_guards.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
-  const { roomId, phase, silent } = await req.json();
+  const { roomId, phase: asked, silent } = await req.json();
+  let phase = asked;
   if (!roomId || !phase) return fail("BAD_REQUEST", "roomId and phase required");
 
   const me = await loadMembership(db, roomId, userId);
@@ -77,6 +79,40 @@ Deno.serve(handler(async (req, userId, db) => {
     !["lobby", "result", "analytics"].includes(me.phase);
   if (!allowed.includes(phase) && !decidedMidMatch) {
     return fail("PHASE_CLOSED", "that phase cannot open now");
+  }
+
+  // Builds up to 19 always ask for the opening round on Day 1. With the round
+  // off they are taken to the discussion rather than refused, or their tap
+  // would do nothing until the morning's clock ran out.
+  if (me.phase === "morning" && phase === "opening") {
+    if (me.phaseNumber !== 1) return fail("PHASE_CLOSED", "the opening round is Day 1 only");
+    phase = firstDayPhase(me.settings);
+  }
+  if (me.phase === "morning" && phase === "discuss" &&
+      me.phaseNumber === 1 && firstDayPhase(me.settings) === "opening") {
+    return fail("PHASE_CLOSED", "the opening round is enabled");
+  }
+  if (me.phase === "morning" && phase !== "result") {
+    const { data: state, error } = await db.from("room_state")
+      .select("public_data").eq("room_id", roomId).maybeSingle();
+    if (error) throw error;
+    if ((state?.public_data as Record<string, unknown> | null)?.outcome) {
+      return fail("PHASE_CLOSED", "the match has ended");
+    }
+  }
+
+  if (me.phase === "discuss" && phase === "vote" && !expired) {
+    const [players, state] = await Promise.all([
+      db.from("room_players").select("seat").eq("room_id", roomId).eq("alive", true).eq("kicked", false),
+      db.from("room_state").select("public_data").eq("room_id", roomId).maybeSingle(),
+    ]);
+    if (players.error) throw players.error;
+    if (state.error) throw state.error;
+    const ready = (state.data?.public_data as Record<string, unknown> | null)
+      ?.readyToVote as { number?: number; seats?: number[] } | undefined;
+    if (!discussionComplete(players.data ?? [], ready, me.phaseNumber)) {
+      return fail("PHASE_CLOSED", "the discussion is still running");
+    }
   }
 
   // The deal's gate. Never the client's word for it: `saw_role` is written by
@@ -187,7 +223,8 @@ Deno.serve(handler(async (req, userId, db) => {
     p_room: roomId, p_expected: me.phase, p_number: me.phaseNumber,
     p_expected_deadline: me.phaseEndsAt,
     p_next: phase, p_next_number: me.phaseNumber + (opensNewDay ? 1 : 0),
-    p_deadline: endsAt, p_patch: patch, p_require_all_seen: requireAllSeen,
+    p_deadline: endsAt, p_patch: patch,
+    p_require_all_seen: requireAllSeen || (me.phase === "discuss" && phase === "vote" && !expired),
   });
   if (error) throw error;
   if (!moved) {

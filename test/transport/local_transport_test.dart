@@ -8,6 +8,17 @@ import 'package:mafia_master/transport/game_snapshot.dart';
 import 'package:mafia_master/transport/game_transport.dart';
 import 'package:mafia_master/transport/local_transport.dart';
 
+class _FailingWhisperStore extends MemoryWhisperStore {
+  @override
+  Future<void> put({
+    required int matchId,
+    required String whisperId,
+    required String body,
+  }) async {
+    throw StateError('storage unavailable');
+  }
+}
+
 /// Phase 5's gate: a whole match, played through [GameTransport] and nothing
 /// else.
 ///
@@ -194,6 +205,37 @@ void main() {
   });
 
   group('whispers', () {
+    test('a failed body write leaves the daily whisper available', () async {
+      transport = open(settings: const MatchSettings(whisperEnabled: true));
+      await playNight();
+      await transport.beginDay();
+      if (transport.snapshot.phase == GamePhase.confrontation) {
+        await transport.endConfrontation(silent: false);
+      }
+      expect(transport.snapshot.phase, GamePhase.discussion);
+      final before = engine.match.eventLog.length;
+      final sender = transport.snapshot.public.players
+          .firstWhere((p) => p.status == PlayerStatus.alive)
+          .seat;
+      final recipient = transport.snapshot.public.players
+          .firstWhere((p) => p.status == PlayerStatus.alive && p.seat != sender)
+          .seat;
+      transport = LocalTransport(
+        engine: engine,
+        whispers: _FailingWhisperStore(),
+      );
+      await expectLater(
+        transport.sendWhisper(
+          fromSeat: sender,
+          toSeat: recipient,
+          body: 'test',
+        ),
+        throwsStateError,
+      );
+      expect(engine.match.eventLog.length, before);
+      expect(engine.whispersSentBy(sender, engine.match.dayNumber), 0);
+    });
+
     test('the body reaches the recipient and never the snapshot', () async {
       transport = open(
         settings: const MatchSettings(

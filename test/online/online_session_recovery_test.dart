@@ -211,7 +211,7 @@ void main() {
         await Future<void>.delayed(Duration.zero);
         await Future<void>.delayed(Duration.zero);
 
-        final rows = await OnlineMatchHistory.load();
+        final rows = await OnlineMatchHistory.load(userId: 'u0');
         expect(rows, hasLength(1));
         expect(rows.single['roomId'], 'room-1');
         expect(rows.single['winner'], 'town');

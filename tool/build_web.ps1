@@ -73,6 +73,12 @@ $stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss')
 # ANSI code page and every em dash in the comments comes out as a replacement
 # character in the deployed script.
 $script = (Get-Content -Path $worker -Raw -Encoding UTF8) -replace '__BUILD_VERSION__', $stamp
+$indexPath = Join-Path $out 'index.html'
+$indexHtml = (Get-Content -Path $indexPath -Raw -Encoding UTF8) -replace '__BUILD_VERSION__', $stamp
+[System.IO.File]::WriteAllText($indexPath, $indexHtml, (New-Object System.Text.UTF8Encoding($false)))
+$bootstrapPath = Join-Path $out 'flutter_bootstrap.js'
+$bootstrapJs = (Get-Content -Path $bootstrapPath -Raw -Encoding UTF8) -replace '"mainJsPath":"main.dart.js"', ('"mainJsPath":"main.dart.js?v=' + $stamp + '"')
+[System.IO.File]::WriteAllText($bootstrapPath, $bootstrapJs, (New-Object System.Text.UTF8Encoding($false)))
 # No BOM: this is served as text/javascript and read by the browser, not by
 # PowerShell, and `Set-Content -Encoding utf8` on 5.1 writes one.
 [System.IO.File]::WriteAllText(

@@ -351,9 +351,9 @@ class LocalTransport implements GameTransport {
     required int toSeat,
     required String body,
   }) async {
-    // The engine validates and records the edge; only then does the body get
-    // written, so a rejected whisper leaves nothing behind anywhere.
-    final id = engine.sendWhisper(
+    // The engine validates, the body is written, and only then is the edge
+    // recorded: a rejected whisper or a failed write leaves nothing behind.
+    final id = engine.prepareWhisper(
       fromSeat: fromSeat,
       toSeat: toSeat,
       body: body,
@@ -363,6 +363,7 @@ class LocalTransport implements GameTransport {
       whisperId: id,
       body: body.trim(),
     );
+    engine.sendWhisper(fromSeat: fromSeat, toSeat: toSeat, body: body);
     _publish();
     return id;
   }

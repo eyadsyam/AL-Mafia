@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/transport/online_transport.dart';
@@ -15,6 +16,7 @@ import '../support/localized.dart';
 /// **immediately** — the recipient reads it on the card over the live table,
 /// not at night. Only the two ends ever hold the words.
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   FakeBackend backend0({List<WhisperRow> whispers = const []}) {
     final backend = FakeBackend(
       roomId: 'room-1',

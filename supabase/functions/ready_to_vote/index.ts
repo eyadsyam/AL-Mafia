@@ -66,7 +66,7 @@ Deno.serve(handler(async (req, userId, db) => {
         p_next_number: result.number,
         p_deadline: endsAt,
         p_patch: clearedFor("vote"),
-        p_require_all_seen: false,
+        p_require_all_seen: true,
       },
     );
     if (moveError) throw moveError;

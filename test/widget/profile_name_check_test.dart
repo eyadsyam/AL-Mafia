@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/player_profile.dart';
+import 'package:mafia_master/ui/account/profile_save.dart';
 import 'package:mafia_master/ui/screens/setup/profile_screen.dart';
 import 'package:mafia_master/ui/social/directory.dart' show nameRefusedProvider;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +12,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../support/localized.dart';
 
 void main() {
-  Future<String?> saveName(WidgetTester tester, {required bool refused}) async {
+  Future<String?> saveName(
+    WidgetTester tester, {
+    required bool refused,
+    Future<void> Function(PlayerProfile)? refresh,
+  }) async {
     SharedPreferences.setMockInitialValues({
       ProfileStore.profileKey: jsonEncode({'name': 'ليلى', 'gender': 'female'}),
     });
@@ -23,6 +28,8 @@ void main() {
           nameRefusedProvider.overrideWithValue(
             (name, gender) async => refused,
           ),
+          if (refresh != null)
+            profileDirectoryRefreshProvider.overrideWithValue(refresh),
         ],
         child: localizedApp(const ProfileScreen()),
       ),
@@ -50,4 +57,22 @@ void main() {
     expect(await saveName(tester, refused: false), 'اسم جديد');
     expect(find.text(arStrings.onlineNameNotAllowed), findsNothing);
   });
+  testWidgets(
+    'saving publishes the new name immediately; a failed refresh keeps the save',
+    (tester) async {
+      final published = <String>[];
+      expect(
+        await saveName(
+          tester,
+          refused: false,
+          refresh: (profile) async {
+            published.add(profile.name);
+            throw StateError('offline');
+          },
+        ),
+        'اسم جديد',
+      );
+      expect(published, ['اسم جديد']);
+    },
+  );
 }

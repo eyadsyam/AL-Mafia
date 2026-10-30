@@ -22,7 +22,7 @@ const CACHE = `almafia-${VERSION}`;
 // The shell and the film. Everything else arrives through the fetch handler as
 // the app asks for it, which is how the cache stays to what this build uses
 // rather than the 60 MB of renderer variants a build directory contains.
-const PRECACHE = ['./', './assets/assets/video/onboarding.mp4'];
+const PRECACHE = ['./', './flutter_bootstrap.js', './main.dart.js', './assets/assets/video/onboarding.mp4'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
@@ -74,6 +74,25 @@ self.addEventListener('fetch', (event) => {
         const cache = await caches.open(CACHE);
         const shell = await cache.match(new URL('./', self.registration.scope));
         return shell ?? Response.error();
+      }
+    })());
+    return;
+  }
+
+  // Executable code must see a deploy on the first online visit. The previous
+  // cached copy remains available when the connection is gone.
+  if (url.pathname.endsWith('/flutter_bootstrap.js') ||
+      url.pathname.endsWith('/main.dart.js')) {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const response = await fetch(new Request(request, {cache: 'reload'}));
+        if (response.ok && response.type === 'basic') {
+          await cache.put(request, response.clone());
+        }
+        return response;
+      } catch (_) {
+        return (await cache.match(request, {ignoreSearch: true})) ?? Response.error();
       }
     })());
     return;

@@ -42,6 +42,9 @@ void main() {
       // Assets are served immutable for a year; without this the worker would
       // precache the previous build's film out of the HTTP cache.
       expect(worker, contains("cache: 'reload'"));
+      expect(worker, contains("'./flutter_bootstrap.js'"));
+      expect(worker, contains("'./main.dart.js'"));
+      expect(worker, contains("cache.match(request, {ignoreSearch: true})"));
     });
 
     test('the build stamps the worker and publishes it as sw.js', () {
@@ -49,6 +52,12 @@ void main() {
       expect(script, contains('web/offline_service_worker.js'));
       expect(script, contains("__BUILD_VERSION__"));
       expect(script, contains("'sw.js'"));
+      expect(script, contains('index.html'));
+      expect(script, contains('mainJsPath'));
+      expect(
+        read('web/index.html'),
+        contains('flutter_bootstrap.js?v=__BUILD_VERSION__'),
+      );
     });
 
     test('the bootstrap registers it, and asks Flutter for no worker', () {

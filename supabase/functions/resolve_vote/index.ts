@@ -11,6 +11,8 @@ import { deadlineFor } from "../_shared/phases.ts";
 import { voteFingerprint } from "../_shared/vote_fingerprint.ts";
 import { resolveBallotCore } from "../_shared/ballot_core.ts";
 import { isMafiaTeam } from "../_shared/teams.ts";
+import { silencedSeatOf } from "../_shared/silence.ts";
+import { voteComplete } from "../_shared/phase_guards.ts";
 import {
   lastWordOf,
   loadToolUses,
@@ -25,16 +27,9 @@ Deno.serve(handler(async (req, userId, db) => {
   // See resolve_night: an archived room's commit is refused anyway.
   if (me.status !== "playing") return fail("PHASE_CLOSED", "no match is running");
   if (me.phase !== "vote") return fail("PHASE_CLOSED", "not the ballot");
-  // The host resolves, and so does anybody else once the server's own clock has
-  // run out. Doc 10 §8.2 — no phase may stall — is not a promise the room can
-  // keep while the only device allowed to end a phase is one particular phone
-  // that may be face-down on a table. The deadline is still the server's and it
-  // is still read here, so a client with a fast clock can ask early and be
-  // refused; it cannot end a ballot people are still voting in.
+  // Any member may request resolution, but the server clock or a complete
+  // eligible ballot is the gate. A host cannot end voting for the table.
   const expired = !!me.phaseEndsAt && new Date(me.phaseEndsAt) <= new Date();
-  if (me.hostId !== userId && !expired) {
-    return fail("NOT_HOST", "the host resolves", 403);
-  }
 
   const day = me.phaseNumber;
   const retryRevoteRefunds = async () => {
@@ -45,7 +40,6 @@ Deno.serve(handler(async (req, userId, db) => {
       console.error("revote refund pending retry", error);
     }
   };
-  await retryRevoteRefunds();
 
   // A refused commit is one of two things: the ballot already closed (or a
   // revote opened a new round, which is the same thing for this caller), or a
@@ -96,6 +90,13 @@ Deno.serve(handler(async (req, userId, db) => {
       .eq("day", day)
       .eq("round", round);
     if (castError) throw castError;
+    if (!expired) {
+      const silencedSeat = silencedSeatOf(state?.public_data);
+      if (!voteComplete(roster, cast ?? [], silencedSeat)) {
+        return fail("PHASE_CLOSED", "the ballot is still running");
+      }
+    }
+    await retryRevoteRefunds();
 
     // See `resolve_night`: the ballots this outcome counts, for the commit to
     // check against the ballots the room holds when it locks the row.
