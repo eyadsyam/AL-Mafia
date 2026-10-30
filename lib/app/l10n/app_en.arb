@@ -4862,7 +4862,7 @@
   "adminReviewEconomyConfig": "Economy config",
   "adminReviewYes": "Yes",
   "adminReviewNo": "No",
-  "confrontationC12": "You named {x} on day one, and {xg, select, female{she} other{he}} was not Mafia. Do you still see it the same way?",
+  "confrontationC12": "You named {x} on day one, and {xg, select, female{she was} other{he was}} not Mafia. Do you still see it the same way?",
   "@confrontationC12": {
     "placeholders": {
       "x": {
@@ -4873,7 +4873,7 @@
       }
     }
   },
-  "confrontationC12Female": "You named {x} on day one, and {xg, select, female{she} other{he}} was not Mafia. Do you still see it the same way?",
+  "confrontationC12Female": "You named {x} on day one, and {xg, select, female{she was} other{he was}} not Mafia. Do you still see it the same way?",
   "@confrontationC12Female": {
     "placeholders": {
       "x": {
@@ -4884,7 +4884,7 @@
       }
     }
   },
-  "confrontationC13": "You whispered to {x} yesterday, and {xg, select, female{she} other{he}} was killed in the night. What did you say?",
+  "confrontationC13": "You whispered to {x} yesterday, and {xg, select, female{she was} other{he was}} killed in the night. What did you say?",
   "@confrontationC13": {
     "placeholders": {
       "x": {
@@ -4895,7 +4895,7 @@
       }
     }
   },
-  "confrontationC13Female": "You whispered to {x} yesterday, and {xg, select, female{she} other{he}} was killed in the night. What did you say?",
+  "confrontationC13Female": "You whispered to {x} yesterday, and {xg, select, female{she was} other{he was}} killed in the night. What did you say?",
   "@confrontationC13Female": {
     "placeholders": {
       "x": {
@@ -4906,7 +4906,7 @@
       }
     }
   },
-  "confrontationC14": "You were whispering to {x}, and {xg, select, female{she} other{he}} was Mafia. What is between you two?",
+  "confrontationC14": "You were whispering to {x}, and {xg, select, female{she was} other{he was}} Mafia. What is between you two?",
   "@confrontationC14": {
     "placeholders": {
       "x": {
@@ -4917,7 +4917,7 @@
       }
     }
   },
-  "confrontationC14Female": "You were whispering to {x}, and {xg, select, female{she} other{he}} was Mafia. What is between you two?",
+  "confrontationC14Female": "You were whispering to {x}, and {xg, select, female{she was} other{he was}} Mafia. What is between you two?",
   "@confrontationC14Female": {
     "placeholders": {
       "x": {

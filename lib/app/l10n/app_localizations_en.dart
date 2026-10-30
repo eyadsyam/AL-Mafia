@@ -8000,37 +8000,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String confrontationC12(String x, String xg) {
-    String _temp0 = intl.Intl.selectLogic(xg, {'female': 'she', 'other': 'he'});
-    return 'You named $x on day one, and $_temp0 was not Mafia. Do you still see it the same way?';
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'she was',
+      'other': 'he was',
+    });
+    return 'You named $x on day one, and $_temp0 not Mafia. Do you still see it the same way?';
   }
 
   @override
   String confrontationC12Female(String x, String xg) {
-    String _temp0 = intl.Intl.selectLogic(xg, {'female': 'she', 'other': 'he'});
-    return 'You named $x on day one, and $_temp0 was not Mafia. Do you still see it the same way?';
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'she was',
+      'other': 'he was',
+    });
+    return 'You named $x on day one, and $_temp0 not Mafia. Do you still see it the same way?';
   }
 
   @override
   String confrontationC13(String x, String xg) {
-    String _temp0 = intl.Intl.selectLogic(xg, {'female': 'she', 'other': 'he'});
-    return 'You whispered to $x yesterday, and $_temp0 was killed in the night. What did you say?';
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'she was',
+      'other': 'he was',
+    });
+    return 'You whispered to $x yesterday, and $_temp0 killed in the night. What did you say?';
   }
 
   @override
   String confrontationC13Female(String x, String xg) {
-    String _temp0 = intl.Intl.selectLogic(xg, {'female': 'she', 'other': 'he'});
-    return 'You whispered to $x yesterday, and $_temp0 was killed in the night. What did you say?';
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'she was',
+      'other': 'he was',
+    });
+    return 'You whispered to $x yesterday, and $_temp0 killed in the night. What did you say?';
   }
 
   @override
   String confrontationC14(String x, String xg) {
-    String _temp0 = intl.Intl.selectLogic(xg, {'female': 'she', 'other': 'he'});
-    return 'You were whispering to $x, and $_temp0 was Mafia. What is between you two?';
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'she was',
+      'other': 'he was',
+    });
+    return 'You were whispering to $x, and $_temp0 Mafia. What is between you two?';
   }
 
   @override
   String confrontationC14Female(String x, String xg) {
-    String _temp0 = intl.Intl.selectLogic(xg, {'female': 'she', 'other': 'he'});
-    return 'You were whispering to $x, and $_temp0 was Mafia. What is between you two?';
+    String _temp0 = intl.Intl.selectLogic(xg, {
+      'female': 'she was',
+      'other': 'he was',
+    });
+    return 'You were whispering to $x, and $_temp0 Mafia. What is between you two?';
   }
 }
