@@ -1,6 +1,6 @@
 export const reviewActions = new Set([
   "overview", "players", "rooms", "store", "config", "push", "testers",
-  "feedback", "feedbackMark",
+  "feedback", "feedbackMark", "usage",
 ]);
 
 export function reviewAllowed(admin: boolean): boolean {
@@ -24,6 +24,7 @@ const rowFields: Record<string, string[]> = {
   push: ["kind", "status", "count"],
   testers: ["name", "status", "createdAt", "source"],
   grants: ["displayName", "since"],
+  usage: ["day", "newAccounts", "onlinePlayers", "onlineMatches", "adsAsked", "adsPaid", "events"],
 };
 
 function pick(row: Record<string, unknown>, fields: string[]): Record<string, unknown> {

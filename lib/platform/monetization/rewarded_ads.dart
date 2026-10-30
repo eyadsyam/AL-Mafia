@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../metrics.dart';
+import 'metered_rewarded_ads.dart';
 import 'rewarded_ads_stub.dart' if (dart.library.io) 'rewarded_ads_mobile.dart';
 
 enum RewardedAdOutcome {
@@ -78,7 +80,10 @@ void preloadRewarded(RewardedAds ads, RewardedPlacement placement) {
 }
 
 final rewardedAdsProvider = Provider<RewardedAds>((ref) {
-  final ads = createRewardedAds();
+  final ads = MeteredRewardedAds(
+    createRewardedAds(),
+    ref.read(metricsClientProvider),
+  );
   ref.onDispose(ads.dispose);
   return ads;
 });

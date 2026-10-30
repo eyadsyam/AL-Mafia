@@ -7784,6 +7784,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminReviewTesters => 'المجربين';
 
   @override
+  String get adminReviewUsage => 'الاستخدام';
+
+  @override
+  String get adminUsageNewAccounts => 'حسابات جديدة';
+
+  @override
+  String get adminUsageOnlinePlayers => 'لعّيبة أونلاين';
+
+  @override
+  String get adminUsageOnlineMatches => 'ماتشات أونلاين';
+
+  @override
+  String adminUsageAds(int paid, int asked) {
+    return 'إعلانات المكافأة: $paid اتصرفت من $asked';
+  }
+
+  @override
+  String get adminUsageEvents => 'من الأجهزة';
+
+  @override
   String get adminReviewSearch => 'دوّر باسم اللاعب';
 
   @override

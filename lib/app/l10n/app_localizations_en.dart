@@ -7903,6 +7903,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminReviewTesters => 'Testers';
 
   @override
+  String get adminReviewUsage => 'Usage';
+
+  @override
+  String get adminUsageNewAccounts => 'New accounts';
+
+  @override
+  String get adminUsageOnlinePlayers => 'Online players';
+
+  @override
+  String get adminUsageOnlineMatches => 'Online matches';
+
+  @override
+  String adminUsageAds(int paid, int asked) {
+    return 'Rewarded ads: $paid paid of $asked';
+  }
+
+  @override
+  String get adminUsageEvents => 'From devices';
+
+  @override
   String get adminReviewSearch => 'Search display name';
 
   @override

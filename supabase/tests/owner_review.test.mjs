@@ -26,3 +26,12 @@ test('room and tester rows exclude private fields', () => {
   assert.deepEqual(shapeReview('testers', { items: [{ name: 'Nour', email: 'private', note: 'private' }] }),
     { items: [{ name: 'Nour' }] });
 });
+
+test('usage days keep their counts and nothing else', () => {
+  const day = { day: '2026-10-30', newAccounts: 3, onlinePlayers: 9, onlineMatches: 2,
+    adsAsked: 5, adsPaid: 4, events: { 'ad_result/daily:earned': 4 }, userId: 'private' };
+  assert.deepEqual(shapeReview('usage', { items: [day] }).items[0], {
+    day: '2026-10-30', newAccounts: 3, onlinePlayers: 9, onlineMatches: 2,
+    adsAsked: 5, adsPaid: 4, events: { 'ad_result/daily:earned': 4 },
+  });
+});

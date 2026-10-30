@@ -103,6 +103,19 @@ void main() {
         {'name': 'Nour', 'status': 'new', 'createdAt': 'today'},
       ],
     },
+    'usage': {
+      'items': [
+        {
+          'day': '2026-10-30',
+          'newAccounts': 3,
+          'onlinePlayers': 9,
+          'onlineMatches': 2,
+          'adsAsked': 5,
+          'adsPaid': 4,
+          'events': {'match_local_finished/p7_9': 6},
+        },
+      ],
+    },
   };
 
   testWidgets('every page renders its returned data', (tester) async {
@@ -119,6 +132,7 @@ void main() {
       ('config', 'min_build_web'),
       ('push', 'night'),
       ('testers', 'Nour'),
+      ('usage', '2026-10-30'),
     ]) {
       await tester.tap(find.byKey(OwnerReviewScreen.tab(action)));
       await tester.pumpAndSettle();
@@ -160,6 +174,18 @@ void main() {
     expect(find.text(arStrings.adminReviewEmpty), findsOneWidget);
   });
 
+  testWidgets('usage page shows the ad pay rate and device counts', (tester) async {
+    final server = backend()
+      ..responders['owner_review'] = (body) => answers[body['action']]!;
+    await tester.pumpWidget(app(server));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(OwnerReviewScreen.tab('usage')));
+    await tester.pumpAndSettle();
+    expect(server.calls.last.body['action'], 'usage');
+    expect(find.textContaining(arStrings.adminUsageAds(4, 5)), findsOneWidget);
+    expect(find.textContaining('match_local_finished/p7_9 6'), findsOneWidget);
+  });
+
   testWidgets('player search sends query', (tester) async {
     final server = backend()..responses['owner_review'] = {'items': []};
     await tester.pumpWidget(app(server));
@@ -187,6 +213,7 @@ void main() {
         'config',
         'push',
         'testers',
+        'usage',
       ]) {
         await tester.tap(find.byKey(OwnerReviewScreen.tab(action)));
         await tester.pumpAndSettle();

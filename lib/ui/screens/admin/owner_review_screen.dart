@@ -29,6 +29,7 @@ class OwnerReviewScreen extends ConsumerStatefulWidget {
 class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
   static const _actions = [
     'overview',
+    'usage',
     'feedback',
     'players',
     'rooms',
@@ -264,6 +265,7 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
       'config' => l.adminReviewConfig,
       'push' => l.adminReviewPush,
       'testers' => l.adminReviewTesters,
+      'usage' => l.adminReviewUsage,
       _ => l.adminReviewOverview,
     };
   }
@@ -427,6 +429,19 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
           field('code'),
           '${l.adminReviewKind}: ${field('kind')} · ${l.adminReviewPrice}: ${field('coinPrice')} · ${l.adminReviewActive}: ${row['active'] == true ? l.adminReviewYes : l.adminReviewNo} · ${l.adminReviewOwners}: ${field('owners')}',
         );
+      case 'usage':
+        final events = row['events'];
+        return _tile(
+          field('day'),
+          [
+            '${l.adminUsageNewAccounts}: ${field('newAccounts')}',
+            '${l.adminUsageOnlinePlayers}: ${field('onlinePlayers')}',
+            '${l.adminUsageOnlineMatches}: ${field('onlineMatches')}',
+            l.adminUsageAds(_count(row['adsPaid']), _count(row['adsAsked'])),
+            if (events is Map && events.isNotEmpty)
+              '${l.adminUsageEvents}: ${events.entries.map((e) => '${e.key} ${e.value}').join(' · ')}',
+          ].join('\n'),
+        );
       case 'push':
         return _tile(
           field('kind'),
@@ -439,6 +454,8 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
         );
     }
   }
+
+  static int _count(Object? value) => value is num ? value.toInt() : 0;
 
   Widget _tile(String title, String detail) => Padding(
     padding: const EdgeInsets.only(bottom: AdminTokens.rowGap),

@@ -70,7 +70,8 @@ begin
   assert not has_table_privilege('authenticated','public.metric_salts','select');
   assert not has_function_privilege('authenticated','public.metric_record(uuid,text,text,uuid)','execute');
   assert not has_function_privilege('authenticated','public.purge_metrics_v11()','execute');
-  assert (public.economy_capabilities(u)->>'metrics')='false';
+  -- On since 20261030004000_usage_counts (owner, 2026-10-30).
+  assert (public.economy_capabilities(u)->>'metrics')='true';
   assert (public.economy_capabilities(u)->>'reviewPrompt')='false';
   assert public.economy_capabilities(u) ? 'caseOfDay','earlier capabilities lost';
 end $$;

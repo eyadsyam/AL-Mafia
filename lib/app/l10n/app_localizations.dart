@@ -13603,6 +13603,42 @@ abstract class AppLocalizations {
   /// **'Testers'**
   String get adminReviewTesters;
 
+  /// No description provided for @adminReviewUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage'**
+  String get adminReviewUsage;
+
+  /// No description provided for @adminUsageNewAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'New accounts'**
+  String get adminUsageNewAccounts;
+
+  /// No description provided for @adminUsageOnlinePlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Online players'**
+  String get adminUsageOnlinePlayers;
+
+  /// No description provided for @adminUsageOnlineMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Online matches'**
+  String get adminUsageOnlineMatches;
+
+  /// No description provided for @adminUsageAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewarded ads: {paid} paid of {asked}'**
+  String adminUsageAds(int paid, int asked);
+
+  /// No description provided for @adminUsageEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'From devices'**
+  String get adminUsageEvents;
+
   /// No description provided for @adminReviewSearch.
   ///
   /// In en, this message translates to:

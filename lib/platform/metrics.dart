@@ -74,6 +74,15 @@ final metricsClientProvider = Provider<MetricsClient>((ref) {
   );
 });
 
+/// The table size a one-phone match is counted under: a range, never the
+/// exact roster.
+String tableSizeBucket(int players) {
+  if (players <= 6) return 'p4_6';
+  if (players <= 9) return 'p7_9';
+  if (players <= 12) return 'p10_12';
+  return 'p13_plus';
+}
+
 abstract interface class InstallReferrerReader {
   Future<String?> read();
 }

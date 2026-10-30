@@ -26,6 +26,8 @@ Deno.serve(handler(async (req, userId, db) => {
     ? await db.rpc("admin_feedback", { p_admin: userId, p_status: body.status ?? null })
     : action === "feedbackMark"
     ? await db.rpc("admin_feedback_mark", { p_admin: userId, p_id: body.id, p_status: body.status })
+    : action === "usage"
+    ? await db.rpc("owner_review_usage", { p_admin: userId })
     : await db.rpc("owner_review", {
       p_admin: userId, p_action: action, p_query: body.query ?? "",
     });

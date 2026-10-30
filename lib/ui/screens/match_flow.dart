@@ -9,6 +9,8 @@ import '../../engine/models/player.dart' show PhaseRef;
 import '../../engine/pressure.dart';
 import '../../app/asset_constants.dart';
 import '../../platform/audio_director.dart';
+import '../../platform/metrics.dart'
+    show metricsClientProvider, tableSizeBucket;
 import '../../platform/narrator_bank.dart';
 import '../../platform/review_prompt.dart';
 import '../../transport/game_snapshot.dart' show ConnectionQuality;
@@ -375,6 +377,16 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
           // P9: a pass-and-play match that reached its result is a clean
           // completed match; the prompt itself waits for a calm home screen.
           unawaited(ref.read(reviewPromptProvider).noteCleanMatch());
+          // Usage counts: a one-phone match reached its result, by size.
+          if (ref.read(matchControllerProvider.notifier).transport
+              is LocalTransport) {
+            ref
+                .read(metricsClientProvider)
+                .record(
+                  'match_local_finished',
+                  prop: tableSizeBucket(state.public.players.length),
+                );
+          }
           setState(() => _victorySeen = true);
         },
       );
