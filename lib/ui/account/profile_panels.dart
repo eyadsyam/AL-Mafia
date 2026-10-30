@@ -7,6 +7,7 @@ import '../../data/repository_provider.dart';
 import '../../engine/models/enums.dart' as engine;
 import '../../engine/models/player.dart' show PlayerGender;
 import '../../transport/account_auth.dart';
+import '../economy/all_access.dart' show allAccessAccountProvider;
 import '../economy/council.dart' show councilProvider;
 import '../economy/cosmetic_paint.dart';
 import '../economy/my_cosmetics.dart';
@@ -251,7 +252,8 @@ class ProfileIdentityHeader extends ConsumerWidget {
 /// A player's record at a glance, from what this device knows: matches on
 /// one phone and matches online.
 final profileStatsProvider = FutureProvider<(int, int)>((ref) async {
-  final userId = ref.watch(accountProfileProvider).valueOrNull?.userId;
+  ref.watch(onlineHistoryRevisionProvider);
+  final userId = ref.watch(allAccessAccountProvider).valueOrNull;
   var local = 0;
   var online = 0;
   try {
@@ -453,7 +455,8 @@ class ProfileRecord {
 }
 
 final profileRecordProvider = FutureProvider<ProfileRecord>((ref) async {
-  final userId = ref.watch(accountProfileProvider).valueOrNull?.userId;
+  ref.watch(onlineHistoryRevisionProvider);
+  final userId = ref.watch(allAccessAccountProvider).valueOrNull;
   try {
     return ProfileRecord.from(await OnlineMatchHistory.load(userId: userId));
   } catch (_) {

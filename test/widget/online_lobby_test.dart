@@ -83,18 +83,17 @@ void main() {
   }
 
   group('S-21 the lobby', () {
-    testWidgets('host exit offers keeping the room before closing it', (
+    testWidgets('host exit asks first, and leaving is the whole answer', (
       tester,
     ) async {
       final container = containerWith();
       await pumpLobby(tester, container);
       await tester.tap(find.byKey(LobbyScreen.leaveButton));
       await tester.pump();
-      expect(
-        find.byKey(const ValueKey('lobby_leave_keep_room')),
-        findsOneWidget,
-      );
+      // One way out, and it says what it does; nothing has left yet.
       expect(find.byKey(LobbyScreen.closeRoomConfirm), findsOneWidget);
+      expect(find.text(arStrings.onlineHostExitBody), findsOneWidget);
+      expect(backend.called('leave_room'), isFalse);
       expect(backend.called('close_room'), isFalse);
     });
 

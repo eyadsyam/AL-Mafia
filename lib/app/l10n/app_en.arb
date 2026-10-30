@@ -1,7 +1,6 @@
 {
-  "onlineHostExitTitle": "Leave the room?",
-  "onlineHostExitBody": "Keep the room running and hand hosting to the first available player, or close it for everyone.",
-  "onlineLeaveKeepRoom": "Leave and keep playing",
+  "onlineHostExitTitle": "Leave and close the room?",
+  "onlineHostExitBody": "The room closes for everybody and the match ends with no result.",
   "voiceEnablePlayback": "Enable audio",
   "onlineHistoryLabel": "Online match",
   "onlineMatchMeta": "{players} players · day {day}",
@@ -940,7 +939,7 @@
   },
   "onlineCloseRoom": "Close the room",
   "onlineCloseRoomBody": "This ends the match for everyone in the room. Are you sure?",
-  "onlineCloseRoomConfirm": "Close",
+  "onlineCloseRoomConfirm": "Leave and close the room",
   "onlineRoomClosed": "The host closed the room",
   "onlineKick": "Remove",
   "onlineMute": "Mute",

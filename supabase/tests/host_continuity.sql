@@ -53,13 +53,14 @@ begin
     'the previous host cannot start';
   assert public.apply_match_deal(rid,u[2],roles5,'{}',now()+interval '1 minute'),'new host starts';
 
-  -- ── The host leaving the lobby is a roster change: readiness clears, the
-  --    lowest seated row hosts, configuration is untouched.
+  -- ── A guest leaving the lobby is a roster change: readiness clears, the host
+  --    stays, configuration is untouched. (The host leaving closes the room:
+  --    live_lobby_heir.)
   rid:=pg_temp.hc_room('HCBBBB',u[1],u[1:6],true);
   update public.room_players set lobby_ready=true where room_id=rid;
   select lobby_revision,settings into rev,settings_before from public.rooms where id=rid;
-  assert public.leave_room(rid,u[1])='left';
-  assert (select host_id from public.rooms where id=rid)=u[2],'lowest seated row hosts';
+  assert public.leave_room(rid,u[2])='left';
+  assert (select host_id from public.rooms where id=rid)=u[1],'the host stays';
   assert (select settings from public.rooms where id=rid)=settings_before,'configuration survives';
   assert (select lobby_revision from public.rooms where id=rid)>rev,'roster change bumps the revision';
   assert not exists(select 1 from public.room_players where room_id=rid and lobby_ready),

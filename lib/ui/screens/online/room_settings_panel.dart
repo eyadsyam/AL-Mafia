@@ -332,7 +332,7 @@ class _RoomSettingsPanelState extends ConsumerState<RoomSettingsPanel> {
                               title: l10n.rolesTitle,
                               summary: wantedRoles.isEmpty
                                   ? l10n.roomRolesBasic
-                                  : wantedRoles.join('، '),
+                                  : wantedRoles.join(' · '),
                               children: [
                                 if (widget.dealEntry != null) ...[
                                   widget.dealEntry!,

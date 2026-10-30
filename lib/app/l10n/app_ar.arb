@@ -1,7 +1,6 @@
 {
-  "onlineHostExitTitle": "هتخرج من الأوضة؟",
-  "onlineHostExitBody": "الأوضة تقدر تكمل والهوست ينتقل لأول لاعب موجود. قفل الأوضة بينهيها للجميع.",
-  "onlineLeaveKeepRoom": "اخرج والأوضة تكمل",
+  "onlineHostExitTitle": "هتخرج وتقفل الأوضة؟",
+  "onlineHostExitBody": "الأوضة هتتقفل على الكل والماتش هيخلص من غير نتيجة.",
   "voiceEnablePlayback": "تشغيل الصوت",
   "onlineHistoryLabel": "ماتش أونلاين",
   "onlineMatchMeta": "{players} لاعبين · اليوم {day}",
@@ -755,7 +754,7 @@
   "onlineNewHost": "{name} بقى الهوست",
   "onlineCloseRoom": "اقفل الأوضة",
   "onlineCloseRoomBody": "الأوضة هتقفل لكل اللي فيها. أكيد؟",
-  "onlineCloseRoomConfirm": "اقفل",
+  "onlineCloseRoomConfirm": "اخرج واقفل الأوضة",
   "onlineRoomClosed": "الهوست قفل الأوضة",
   "onlineKick": "اطرد",
   "onlineMute": "اكتم",

@@ -101,20 +101,14 @@ abstract class AppLocalizations {
   /// No description provided for @onlineHostExitTitle.
   ///
   /// In en, this message translates to:
-  /// **'Leave the room?'**
+  /// **'Leave and close the room?'**
   String get onlineHostExitTitle;
 
   /// No description provided for @onlineHostExitBody.
   ///
   /// In en, this message translates to:
-  /// **'Keep the room running and hand hosting to the first available player, or close it for everyone.'**
+  /// **'The room closes for everybody and the match ends with no result.'**
   String get onlineHostExitBody;
-
-  /// No description provided for @onlineLeaveKeepRoom.
-  ///
-  /// In en, this message translates to:
-  /// **'Leave and keep playing'**
-  String get onlineLeaveKeepRoom;
 
   /// No description provided for @voiceEnablePlayback.
   ///
@@ -2789,7 +2783,7 @@ abstract class AppLocalizations {
   /// No description provided for @onlineCloseRoomConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Close'**
+  /// **'Leave and close the room'**
   String get onlineCloseRoomConfirm;
 
   /// No description provided for @onlineRoomClosed.

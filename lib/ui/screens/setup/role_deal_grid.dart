@@ -461,11 +461,15 @@ class _RoleSheet extends ConsumerWidget {
 
     final primaryAction = c.locked
         ? null
-        : (sold ? (c.onMinus ?? c.onPlus) : c.onPlus);
+        : (sold
+              ? (c.count == 0 ? (c.onPlus ?? c.onMinus) : c.onMinus)
+              : c.onPlus);
     // A role switched on but waiting for seats is dealt 0 and is still taken
     // off with this button.
     final primaryLabel = sold
-        ? (c.onMinus == null ? l.rolesSheetAdd : l.rolesSheetRemove)
+        ? (c.count == 0 && (c.onPlus != null || c.onMinus == null)
+              ? l.rolesSheetAdd
+              : l.rolesSheetRemove)
         : l.rolesSheetMore;
 
     return SafeArea(

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'player_profile.dart' show ProfileStore;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Public finished-match summaries only: never a private action, and no role
 /// but this device's own, which the result showed to the whole table.
@@ -104,3 +105,8 @@ class OnlineMatchHistory {
     if (!written) throw StateError('History storage unavailable');
   }
 }
+
+/// Bumped each time a finished match is kept, so what is read from the history
+/// follows without the match's own code knowing who reads it (Doc 05: the night
+/// and reveal screens must never reach the profile's files).
+final onlineHistoryRevisionProvider = StateProvider<int>((_) => 0);

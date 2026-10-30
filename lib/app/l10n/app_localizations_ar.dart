@@ -9,14 +9,11 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get onlineHostExitTitle => 'هتخرج من الأوضة؟';
+  String get onlineHostExitTitle => 'هتخرج وتقفل الأوضة؟';
 
   @override
   String get onlineHostExitBody =>
-      'الأوضة تقدر تكمل والهوست ينتقل لأول لاعب موجود. قفل الأوضة بينهيها للجميع.';
-
-  @override
-  String get onlineLeaveKeepRoom => 'اخرج والأوضة تكمل';
+      'الأوضة هتتقفل على الكل والماتش هيخلص من غير نتيجة.';
 
   @override
   String get voiceEnablePlayback => 'تشغيل الصوت';
@@ -1516,7 +1513,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineCloseRoomBody => 'الأوضة هتقفل لكل اللي فيها. أكيد؟';
 
   @override
-  String get onlineCloseRoomConfirm => 'اقفل';
+  String get onlineCloseRoomConfirm => 'اخرج واقفل الأوضة';
 
   @override
   String get onlineRoomClosed => 'الهوست قفل الأوضة';

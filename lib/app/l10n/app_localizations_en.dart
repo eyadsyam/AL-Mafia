@@ -9,14 +9,11 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get onlineHostExitTitle => 'Leave the room?';
+  String get onlineHostExitTitle => 'Leave and close the room?';
 
   @override
   String get onlineHostExitBody =>
-      'Keep the room running and hand hosting to the first available player, or close it for everyone.';
-
-  @override
-  String get onlineLeaveKeepRoom => 'Leave and keep playing';
+      'The room closes for everybody and the match ends with no result.';
 
   @override
   String get voiceEnablePlayback => 'Enable audio';
@@ -1550,7 +1547,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This ends the match for everyone in the room. Are you sure?';
 
   @override
-  String get onlineCloseRoomConfirm => 'Close';
+  String get onlineCloseRoomConfirm => 'Leave and close the room';
 
   @override
   String get onlineRoomClosed => 'The host closed the room';

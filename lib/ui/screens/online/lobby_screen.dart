@@ -29,6 +29,7 @@ import 'voice_session.dart';
 import 'room_invite.dart';
 import '../../economy/cosmetic_paint.dart';
 import '../../economy/cosmetics.dart';
+import '../../../engine/models/match_settings.dart';
 import '../../economy/wallet.dart';
 import '../../economy/vault_kit.dart'
     show ClaimedMark, VaultBar, VaultPress, vaultGoldStyle;
@@ -214,19 +215,14 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     _join.addListener(() {
       if (mounted) setState(() {});
     });
-    // The deal editor offers what this host bought, so their wallet is read as
-    // the lobby opens rather than when a settings screen happens to.
-    if (_snapshot?.canAdvance ?? false) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && ref.read(walletProvider).valueOrNull == null) {
-          ref.read(walletProvider.notifier).refresh();
-        }
-      });
-    }
+    if (_snapshot?.canAdvance ?? false) _readWalletAsHost();
     _feed = transport?.watch().listen((snapshot) {
       if (!mounted) return;
       _sound(snapshot);
       _syncArrivals(snapshot);
+      if (snapshot.canAdvance && !(_snapshot?.canAdvance ?? false)) {
+        _readWalletAsHost();
+      }
       setState(() => _snapshot = snapshot);
       // The host started it; every other device finds out here, from the same
       // push, and goes to the same screen. Nobody is told anything early.
@@ -302,6 +298,36 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     _seatsHeard = now;
   }
 
+  /// The room's settings as this host can deal them. A room whose host dropped
+  /// comes to an heir with the roles the last host switched on; those the heir
+  /// has not bought stay out of the deal, or the server would refuse the start.
+  /// A wallet not read yet changes nothing.
+  MatchSettings _dealSettings(GameSnapshot snapshot) {
+    final settings = snapshot.settings;
+    final owned = ref.read(walletProvider).valueOrNull?.owned;
+    if (owned == null) return settings;
+    return settings.copyWith(
+      silencerEnabled:
+          settings.silencerEnabled &&
+          owned.contains(OptionalRole.silencer.code),
+      elderEnabled:
+          settings.elderEnabled && owned.contains(OptionalRole.elder.code),
+      sniperEnabled:
+          settings.sniperEnabled && owned.contains(OptionalRole.sniper.code),
+    );
+  }
+
+  /// The deal editor offers what this host bought, so their wallet is read as
+  /// soon as they are the host: when the lobby opens, or when the seat passes
+  /// to them.
+  void _readWalletAsHost() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && ref.read(walletProvider).valueOrNull == null) {
+        ref.read(walletProvider.notifier).refresh();
+      }
+    });
+  }
+
   /// «الأجواء: … · الراوي: …», or null for a classic room.
   String? _roomLook(RoomOptions room) {
     final l = context.l10n;
@@ -321,7 +347,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     // roles this table is big enough for (`lobbyDeal`).
     final deal = lobbyDeal(
       snapshot.public.players.length,
-      snapshot.settings,
+      _dealSettings(snapshot),
       base: _base,
       capacity: snapshot.room.maxPlayers,
     );
@@ -765,17 +791,6 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     children: [
-                                      Align(
-                                        child: TextButton.icon(
-                                          key: LobbyScreen.myLookButton,
-                                          onPressed: () =>
-                                              setState(() => _myLook = true),
-                                          icon: const Icon(
-                                            Icons.checkroom_rounded,
-                                          ),
-                                          label: Text(l10n.lobbyMyLook),
-                                        ),
-                                      ),
                                       // F8 Ready, in the vault's hand: a
                                       // struck-gold press until you are
                                       // ready, then the gold mark with a
@@ -876,7 +891,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                           builder: (context) {
                                             final deal = lobbyDeal(
                                               players.length,
-                                              snapshot.settings,
+                                              _dealSettings(snapshot),
                                               base: _base,
                                               capacity:
                                                   snapshot.room.maxPlayers,
@@ -929,7 +944,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                       if (isHost && snapshot != null)
                                         for (final role in lobbyDeal(
                                           players.length,
-                                          snapshot.settings,
+                                          _dealSettings(snapshot),
                                           base: _base,
                                           capacity: snapshot.room.maxPlayers,
                                         ).skipped)
@@ -967,6 +982,17 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                                           color: colors.textSecondary,
                                         ),
                                         textAlign: TextAlign.center,
+                                      ),
+                                      Align(
+                                        child: TextButton.icon(
+                                          key: LobbyScreen.myLookButton,
+                                          onPressed: () =>
+                                              setState(() => _myLook = true),
+                                          icon: const Icon(
+                                            Icons.checkroom_rounded,
+                                          ),
+                                          label: Text(l10n.lobbyMyLook),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -1006,23 +1032,15 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
               body: l10n.onlineHostExitBody,
               onDismiss: () => setState(() => _closing = false),
               actions: [
+                // Owner, 2026-10-30: the host leaving ends it for everybody.
                 SceneAction(
-                  key: const ValueKey('lobby_leave_keep_room'),
-                  label: l10n.onlineLeaveKeepRoom,
+                  key: LobbyScreen.closeRoomConfirm,
+                  label: l10n.onlineCloseRoomConfirm,
                   emphasised: true,
                   onTap: () async {
                     setState(() => _closing = false);
                     await ref.read(onlineSessionProvider.notifier).leave();
                     if (mounted) widget.onLeave();
-                  },
-                ),
-                SceneAction(
-                  key: LobbyScreen.closeRoomConfirm,
-                  label: l10n.onlineCloseRoomConfirm,
-                  emphasised: true,
-                  onTap: () {
-                    setState(() => _closing = false);
-                    ref.read(onlineSessionProvider).transport?.closeRoom();
                   },
                 ),
               ],
@@ -1033,7 +1051,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                 visible: _dealing && isHost,
                 players: snapshot.public.players.length,
                 capacity: snapshot.room.maxPlayers,
-                settings: snapshot.settings,
+                settings: _dealSettings(snapshot),
                 base: _base,
                 onBase: (base) => setState(() => _base = base),
                 onRole: (role, on) => session.transport?.setRoomSettings(
@@ -1062,7 +1080,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                   builder: (context) {
                     final deal = lobbyDeal(
                       snapshot.public.players.length,
-                      snapshot.settings,
+                      _dealSettings(snapshot),
                       base: _base,
                       capacity: snapshot.room.maxPlayers,
                     );

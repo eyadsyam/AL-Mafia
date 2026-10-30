@@ -1518,23 +1518,15 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
                   body: context.l10n.onlineHostExitBody,
                   onDismiss: () => setState(() => _closing = false),
                   actions: [
+                    // Owner, 2026-10-30: the host leaving ends it for everybody.
                     SceneAction(
-                      key: const ValueKey('table_leave_keep_room'),
-                      label: context.l10n.onlineLeaveKeepRoom,
+                      key: OnlineTableFlow.closeRoomConfirm,
+                      label: context.l10n.onlineCloseRoomConfirm,
                       emphasised: true,
                       onTap: () async {
                         setState(() => _closing = false);
                         await ref.read(onlineSessionProvider.notifier).leave();
                         if (mounted) widget.onExit();
-                      },
-                    ),
-                    SceneAction(
-                      key: OnlineTableFlow.closeRoomConfirm,
-                      label: context.l10n.onlineCloseRoomConfirm,
-                      emphasised: true,
-                      onTap: () {
-                        setState(() => _closing = false);
-                        ref.read(onlineSessionProvider).transport?.closeRoom();
                       },
                     ),
                   ],
