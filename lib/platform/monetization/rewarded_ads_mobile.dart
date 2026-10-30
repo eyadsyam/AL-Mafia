@@ -287,6 +287,8 @@ class _AdsRuntime {
 class GoogleRewardedAds implements RewardedAds, RewardedPreload {
   _AdsRuntime get _runtime => _AdsRuntime.instance;
 
+  static final _notOpened = Object();
+
   /// One loaded ad per unit, with when it loaded. A tap takes it at once.
   final _ready = <String, (RewardedAd, int)>{};
 
@@ -446,16 +448,22 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
     try {
       // Before show: the claim id must travel in AdMob's signed callback, or
       // the view can never be credited.
-      await showing.setServerSideOptions(
-        ServerSideVerificationOptions(customData: claimId, userId: userId),
-      );
+      await showing
+          .setServerSideOptions(
+            ServerSideVerificationOptions(customData: claimId, userId: userId),
+          )
+          .timeout(MafiaTiming.adConsentInfoTimeout);
     } catch (_) {
       showing.dispose();
       return RewardedAdOutcome.failed;
     }
     final finished = Completer<RewardedAdOutcome>();
+    final opened = Completer<void>();
     var earned = false;
     showing.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) {
+        if (!opened.isCompleted) opened.complete();
+      },
       onAdDismissedFullScreenContent: (shown) {
         shown.dispose();
         FullScreenAway.adClosed();
@@ -477,6 +485,18 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
       FullScreenAway.adOpened();
       await showing.show(onUserEarnedReward: (_, _) => earned = true);
     } catch (_) {
+      FullScreenAway.adClosed();
+      showing.dispose();
+      return RewardedAdOutcome.failed;
+    }
+    // An ad asked to show that never covers the screen (seen live: the veil
+    // «بنجهّز الإعلان» sat for minutes and nothing happened) gives the tap
+    // back quickly. Once it is on screen, the long bound below applies.
+    final first = await Future.any<Object?>([
+      opened.future,
+      finished.future,
+    ]).timeout(MafiaTiming.adOpenTimeout, onTimeout: () => _notOpened);
+    if (identical(first, _notOpened)) {
       FullScreenAway.adClosed();
       showing.dispose();
       return RewardedAdOutcome.failed;

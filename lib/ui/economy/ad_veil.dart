@@ -41,7 +41,10 @@ Future<RewardedAdOutcome> showRewardedWith(
   veil.state = true;
   await nextFrame();
   try {
-    if (micWasOpen) await voice.setSelfMuted(true);
+    // Bounded: a voice link that never answers must not hold the veil up.
+    if (micWasOpen) {
+      await voice.setSelfMuted(true).timeout(MafiaTiming.adConsentInfoTimeout);
+    }
   } catch (_) {
     // Voice is never load-bearing; the ad still runs.
   }

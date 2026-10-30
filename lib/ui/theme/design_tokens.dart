@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 
+abstract final class AdminTokens {
+  static const int searchMaxLength = 40;
+  static const double contentWidth = 960;
+  static const double tabGap = 8;
+  static const double rowGap = 4;
+  static const double progressHeight = 64;
+}
+
 abstract final class DesktopLayoutTokens {
   static const double desktopMinWidth = 1024;
   static const int homeStartFlex = 42;
@@ -1670,6 +1678,11 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   static const adConsentInfoTimeout = Duration(seconds: 10);
   static const adLoadTimeout = Duration(seconds: 15);
   static const adShowTimeout = Duration(minutes: 3);
+
+  /// How long a rewarded ad may take to actually cover the screen after it
+  /// was asked to show. Past it the ad never opened, and the «بنجهّز
+  /// الإعلان» veil gives the tap back instead of waiting [adShowTimeout].
+  static const adOpenTimeout = Duration(seconds: 8);
 
   /// An interstitial that is not loaded within this is skipped, never awaited.
   static const interstitialLoadTimeout = Duration(seconds: 12);
