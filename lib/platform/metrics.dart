@@ -64,8 +64,11 @@ class MetricsClient {
 final metricsClientProvider = Provider<MetricsClient>((ref) {
   return MetricsClient(
     // Never fetches capabilities itself (start-up must not wait on it).
+    // `exists` first: reading the provider would start that fetch, and a
+    // one-phone match that never went online must not open a session.
     enabled: () async =>
-        ref.read(economyCapabilitiesProvider).valueOrNull?.metrics ?? false,
+        ref.exists(economyCapabilitiesProvider) &&
+        (ref.read(economyCapabilitiesProvider).valueOrNull?.metrics ?? false),
     send: (body) async {
       final backend = await ref.read(onlineBackendFactoryProvider)();
       await backend.ensureSession();
