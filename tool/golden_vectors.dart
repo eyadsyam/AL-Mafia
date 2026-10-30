@@ -67,6 +67,9 @@ Map<String, dynamic> encodeDay(DayRecord d) => {
     for (final w in d.whispers)
       {'day': w.day, 'fromSeat': w.fromSeat, 'toSeat': w.toSeat},
   ],
+  'publicSuspicions': {
+    for (final e in d.publicSuspicions.entries) '${e.key}': e.value,
+  },
   'eliminated': d.eliminated,
   'eliminatedWasMafia': d.eliminatedWasMafia,
 };
@@ -119,9 +122,11 @@ DayRecord day({
   List<WhisperMeta> whispers = const [],
   int? eliminated,
   bool? wasMafia,
+  Map<int, int> suspects = const {},
 }) => DayRecord(
   dayNumber: number,
   openingAccusations: opening,
+  publicSuspicions: suspects,
   votes: votes,
   votesByRound: {1: votes},
   confrontation: confrontation,
@@ -523,8 +528,36 @@ final List<ConfrontationCase> confrontationCases = [
     seed: 38,
     silencedSeat: 3,
   ),
-  for (final seed in [601, 602, 603, 604, 605])
-    ConfrontationCase(
+  ConfrontationCase('c1 from a public suspicion the same day',
+      days: [
+        day(number: 1),
+        day(number: 2, suspects: {4: 6}, votes: {4: 1}),
+      ],
+      dayNumber: 3,
+      seed: 39),
+  ConfrontationCase('c1 public suspicion kept with the vote',
+      days: [
+        day(number: 1),
+        day(number: 2, suspects: {4: 6}, votes: {4: 6}),
+      ],
+      dayNumber: 3,
+      seed: 40),
+  ConfrontationCase('c1 on the same day the opener is kept',
+      days: [
+        day(number: 1, opening: {4: 5}, votes: {4: 2}),
+        day(number: 2, suspects: {4: 6}, votes: {4: 1}),
+      ],
+      dayNumber: 3,
+      seed: 41),
+  ConfrontationCase('c4 counts public suspicions',
+      days: [
+        day(number: 1, opening: {0: 1, 1: 2, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}),
+        day(number: 2, suspects: {0: 3, 1: 4, 2: 5}),
+        day(number: 3),
+      ],
+      dayNumber: 4,
+      seed: 42),
+  for (final seed in [601, 602, 603, 604, 605])    ConfrontationCase(
       'two-way tie seed $seed',
       days: [
         day(number: 1, opening: {3: 5, 4: 6}, votes: {3: 2, 4: 1}),

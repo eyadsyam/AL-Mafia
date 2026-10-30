@@ -791,6 +791,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -850,6 +851,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -893,6 +895,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -906,6 +909,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -919,6 +923,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -959,6 +964,7 @@
             "2": 60
           },
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -973,6 +979,7 @@
             "2": 60
           },
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1059,6 +1066,7 @@
               "toSeat": 4
             }
           ],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1075,6 +1083,7 @@
               "toSeat": 4
             }
           ],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1121,6 +1130,7 @@
               "toSeat": 4
             }
           ],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1137,6 +1147,7 @@
               "toSeat": 4
             }
           ],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1245,6 +1256,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1262,6 +1274,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1370,6 +1383,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1387,6 +1401,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1404,6 +1419,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1421,6 +1437,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1462,6 +1479,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1472,6 +1490,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": 5,
           "eliminatedWasMafia": false
         }
@@ -1513,6 +1532,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1523,6 +1543,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": 5,
           "eliminatedWasMafia": true
         }
@@ -1580,6 +1601,7 @@
               "toSeat": 4
             }
           ],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1625,6 +1647,7 @@
               "toSeat": 6
             }
           ],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         },
@@ -1635,6 +1658,7 @@
           "votes": {},
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": 6,
           "eliminatedWasMafia": true
         }
@@ -1699,6 +1723,7 @@
               "toSeat": 4
             }
           ],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1736,6 +1761,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1745,6 +1771,246 @@
         "survivorConfrontationEnabled": false
       },
       "expected": null
+    },
+    {
+      "name": "c1 from a public suspicion the same day",
+      "matchSeed": 39,
+      "dayNumber": 3,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "nights": [],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {},
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        },
+        {
+          "dayNumber": 2,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {
+            "4": 1
+          },
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {
+            "4": 6
+          },
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": {
+        "type": "c1",
+        "targetSeat": 4,
+        "evidenceSeat": 6,
+        "evidenceSeat2": 1,
+        "evidenceDay": 2,
+        "count": null
+      }
+    },
+    {
+      "name": "c1 public suspicion kept with the vote",
+      "matchSeed": 40,
+      "dayNumber": 3,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "nights": [],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {},
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        },
+        {
+          "dayNumber": 2,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {
+            "4": 6
+          },
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {
+            "4": 6
+          },
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": null
+    },
+    {
+      "name": "c1 on the same day the opener is kept",
+      "matchSeed": 41,
+      "dayNumber": 3,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "nights": [],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {
+            "4": 5
+          },
+          "confrontation": null,
+          "votes": {
+            "4": 2
+          },
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {},
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        },
+        {
+          "dayNumber": 2,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {
+            "4": 1
+          },
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {
+            "4": 6
+          },
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": {
+        "type": "c1",
+        "targetSeat": 4,
+        "evidenceSeat": 5,
+        "evidenceSeat2": 1,
+        "evidenceDay": 2,
+        "count": null
+      }
+    },
+    {
+      "name": "c4 counts public suspicions",
+      "matchSeed": 42,
+      "dayNumber": 4,
+      "silencedSeat": null,
+      "alive": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "nights": [],
+      "days": [
+        {
+          "dayNumber": 1,
+          "openingAccusations": {
+            "0": 1,
+            "1": 2,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0
+          },
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {},
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        },
+        {
+          "dayNumber": 2,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {
+            "0": 3,
+            "1": 4,
+            "2": 5
+          },
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        },
+        {
+          "dayNumber": 3,
+          "openingAccusations": {},
+          "confrontation": null,
+          "votes": {},
+          "speakingSeconds": {},
+          "whispers": [],
+          "publicSuspicions": {},
+          "eliminated": null,
+          "eliminatedWasMafia": null
+        }
+      ],
+      "settings": {
+        "whisperEnabled": true,
+        "survivorConfrontationEnabled": false
+      },
+      "expected": {
+        "type": "c4",
+        "targetSeat": 6,
+        "evidenceSeat": null,
+        "evidenceSeat2": null,
+        "evidenceDay": 3,
+        "count": null
+      }
     },
     {
       "name": "two-way tie seed 601",
@@ -1775,6 +2041,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1821,6 +2088,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1867,6 +2135,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1913,6 +2182,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }
@@ -1959,6 +2229,7 @@
           },
           "speakingSeconds": {},
           "whispers": [],
+          "publicSuspicions": {},
           "eliminated": null,
           "eliminatedWasMafia": null
         }

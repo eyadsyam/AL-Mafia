@@ -89,6 +89,10 @@ void main() {
           toSeat: w['toSeat'] as int,
         ),
     ],
+    publicSuspicions: {
+      for (final e in ((json['publicSuspicions'] as Map?) ?? const {}).entries)
+        int.parse(e.key as String): e.value as int,
+    },
     eliminated: json['eliminated'] as int?,
     eliminatedWasMafia: json['eliminatedWasMafia'] as bool?,
   );

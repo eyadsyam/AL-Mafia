@@ -101,7 +101,20 @@ export function findConfrontations(
   switch (type) {
     // ── C1 تناقض التصويت ───────────────────────────────────────────────
     case "c1": {
-      const out: Candidate[] = [];
+      // Mirrors the Dart: one per player, the most recent contradiction; on
+      // the same day the Day-1 opener is kept.
+      const best = new Map<number, Candidate>();
+      const keep = (seat: number, accused: number, voted: number, day: number) => {
+        const held = best.get(seat);
+        if (held && (held.confrontation.evidenceDay ?? 0) >= day) return;
+        best.set(seat, make({
+          type: "c1",
+          targetSeat: seat,
+          evidenceSeat: accused,
+          evidenceSeat2: voted,
+          evidenceDay: day,
+        }));
+      };
       const opener = dayAt(history, 1)?.openingAccusations ?? {};
       for (const [seatKey, accused] of Object.entries(opener)) {
         const seat = Number(seatKey);
@@ -111,17 +124,24 @@ export function findConfrontations(
           if (voted === null || voted === undefined || voted === accused) {
             continue;
           }
-          out.push(make({
-            type: "c1",
-            targetSeat: seat,
-            evidenceSeat: accused,
-            evidenceSeat2: voted,
-            evidenceDay: d,
-          }));
+          keep(seat, accused, voted, d);
           break;
         }
       }
-      return out;
+      // «أنا شاكك في»: said out loud on day d, then a ballot against someone
+      // else the same day.
+      for (let d = dayNumber - 1; d >= 1; d--) {
+        const day = dayAt(history, d);
+        if (!day) continue;
+        for (const [seatKey, accused] of Object.entries(day.publicSuspicions ?? {})) {
+          const seat = Number(seatKey);
+          if (!alive.has(seat)) continue;
+          const voted = day.votes[seat];
+          if (voted === null || voted === undefined || voted === accused) continue;
+          keep(seat, accused, voted, d);
+        }
+      }
+      return [...best.values()];
     }
 
     // Needs a defence record; the game has no defence action.

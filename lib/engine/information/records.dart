@@ -115,6 +115,10 @@ class DayRecord {
   /// `C1` can quote it back at a player and a night suspicion never could.
   final Map<int, int> openingAccusations;
 
+  /// «أنا شاكك في» (online): seat -> the seat it named out loud that day.
+  /// Public: drawn on the table for everybody. Empty offline.
+  final Map<int, int> publicSuspicions;
+
   /// The one confrontation put to the table today, if any.
   final Confrontation? confrontation;
 
@@ -143,6 +147,7 @@ class DayRecord {
   const DayRecord({
     required this.dayNumber,
     this.openingAccusations = const {},
+    this.publicSuspicions = const {},
     this.confrontation,
     this.confrontationSilent = false,
     this.votes = const {},

@@ -102,6 +102,8 @@ export async function buildHistory(
     speakingSeconds?: Record<string, Record<string, number>>;
     /** Day -> who was voted out and whether the card shown was the Mafia's. */
     dayResults?: Record<string, { seat: number; mafia: boolean }>;
+    /** Day -> seat -> the seat it named with «أنا شاكك في». */
+    suspicions?: Record<string, Record<string, number>>;
   };
 
   // ── nights ──────────────────────────────────────────────────────────────
@@ -140,6 +142,9 @@ export async function buildHistory(
   for (const key of Object.keys(archive.dayResults ?? {})) {
     dayNumbers.add(Number(key));
   }
+  for (const key of Object.keys(archive.suspicions ?? {})) {
+    dayNumbers.add(Number(key));
+  }
   if (Object.keys(archive.openingAccusations ?? {}).length > 0) dayNumbers.add(1);
 
   const days: DayRecord[] = [];
@@ -170,6 +175,11 @@ export async function buildHistory(
           ),
         )
         : {},
+      publicSuspicions: Object.fromEntries(
+        Object.entries(archive.suspicions?.[String(d)] ?? {}).map(
+          ([seat, target]) => [Number(seat), Number(target)],
+        ),
+      ),
       confrontation: archive.confrontations?.[String(d)] ?? null,
       votes: dayVotes,
       speakingSeconds: Object.fromEntries(

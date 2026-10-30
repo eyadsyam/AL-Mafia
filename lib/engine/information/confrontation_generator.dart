@@ -212,7 +212,21 @@ List<ConfrontationCandidate> findConfrontations({
     // was counted in front of it, so quoting either back reveals nothing that
     // was not already heard.
     case ConfrontationType.c1:
-      final out = <ConfrontationCandidate>[];
+      final best = <int, Confrontation>{};
+      void keep(int seat, int accused, int voted, int day) {
+        // Most recent contradiction only — one per player. On the same day
+        // the Day-1 opener is kept, as it always was.
+        final held = best[seat];
+        if (held != null && (held.evidenceDay ?? 0) >= day) return;
+        best[seat] = Confrontation(
+          type: ConfrontationType.c1,
+          targetSeat: seat,
+          evidenceSeat: accused,
+          evidenceSeat2: voted,
+          evidenceDay: day,
+        );
+      }
+
       final opener = history.dayAt(1)?.openingAccusations ?? const {};
       for (final entry in opener.entries) {
         final seat = entry.key;
@@ -221,21 +235,24 @@ List<ConfrontationCandidate> findConfrontations({
         for (var d = dayNumber - 1; d >= 1; d--) {
           final voted = history.dayAt(d)?.votes[seat];
           if (voted == null || voted == accused) continue;
-          out.add(
-            ConfrontationCandidate(
-              Confrontation(
-                type: ConfrontationType.c1,
-                targetSeat: seat,
-                evidenceSeat: accused,
-                evidenceSeat2: voted,
-                evidenceDay: d,
-              ),
-            ),
-          );
-          break; // Most recent contradiction only — one per player.
+          keep(seat, accused, voted, d);
+          break;
         }
       }
-      return out;
+      // «أنا شاكك في»: said out loud on day d, then a ballot against someone
+      // else the same day. Both halves were in front of the table.
+      for (var d = dayNumber - 1; d >= 1; d--) {
+        final day = history.dayAt(d);
+        if (day == null) continue;
+        for (final entry in day.publicSuspicions.entries) {
+          final seat = entry.key;
+          if (!alive.contains(seat)) continue;
+          final voted = day.votes[seat];
+          if (voted == null || voted == entry.value) continue;
+          keep(seat, entry.value, voted, d);
+        }
+      }
+      return [for (final c in best.values) ConfrontationCandidate(c)];
 
     // ─── C2 الانقلاب ────────────────────────────────────────────────────
     // Needs a defence record. There is no defence action in this game, so

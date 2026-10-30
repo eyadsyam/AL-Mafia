@@ -101,6 +101,8 @@ export interface DayRecord {
   dayNumber: number;
   /** The Day-1 «اسم واحد» round. */
   openingAccusations: Record<number, number>;
+  /** «أنا شاكك في» (online): seat -> the seat it named out loud that day. */
+  publicSuspicions?: Record<number, number>;
   confrontation: ConfrontationRecord | null;
   /** Final round only. Null is an abstention. */
   votes: Record<number, number | null>;
@@ -195,6 +197,9 @@ export function everSuspected(history: GameHistory): Set<number> {
   }
   for (const day of history.days) {
     for (const target of Object.values(day.openingAccusations)) {
+      out.add(target);
+    }
+    for (const target of Object.values(day.publicSuspicions ?? {})) {
       out.add(target);
     }
   }

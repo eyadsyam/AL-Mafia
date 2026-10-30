@@ -91,6 +91,7 @@ class GameHistory {
   Set<int> get everSuspected => {
     for (final night in nights) ...night.recordedSuspicions.values,
     for (final day in days) ...day.openingAccusations.values,
+    for (final day in days) ...day.publicSuspicions.values,
   };
 
   /// Total floor time per seat across the whole match.
