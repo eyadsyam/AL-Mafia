@@ -17,7 +17,7 @@ import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 const MAX_SECONDS = 600;
 
 Deno.serve(handler(async (req, userId, db) => {
-  const { roomId, seconds } = await req.json();
+  const { roomId, seconds, reportId } = await req.json();
   if (!roomId || seconds == null) {
     return fail("BAD_REQUEST", "roomId and seconds required");
   }
@@ -29,6 +29,10 @@ Deno.serve(handler(async (req, userId, db) => {
   if (!Number.isFinite(value) || value < 0 || value > MAX_SECONDS) {
     return fail("BAD_REQUEST", "implausible speaking time");
   }
+  if (reportId != null && (typeof reportId !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reportId))) {
+    return fail("BAD_REQUEST", "reportId must be a UUID");
+  }
 
   const me = await loadMembership(db, roomId, userId);
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
@@ -39,6 +43,8 @@ Deno.serve(handler(async (req, userId, db) => {
     p_day: me.phaseNumber,
     p_seat: me.seat,
     p_seconds: value,
+    p_user: userId,
+    p_report_id: reportId ?? null,
   });
   if (error) throw error;
 

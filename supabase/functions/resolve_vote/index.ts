@@ -37,16 +37,15 @@ Deno.serve(handler(async (req, userId, db) => {
   }
 
   const day = me.phaseNumber;
-  const refundUnusedRevote = async () => {
+  const retryRevoteRefunds = async () => {
     try {
-      const { error } = await db.rpc("refund_unused_table_tool", {
-        p_room: roomId, p_tool: "revote", p_phase_number: day,
-      });
+      const { error } = await db.rpc("retry_revote_refunds", { p_room: roomId });
       if (error) throw error;
     } catch (error) {
-      console.error("revote refund failed after resolution commit", error);
+      console.error("revote refund pending retry", error);
     }
   };
+  await retryRevoteRefunds();
 
   // A refused commit is one of two things: the ballot already closed (or a
   // revote opened a new round, which is the same thing for this caller), or a
@@ -111,7 +110,7 @@ Deno.serve(handler(async (req, userId, db) => {
     if (revote) {
       // A revote narrows the ballot to exactly the tied seats and opens another
       // round. Merged, never replaced: the day's archives outlive the ballot.
-      const { data: committed, error } = await db.rpc("commit_resolution", {
+      const { data: committed, error } = await db.rpc("commit_vote_resolution", {
         p_room: roomId, p_phase: "vote", p_number: day, p_round: round,
         p_victim: null, p_saved_seat: null, p_archive: {},
         p_patch: {
@@ -120,10 +119,11 @@ Deno.serve(handler(async (req, userId, db) => {
         },
         p_next: "vote", p_deadline: deadlineFor("vote", me.settings),
         p_fingerprint: fingerprint,
+        p_refund_revote: revoteBought && !boughtRevoteWorked,
       });
       if (error) throw error;
       if (committed) {
-        if (revoteBought && !boughtRevoteWorked) await refundUnusedRevote();
+        if (revoteBought && !boughtRevoteWorked) await retryRevoteRefunds();
         return ok({ tie: true, tiedSeats, round: round + 1 });
       }
       if (!(await stillOpen(round))) return fail("PHASE_CLOSED", "ballot already resolved");
@@ -135,11 +135,12 @@ Deno.serve(handler(async (req, userId, db) => {
     // grant exists only if another day can follow.
     const lastWord = lastWordOf(toolUses, day, eliminatedSeat);
 
-    const { data: committed, error } = await db.rpc("commit_resolution", {
+    const { data: committed, error } = await db.rpc("commit_vote_resolution", {
       p_room: roomId, p_phase: "vote", p_number: day, p_round: round,
       p_victim: eliminatedId, p_saved_seat: null, p_archive: {},
       p_next: "verdict", p_deadline: deadlineFor("verdict", me.settings),
       p_fingerprint: fingerprint,
+      p_refund_revote: revoteBought && !boughtRevoteWorked,
       p_patch: {
         lastVote: {
           tally: publicTally,
@@ -182,7 +183,7 @@ Deno.serve(handler(async (req, userId, db) => {
 
     if (error) throw error;
     if (committed) {
-      if (revoteBought && !boughtRevoteWorked) await refundUnusedRevote();
+      if (revoteBought && !boughtRevoteWorked) await retryRevoteRefunds();
       return ok({
         eliminatedSeat,
         eliminatedRole,

@@ -1,9 +1,18 @@
 begin;
+create function pg_temp.fail_test_refund() returns trigger language plpgsql as $$
+begin
+  if current_setting('test.fail_refund',true)='on' then raise exception 'TEST_REFUND_FAILURE'; end if;
+  return new;
+end $$;
+create trigger test_refund_failure before update on public.player_tool_charges
+  for each row execute function pg_temp.fail_test_refund();
 do $$
 declare
   r uuid := gen_random_uuid();
+  r2 uuid := gen_random_uuid();
   paid uuid := gen_random_uuid();
   free uuid := gen_random_uuid();
+  fp text;
 begin
   insert into auth.users(id,is_anonymous) values(paid,true),(free,true);
   insert into public.rooms(id,code,host_id,match_seed,status)
@@ -40,6 +49,43 @@ begin
   assert not has_function_privilege('anon',
     'public.refund_unused_table_tool(uuid,text,integer)','execute'),
     'anon can call refund';
+
+  -- The new vote commit stores the obligation in its own transaction.
+  insert into public.rooms(id,code,host_id,match_seed,status)
+    values(r2,'RVBLGT',paid,1,'playing');
+  insert into public.room_players(room_id,user_id,name,seat,role)
+    values(r2,paid,'Paid',0,'citizen'),(r2,free,'Free',1,'citizen');
+  insert into public.room_state(room_id,phase,phase_number)
+    values(r2,'vote',1);
+  update public.player_tool_charges set charges=charges-1
+    where user_id=paid and tool_code='revote';
+  insert into public.room_tool_uses(room_id,user_id,seat,tool_code,phase,phase_number)
+    values(r2,paid,0,'revote','vote',1);
+  fp:=public.vote_fingerprint(r2,1,1);
+  assert public.commit_vote_resolution(r2,'vote',1,1,null,null,'{}','{}',
+    'verdict',now()+interval '20 seconds',fp,true), 'vote commit refused';
+  assert exists(select 1 from public.revote_refund_obligations
+    where room_id=r2 and day=1 and refunded_at is null),
+    'committed vote lost refund obligation';
+  perform set_config('test.fail_refund','on',true);
+  begin
+    perform public.retry_revote_refunds(r2);
+    raise exception 'refund failure did not fire';
+  exception when raise_exception then
+    if sqlerrm<>'TEST_REFUND_FAILURE' then raise; end if;
+  end;
+  perform set_config('test.fail_refund','off',true);
+  assert exists(select 1 from public.revote_refund_obligations
+    where room_id=r2 and day=1 and refunded_at is null),
+    'failed refund lost obligation';
+  assert exists(select 1 from public.room_tool_uses
+    where room_id=r2 and tool_code='revote'), 'failed refund deleted its source use';
+  assert public.retry_revote_refunds(r2)=1, 'pending refund not paid';
+  assert (select charges from public.player_tool_charges
+    where user_id=paid and tool_code='revote')=1, 'pending refund amount wrong';
+  assert public.retry_revote_refunds(r2)=0, 'retry paid a second time';
+  assert (select charges from public.player_tool_charges
+    where user_id=paid and tool_code='revote')=1, 'duplicate credit after retry';
 end $$;
 rollback;
 select 'PASS revote refund credit, deletion, retry, all-access and grants' as result;
