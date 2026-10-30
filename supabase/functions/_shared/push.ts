@@ -19,7 +19,7 @@ export interface PushTarget {
   code?: string;
   fromName?: string;
   fromHandle?: string;
-  tokens?: { token: string; platform: "android" | "web" }[];
+  tokens?: { token: string; platform: "android" | "web"; build?: number | null }[];
 }
 
 /** Kinds written by the push outbox (20261002000100_push_outbox.sql). */
@@ -357,6 +357,10 @@ export function ownerMessage(t: PushTarget, token: string, platform: "android" |
 /** This app's Play page: where «فيه تحديث جديد» takes the player. */
 export const PLAY_STORE_LINK = "https://play.google.com/store/apps/details?id=com.mafiamaster.mafia_master";
 
+/** The Android action of OpenStoreActivity, and the first build that has it. */
+export const OPEN_STORE_ACTION = "com.mafiamaster.mafia_master.OPEN_STORE";
+export const OPEN_STORE_FROM_BUILD = 20;
+
 /** The words of the update notice (20261030005000_app_update_push.sql). */
 export const UPDATE_TEXT = {
   title: "فيه تحديث جديد لسيد المافيا",
@@ -364,11 +368,13 @@ export const UPDATE_TEXT = {
 };
 
 /**
- * A new Android build is live on Play. The tap opens the Play page (builds
- * from 20 on read `kind`; older ones open the game, whose «فيه نسخة جديدة»
- * takes them there). Only Android devices are sent it: the web updates itself.
+ * A new Android build is live on Play. From build 20 the tap goes to the Play
+ * page without opening the game (OpenStoreActivity). An older build has no such
+ * screen and a click_action it cannot resolve would make the tap do nothing, so
+ * it is sent none: it opens the game, whose «فيه نسخة جديدة» goes to Play.
+ * Only Android devices are sent it: the web updates itself.
  */
-export function updateMessage(token: string, platform: "android" | "web") {
+export function updateMessage(token: string, platform: "android" | "web", build?: number | null) {
   const data = { kind: "app_update", link: PLAY_STORE_LINK };
   if (platform === "android") {
     return { message: {
@@ -376,6 +382,7 @@ export function updateMessage(token: string, platform: "android" | "web") {
       android: { priority: "HIGH", collapse_key: "app_update", notification: {
         channel_id: "mafia_social", icon: "ic_stat_mafia", color: INVITE_ACCENT,
         tag: "app_update", default_sound: true,
+        ...((build ?? 0) >= OPEN_STORE_FROM_BUILD ? { click_action: OPEN_STORE_ACTION } : {}),
       } },
     } };
   }
@@ -389,8 +396,8 @@ export function updateMessage(token: string, platform: "android" | "web") {
 }
 
 /** The message for one device, by kind. */
-export function messageFor(t: PushTarget, token: string, platform: "android" | "web") {
-  if (t.kind === "app_update") return updateMessage(token, platform);
+export function messageFor(t: PushTarget, token: string, platform: "android" | "web", build?: number | null) {
+  if (t.kind === "app_update") return updateMessage(token, platform, build);
   if (t.kind === "order_paid" || t.kind === "order_rejected") return paymentMessage(t, token, platform);
   if (isOwnerKind(t.kind)) return ownerMessage(t, token, platform);
   if (t.kind && t.kind in EVENT_TEXT) return eventMessage(t, token, platform);
@@ -427,14 +434,14 @@ export async function sendPush(t: PushTarget, deps: PushDeps): Promise<PushOutco
     return { result: "skipped", reason: "bad_secret" };
   }
   let sent = 0, dead = 0, failed = 0;
-  for (const { token, platform } of tokens) {
+  for (const { token, platform, build } of tokens) {
     try {
       const response = await deps.fetch(
         `https://fcm.googleapis.com/v1/projects/${project}/messages:send`,
         {
           method: "POST",
           headers: { authorization: `Bearer ${access}`, "content-type": "application/json" },
-          body: JSON.stringify(messageFor(t, token, platform)),
+          body: JSON.stringify(messageFor(t, token, platform, build)),
         },
       );
       if (response.ok) { sent++; continue; }

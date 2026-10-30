@@ -18,7 +18,7 @@ import { serviceAccountToken } from "../_shared/play_auth.ts";
 interface Row {
   id: number;
   kind: PushTarget["kind"];
-  tokens: { token: string; platform: "android" | "web" }[];
+  tokens: { token: string; platform: "android" | "web"; build?: number | null }[];
 }
 
 Deno.serve(async (req) => {

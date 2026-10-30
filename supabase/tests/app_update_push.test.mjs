@@ -2,7 +2,7 @@
 // The update notice (20261030005000_app_update_push.sql): what Play counts as
 // approved, and a message that carries its kind and the store link only.
 import assert from 'node:assert/strict';
-import { PLAY_STORE_LINK, messageFor } from '../functions/_shared/push.ts';
+import { OPEN_STORE_ACTION, PLAY_STORE_LINK, messageFor } from '../functions/_shared/push.ts';
 import { publishedBuild } from '../functions/_shared/play_release.ts';
 
 const published = 'RELEASE_LIFECYCLE_STATE_PUBLISHED';
@@ -31,5 +31,11 @@ assert.deepEqual(message.data, { kind: 'app_update', link: PLAY_STORE_LINK });
 assert.ok(PLAY_STORE_LINK.includes('com.mafiamaster.mafia_master'));
 assert.ok(message.notification.title.length > 0);
 assert.equal(message.android.collapse_key, 'app_update');
+// A build without OpenStoreActivity gets no click_action: the tap would do nothing.
+assert.equal(message.android.notification.click_action, undefined);
+for (const old of [null, 19]) {
+  assert.equal(messageFor({ enabled: true, kind: 'app_update' }, 'x'.repeat(20), 'android', old).message.android.notification.click_action, undefined);
+}
+assert.equal(messageFor({ enabled: true, kind: 'app_update' }, 'x'.repeat(20), 'android', 20).message.android.notification.click_action, OPEN_STORE_ACTION);
 
 console.log('app_update_push: ok');

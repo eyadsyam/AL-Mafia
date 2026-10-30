@@ -60,6 +60,8 @@ begin
    where (select user_id from public.push_outbox o where o.id=(r->>'id')::bigint)=both_kinds;
   assert jsonb_array_length(row_tokens)=1 and row_tokens->0->>'platform'='android', row_tokens::text;
 
+  assert row_tokens->0->>'build'='19', row_tokens::text;
+
   -- A device updated between the announcement and the send is skipped.
   perform public.app_update_announce(21);
   perform public.push_token_register(old_phone,repeat('a',40),'android',21);

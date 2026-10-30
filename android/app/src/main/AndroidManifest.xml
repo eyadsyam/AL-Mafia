@@ -149,6 +149,20 @@
                 <data android:scheme="mafiamaster" android:host="login-callback"/>
             </intent-filter>
         </activity>
+        <!-- The update notice's click_action (_shared/push.ts): straight to the
+             Play page, without opening the game. -->
+        <activity
+            android:name=".OpenStoreActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="com.mafiamaster.mafia_master.OPEN_STORE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
         <!-- The launcher icon's name follows the in-game language (Settings).
              Android's per-app language does not reach the launcher's label,
              so there is one alias per language and exactly one is enabled at
