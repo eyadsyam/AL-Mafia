@@ -1317,9 +1317,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineNoPublicRooms => 'No public rooms open right now';
 
   @override
-  String get onlineOpenPublicRoom => 'Open a room';
-
-  @override
   String publicRoomSeats(int players, int capacity) {
     return '$players/$capacity players';
   }
@@ -7542,6 +7539,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileStatCoins => 'Coins';
+
+  @override
+  String profileLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String profileLevelXp(int xp, int next) {
+    return '$xp of $next XP';
+  }
+
+  @override
+  String profileRecordOnline(int won, int played) {
+    return 'Online: won $won of $played';
+  }
+
+  @override
+  String profileRecordWins(int won, int played) {
+    return '$won of $played';
+  }
+
+  @override
+  String get profileRecordTown => 'With the town';
+
+  @override
+  String get profileRecordMafia => 'With the mafia';
+
+  @override
+  String profileRecordFavourite(String role) {
+    return 'Most played role: $role';
+  }
+
+  @override
+  String get profileRecordRecent => 'Latest results';
+
+  @override
+  String get profileRecordWon => 'Won';
+
+  @override
+  String get profileRecordLost => 'Lost';
 
   @override
   String profileFriendsCount(int count) {

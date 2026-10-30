@@ -244,18 +244,6 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('an empty list offers to open a room, never joins one', (
-    tester,
-  ) async {
-    await pumpEntry(tester, containerWith());
-    expect(find.text(arStrings.onlineNoPublicRooms), findsOneWidget);
-    await tester.tap(find.byKey(OnlineEntryScreen.emptyCreateButton));
-    await tester.pump();
-    expect(backend.calls.where((c) => c.function == 'join_room'), isEmpty);
-    expect(backend.calls.where((c) => c.function == 'quick_match'), isEmpty);
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
-
   testWidgets('code entry opens as a sheet and closes back to rooms', (
     tester,
   ) async {

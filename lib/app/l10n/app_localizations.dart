@@ -2396,12 +2396,6 @@ abstract class AppLocalizations {
   /// **'No public rooms open right now'**
   String get onlineNoPublicRooms;
 
-  /// No description provided for @onlineOpenPublicRoom.
-  ///
-  /// In en, this message translates to:
-  /// **'Open a room'**
-  String get onlineOpenPublicRoom;
-
   /// No description provided for @publicRoomSeats.
   ///
   /// In en, this message translates to:
@@ -13008,6 +13002,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coins'**
   String get profileStatCoins;
+
+  /// No description provided for @profileLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String profileLevel(int level);
+
+  /// No description provided for @profileLevelXp.
+  ///
+  /// In en, this message translates to:
+  /// **'{xp} of {next} XP'**
+  String profileLevelXp(int xp, int next);
+
+  /// No description provided for @profileRecordOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online: won {won} of {played}'**
+  String profileRecordOnline(int won, int played);
+
+  /// No description provided for @profileRecordWins.
+  ///
+  /// In en, this message translates to:
+  /// **'{won} of {played}'**
+  String profileRecordWins(int won, int played);
+
+  /// No description provided for @profileRecordTown.
+  ///
+  /// In en, this message translates to:
+  /// **'With the town'**
+  String get profileRecordTown;
+
+  /// No description provided for @profileRecordMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'With the mafia'**
+  String get profileRecordMafia;
+
+  /// No description provided for @profileRecordFavourite.
+  ///
+  /// In en, this message translates to:
+  /// **'Most played role: {role}'**
+  String profileRecordFavourite(String role);
+
+  /// No description provided for @profileRecordRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest results'**
+  String get profileRecordRecent;
+
+  /// No description provided for @profileRecordWon.
+  ///
+  /// In en, this message translates to:
+  /// **'Won'**
+  String get profileRecordWon;
+
+  /// No description provided for @profileRecordLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost'**
+  String get profileRecordLost;
 
   /// No description provided for @profileFriendsCount.
   ///

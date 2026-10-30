@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/online_match_history.dart';
 import '../../data/player_profile.dart';
 import '../../data/repository_provider.dart';
+import '../../engine/models/enums.dart' as engine;
 import '../../engine/models/player.dart' show PlayerGender;
 import '../../transport/account_auth.dart';
+import '../economy/council.dart' show councilProvider;
 import '../economy/cosmetic_paint.dart';
 import '../economy/my_cosmetics.dart';
 import '../economy/wallet.dart';
@@ -364,6 +366,231 @@ class _Stat extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: type.caption.copyWith(color: colors.textMuted),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The online record this device kept: wins by side, the role played most,
+/// and the latest results, newest first. Only matches saved with this
+/// device's own role count (1.6.0 on); older rows stay in the history.
+class ProfileRecord {
+  final int played;
+  final int won;
+  final int townPlayed;
+  final int townWon;
+  final int mafiaPlayed;
+  final int mafiaWon;
+  final engine.Role? favourite;
+  final List<bool> recent;
+  const ProfileRecord({
+    required this.played,
+    required this.won,
+    required this.townPlayed,
+    required this.townWon,
+    required this.mafiaPlayed,
+    required this.mafiaWon,
+    required this.favourite,
+    required this.recent,
+  });
+
+  static const empty = ProfileRecord(
+    played: 0,
+    won: 0,
+    townPlayed: 0,
+    townWon: 0,
+    mafiaPlayed: 0,
+    mafiaWon: 0,
+    favourite: null,
+    recent: [],
+  );
+
+  /// Builds the record from saved rows, newest first. A row without a known
+  /// role or result is skipped, never guessed.
+  factory ProfileRecord.from(List<Map<String, dynamic>> rows) {
+    var played = 0, won = 0, townPlayed = 0, townWon = 0;
+    var mafiaPlayed = 0, mafiaWon = 0;
+    final roles = <engine.Role, int>{};
+    final recent = <bool>[];
+    for (final row in rows) {
+      final role = engine.Role.values
+          .where((r) => r.name == row['role'])
+          .firstOrNull;
+      final result = row['won'];
+      if (role == null || result is! bool) continue;
+      played++;
+      if (result) won++;
+      if (role.alignment == engine.Alignment.mafia) {
+        mafiaPlayed++;
+        if (result) mafiaWon++;
+      } else {
+        townPlayed++;
+        if (result) townWon++;
+      }
+      roles[role] = (roles[role] ?? 0) + 1;
+      if (recent.length < ProfileTokens.recentResults) recent.add(result);
+    }
+    engine.Role? favourite;
+    for (final entry in roles.entries) {
+      if (favourite == null || entry.value > roles[favourite]!) {
+        favourite = entry.key;
+      }
+    }
+    return ProfileRecord(
+      played: played,
+      won: won,
+      townPlayed: townPlayed,
+      townWon: townWon,
+      mafiaPlayed: mafiaPlayed,
+      mafiaWon: mafiaWon,
+      favourite: favourite,
+      recent: recent,
+    );
+  }
+}
+
+final profileRecordProvider = FutureProvider<ProfileRecord>((ref) async {
+  try {
+    return ProfileRecord.from(await OnlineMatchHistory.load());
+  } catch (_) {
+    return ProfileRecord.empty;
+  }
+});
+
+/// Under the numbers: the Council level with its bar, then the online
+/// record. Each part is drawn only when there is something real to show.
+class ProfileRecordPanel extends ConsumerWidget {
+  const ProfileRecordPanel({super.key});
+
+  static const levelKey = ValueKey('profile_level');
+  static const recordKey = ValueKey('profile_record');
+  static Key resultKey(int index) => ValueKey('profile_result_$index');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final colors = context.colors;
+    final type = context.typography;
+    final rank = ref.watch(councilProvider).valueOrNull?.rank;
+    final record =
+        ref.watch(profileRecordProvider).valueOrNull ?? ProfileRecord.empty;
+    final hasLevel = rank != null && rank.enabled;
+    if (!hasLevel && record.played == 0) return const SizedBox.shrink();
+    String side(String label, int won, int played) =>
+        '$label: ${l.profileRecordWins(won, played)}';
+    return Padding(
+      padding: EdgeInsets.only(top: s.md),
+      child: DeckPanel(
+        padding: EdgeInsets.all(s.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (hasLevel) ...[
+              Row(
+                key: levelKey,
+                children: [
+                  Expanded(
+                    child: Text(
+                      l.profileLevel(rank.level),
+                      style: type.title.copyWith(color: colors.textPrimary),
+                    ),
+                  ),
+                  if (rank.nextLevelXp != null)
+                    Text(
+                      l.profileLevelXp(rank.xp, rank.nextLevelXp!),
+                      style: type.caption.copyWith(color: colors.textMuted),
+                    ),
+                ],
+              ),
+              SizedBox(height: s.xs),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(DeckTokens.statRadius),
+                child: LinearProgressIndicator(
+                  value: rank.progress,
+                  minHeight: ProfileTokens.levelBar,
+                  color: colors.accentGold,
+                  backgroundColor: colors.borderSubtle,
+                ),
+              ),
+            ],
+            if (hasLevel && record.played > 0) SizedBox(height: s.md),
+            if (record.played > 0)
+              Column(
+                key: recordKey,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l.profileRecordOnline(record.won, record.played),
+                    style: type.body.copyWith(color: colors.textPrimary),
+                  ),
+                  if (record.townPlayed > 0)
+                    Text(
+                      side(
+                        l.profileRecordTown,
+                        record.townWon,
+                        record.townPlayed,
+                      ),
+                      style: type.caption.copyWith(color: colors.textSecondary),
+                    ),
+                  if (record.mafiaPlayed > 0)
+                    Text(
+                      side(
+                        l.profileRecordMafia,
+                        record.mafiaWon,
+                        record.mafiaPlayed,
+                      ),
+                      style: type.caption.copyWith(color: colors.textSecondary),
+                    ),
+                  if (record.favourite != null)
+                    Text(
+                      l.profileRecordFavourite(
+                        EngineCopy.roleName(l, record.favourite!),
+                      ),
+                      style: type.caption.copyWith(color: colors.textSecondary),
+                    ),
+                  SizedBox(height: s.sm),
+                  Semantics(
+                    label: l.profileRecordRecent,
+                    child: Row(
+                      children: [
+                        Text(
+                          l.profileRecordRecent,
+                          style: type.caption.copyWith(color: colors.textMuted),
+                        ),
+                        SizedBox(width: s.sm),
+                        for (var i = 0; i < record.recent.length; i++)
+                          Padding(
+                            padding: EdgeInsetsDirectional.only(end: s.xs),
+                            child: Tooltip(
+                              message: record.recent[i]
+                                  ? l.profileRecordWon
+                                  : l.profileRecordLost,
+                              child: Container(
+                                key: resultKey(i),
+                                width: ProfileTokens.resultDot,
+                                height: ProfileTokens.resultDot,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: record.recent[i]
+                                      ? colors.accentGold
+                                      : null,
+                                  border: Border.all(
+                                    color: record.recent[i]
+                                        ? colors.accentGold
+                                        : colors.textMuted,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),

@@ -74,7 +74,6 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
   static const storageWarning = ValueKey('online_storage_warning');
   static const backButton = ValueKey('online_back');
   static const staleNotice = ValueKey('online_rooms_stale');
-  static const emptyCreateButton = ValueKey('online_rooms_empty_create');
   @override
   ConsumerState<OnlineEntryScreen> createState() => _OnlineEntryScreenState();
 }
@@ -797,12 +796,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       !_browseFailed &&
                                       !_nearlyReadyOnly &&
                                       _rooms.isEmpty)
-                                    _EmptyRooms(
-                                      title: l.onlineNoPublicRooms,
-                                      onCreate: state.busy
-                                          ? null
-                                          : () => _go(_Step.create),
-                                    ),
+                                    _EmptyRooms(title: l.onlineNoPublicRooms),
                                 ],
                               ),
                             ),
@@ -1233,10 +1227,7 @@ class _ResumeBanner extends StatelessWidget {
 
 class _EmptyRooms extends StatelessWidget {
   final String title;
-
-  /// Opens the create step: an empty list leads somewhere instead of ending.
-  final VoidCallback? onCreate;
-  const _EmptyRooms({required this.title, this.onCreate});
+  const _EmptyRooms({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -1250,12 +1241,6 @@ class _EmptyRooms extends StatelessWidget {
           Icon(Icons.meeting_room_outlined, color: c.accentGold),
           SizedBox(width: s.sm),
           Expanded(child: Text(title, style: context.typography.body)),
-          if (onCreate != null)
-            TextButton(
-              key: OnlineEntryScreen.emptyCreateButton,
-              onPressed: onCreate,
-              child: Text(context.l10n.onlineOpenPublicRoom),
-            ),
         ],
       ),
     );

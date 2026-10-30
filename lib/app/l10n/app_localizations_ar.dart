@@ -1287,9 +1287,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineNoPublicRooms => 'مفيش أوض عامة مفتوحة دلوقتي';
 
   @override
-  String get onlineOpenPublicRoom => 'افتح أوضة';
-
-  @override
   String publicRoomSeats(int players, int capacity) {
     return '$players/$capacity لاعب';
   }
@@ -7423,6 +7420,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileStatCoins => 'عملة';
+
+  @override
+  String profileLevel(int level) {
+    return 'المستوى $level';
+  }
+
+  @override
+  String profileLevelXp(int xp, int next) {
+    return '$xp من $next خبرة';
+  }
+
+  @override
+  String profileRecordOnline(int won, int played) {
+    return 'أونلاين: كسبت $won من $played';
+  }
+
+  @override
+  String profileRecordWins(int won, int played) {
+    return '$won من $played';
+  }
+
+  @override
+  String get profileRecordTown => 'مع المواطنين';
+
+  @override
+  String get profileRecordMafia => 'مع المافيا';
+
+  @override
+  String profileRecordFavourite(String role) {
+    return 'أكتر دور لعبته: $role';
+  }
+
+  @override
+  String get profileRecordRecent => 'آخر النتايج';
+
+  @override
+  String get profileRecordWon => 'كسبت';
+
+  @override
+  String get profileRecordLost => 'خسرت';
 
   @override
   String profileFriendsCount(int count) {

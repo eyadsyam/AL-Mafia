@@ -806,7 +806,6 @@
   "onlinePublicRooms": "Public rooms",
   "onlinePublicRoomsHint": "Join an open room without a code",
   "onlineNoPublicRooms": "No public rooms open right now",
-  "onlineOpenPublicRoom": "Open a room",
   "publicRoomSeats": "{players}/{capacity} players",
   "@publicRoomSeats": {
     "placeholders": {
@@ -4623,6 +4622,21 @@
   "profileStatHere": "Matches here",
   "profileStatOnlineMatches": "Online matches",
   "profileStatCoins": "Coins",
+  "profileLevel": "Level {level}",
+  "@profileLevel": {"placeholders": {"level": {"type": "int"}}},
+  "profileLevelXp": "{xp} of {next} XP",
+  "@profileLevelXp": {"placeholders": {"xp": {"type": "int"}, "next": {"type": "int"}}},
+  "profileRecordOnline": "Online: won {won} of {played}",
+  "@profileRecordOnline": {"placeholders": {"won": {"type": "int"}, "played": {"type": "int"}}},
+  "profileRecordWins": "{won} of {played}",
+  "@profileRecordWins": {"placeholders": {"won": {"type": "int"}, "played": {"type": "int"}}},
+  "profileRecordTown": "With the town",
+  "profileRecordMafia": "With the mafia",
+  "profileRecordFavourite": "Most played role: {role}",
+  "@profileRecordFavourite": {"placeholders": {"role": {"type": "String"}}},
+  "profileRecordRecent": "Latest results",
+  "profileRecordWon": "Won",
+  "profileRecordLost": "Lost",
   "profileFriendsCount": "{count, plural, =0{None yet} =1{1 friend} other{{count} friends}}",
   "@profileFriendsCount": {
     "placeholders": {

@@ -2751,6 +2751,11 @@ abstract final class AccountMemoryTokens {
 abstract final class ProfileTokens {
   static const double statArt = 56.0;
 
+  /// The record panel: the level bar, and one dot per recent result.
+  static const double levelBar = 6.0;
+  static const double resultDot = 12.0;
+  static const int recentResults = 8;
+
   /// The identity block at the top of the profile: a small Mafia card with
   /// the avatar on it, and the name beside it.
   static const Size identityPhoto = Size(62, 84);

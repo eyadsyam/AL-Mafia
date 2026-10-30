@@ -371,11 +371,18 @@ class OnlineSession extends Notifier<OnlineSessionState> {
         }
         saving = true;
         try {
+          final mine = snapshot.standings
+              .where((s) => s.seat == snapshot.viewerSeat)
+              .firstOrNull;
           await OnlineMatchHistory.save(
             roomId: handle.roomId,
             names: snapshot.public.players.map((p) => p.name).toList(),
             winner: snapshot.outcome!.winner.name,
             days: snapshot.dayNumber,
+            role: mine?.role.name,
+            won: mine == null
+                ? null
+                : mine.role.alignment == snapshot.outcome!.winner,
           );
 
           saved = true;

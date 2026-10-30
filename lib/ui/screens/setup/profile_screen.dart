@@ -10,6 +10,7 @@ import '../../account/onboarding_account_step.dart'
 import '../../account/profile_panels.dart';
 import '../../account/profile_save.dart';
 import '../../account/profile_sheets.dart';
+import '../../economy/council.dart' show councilProvider;
 import '../../economy/council_hub.dart' show LeaderboardVisibilitySwitch;
 import '../../economy/my_cosmetics.dart';
 import '../../economy/wallet.dart' show walletProvider;
@@ -96,6 +97,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             SupabaseConfig.isConfigured &&
             ref.read(walletProvider).valueOrNull == null) {
           unawaited(ref.read(walletProvider.notifier).refresh());
+        }
+        // The level on the record panel, read the same way.
+        if (mounted &&
+            SupabaseConfig.isConfigured &&
+            ref.read(councilProvider).valueOrNull == null) {
+          unawaited(
+            ref.read(councilProvider.notifier).refresh().catchError((_) {}),
+          );
         }
       });
     }
@@ -204,6 +213,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const Center(child: FounderBadge()),
         SizedBox(height: s.md),
         const ProfileStats(),
+        const ProfileRecordPanel(),
       ],
     );
     if (_twoPane) {

@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Public finished-match summaries only. Never stores roles or private actions.
+/// Public finished-match summaries only: never a private action, and no role
+/// but this device's own, which the result showed to the whole table.
 class OnlineMatchHistory {
   static const storageKey = 'mafia.onlineHistory.v1';
 
@@ -35,6 +36,11 @@ class OnlineMatchHistory {
     required List<String> names,
     required String winner,
     required int days,
+
+    /// This device's own role and whether its side won: public at the
+    /// result, kept for the profile's record. Older rows have neither.
+    String? role,
+    bool? won,
   }) async {
     final rows = await load();
     if (rows.any((row) => row['roomId'] == roomId)) return;
@@ -43,6 +49,8 @@ class OnlineMatchHistory {
       'names': names,
       'winner': winner,
       'days': days,
+      'role': ?role,
+      'won': ?won,
     });
     final value = jsonEncode(rows.take(200).toList());
     final written = writeOverride != null
