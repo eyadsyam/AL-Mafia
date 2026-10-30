@@ -8139,4 +8139,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String roomPlaySummary(int seconds, int minutes, String mode) {
     return 'كلام $seconds ثانية · نقاش $minutes دقايق · $mode';
   }
+
+  @override
+  String get onlineRoomClosedByHost => 'الأوضة اتقفلت لأن الهوست خرج.';
 }

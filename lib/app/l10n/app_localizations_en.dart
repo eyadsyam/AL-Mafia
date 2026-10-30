@@ -8263,4 +8263,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String roomPlaySummary(int seconds, int minutes, String mode) {
     return 'Talk ${seconds}s · discussion $minutes min · $mode';
   }
+
+  @override
+  String get onlineRoomClosedByHost => 'The room closed because the host left.';
 }

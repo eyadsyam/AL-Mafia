@@ -14190,6 +14190,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Talk {seconds}s · discussion {minutes} min · {mode}'**
   String roomPlaySummary(int seconds, int minutes, String mode);
+
+  /// No description provided for @onlineRoomClosedByHost.
+  ///
+  /// In en, this message translates to:
+  /// **'The room closed because the host left.'**
+  String get onlineRoomClosedByHost;
 }
 
 class _AppLocalizationsDelegate

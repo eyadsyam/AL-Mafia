@@ -1149,6 +1149,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     if (snapshot.roomClosed && !_leaving) {
       _leaving = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // Said on the way out: the screen under it is about to go home.
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(context.l10n.onlineRoomClosedByHost)),
+        );
         await ref.read(onlineSessionProvider.notifier).leave();
         if (mounted) widget.onExit();
       });

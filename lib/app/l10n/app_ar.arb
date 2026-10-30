@@ -3796,5 +3796,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "onlineRoomClosedByHost": "الأوضة اتقفلت لأن الهوست خرج."
 }

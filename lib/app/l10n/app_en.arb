@@ -5099,5 +5099,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "onlineRoomClosedByHost": "The room closed because the host left."
 }
