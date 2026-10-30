@@ -154,7 +154,11 @@ test('M1-39: a last word names the chosen seat in the verdict a reconnecting cli
       assert.deepEqual(s.public_data.lastVote.lastWord,{seat:owner.seat,target:chosen.seat});
       assert.equal(s.public_data.lastVote.eliminatedRole,'citizen');
       assert.deepEqual(s.public_data.lastWordFloor,{seat:owner.seat,target:chosen.seat,day:1});
-      assert.doesNotMatch(JSON.stringify(s.public_data),/mafia|doctor|detective/);
+      // `dayResults` holds only the voted-out seat's side, which `eliminatedRole`
+      // above already makes public; no other role word may appear.
+      const {dayResults,...rest}=s.public_data;
+      assert.deepEqual(dayResults,{1:{seat:owner.seat,mafia:false}});
+      assert.doesNotMatch(JSON.stringify(rest),/mafia|doctor|detective/);
     }
     // The reconnecting host asking again changes nothing.
     assert.equal((await t.h.call('resolve_vote','u0',{roomId:t.roomId})).json.error,'PHASE_CLOSED');

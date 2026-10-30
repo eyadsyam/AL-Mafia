@@ -86,19 +86,18 @@ test('M3-35: expired verdict opens a numbered night if undecided or result if wo
   }
 });
 
-test('M3-15: host claim waits for stale presence and gives the lowest connected seat one host', async () => {
+test('M3-15: nobody inherits a room: a claim answers with the host, silent or not, and the room stays theirs', async () => {
   const t=await table(5,{start:false});
   try {
-    const roster=await t.roster(), host=roster[0], first=roster[1];
+    const roster=await t.roster(), host=roster[0];
     const early=await t.h.call('claim_host','u1',{roomId:t.roomId});
     assert.equal(early.status,200,JSON.stringify(early.json));
     assert.equal(early.json.claimed,false);
     await t.h.sql("update room_players set last_seen=now()-interval '31 seconds' where room_id=$1 and user_id=$2",[t.roomId,host.user_id]);
     const late=await t.h.call('claim_host','u1',{roomId:t.roomId});
     assert.equal(late.status,200,JSON.stringify(late.json));
-    assert.equal(late.json.hostId,first.user_id);
-    assert.equal((await t.h.call('claim_host','u2',{roomId:t.roomId})).json.hostId,first.user_id);
-    assert.equal((await t.h.sql('select host_id from rooms where id=$1',[t.roomId])).rows[0].host_id,first.user_id);
+    assert.equal(late.json.hostId,host.user_id);
+    assert.equal((await t.h.sql('select host_id from rooms where id=$1',[t.roomId])).rows[0].host_id,host.user_id);
   } finally { await t.close(); }
 });
 

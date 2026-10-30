@@ -57,7 +57,7 @@ begin
       values(rid, case ph
         when 'reveal' then 'CLRAVA'
         when 'opening' then 'CLPPAA'
-        when 'confront' then 'CLCOAA'
+        when 'confront' then 'CLCXAA'
         when 'discuss' then 'CLDXAA'
         else 'CLDEAA' end, host, 7, 'playing');
     insert into public.room_players(room_id, user_id, name, seat, status, connected)

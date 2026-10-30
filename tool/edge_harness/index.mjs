@@ -154,6 +154,14 @@ export async function harness() {
         try { await import(pathToFileURL(resolve(root,'supabase/functions',name,'index.ts')).href); }
         finally { globalThis.__edgeImportName=null; }
       }
+      // A live phase now ends only when its clock runs out or everyone has acted
+      // (nobody, host included, ends one early). A table in a test does not wait
+      // for real clocks, so the calls that end a phase run with its clock expired,
+      // the path a real room takes. `live: true` asks for the running clock.
+      if(!body.live && body.roomId && (name==='resolve_night' || name==='resolve_vote' ||
+          (name==='open_phase' && body.phase==='vote'))) {
+        await db.query("update room_state set phase_ends_at=now()-interval '1 second' where room_id=$1 and phase_ends_at>now()",[body.roomId]);
+      }
       const response=await handlers.get(name)(new Request(`http://localhost/${name}`,{method:'POST',headers:{'Content-Type':'application/json',...(user?{Authorization:`Bearer ${uid(user)}`}:{})},body:JSON.stringify(body)}));
       return {status:response.status,json:await response.json()};
     },

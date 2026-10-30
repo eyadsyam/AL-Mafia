@@ -517,10 +517,12 @@ void main() {
           onlineBackendFactoryProvider.overrideWithValue(() async => backend),
           onlineHeartbeatProvider.overrideWithValue(Duration.zero),
           profileStatsProvider.overrideWith((ref) async {
+            ref.watch(onlineHistoryRevisionProvider);
             statsReads++;
             return (0, 0);
           }),
           profileRecordProvider.overrideWith((ref) async {
+            ref.watch(onlineHistoryRevisionProvider);
             recordReads++;
             return ProfileRecord.empty;
           }),
