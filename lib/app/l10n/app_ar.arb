@@ -620,6 +620,7 @@
   "whisperSend": "ابعت",
   "whisperSent": "اتبعتت",
   "whisperAlreadySentToday": "بعت همستك النهارده",
+  "whisperSilencedToday": "المتسكّت مايهمسش النهارده",
   "whisperUndelivered": "الهمسة ماوصلتش",
   "whisperGraphTitle": "همسات النهار {day}",
   "whisperGraphEmpty": "محدش همس النهارده",

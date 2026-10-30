@@ -2024,6 +2024,12 @@ abstract class AppLocalizations {
   /// **'You have already whispered today'**
   String get whisperAlreadySentToday;
 
+  /// No description provided for @whisperSilencedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Silenced players cannot whisper today'**
+  String get whisperSilencedToday;
+
   /// No description provided for @whisperUndelivered.
   ///
   /// In en, this message translates to:

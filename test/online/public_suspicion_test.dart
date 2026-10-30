@@ -44,6 +44,7 @@ void main() {
         phaseNumber: 2,
         hostId: 'u4',
         publicData: data(today: today, silenced: silenced),
+        settings: const {'whisperEnabled': true},
       ),
       players: roster(5, dead: dead),
       own: const OwnSeat(seat: 0, role: 'citizen'),
@@ -183,6 +184,22 @@ void main() {
     await table(tester, today: {'1': 3, '2': 3});
     expect(find.byKey(SuspicionCount.keyFor(3)), findsOneWidget);
     expect(find.text(arStrings.suspectCountShort(2)), findsOneWidget);
+    await done(tester);
+  });
+
+  testWidgets('a silenced player cannot whisper either', (tester) async {
+    await table(tester, silenced: 0);
+    final button = find.byKey(OnlineTableFlow.whisperButton);
+    expect(button, findsOneWidget);
+    expect(tester.widget<ButtonStyleButton>(button).onPressed, isNull);
+    expect(find.text(arStrings.whisperSilencedToday), findsOneWidget);
+    await done(tester);
+  });
+
+  testWidgets('an unsilenced player may whisper', (tester) async {
+    await table(tester);
+    final button = find.byKey(OnlineTableFlow.whisperButton);
+    expect(tester.widget<ButtonStyleButton>(button).onPressed, isNotNull);
     await done(tester);
   });
 

@@ -1090,6 +1090,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get whisperAlreadySentToday => 'بعت همستك النهارده';
 
   @override
+  String get whisperSilencedToday => 'المتسكّت مايهمسش النهارده';
+
+  @override
   String get whisperUndelivered => 'الهمسة ماوصلتش';
 
   @override

@@ -1112,6 +1112,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whisperAlreadySentToday => 'You have already whispered today';
 
   @override
+  String get whisperSilencedToday => 'Silenced players cannot whisper today';
+
+  @override
   String get whisperUndelivered => 'Your whisper never arrived';
 
   @override

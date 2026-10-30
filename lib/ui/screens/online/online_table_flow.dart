@@ -2260,9 +2260,13 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           final spent = snapshot.whisperGraph.any(
             (w) => w.fromSeat == snapshot.viewerSeat && !w.voided,
           );
+          // Silenced today: no whisper either (the server refuses it too).
+          final silenced = snapshot.viewerSilenced;
           whisper = FilledButton.icon(
             key: OnlineTableFlow.whisperButton,
-            onPressed: spent ? null : () => setState(() => _composing = true),
+            onPressed: spent || silenced
+                ? null
+                : () => setState(() => _composing = true),
             icon: Image.asset(
               AppCouncilArt.whisperSeal,
               width: context.spacing.lg,
@@ -2271,7 +2275,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
               excludeFromSemantics: true,
             ),
             label: Text(
-              spent ? l10n.whisperAlreadySentToday : l10n.whisperCompose,
+              silenced
+                  ? l10n.whisperSilencedToday
+                  : spent
+                  ? l10n.whisperAlreadySentToday
+                  : l10n.whisperCompose,
             ),
           );
         }

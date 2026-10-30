@@ -716,6 +716,7 @@
   "whisperSend": "Send",
   "whisperSent": "Sent",
   "whisperAlreadySentToday": "You have already whispered today",
+  "whisperSilencedToday": "Silenced players cannot whisper today",
   "whisperUndelivered": "Your whisper never arrived",
   "whisperGraphTitle": "Whispers, day {day}",
   "@whisperGraphTitle": {

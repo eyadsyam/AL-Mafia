@@ -1540,6 +1540,12 @@ class MatchEngine {
         throw StateError('sendWhisper: seat $seat is not alive');
       }
     }
+    if (silencedSeatToday == fromSeat) {
+      // Silence takes the floor, the vote and the tools; a private message
+      // was the one way left to accuse. The silence is public, so refusing
+      // tells nobody anything new.
+      throw StateError('sendWhisper: seat $fromSeat is silenced today');
+    }
     final trimmed = body.trim();
     if (trimmed.isEmpty) {
       // H-E10. An empty whisper is still a public edge on the graph, so

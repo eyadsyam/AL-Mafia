@@ -56,6 +56,7 @@ Deno.serve(handler(async (req, userId, db) => {
     if (message === "PHASE_CLOSED") return fail("PHASE_CLOSED", "whispers are closed");
     if (message === "NOT_A_MEMBER") return fail("NOT_A_MEMBER", "you are not in that room", 403);
     if (message === "NOT_ALIVE") return fail("NOT_ALIVE", "the dead do not whisper", 403);
+    if (message === "SILENCED") return fail("SILENCED", "silenced today", 403);
     if (message === "ROOM_NOT_FOUND") return fail("ROOM_NOT_FOUND", "no such room", 404);
     if (message === "BAD_REQUEST") return fail("BAD_REQUEST", "invalid whisper");
     throw error;

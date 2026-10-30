@@ -1092,6 +1092,38 @@ void main() {
       expect(e.silencedSeatToday, x);
     });
 
+    test('a silenced seat cannot whisper today; anyone else still can', () {
+      const whispers = MatchSettings(
+        silencerEnabled: true,
+        quietNightEnabled: false,
+        abstainAllowed: true,
+        whisperEnabled: true,
+      );
+      final e = start(sevenWithSilencer, whispers);
+      final citizens = seatsOf(e, Role.citizen);
+      final x = citizens.first;
+      night(
+        e,
+        (_, role) =>
+            role == Role.silencer ? (NightActionKind.silence, x, false) : null,
+      );
+      e.resolveNight();
+      e.beginDay();
+      expect(
+        () => e.sendWhisper(fromSeat: x, toSeat: citizens[1], body: 'him'),
+        throwsStateError,
+      );
+      expect(
+        e.whispersSentBy(x, e.match.dayNumber),
+        0,
+        reason: 'a refused whisper leaves no edge',
+      );
+      expect(
+        e.sendWhisper(fromSeat: citizens[1], toSeat: x, body: 'are you ok'),
+        isNotEmpty,
+      );
+    });
+
     test('C43: Mafia and Silencer know each other at deal', () {
       final roles = sevenWithSilencer;
       final e = MatchEngine(clock: Clocks.monotonic());
