@@ -7,6 +7,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/public_web_origin.dart';
+import '../platform/links/external_link.dart';
 import '../data/motion_preference.dart';
 import '../data/player_profile.dart' show playerProfileProvider;
 import '../data/terms_consent.dart' show termsAcceptanceProvider;
@@ -95,6 +97,17 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
         return;
       case PushDestination.onlineEntry:
         _router.go(Routes.online);
+        return;
+      case PushDestination.ownerAdmin:
+        // The owner's notices open the admin page on the website, where
+        // every review lives (owner, 2026-10-30).
+        unawaited(
+          Future.value(
+            ref.read(externalLinkOpenerProvider)(
+              '$kPublicWebOrigin${kOwnerPushPaths[open.kind]}',
+            ),
+          ),
+        );
         return;
       case PushDestination.daily:
       case PushDestination.orders:

@@ -12,7 +12,7 @@
 
 export interface PushTarget {
   enabled: boolean;
-  kind?: "invite" | "friend_request" | "friend_accepted" | "order_paid" | "order_rejected" | EventKind;
+  kind?: "invite" | "friend_request" | "friend_accepted" | "order_paid" | "order_rejected" | EventKind | OwnerKind;
   /** Stable number that picks one of an event's wordings (the outbox row id). */
   variant?: number;
   inviteId?: string;
@@ -308,9 +308,55 @@ export function eventMessage(t: PushTarget, token: string, platform: "android" |
   };
 }
 
+/** Notices for the owner's account only (20261030000200_owner_push.sql). */
+export type OwnerKind = "owner_order" | "owner_claimed" | "owner_play" | "owner_report" | "owner_tester";
+
+/**
+ * What each owner notice says and the admin page it opens on the website.
+ * No amounts, names, references or methods travel: the page shows those to
+ * the signed-in admin.
+ */
+export const OWNER_TEXT: Record<OwnerKind, { title: string; body: string; path: string }> = {
+  owner_order: { title: "طلب دفع جديد", body: "فيه حد طلب يشتري كوينز. افتح لوحة الإدارة.", path: "/admin" },
+  owner_claimed: { title: "حد بيقول إنه حوّل", body: "فيه طلب مستني مراجعتك. افتح لوحة الإدارة.", path: "/admin" },
+  owner_play: { title: "شراء جديد من جوجل بلاي", body: "فيه حد اشترى من المتجر. افتح لوحة الإدارة.", path: "/admin" },
+  owner_report: { title: "بلاغ جديد", body: "فيه بلاغ مستني مراجعتك.", path: "/admin/safety" },
+  owner_tester: { title: "طلب اختبار جديد", body: "فيه حد عايز يجرّب التطبيق قبل الناس.", path: "/admin/testers/" },
+};
+
+export function isOwnerKind(kind: unknown): kind is OwnerKind {
+  return typeof kind === "string" && kind in OWNER_TEXT;
+}
+
+/** One owner notice for one device: opens the admin page, never the game. */
+export function ownerMessage(t: PushTarget, token: string, platform: "android" | "web") {
+  const kind = t.kind as OwnerKind;
+  const spec = OWNER_TEXT[kind];
+  const link = `${WEB_ORIGIN}${spec.path}`;
+  const data = { kind, link };
+  if (platform === "android") {
+    return { message: {
+      token, data, notification: { title: spec.title, body: spec.body },
+      android: { priority: "HIGH", notification: {
+        channel_id: "mafia_social", icon: "ic_stat_mafia", color: INVITE_ACCENT,
+        tag: kind, default_sound: true,
+      } },
+    } };
+  }
+  return { message: { token, data, webpush: {
+    headers: { Urgency: "high" },
+    notification: {
+      title: spec.title, body: spec.body, icon: "/icons/Icon-192.png", badge: "/icons/badge-72.png",
+      tag: kind, renotify: true, dir: "rtl", lang: "ar", data: { link },
+    },
+    fcm_options: { link },
+  } } };
+}
+
 /** The message for one device, by kind. */
 export function messageFor(t: PushTarget, token: string, platform: "android" | "web") {
   if (t.kind === "order_paid" || t.kind === "order_rejected") return paymentMessage(t, token, platform);
+  if (isOwnerKind(t.kind)) return ownerMessage(t, token, platform);
   if (t.kind && t.kind in EVENT_TEXT) return eventMessage(t, token, platform);
   return t.kind === "friend_request" || t.kind === "friend_accepted"
     ? socialMessage(t, token, platform)

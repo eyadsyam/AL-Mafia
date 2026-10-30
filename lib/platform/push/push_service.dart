@@ -4,7 +4,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// What a tapped notification carries. Invites keep their existing code and
 /// sender fields; every other event is routed using only its kind.
-enum PushDestination { invite, onlineRoom, onlineEntry, daily, orders, friends }
+enum PushDestination {
+  invite,
+  onlineRoom,
+  onlineEntry,
+  daily,
+  orders,
+  friends,
+
+  /// A notice for the owner's account only (commerce admins): opens the
+  /// admin page on the website.
+  ownerAdmin,
+}
+
+/// The owner's notices (20261030000200_owner_push.sql) and the admin page
+/// each one opens, under the public web origin.
+const Map<String, String> kOwnerPushPaths = {
+  'owner_order': '/admin',
+  'owner_claimed': '/admin',
+  'owner_play': '/admin',
+  'owner_report': '/admin/safety',
+  'owner_tester': '/admin/testers/',
+};
 
 class PushOpen {
   PushDestination get destination => switch (kind) {
