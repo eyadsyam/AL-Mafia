@@ -30,28 +30,24 @@ declare
 begin
   update public.economy_config set lobby_ready_enabled=true where id=true;
 
-  -- ── Hand-off without a roster change: configuration and readiness survive.
+  -- ── A host away for a moment keeps the room: nobody can claim it, the other
+  --    seats stay ready, and the host starts it on their return.
   rid:=pg_temp.hc_room('HCAAAA',u[1],u[1:5],true);
   select lobby_revision,settings into rev,settings_before from public.rooms where id=rid;
   update public.room_players set connected=false,status='away',
       last_seen=now()-interval '5 minutes' where room_id=rid and user_id=u[1];
-  -- The host going away clears only the host's own readiness (away cannot
-  -- be ready); everyone else keeps theirs.
-  assert public.migrate_host(rid,u[2])=u[2],'lowest live seat claims';
-  assert (select host_id from public.rooms where id=rid)=u[2];
+  assert public.migrate_host(rid,u[2])=u[1],'a claim moved the host';
+  assert (select host_id from public.rooms where id=rid)=u[1];
   assert (select settings from public.rooms where id=rid)=settings_before,'configuration survives';
-  assert (select lobby_revision from public.rooms where id=rid)=rev,'hand-off is not a new proposition';
+  assert (select lobby_revision from public.rooms where id=rid)=rev,'a claim is not a new proposition';
   assert (select count(*) from public.room_players where room_id=rid and lobby_ready)=4,
     'the other seats stay ready';
-  -- A second claimant after the winner gets the winner back, no change.
-  assert public.migrate_host(rid,u[3])=u[2],'second claim returns the winner';
-  -- The old host can no longer start; the new host can once all are ready.
   update public.room_players set connected=true,status='connected',last_seen=now()
     where room_id=rid and user_id=u[1];
   update public.room_players set lobby_ready=true where room_id=rid;
-  assert not public.apply_match_deal(rid,u[1],roles5,'{}',now()+interval '1 minute'),
-    'the previous host cannot start';
-  assert public.apply_match_deal(rid,u[2],roles5,'{}',now()+interval '1 minute'),'new host starts';
+  assert not public.apply_match_deal(rid,u[2],roles5,'{}',now()+interval '1 minute'),
+    'a guest cannot start';
+  assert public.apply_match_deal(rid,u[1],roles5,'{}',now()+interval '1 minute'),'the host starts';
 
   -- ── A guest leaving the lobby is a roster change: readiness clears, the host
   --    stays, configuration is untouched. (The host leaving closes the room:
@@ -114,7 +110,7 @@ begin
   assert refused,'a join after the deal is refused';
   assert (select count(*) from public.room_players where room_id=rid)=5;
 
-  -- ── Hand-off during every phase leaves the phase exactly where it was.
+  -- ── The host gone in any phase closes the room, and the phase stays as it was.
   foreach ph in array array['reveal','night','morning','opening','confront','discuss',
       'defense','vote','verdict','result'] loop
     rid:=pg_temp.hc_room('HP'||substr('ABCDEFGHJKLMN',1+(select count(*)::int
@@ -124,12 +120,10 @@ begin
     update public.room_state set phase=ph,phase_number=3 where room_id=rid;
     select phase,phase_number into phase_before,number_before from public.room_state where room_id=rid;
     update public.room_players set connected=false,status='left' where room_id=rid and user_id=u[1];
-    -- The departure trigger already hands over to the lowest live seat.
-    assert (select host_id from public.rooms where id=rid)=u[2],'handover during '||ph;
-    assert public.migrate_host(rid,u[3])=u[2],'claim during '||ph||' returns the heir';
+    assert (select host_id from public.rooms where id=rid)=u[1],'somebody inherited in '||ph;
     assert (select phase=phase_before and phase_number=number_before from public.room_state
-      where room_id=rid),'phase moved during a hand-off in '||ph;
-    assert (select status from public.rooms where id=rid)='playing','room still playing in '||ph;
+      where room_id=rid),'phase moved in '||ph;
+    assert (select status from public.rooms where id=rid)='finished','room stayed open in '||ph;
   end loop;
 
   -- ── Flag off: the old start path is unchanged by any of this.

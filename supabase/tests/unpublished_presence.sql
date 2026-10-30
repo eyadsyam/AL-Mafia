@@ -64,10 +64,10 @@ begin
   assert public.archive_abandoned_rooms()=0, 'a beating room was archived';
   assert (select status from public.rooms where id=r)='playing';
 
-  -- A silent host gives the room to the lowest beating seat.
+  -- Nobody inherits a room: a silent host's room closes (no_seat_outlives_its_player).
   update public.room_presence set heard_at=now()-interval '2 minutes' where room_id=r and user_id=h;
   update public.room_players set status='connected' where room_id=r and user_id=b;
-  assert public.migrate_host(r,b)=b, 'the room did not move to the beating heir';
+  assert public.migrate_host(r,b)=h, 'a claim moved the host';
 
   -- Nobody outside the service role reaches the beat.
   assert not has_table_privilege('authenticated','public.room_presence','select');

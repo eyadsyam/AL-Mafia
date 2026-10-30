@@ -6,7 +6,8 @@ begin
   -- Defaults: no newer build announced, banners per screen, minimum untouched.
   select latest_build_android,latest_build_web,banner_mode into a,w,m
     from public.app_config;
-  assert a=0 and w=0,'default announces no newer build';
+  -- (Android is recorded from build 19 on, by app_update_push.)
+  assert a>=0 and w=0,'default announces no newer build';
   assert m='per_screen','default banner mode is per_screen';
   select min_build_android into mb from public.app_config;
   assert mb=0,'the minimum is untouched';

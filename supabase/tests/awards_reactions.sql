@@ -404,6 +404,7 @@ begin
     perform public.send_room_reaction(p[1],r,'laugh');
     perform public.send_room_reaction(p[2],r,'rose');
     -- p[1] leaves the lobby: the room (and its reactions) stays for the rest.
+    update rooms set host_id=p[6] where id=r;
     delete from room_players where room_id=r and user_id=p[1];
     insert into player_badges(user_id,badge) values(p[1],'founder');
     insert into data_deletion_requests(user_id) values(p[1]) returning id into req;

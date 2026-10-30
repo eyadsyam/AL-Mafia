@@ -794,6 +794,24 @@ void main() {
       expect(exits, 1);
     });
 
+    for (final phase in ['reveal', 'night', 'morning', 'vote', 'verdict']) {
+      _screenTest('a host closure during $phase sends the guest home without '
+          'showing a result', (tester) async {
+        var exits = 0;
+        await _pumpTable(
+          tester,
+          phase: phase,
+          status: 'finished',
+          publicData: const {'rosterSeats': [0, 1, 2, 3, 4]},
+          onExit: () => exits++,
+        );
+        await _letLeaveFinish(tester);
+        expect(exits, 1, reason: phase);
+        expect(find.text(arStrings.townWins), findsNothing);
+        expect(find.text(arStrings.mafiaWins), findsNothing);
+      });
+    }
+
     _screenTest('a removed player is told so and goes home, with no winner '
         'and no role on their screen', (tester) async {
       var exits = 0;

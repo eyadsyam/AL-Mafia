@@ -98,6 +98,21 @@ void main() {
       }
     });
 
+    test('a process restart during public opening and confrontation keeps '
+        'the table phase without opening a private turn', () async {
+      final base = scriptedMatch(stopAfterNightActions: 2).match;
+      for (final (phase, expected) in [
+        (GamePhase.openingRound, ResumeScreen.dayOpening),
+        (GamePhase.confrontation, ResumeScreen.confrontation),
+      ]) {
+        final before = base.copyWith(phase: phase, clearCurrentActorSeat: true);
+        final (loaded, target) = await killAndRelaunch(before);
+        expect(loaded.phase, phase);
+        expect(target.screen, expected);
+        expect(target.seat, isNull);
+      }
+    });
+
     test(
       'on-table phases resume directly, since the table already saw them',
       () async {

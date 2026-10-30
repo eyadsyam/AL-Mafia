@@ -37,7 +37,7 @@ begin
     perform public.commit_accusation(r,1,2,1,null,null,now()+interval '1 minute');
     raise exception 'a removed seat accused';
   exception when raise_exception then if sqlerrm<>'NOT_A_MEMBER' then raise; end if; end;
-  update public.room_state set public_data='{"openingSeat":1}'::jsonb where room_id=r;
+  update public.room_state set public_data='{"openingSeat":1}'::jsonb,phase_ends_at=now()+interval '1 minute' where room_id=r;
   if not public.commit_accusation(r,1,1,0,null,null,now()+interval '1 minute') then raise exception 'a seated accusation was refused'; end if;
   if (select phase from public.room_state where room_id=r)<>'discuss' then raise exception 'accusation did not move the floor'; end if;
 end $$;

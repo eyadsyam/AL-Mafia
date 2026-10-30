@@ -15,13 +15,9 @@ begin
   if (select count(*) from public.room_players where room_id=r and not kicked)<>2 then raise exception 'wrong seated count'; end if;
   -- the removed row is not a departure and stays where it is
   if not exists(select 1 from public.room_players where room_id=r and user_id=k and kicked) then raise exception 'removed row aged away'; end if;
-  -- a silent host hands the room to the lowest seated row, never to a removed one
-  update public.room_players set last_seen=now()-interval '2 minutes' where room_id=r and user_id=h;
-  n := public.age_presence();
-  if (select host_id from public.rooms where id=r)<>b then raise exception 'host not handed to the seated player: %', (select host_id from public.rooms where id=r); end if;
-  if (select seat from public.room_players where room_id=r and user_id=b)<>1 then raise exception 'seats not re-packed after the host left'; end if;
   -- the last seated player leaving empties the lobby, removed rows notwithstanding
   perform public.leave_room(r,b);
+  perform public.leave_room(r,h);
   if exists(select 1 from public.rooms where id=r) then raise exception 'an emptied lobby survived on its removed rows'; end if;
   -- mid-match a silent seat is kept for its return
   insert into public.rooms(id,code,host_id,match_seed,status) values(r2,'LBDPQ8',h,1,'playing');

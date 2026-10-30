@@ -34,8 +34,8 @@ begin
   end if;
 
   -- a playing room: the host u starts A alone? no — bring w back to A, start A,
-  -- then w joins B mid-match: w is marked left in A (not deleted) and A's host
-  -- passes on if it was w.
+  -- then w joins B mid-match: w is marked left in A (not deleted) and the room
+  -- is still u's. (A host going elsewhere closes their room: no_seat_outlives.)
   perform public.join_room_atomic('SEATA7',w,'W','male');
   if exists(select 1 from public.room_players where room_id=rb and user_id=w) then
     raise exception 'w still seated in B after rejoining A';
@@ -43,7 +43,6 @@ begin
   update public.rooms set status='playing' where id=ra;
   update public.room_state set phase='night',phase_number=1 where room_id=ra;
   update public.room_players set status='connected',connected=true,last_seen=now() where room_id=ra;
-  update public.rooms set host_id=w where id=ra;
   c := public.join_room_atomic('SEATB8',w,'W','male');
   if (select status from public.room_players where room_id=ra and user_id=w)<>'left' then
     raise exception 'w not marked left in the playing room';
@@ -52,7 +51,7 @@ begin
     raise exception 'a playing seat was deleted';
   end if;
   if (select host_id from public.rooms where id=ra)<>u then
-    raise exception 'A did not hand the host on when w left for B';
+    raise exception 'A changed hands when a guest left for B';
   end if;
   -- and w can still come back to A's seat
   c := public.join_room_atomic('SEATA7',w,'W','male');

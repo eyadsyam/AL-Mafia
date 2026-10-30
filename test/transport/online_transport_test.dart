@@ -56,6 +56,23 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  test('a deliberate closure reaches every client phase without a result', () async {
+    for (final phase in [
+      'lobby', 'reveal', 'opening', 'night', 'morning', 'confront',
+      'discuss', 'defense', 'vote', 'verdict',
+    ]) {
+      await connect(state: roomState(phase: phase));
+      backend.setState(
+        roomState(phase: phase, status: 'finished'),
+        push: false,
+      );
+      await transport.resync();
+      expect(transport.snapshot.roomClosed, isTrue, reason: phase);
+      expect(transport.snapshot.outcome, isNull, reason: phase);
+      await transport.dispose();
+    }
+  });
+
   group('a room deleted while background work is in flight', () {
     test(
       'a realtime resync closes the room without an uncaught future',
