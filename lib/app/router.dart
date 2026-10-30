@@ -55,6 +55,7 @@ import '../ui/economy/ad_veil.dart';
 import '../platform/monetization/rewarded_ads.dart';
 import '../ui/screens/setup/before_start_sheet.dart';
 import '../ui/screens/setup/bot_match_sheet.dart';
+import '../ui/screens/online/room_closed_notice.dart';
 
 /// Route paths, in one place so navigation calls cannot drift from the table.
 abstract final class Routes {
@@ -440,22 +441,24 @@ GoRouter buildRouter(
       GoRoute(
         path: Routes.home,
         builder: (context, state) => SetupRequired(
-          child: HomeScreen(
-            // Play now asks which of the two games this is, rather than starting
-            // one of them and offering the other in smaller type.
-            onNewMatch: () => forwardTo(context, Routes.mode),
-            onHistory: () => forwardTo(context, Routes.history),
-            onSettings: () => showSettingsSheet(context),
-            onHowToPlay: () => showHowToSheet(
-              context,
-              onVideo: () => context.go(Routes.onboarding),
+          child: RoomClosedNotice(
+            child: HomeScreen(
+              // Play now asks which of the two games this is, rather than starting
+              // one of them and offering the other in smaller type.
+              onNewMatch: () => forwardTo(context, Routes.mode),
+              onHistory: () => forwardTo(context, Routes.history),
+              onSettings: () => showSettingsSheet(context),
+              onHowToPlay: () => showHowToSheet(
+                context,
+                onVideo: () => context.go(Routes.onboarding),
+              ),
+              onProfile: () => forwardTo(context, Routes.profile),
+              onCharacters: () => forwardTo(context, Routes.characters),
+              store: SupabaseConfig.isConfigured
+                  ? const CoinStoreButton(compact: true, pill: true)
+                  : null,
+              banner: const WelcomeBackCard(),
             ),
-            onProfile: () => forwardTo(context, Routes.profile),
-            onCharacters: () => forwardTo(context, Routes.characters),
-            store: SupabaseConfig.isConfigured
-                ? const CoinStoreButton(compact: true, pill: true)
-                : null,
-            banner: const WelcomeBackCard(),
           ),
         ),
       ),

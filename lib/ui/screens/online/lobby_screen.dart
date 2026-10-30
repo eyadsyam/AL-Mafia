@@ -45,6 +45,7 @@ import 'invite_sheet.dart';
 import '../setup/optional_roles.dart';
 import 'my_match_panel.dart';
 import 'online_deal_panel.dart';
+import 'room_closed_notice.dart';
 import 'room_settings_panel.dart';
 import 'scene_sheet.dart';
 import 'council/seat_status.dart';
@@ -485,10 +486,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     if ((snapshot?.roomClosed ?? false) && !_leaving) {
       _leaving = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        // Said on the way out: the screen under it is about to go home.
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(content: Text(context.l10n.onlineRoomClosedByHost)),
-        );
+        ref.read(roomClosedNoticeProvider.notifier).state = true;
         await ref.read(onlineSessionProvider.notifier).leave();
         if (mounted) widget.onLeave();
       });

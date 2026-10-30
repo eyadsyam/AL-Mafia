@@ -64,6 +64,7 @@ import '../../widgets/motion_sprite.dart';
 import 'witness/kill_jumpscare.dart';
 import 'witness/witness_layer.dart';
 import '../../../transport/witness_channel.dart';
+import 'room_closed_notice.dart';
 
 bool doctorMaySelectNightTarget(Role role, int seat, int? lastProtectSeat) =>
     role != Role.doctor || seat != lastProtectSeat;
@@ -1149,10 +1150,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     if (snapshot.roomClosed && !_leaving) {
       _leaving = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        // Said on the way out: the screen under it is about to go home.
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(content: Text(context.l10n.onlineRoomClosedByHost)),
-        );
+        ref.read(roomClosedNoticeProvider.notifier).state = true;
         await ref.read(onlineSessionProvider.notifier).leave();
         if (mounted) widget.onExit();
       });
