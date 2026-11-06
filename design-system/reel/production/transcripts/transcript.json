@@ -1,0 +1,1349 @@
+{
+  "engine": "eleven_scribe_v1",
+  "script_matches_normalized": true,
+  "performance_annotations_removed": 10,
+  "words": [
+    {
+      "text": "إنت",
+      "start": 0.144,
+      "end": 0.32,
+      "source_start": 0.144,
+      "source_end": 0.32,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "المافيا.",
+      "start": 0.36,
+      "end": 1.1796875,
+      "source_start": 0.36,
+      "source_end": 1.4,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "وهما",
+      "start": 1.1796875,
+      "end": 1.5523125,
+      "source_start": 1.547,
+      "source_end": 1.92,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "لسه",
+      "start": 1.6323125,
+      "end": 1.8723125000000003,
+      "source_start": 2,
+      "source_end": 2.24,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "مايعرفوش.",
+      "start": 1.9323124999999999,
+      "end": 2.9273333333333333,
+      "source_start": 2.3,
+      "source_end": 3.56,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "هتعرف",
+      "start": 3.1288125000000004,
+      "end": 3.4588125000000005,
+      "source_start": 4.15,
+      "source_end": 4.48,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تخلّص",
+      "start": 3.5118125000000004,
+      "end": 3.8588125,
+      "source_start": 4.533,
+      "source_end": 4.88,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "الجولة",
+      "start": 3.9188125000000005,
+      "end": 4.2588125,
+      "source_start": 4.94,
+      "source_end": 5.28,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "من",
+      "start": 4.3118125,
+      "end": 4.4188125000000005,
+      "source_start": 5.333,
+      "source_end": 5.44,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "غير",
+      "start": 4.4588125000000005,
+      "end": 4.5788125,
+      "source_start": 5.48,
+      "source_end": 5.6,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "ما",
+      "start": 4.6318125,
+      "end": 4.7388125,
+      "source_start": 5.653,
+      "source_end": 5.76,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تتكشف؟",
+      "start": 4.7918125,
+      "end": 5.3788125,
+      "source_start": 5.813,
+      "source_end": 6.4,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "دي",
+      "start": 5.8732291666666665,
+      "end": 5.884229166666667,
+      "source_start": 7.269,
+      "source_end": 7.28,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "سيد",
+      "start": 6.004229166666667,
+      "end": 6.284229166666666,
+      "source_start": 7.4,
+      "source_end": 7.68,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "المافيا.",
+      "start": 6.344229166666667,
+      "end": 6.844229166666667,
+      "source_start": 7.74,
+      "source_end": 8.24,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تلعبها",
+      "start": 7.031229166666666,
+      "end": 7.623624999999999,
+      "source_start": 8.427,
+      "source_end": 9.04,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "أونلاين",
+      "start": 7.663625,
+      "end": 8.023625,
+      "source_start": 9.08,
+      "source_end": 9.44,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "مع",
+      "start": 8.076625,
+      "end": 8.183625,
+      "source_start": 9.493,
+      "source_end": 9.6,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "صحابك،",
+      "start": 8.236625,
+      "end": 9.133791666666667,
+      "source_start": 9.653,
+      "source_end": 10.56,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "كل",
+      "start": 9.213791666666667,
+      "end": 9.373791666666667,
+      "source_start": 10.64,
+      "source_end": 10.8,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "واحد",
+      "start": 9.421791666666667,
+      "end": 9.613791666666666,
+      "source_start": 10.848,
+      "source_end": 11.04,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "من",
+      "start": 9.666791666666667,
+      "end": 9.773791666666666,
+      "source_start": 11.093,
+      "source_end": 11.2,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "مكانه.",
+      "start": 9.853791666666666,
+      "end": 10.333791666666666,
+      "source_start": 11.28,
+      "source_end": 11.76,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "دورك",
+      "start": 10.513791666666666,
+      "end": 11.051833333333335,
+      "source_start": 11.94,
+      "source_end": 12.56,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "في",
+      "start": 11.078833333333334,
+      "end": 11.131833333333335,
+      "source_start": 12.587,
+      "source_end": 12.64,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "السر.",
+      "start": 11.191833333333333,
+      "end": 11.691833333333333,
+      "source_start": 12.7,
+      "source_end": 13.2,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "بالليل،",
+      "start": 11.844916666666668,
+      "end": 12.419458333333335,
+      "source_start": 13.38,
+      "source_end": 14.16,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "المافيا",
+      "start": 12.439458333333334,
+      "end": 12.739458333333335,
+      "source_start": 14.18,
+      "source_end": 14.48,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تختار",
+      "start": 12.779458333333334,
+      "end": 13.139458333333335,
+      "source_start": 14.52,
+      "source_end": 14.88,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "ضحيتها.",
+      "start": 13.219458333333336,
+      "end": 13.859458333333334,
+      "source_start": 14.96,
+      "source_end": 15.6,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "الدكتور",
+      "start": 13.999458333333335,
+      "end": 14.603041666666666,
+      "source_start": 15.74,
+      "source_end": 16.4,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "يحاول",
+      "start": 14.656041666666667,
+      "end": 15.003041666666668,
+      "source_start": 16.453,
+      "source_end": 16.8,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "ينقذ",
+      "start": 15.056041666666669,
+      "end": 15.403041666666667,
+      "source_start": 16.853,
+      "source_end": 17.2,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "حد،",
+      "start": 15.483041666666669,
+      "end": 16.043041666666667,
+      "source_start": 17.28,
+      "source_end": 17.84,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "والمحقق",
+      "start": 16.107041666666667,
+      "end": 16.763041666666666,
+      "source_start": 17.904,
+      "source_end": 18.56,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "يكشف",
+      "start": 16.87004166666667,
+      "end": 17.32304166666667,
+      "source_start": 18.667,
+      "source_end": 19.12,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "دور",
+      "start": 17.363041666666668,
+      "end": 17.48304166666667,
+      "source_start": 19.16,
+      "source_end": 19.28,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "لاعب.",
+      "start": 17.57904166666667,
+      "end": 18.043041666666667,
+      "source_start": 19.376,
+      "source_end": 19.84,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "الصبح",
+      "start": 18.549916666666668,
+      "end": 18.769916666666667,
+      "source_start": 20.821,
+      "source_end": 21.041,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "بقى…",
+      "start": 18.822916666666668,
+      "end": 19.329916666666666,
+      "source_start": 21.094,
+      "source_end": 21.601,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تبتدي",
+      "start": 19.489916666666666,
+      "end": 19.969916666666666,
+      "source_start": 21.761,
+      "source_end": 22.241,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "الأسئلة.",
+      "start": 20.033916666666666,
+      "end": 20.609916666666667,
+      "source_start": 22.305,
+      "source_end": 22.881,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "مين",
+      "start": 20.796666666666667,
+      "end": 21.05,
+      "source_start": 23.201,
+      "source_end": 23.601,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "بيكدب؟",
+      "start": 21.130000000000003,
+      "end": 21.69,
+      "source_start": 23.681,
+      "source_end": 24.241,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "ومين",
+      "start": 21.897750000000002,
+      "end": 22.319583333333334,
+      "source_start": 24.454,
+      "source_end": 24.961,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "بيغيّر",
+      "start": 22.372583333333335,
+      "end": 22.799583333333334,
+      "source_start": 25.014,
+      "source_end": 25.441,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "كلامه؟",
+      "start": 22.879583333333336,
+      "end": 23.279583333333335,
+      "source_start": 25.521,
+      "source_end": 25.921,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تتناقشوا،",
+      "start": 23.65079166666667,
+      "end": 24.25079166666667,
+      "source_start": 26.694,
+      "source_end": 27.294,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تصوّتوا،",
+      "start": 24.41079166666667,
+      "end": 25.53297916666667,
+      "source_start": 27.454,
+      "source_end": 28.654,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "وتطلّعوا",
+      "start": 25.63997916666667,
+      "end": 26.41297916666667,
+      "source_start": 28.761,
+      "source_end": 29.534,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "حد.",
+      "start": 26.49297916666667,
+      "end": 26.73297916666667,
+      "source_start": 29.614,
+      "source_end": 29.854,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "طلّعتوا",
+      "start": 27.16379166666667,
+      "end": 27.55079166666667,
+      "source_start": 30.547,
+      "source_end": 30.934,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "بريء؟",
+      "start": 27.590791666666668,
+      "end": 28.181104166666668,
+      "source_start": 30.974,
+      "source_end": 31.614,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "المافيا",
+      "start": 28.261104166666666,
+      "end": 28.741104166666666,
+      "source_start": 31.694,
+      "source_end": 32.174,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "بتشكركم.",
+      "start": 28.781104166666665,
+      "end": 29.461104166666665,
+      "source_start": 32.214,
+      "source_end": 32.894,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "ومتجمعين",
+      "start": 29.966270833333333,
+      "end": 30.53427083333333,
+      "source_start": 33.686,
+      "source_end": 34.254,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "في",
+      "start": 30.587270833333335,
+      "end": 30.694270833333334,
+      "source_start": 34.307,
+      "source_end": 34.414,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "قعدة؟",
+      "start": 30.734270833333333,
+      "end": 31.307499999999997,
+      "source_start": 34.454,
+      "source_end": 35.134,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "العبوا",
+      "start": 31.36895833333333,
+      "end": 31.828958333333333,
+      "source_start": 35.234,
+      "source_end": 35.694,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "أوفلاين.",
+      "start": 31.86895833333333,
+      "end": 32.46895833333333,
+      "source_start": 35.734,
+      "source_end": 36.334,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "طيب…",
+      "start": 32.73014583333333,
+      "end": 33.53664583333333,
+      "source_start": 36.734,
+      "source_end": 37.694,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "كفاية",
+      "start": 33.61664583333333,
+      "end": 33.93664583333333,
+      "source_start": 37.774,
+      "source_end": 38.094,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تخبّي.",
+      "start": 34.01664583333333,
+      "end": 34.49664583333333,
+      "source_start": 38.174,
+      "source_end": 38.654,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تعالى",
+      "start": 34.65754166666666,
+      "end": 35.111124999999994,
+      "source_start": 38.867,
+      "source_end": 39.454,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "اكشف",
+      "start": 35.16412499999999,
+      "end": 35.431124999999994,
+      "source_start": 39.507,
+      "source_end": 39.774,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "مين",
+      "start": 35.471124999999994,
+      "end": 35.671124999999996,
+      "source_start": 39.814,
+      "source_end": 40.014,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "عملها.",
+      "start": 35.751124999999995,
+      "end": 36.23112499999999,
+      "source_start": 40.094,
+      "source_end": 40.574,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "في",
+      "start": 36.45291666666666,
+      "end": 36.690395833333326,
+      "source_start": 40.867,
+      "source_end": 41.454,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "قصص",
+      "start": 36.797395833333326,
+      "end": 37.090395833333325,
+      "source_start": 41.561,
+      "source_end": 41.854,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "وتحقيقات،",
+      "start": 37.17039583333332,
+      "end": 37.810395833333324,
+      "source_start": 41.934,
+      "source_end": 42.574,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تفتح",
+      "start": 37.85039583333332,
+      "end": 38.21039583333332,
+      "source_start": 42.614,
+      "source_end": 42.974,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "قضية",
+      "start": 38.29039583333333,
+      "end": 38.61039583333333,
+      "source_start": 43.054,
+      "source_end": 43.374,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "زي",
+      "start": 38.690395833333326,
+      "end": 38.85039583333332,
+      "source_start": 43.454,
+      "source_end": 43.614,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "قهوة",
+      "start": 38.89039583333333,
+      "end": 39.17039583333332,
+      "source_start": 43.654,
+      "source_end": 43.934,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "المعلم.",
+      "start": 39.23439583333332,
+      "end": 39.810395833333324,
+      "source_start": 43.998,
+      "source_end": 44.574,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تسأل",
+      "start": 40.023395833333325,
+      "end": 40.5204375,
+      "source_start": 44.787,
+      "source_end": 45.374,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "الشخصيات،",
+      "start": 40.5604375,
+      "end": 41.6404375,
+      "source_start": 45.414,
+      "source_end": 46.494,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تفتّش،",
+      "start": 41.6804375,
+      "end": 42.360437499999996,
+      "source_start": 46.534,
+      "source_end": 47.214,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "وتقارن",
+      "start": 42.5474375,
+      "end": 43.2404375,
+      "source_start": 47.401,
+      "source_end": 48.094,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "الأدلة.",
+      "start": 43.3044375,
+      "end": 43.8804375,
+      "source_start": 48.158,
+      "source_end": 48.734,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "بس",
+      "start": 44.32664583333333,
+      "end": 44.35364583333333,
+      "source_start": 49.427,
+      "source_end": 49.454,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "تحرّكاتك",
+      "start": 44.43364583333333,
+      "end": 45.27364583333333,
+      "source_start": 49.534,
+      "source_end": 50.374,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "محدودة…",
+      "start": 45.30664583333333,
+      "end": 45.71364583333333,
+      "source_start": 50.407,
+      "source_end": 50.814,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "هتبدأ",
+      "start": 45.91545833333333,
+      "end": 46.505874999999996,
+      "source_start": 51.174,
+      "source_end": 51.854,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "بمين؟",
+      "start": 46.55887499999999,
+      "end": 46.985875,
+      "source_start": 51.907,
+      "source_end": 52.334,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "وفي",
+      "start": 47.185874999999996,
+      "end": 47.5155625,
+      "source_start": 52.534,
+      "source_end": 53.134,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "الآخر:",
+      "start": 47.575562500000004,
+      "end": 48.075562500000004,
+      "source_start": 53.194,
+      "source_end": 53.694,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "مين",
+      "start": 48.30104166666667,
+      "end": 48.589333333333336,
+      "source_start": 54.014,
+      "source_end": 54.414,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "عملها؟",
+      "start": 48.68933333333334,
+      "end": 49.14933333333333,
+      "source_start": 54.514,
+      "source_end": 54.974,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "ليه؟",
+      "start": 49.38525,
+      "end": 49.972791666666666,
+      "source_start": 55.414,
+      "source_end": 56.174,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "وإزاي؟",
+      "start": 50.17129166666667,
+      "end": 50.9756875,
+      "source_start": 56.494,
+      "source_end": 57.614,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "سيد",
+      "start": 51.3901875,
+      "end": 51.6381875,
+      "source_start": 58.646,
+      "source_end": 58.894,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "المافيا.",
+      "start": 51.6781875,
+      "end": 52.1981875,
+      "source_start": 58.934,
+      "source_end": 59.454,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "ابعت",
+      "start": 52.411187500000004,
+      "end": 52.831541666666666,
+      "source_start": 59.667,
+      "source_end": 60.254,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "لصحابك.",
+      "start": 52.91154166666667,
+      "end": 53.551541666666665,
+      "source_start": 60.334,
+      "source_end": 60.974,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "ونشوف…",
+      "start": 54.06816666666666,
+      "end": 54.91402083333333,
+      "source_start": 61.596,
+      "source_end": 62.494,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "هتتلقط",
+      "start": 54.99402083333333,
+      "end": 55.55402083333333,
+      "source_start": 62.574,
+      "source_end": 63.134,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "من",
+      "start": 55.60702083333333,
+      "end": 55.71402083333333,
+      "source_start": 63.187,
+      "source_end": 63.294,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "أول",
+      "start": 55.794020833333335,
+      "end": 56.03402083333333,
+      "source_start": 63.374,
+      "source_end": 63.614,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    },
+    {
+      "text": "جولة؟",
+      "start": 56.114020833333335,
+      "end": 56.50002083333333,
+      "source_start": 63.694,
+      "source_end": 64.094,
+      "engine": "eleven_scribe_v1",
+      "timing_review": "cross-referenced with measured acoustic phrase boundaries"
+    }
+  ],
+  "phrases": [
+    {
+      "id": "C01",
+      "start_frame": 0,
+      "end_frame": 82,
+      "text": "إنت المافيا. وهما لسه مايعرفوش.",
+      "tag": "[confident]",
+      "delivery": "Direct to viewer; emphasize إنت. Confidential but audible second sentence.",
+      "pause_guidance": "100–180 ms after first sentence.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 0,
+      "speech_end": 2.726875,
+      "subphrases": [
+        [
+          0,
+          0.979229
+        ],
+        [
+          1.380187,
+          2.726875
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C02",
+      "start_frame": 94,
+      "end_frame": 162,
+      "text": "هتعرف تخلّص الجولة من غير ما تتكشف؟",
+      "tag": "[curious]",
+      "delivery": "Natural challenge; clear questioning finish.",
+      "pause_guidance": "Small breath at end.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 3.127813,
+      "speech_end": 5.414104,
+      "subphrases": [
+        [
+          3.127813,
+          5.414104
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C03",
+      "start_frame": 174,
+      "end_frame": 311,
+      "text": "دي سيد المافيا. تلعبها أونلاين مع صحابك، كل واحد من مكانه.",
+      "tag": "[conversational]",
+      "delivery": "Friendly brisk explanation; articulate online and brand.",
+      "pause_guidance": "Short phrase break after brand, not dramatic.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 5.815042,
+      "speech_end": 10.353208,
+      "subphrases": [
+        [
+          5.815042,
+          6.909479
+        ],
+        [
+          7.310417,
+          8.832479
+        ],
+        [
+          9.233437,
+          10.353208
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C04",
+      "start_frame": 323,
+      "end_frame": 349,
+      "text": "دورك في السر.",
+      "tag": "",
+      "delivery": "Concise, matter-of-fact.",
+      "pause_guidance": "No long pause.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 10.754146,
+      "speech_end": 11.644438,
+      "subphrases": [
+        [
+          10.754146,
+          11.644438
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C05",
+      "start_frame": 361,
+      "end_frame": 416,
+      "text": "بالليل، المافيا تختار ضحيتها.",
+      "tag": "",
+      "delivery": "Explain, not threaten.",
+      "pause_guidance": "Small separator before next role.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 12.045396,
+      "speech_end": 13.854979,
+      "subphrases": [
+        [
+          12.045396,
+          13.854979
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C06",
+      "start_frame": 428,
+      "end_frame": 473,
+      "text": "الدكتور يحاول ينقذ حد،",
+      "tag": "",
+      "delivery": "Emphasize يحاول; save is not guaranteed.",
+      "pause_guidance": "Comma only.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 14.256042,
+      "speech_end": 15.781292,
+      "subphrases": [
+        [
+          14.256042,
+          15.781292
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C07",
+      "start_frame": 485,
+      "end_frame": 542,
+      "text": "والمحقق يكشف دور لاعب.",
+      "tag": "",
+      "delivery": "Clear role name.",
+      "pause_guidance": "Reset before day.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 16.172979,
+      "speech_end": 18.072979,
+      "subphrases": [
+        [
+          16.172979,
+          18.072979
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C08",
+      "start_frame": 554,
+      "end_frame": 618,
+      "text": "الصبح بقى… تبتدي الأسئلة.",
+      "tag": "[curious]",
+      "delivery": "Energy drops briefly then curiosity rises.",
+      "pause_guidance": "150–250 ms at ellipsis.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 18.473958,
+      "speech_end": 20.596208,
+      "subphrases": [
+        [
+          18.473958,
+          19.371958
+        ],
+        [
+          19.622,
+          20.596208
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C09",
+      "start_frame": 630,
+      "end_frame": 700,
+      "text": "مين بيكدب؟ ومين بيغيّر كلامه؟",
+      "tag": "",
+      "delivery": "Two audible distinct questions.",
+      "pause_guidance": "100–180 ms between questions.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 20.996854,
+      "speech_end": 23.317583,
+      "subphrases": [
+        [
+          20.996854,
+          21.697271
+        ],
+        [
+          22.098479,
+          23.317583
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C10",
+      "start_frame": 712,
+      "end_frame": 801,
+      "text": "تتناقشوا، تصوّتوا، وتطلّعوا حد.",
+      "tag": "[conversational]",
+      "delivery": "Three actions with natural progression.",
+      "pause_guidance": "Brief commas.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 23.718563,
+      "speech_end": 26.715625,
+      "subphrases": [
+        [
+          23.718563,
+          24.273667
+        ],
+        [
+          24.615562,
+          25.247396
+        ],
+        [
+          25.648292,
+          26.715625
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C11",
+      "start_frame": 813,
+      "end_frame": 888,
+      "text": "طلّعتوا بريء؟ المافيا بتشكركم.",
+      "tag": "[dryly]",
+      "delivery": "Dry joke, tiny smile in voice, no laugh.",
+      "pause_guidance": "150–250 ms after بريء.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 27.115646,
+      "speech_end": 29.584875,
+      "subphrases": [
+        [
+          27.115646,
+          27.964813
+        ],
+        [
+          28.365771,
+          29.584875
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C12",
+      "start_frame": 900,
+      "end_frame": 976,
+      "text": "ومتجمعين في قعدة؟ العبوا أوفلاين.",
+      "tag": "[conversational]",
+      "delivery": "Casual option, pronounce offline clearly.",
+      "pause_guidance": "Small question pause.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 29.985854,
+      "speech_end": 32.529688,
+      "subphrases": [
+        [
+          29.985854,
+          31.107021
+        ],
+        [
+          31.508,
+          32.529688
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C13",
+      "start_frame": 988,
+      "end_frame": 1088,
+      "text": "طيب… كفاية تخبّي. تعالى اكشف مين عملها.",
+      "tag": "",
+      "delivery": "Shift viewer from hiding to investigating. Inviting.",
+      "pause_guidance": "150–220 ms after طيب, short after تخبّي.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 32.930625,
+      "speech_end": 36.252458,
+      "subphrases": [
+        [
+          32.930625,
+          33.188375
+        ],
+        [
+          33.660229,
+          34.460313
+        ],
+        [
+          34.858042,
+          36.252458
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C14",
+      "start_frame": 1100,
+      "end_frame": 1195,
+      "text": "في قصص وتحقيقات، تفتح قضية زي قهوة المعلم.",
+      "tag": "",
+      "delivery": "Specific case, clear title, no documentary announcer.",
+      "pause_guidance": "Comma only.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 36.653396,
+      "speech_end": 39.842333,
+      "subphrases": [
+        [
+          36.653396,
+          39.842333
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C15",
+      "start_frame": 1207,
+      "end_frame": 1316,
+      "text": "تسأل الشخصيات، تفتّش، وتقارن الأدلة.",
+      "tag": "",
+      "delivery": "Concrete actions.",
+      "pause_guidance": "Short commas.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 40.243354,
+      "speech_end": 43.8595,
+      "subphrases": [
+        [
+          40.243354,
+          41.317396
+        ],
+        [
+          41.713437,
+          42.369563
+        ],
+        [
+          42.717583,
+          43.8595
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C16",
+      "start_frame": 1328,
+      "end_frame": 1411,
+      "text": "بس تحرّكاتك محدودة… هتبدأ بمين؟",
+      "tag": "[curious]",
+      "delivery": "Point out resource limit; invite a real choice.",
+      "pause_guidance": "200–300 ms before question.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 44.260438,
+      "speech_end": 47.038562,
+      "subphrases": [
+        [
+          44.260438,
+          45.715
+        ],
+        [
+          46.115958,
+          47.038562
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C17",
+      "start_frame": 1423,
+      "end_frame": 1528,
+      "text": "وفي الآخر: مين عملها؟ ليه؟ وإزاي؟",
+      "tag": "",
+      "delivery": "Three clear questions, no rapid list blur.",
+      "pause_guidance": "~150 ms between questions.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 47.439521,
+      "speech_end": 50.936125,
+      "subphrases": [
+        [
+          47.439521,
+          48.100562
+        ],
+        [
+          48.501521,
+          49.184792
+        ],
+        [
+          49.585729,
+          49.970813
+        ],
+        [
+          50.370521,
+          50.936125
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C18",
+      "start_frame": 1540,
+      "end_frame": 1607,
+      "text": "سيد المافيا. ابعت لصحابك.",
+      "tag": "[conversational]",
+      "delivery": "Simple name and invitation.",
+      "pause_guidance": "Short full stop.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 51.337083,
+      "speech_end": 53.559188,
+      "subphrases": [
+        [
+          51.337083,
+          52.213979
+        ],
+        [
+          52.614958,
+          53.559188
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    },
+    {
+      "id": "C19",
+      "start_frame": 1619,
+      "end_frame": 1695,
+      "text": "ونشوف… هتتلقط من أول جولة؟",
+      "tag": "[mischievously]",
+      "delivery": "Light challenge; natural pitch; no growl or laugh.",
+      "pause_guidance": "~180 ms after ونشوف.",
+      "timing_status": "editorial_target_not_measured",
+      "speech_start": 53.960146,
+      "speech_end": 56.50002083333333,
+      "subphrases": [
+        [
+          53.960146,
+          54.616375
+        ],
+        [
+          55.017354,
+          56.50002083333333
+        ]
+      ],
+      "alignment_method": "Measured acoustic phrase groups cross-checked against ElevenLabs Scribe selected-take words; raw source transformed through silence-only edit map"
+    }
+  ],
+  "raw_provider_transcript": "scribe-selected-raw.json",
+  "audio_edit_map": "../qa/voice-edit.json",
+  "auditory_tone_review": "not independently verified by listening"
+}

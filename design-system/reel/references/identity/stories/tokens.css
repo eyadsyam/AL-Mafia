@@ -1,0 +1,26 @@
+/* Stories identity tokens. Source of values: tokens.json (same folder). */
+@font-face{font-family:"ST Ruqaa";src:url(../fonts/ArefRuqaa-Bold.ttf);font-weight:700;font-display:swap}
+@font-face{font-family:"ST Plex";src:url(../fonts/IBMPlexSansArabic-Regular.ttf);font-weight:400;font-display:swap}
+@font-face{font-family:"ST Plex";src:url(../fonts/IBMPlexSansArabic-Medium.ttf);font-weight:500;font-display:swap}
+@font-face{font-family:"ST Plex";src:url(../fonts/IBMPlexSansArabic-SemiBold.ttf);font-weight:600;font-display:swap}
+@font-face{font-family:"ST Mono";src:url(../fonts/IBMPlexMono-Medium.ttf);font-display:swap}
+
+:root{
+  /* lamp: the room (60%) */
+  --lamp-night:#0A0402; --lamp-ground:#150B06; --lamp-panel:#20120A; --lamp-raised:#2C1A0F; --lamp-line:#3D2617;
+  --lamp-text:#F1E3C8; --lamp-text2:#C9B597; --lamp-muted:#8F7A62;
+  /* manila: the paper (25%) */
+  --paper:#E1D0AC; --paper-dim:#CDB98F; --paper-line:#B49C70; --paper-ink:#2A1A10; --paper-ink2:#5B4430;
+  /* amber: lamplight (10%) */
+  --amber:#B36E2D; --amber-hi:#E0A55C; --amber-deep:#7A4519; --on-amber:#1A0C04;
+  /* accents (5%) */
+  --velvet:#6E1A16; --velvet-deep:#430D09; --nile:#161C28; --nile-hi:#6F86A6;
+
+  --font-title:"ST Ruqaa",serif;
+  --font-body:"ST Plex",sans-serif;
+  --font-figures:"ST Mono",monospace;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+  --lamp-light:radial-gradient(ellipse 70% 45% at 50% 0%,rgba(224,165,92,.16),transparent 70%);
+  --paper-shadow:0 1px 0 #B49C70,0 10px 24px rgba(10,4,2,.55);
+}

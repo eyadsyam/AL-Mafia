@@ -1,0 +1,16 @@
+{
+  "voice": "Haytham - Conversation / Energetic, Warm and Cheerful",
+  "voice_id": "IES4nrmZdUBHByLBde0P",
+  "model": "eleven_v3",
+  "generation_id": "tmyWsddiZqWMhQXSB8UU",
+  "raw_seconds": 64.08,
+  "working_seconds": 56.50002083333333,
+  "speed_changed": false,
+  "script_match": true,
+  "spoken_words": 100,
+  "raw_sha256": "f0549a815596dae69ad837128809f2ba1907383e06a728cfc6f74675f9944ec7",
+  "working_sha256": "3535518ef5d6d139580d65710651c1043582c9ff1aaa99f60fc58a987b1191db",
+  "selection_basis": "Complete provider transcript, stable waveform, most concise full variation; candidates surfaced as audio in chat",
+  "audition_tone_listened": false,
+  "limitation": "No claim of subjective 8/10 listening score; final human tone preference remains open."
+}

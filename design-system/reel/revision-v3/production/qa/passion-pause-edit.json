@@ -1,0 +1,61 @@
+{
+  "raw_seconds": 60.4,
+  "working_seconds": 55.67579166666667,
+  "cuts": [
+    [
+      12.515805,
+      12.582404
+    ],
+    [
+      19.582,
+      19.704082000000003
+    ],
+    [
+      22.142,
+      22.261202
+    ],
+    [
+      22.432494,
+      22.558639000000003
+    ],
+    [
+      28.784000000000002,
+      29.517687
+    ],
+    [
+      31.184,
+      31.644
+    ],
+    [
+      32.704,
+      33.261088
+    ],
+    [
+      35.504,
+      36.124
+    ],
+    [
+      37.984,
+      38.263356
+    ],
+    [
+      48.544,
+      48.999
+    ],
+    [
+      53.664,
+      54.517415
+    ],
+    [
+      57.184,
+      57.452336
+    ],
+    [
+      59.23068,
+      59.294
+    ]
+  ],
+  "protected_word_margin_seconds": 0.045,
+  "speech_speed_changed": false,
+  "method": "Only quiet sub-intervals entirely between measured word envelopes; preserve0.16s of each ordinary gap and0.32s before reveal question."
+}

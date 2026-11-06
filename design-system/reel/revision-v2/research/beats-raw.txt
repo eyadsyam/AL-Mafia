@@ -1,0 +1,29 @@
+
+BEAT SHEET  ·  0 words  ·  ~0.0s at 165 wpm  ·  target 59.0s
+========================================================================
+  0:00.0   0.0s  HOOK    تعرف لعبة المافيا؟
+  0:00.0   0.0s  HOOK    شايف اللي بيقول «أنا بريء»؟
+  0:00.0   0.0s  HOOK    ده ممكن يطلّعك إنت.
+  0:00.0   0.0s  HOOK    في سيد المافيا، تلعبوا أونلاين، كل واحد من مكانه.
+  0:00.0   0.0s  HOOK    كل واحد يعرف دوره لوحده.
+  0:00.0   0.0s  HOOK    الليل ينزل، والمافيا تختار ضحيتها.
+  0:00.0   0.0s  HOOK    الدكتور يحاول ينقذ حد.
+  0:00.0   0.0s  HOOK    والمحقق يكشف دور لاعب.
+  0:00.0   0.0s  HOOK    الصبح، كله عامل بريء.
+  0:00.0   0.0s  HOOK    تسألوا، تناقشوا، وتصوّتوا.
+  0:00.0   0.0s  HOOK    بس لو طلّعتوا الشخص الغلط، المافيا كسبانة منكم.
+  0:00.0   0.0s  HOOK    فاكر الوش اللي في الأول؟ أهو ده المافيا.
+  0:00.0   0.0s  HOOK    ومتجمعين؟ العبوا أوفلاين.
+  0:00.0   0.0s  HOOK    عايز بقى تمسك حد بالأدلة؟
+  0:00.0   0.0s  HOOK    افتح قصص وتحقيقات.
+  0:00.0   0.0s  HOOK    قضية زي قهوة المعلم: شخصيات تسألها، وأماكن تفتّشها.
+  0:00.0   0.0s  HOOK    وتحرّكاتك محدودة، فاختار هتبدأ بمين.
+  0:00.0   0.0s  HOOK    وفي الآخر تقول: مين عملها؟ وليه؟ وإزاي؟
+  0:00.0   0.0s  HOOK    سيد المافيا. ابعتها لصحابك.
+  0:00.0   0.0s  HOOK/CTAوشوف مين فيهم هيقول «أنا بريء».
+------------------------------------------------------------------------
+  - Beat 1 has no number and no name in it. Hooks without something checkable are the ones that get scrolled.
+  - Beats 1-3 have nothing concrete in them. Put a number, a name or a price in one of them.
+  - No loop. The last beat shares no word with the hook, so the video ends flat. Echoing one word from beat 1 is the cheapest replay you get.
+  - 59.0s under target. Either add 162 words or shoot it short. Short is usually right.
+

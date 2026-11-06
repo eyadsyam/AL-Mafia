@@ -1,0 +1,364 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 6,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 3 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\project\\compositions\\S01.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 2 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\project\\compositions\\S02.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 3 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\project\\compositions\\S02.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 3 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\project\\compositions\\S06.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 3 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\project\\compositions\\S08.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 3 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\project\\compositions\\S12.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      }
+    ],
+    "filesScanned": 13
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 4,
+    "findings": [
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 3.278,
+        "selector": "#slot-S01 > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -10.8,
+          "top": -1.13,
+          "right": 1090.8,
+          "bottom": 1957.29,
+          "width": 1101.61,
+          "height": 1958.41
+        },
+        "containerSelector": "#slot-S01 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 10.8,
+          "right": 10.8,
+          "bottom": 37.29
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/S01.html",
+        "bbox": {
+          "x": -10.8,
+          "y": -1.13,
+          "width": 1101.61,
+          "height": 1958.41
+        },
+        "firstSeen": 3.278,
+        "lastSeen": 3.278,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          3.278
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 29.5,
+        "selector": "#slot-S06 > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -54,
+          "top": -85.6,
+          "right": 1134,
+          "bottom": 2026.4,
+          "width": 1188,
+          "height": 2112
+        },
+        "containerSelector": "#slot-S06 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 54,
+          "right": 54,
+          "top": 85.6,
+          "bottom": 106.4
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/S06.html",
+        "bbox": {
+          "x": -54,
+          "y": -85.6,
+          "width": 1188,
+          "height": 2112
+        },
+        "firstSeen": 29.5,
+        "lastSeen": 29.5,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          29.5
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 36.056,
+        "selector": "#slot-S08 > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -10.8,
+          "top": -1.12,
+          "right": 1090.8,
+          "bottom": 1957.28,
+          "width": 1101.6,
+          "height": 1958.4
+        },
+        "containerSelector": "#slot-S08 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 10.8,
+          "right": 10.8,
+          "bottom": 37.28
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/S08.html",
+        "bbox": {
+          "x": -10.8,
+          "y": -1.12,
+          "width": 1101.6,
+          "height": 1958.4
+        },
+        "firstSeen": 36.056,
+        "lastSeen": 36.056,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          36.056
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 55.722,
+        "selector": "#slot-S12 > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -10.8,
+          "top": -1.12,
+          "right": 1090.8,
+          "bottom": 1957.28,
+          "width": 1101.6,
+          "height": 1958.4
+        },
+        "containerSelector": "#slot-S12 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1080,
+          "bottom": 1920,
+          "width": 1080,
+          "height": 1920
+        },
+        "overflow": {
+          "left": 10.8,
+          "right": 10.8,
+          "bottom": 37.28
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/S12.html",
+        "bbox": {
+          "x": -10.8,
+          "y": -1.12,
+          "width": 1101.6,
+          "height": 1958.4
+        },
+        "firstSeen": 55.722,
+        "lastSeen": 55.722,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          55.722
+        ]
+      }
+    ],
+    "duration": 59,
+    "samples": [
+      3.278,
+      9.833,
+      16.389,
+      22.944,
+      29.5,
+      36.056,
+      42.611,
+      49.167,
+      55.722
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 4,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      3.278,
+      16.389,
+      29.5,
+      42.611,
+      55.722
+    ],
+    "checked": 17,
+    "passed": 17
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "_meta": {
+    "version": "0.8.145",
+    "latestVersion": "0.8.145",
+    "updateAvailable": false
+  }
+}

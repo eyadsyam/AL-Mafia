@@ -1,0 +1,47 @@
+{
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1080,
+        "height": 1920,
+        "r_frame_rate": "30/1",
+        "nb_read_frames": "1710"
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "channels": 2,
+        "r_frame_rate": "0/0",
+        "nb_read_frames": "2668"
+      }
+    ],
+    "format": {
+      "duration": "57.000000"
+    }
+  },
+  "loudness": {
+    "input_i": "-15.11",
+    "input_tp": "-1.42",
+    "input_lra": "4.70",
+    "input_thresh": "-26.33",
+    "output_i": "-15.13",
+    "output_tp": "-1.56",
+    "output_lra": "3.50",
+    "output_thresh": "-26.28",
+    "normalization_type": "dynamic",
+    "target_offset": "0.13"
+  },
+  "black_intervals": false,
+  "sha256": "9bad199441fea7e05816eb50fd20b18217b8f5b6c48eb3da7bba2afb58ba8bae",
+  "file": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v2\\production\\exports\\MAFIA_V2_صاحبك_اللي_بريء.mp4",
+  "subjective_voice_listening": "not independently verified",
+  "generated_acting_clips": 5,
+  "additional_video_quota_block": "237 remaining vs3394 requested; LTX estimate1454 not run",
+  "offline": "animated phone/card props, no generated group acting",
+  "stories": "persistent paper/camera motion, real artwork, no generated cafe video"
+}

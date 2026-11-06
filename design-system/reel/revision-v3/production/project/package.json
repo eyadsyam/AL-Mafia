@@ -1,0 +1,11 @@
+{
+  "name": "mafia-v2-acted-reel",
+  "private": true,
+  "scripts": {
+    "check": "npx --yes hyperframes@0.8.147 check",
+    "render": "npx --yes hyperframes@0.8.147 render"
+  },
+  "dependencies": {
+    "gsap": "3.14.2"
+  }
+}

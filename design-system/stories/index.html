@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>هوية قصص وتحقيقات</title>
+<meta name="description" content="نظام هوية «قصص وتحقيقات»: اللمبة، الورق، الختم، والتاريخ.">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*{box-sizing:border-box;margin:0}
+html{background:var(--lamp-ground);color:var(--lamp-text2);scroll-behavior:smooth}
+body{font-family:var(--font-body);font-size:16.5px;line-height:1.75;background:var(--lamp-ground)}
+img{display:block;max-width:100%}
+a{color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4{color:var(--lamp-text);line-height:1.3}
+h2,h3,h4{font-weight:600}
+.ruqaa{font-family:var(--font-title);font-weight:700}
+p{max-width:64ch}
+strong{color:var(--lamp-text);font-weight:600}
+code{font-family:var(--font-figures);font-size:.84em;direction:ltr;unicode-bidi:isolate;color:var(--amber-hi)}
+.dateline{color:var(--amber-hi);font-weight:500;font-size:14px}
+
+nav.top{position:sticky;top:0;z-index:20;background:rgba(21,11,6,.94);border-bottom:1px solid var(--lamp-line)}
+nav.top .wrap{display:flex;gap:22px;align-items:center;height:54px;overflow-x:auto;white-space:nowrap;font-size:14px}
+nav.top a{text-decoration:none;color:var(--lamp-muted)}
+nav.top a:hover{color:var(--lamp-text)}
+nav.top .home{font-family:var(--font-title);font-size:22px;color:var(--lamp-text);margin-inline-end:auto}
+nav.top .other{color:#C2BDB2}
+
+/* hero */
+.hero{position:relative;min-height:min(92vh,1000px);display:flex;align-items:flex-end;overflow:hidden}
+.hero .art{position:absolute;inset:0;background:url(img/grounds/cafe.webp) center 40%/cover;
+  -webkit-mask-image:linear-gradient(#000 40%,transparent 96%);mask-image:linear-gradient(#000 40%,transparent 96%)}
+.hero .shade{position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(21,11,6,.85) 75%,var(--lamp-ground))}
+.hero .wrap{position:relative;padding-bottom:72px;width:100%}
+.hero .case-no{display:inline-flex;gap:10px;align-items:center;background:var(--nile);color:var(--nile-hi);padding:4px 12px;font-size:13px;border-radius:2px}
+.hero h1{font-family:var(--font-title);font-weight:700;font-size:clamp(64px,11vw,140px);line-height:1.1;margin-top:14px}
+.hero .dateline{font-size:17px;margin-top:6px}
+.hero p{font-size:19px;color:var(--lamp-text);margin-top:20px}
+
+section{padding:96px 0;position:relative}
+section::before{content:"";position:absolute;inset:0;background:var(--lamp-light);pointer-events:none}
+.sh{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;margin-bottom:48px;position:relative}
+.sh .tag{margin-top:10px}
+.sh h2{font-family:var(--font-title);font-weight:700;font-size:clamp(38px,5vw,60px)}
+.sh p{margin-top:8px}
+
+/* evidence tag */
+.tag{display:inline-flex;align-items:center;gap:8px;background:var(--amber);color:var(--on-amber);font-weight:600;font-size:12px;padding:3px 10px 3px 12px;border-radius:3px;position:relative;white-space:nowrap}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lamp-ground);box-shadow:0 0 0 1px var(--amber-deep)}
+
+/* paper */
+.paper{background:var(--paper);color:var(--paper-ink);border-radius:2px;box-shadow:var(--paper-shadow);position:relative}
+.paper.stack::before{content:"";position:absolute;inset:0;background:var(--paper-dim);border-radius:2px;transform:rotate(1.5deg) translate(4px,4px);z-index:-1}
+.ruled{background-image:repeating-linear-gradient(transparent 0 27px,rgba(180,156,112,.35) 27px 28px)}
+
+/* stamp */
+.stamp{display:inline-grid;place-items:center;padding:6px 16px;border:2px solid var(--velvet);outline:2px solid var(--velvet);outline-offset:3px;color:var(--velvet);
+  font-family:var(--font-title);font-weight:700;font-size:26px;line-height:1.2;transform:rotate(-6deg);opacity:.88;border-radius:4px;
+  -webkit-mask-image:radial-gradient(circle at 30% 40%,#000 55%,rgba(0,0,0,.65) 75%,#000 90%);mask-image:radial-gradient(circle at 30% 40%,#000 55%,rgba(0,0,0,.65) 75%,#000 90%)}
+.stamp.light{color:#C9554A;border-color:#C9554A;outline-color:#C9554A}
+
+/* inks */
+.inks{display:grid;grid-template-columns:6fr 2.5fr 1fr .5fr;min-height:420px;position:relative}
+.ink{padding:24px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.ink h3{font-family:var(--font-title);font-size:30px;font-weight:700}
+.ink .role{font-size:14px}
+.swatches{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.sw{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;font-family:var(--font-figures);font-size:12px;direction:ltr}
+.sw em{font-style:normal;font-family:var(--font-body);direction:rtl}
+.ink.lamp{background:var(--lamp-panel)}
+.ink.manila{background:var(--paper);color:var(--paper-ink)}
+.ink.manila h3{color:var(--paper-ink)}
+.ink.amber{background:var(--amber);color:var(--on-amber)}
+.ink.amber h3{color:var(--on-amber);font-size:22px}
+.ink.acc{background:linear-gradient(var(--velvet) 50%,var(--nile) 50%);padding:12px}
+.inks-l{display:grid;grid-template-columns:6fr 2.5fr 1fr .5fr;font-size:13px;color:var(--lamp-muted);margin-top:8px}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;position:relative}
+.rule{padding:26px 28px}
+.rule .tag{margin-bottom:12px}
+.rule h3{font-size:20px;color:var(--paper-ink);margin-bottom:6px}
+.rule p{font-size:15px;color:var(--paper-ink2)}
+.rule strong{color:var(--paper-ink)}
+
+/* signatures */
+.sigs{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative}
+.sig{background:var(--lamp-panel);padding:22px;display:flex;flex-direction:column;gap:14px}
+.sig .demo{height:180px;display:grid;place-items:center;background:var(--lamp-ground);position:relative;overflow:hidden}
+.sig h3{font-size:19px}
+.sig p{font-size:14.5px}
+.mini-dossier{width:200px;padding:16px}
+.mini-dossier small{font-size:11px;color:var(--paper-ink2)}
+.mini-dossier b{display:block;font-family:var(--font-title);font-size:22px;color:var(--paper-ink)}
+.mini-dossier i{font-style:normal;font-size:11px;color:var(--amber-deep);font-weight:600}
+.pin{width:120px;background:#EFE4CC;padding:6px 6px 18px;transform:rotate(-2deg);box-shadow:0 8px 20px rgba(0,0,0,.5);position:relative}
+.pin::after{content:"";position:absolute;top:-8px;right:22px;width:10px;height:26px;border:2px solid #9a8a70;border-radius:6px}
+.pin img{aspect-ratio:1;object-fit:cover;background:#2a1a10}
+.lampdemo{background:radial-gradient(ellipse 70% 70% at 50% 0%,rgba(224,165,92,.5),transparent 72%),var(--lamp-ground)}
+.datedemo{display:flex;flex-direction:column;align-items:center;gap:6px}
+.datedemo b{font-family:var(--font-title);font-size:30px;color:var(--lamp-text)}
+
+/* type */
+.type{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center;position:relative}
+.big{font-family:var(--font-title);font-weight:700;font-size:clamp(60px,9vw,120px);color:var(--lamp-text);line-height:1.15}
+.scale{display:flex;flex-direction:column;border-top:1px solid var(--lamp-line)}
+.scale div{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--lamp-line)}
+.scale code{font-size:12px;color:var(--lamp-muted);text-align:left}
+
+/* components */
+.comps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;position:relative}
+.comp{background:var(--lamp-panel);padding:22px;display:flex;flex-direction:column;gap:14px}
+.comp h3{font-size:16px}
+.comp .note{font-size:12.5px;color:var(--lamp-muted)}
+.btn{display:block;text-align:center;font-weight:600;font-size:17px;padding:14px;border-radius:10px}
+.btn-amber{background:var(--amber);color:var(--on-amber)}
+.btn-amber.pressed{background:var(--amber-deep);color:var(--lamp-text)}
+.btn-velvet{background:var(--velvet);color:var(--lamp-text)}
+.btn-line{border:1.5px solid rgba(179,110,45,.6);color:var(--amber-hi);font-size:15px;padding:11px}
+.ticks{display:flex;gap:3px;direction:ltr}
+.ticks i{flex:1;height:12px;background:var(--lamp-line);border-radius:1px}
+.ticks i.on{background:var(--amber)}
+.timer{display:flex;flex-direction:column;gap:8px}
+.timer b{font-family:var(--font-figures);font-size:30px;color:var(--lamp-text);direction:ltr;text-align:right;font-weight:500}
+.timer .track{height:4px;background:var(--nile)}
+.timer .track i{display:block;height:4px;width:66%;background:var(--nile-hi);margin-inline-start:auto}
+.caserow{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--lamp-line)}
+.caserow img{width:52px;height:78px;object-fit:cover;border-radius:6px}
+.caserow b{font-family:var(--font-title);font-size:20px;color:var(--lamp-text);font-weight:700;display:block;line-height:1.2}
+.caserow small{display:block;font-size:11.5px;color:var(--lamp-muted)}
+.caserow .d{color:var(--amber-hi);font-size:11.5px}
+.caserow .stamp{font-size:13px;padding:2px 8px;outline-offset:2px;border-width:1.5px;outline-width:1.5px}
+.caserow.locked img{opacity:.4}
+.clue{padding:16px 18px}
+.clue h4{color:var(--paper-ink);font-size:16px;margin:8px 0 4px}
+.clue p{font-size:14.5px;color:var(--paper-ink2);line-height:28px}
+
+/* phones */
+.phones{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;align-items:flex-start;position:relative}
+.pc{display:flex;flex-direction:column;gap:14px;align-items:center}
+.pc .cap{font-size:14px;color:var(--lamp-muted);text-align:center;max-width:290px}
+.pc .cap b{color:var(--lamp-text);font-weight:600;display:block}
+.phone{width:290px;height:620px;border-radius:36px;overflow:hidden;position:relative;border:8px solid #060302;background:var(--lamp-ground);box-shadow:0 40px 80px rgba(0,0,0,.6)}
+.phone .glow{position:absolute;inset:0;background:var(--lamp-light);pointer-events:none}
+.status{position:absolute;top:0;inset-inline:0;height:32px;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-size:11px;color:var(--lamp-text2);z-index:5;direction:ltr}
+.ph-pad{position:absolute;inset:44px 16px 20px}
+/* archive */
+.p-arch .hd{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px}
+.p-arch .hd b{font-family:var(--font-title);font-size:30px;color:var(--lamp-text)}
+.p-arch .filters{display:flex;gap:6px;margin:8px 0 6px;font-size:12px}
+.p-arch .filters span{padding:4px 10px;border:1px solid var(--lamp-line);border-radius:20px;color:var(--lamp-muted)}
+.p-arch .filters span.on{background:var(--amber);border-color:var(--amber);color:var(--on-amber);font-weight:600}
+/* case sheet */
+.p-case .cover{position:absolute;inset:0 0 auto 0;height:300px;background:url(img/covers/cover_20.webp) center 30%/cover;-webkit-mask-image:linear-gradient(#000 50%,transparent);mask-image:linear-gradient(#000 50%,transparent)}
+.p-case .doss{position:absolute;inset:200px 14px 88px;padding:16px 16px}
+.p-case .doss small{font-size:11px;color:var(--paper-ink2)}
+.p-case .doss b{display:block;font-family:var(--font-title);font-size:27px;color:var(--paper-ink);line-height:1.2;margin-top:2px}
+.p-case .doss .dl{font-size:11.5px;color:var(--amber-deep);font-weight:600;margin-top:2px}
+.p-case .doss p{font-size:12.5px;line-height:24px;margin-top:8px;color:var(--paper-ink)}
+.p-case .meta{display:flex;gap:12px;font-size:11px;color:var(--paper-ink2);margin-top:6px}
+.p-case .doss .stamp{position:absolute;bottom:14px;left:12px;font-size:15px;padding:2px 10px}
+.p-case .cta{position:absolute;inset:auto 16px 22px}
+/* secret */
+.p-sec .who{text-align:center;margin-top:10px}
+.p-sec .who small{font-size:12px;color:var(--lamp-muted)}
+.p-sec .who b{display:block;font-size:22px;color:var(--lamp-text);font-weight:600}
+.p-sec .card{margin-top:14px;padding:16px;height:350px;display:flex;flex-direction:column;gap:10px}
+.p-sec .card .top{display:flex;gap:12px;align-items:center}
+.p-sec .card .top img{width:64px;height:64px;object-fit:cover;background:#2a1a10;border:3px solid #EFE4CC;transform:rotate(-2deg)}
+.p-sec .card .top b{font-size:15px;color:var(--paper-ink);display:block}
+.p-sec .card .top small{font-size:11px;color:var(--paper-ink2)}
+.p-sec .slot{border-top:1px solid var(--paper-line);padding-top:8px}
+.p-sec .slot small{font-size:10.5px;color:var(--amber-deep);font-weight:600}
+.p-sec .slot p{font-size:12.5px;line-height:22px;color:var(--paper-ink)}
+.p-sec .cta{position:absolute;inset:auto 16px 22px}
+/* verdict */
+.p-ver .art{position:absolute;inset:0 0 auto 0;height:360px;background:url(img/locations/loc_cinema_1955.webp) center/cover;-webkit-mask-image:linear-gradient(#000 45%,transparent);mask-image:linear-gradient(#000 45%,transparent)}
+.p-ver .res{position:absolute;inset:auto 18px 100px;text-align:center}
+.p-ver .res b{font-family:var(--font-title);font-size:40px;color:var(--lamp-text);display:block;line-height:1.2}
+.p-ver .res small{color:var(--lamp-text2);font-size:13px}
+.p-ver .st{position:absolute;top:250px;left:50%;transform:translateX(-50%)}
+.p-ver .st .stamp{font-size:28px;background:rgba(21,11,6,.35)}
+.p-ver .cta{position:absolute;inset:auto 16px 22px}
+
+/* gallery */
+.gal{columns:4 220px;column-gap:14px;position:relative}
+.gal figure{break-inside:avoid;margin:0 0 14px;background:var(--lamp-panel)}
+.gal figcaption{font-family:var(--font-figures);font-size:11px;color:var(--lamp-muted);padding:6px 8px;direction:ltr;text-align:left}
+.gal h4{column-span:all;font-family:var(--font-title);font-size:26px;margin:18px 0 12px}
+
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:20px;position:relative}
+.dd > div{padding:26px}
+.dd h3{font-size:20px;margin-bottom:12px}
+.dd ul{padding-inline-start:20px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.dd .no{background:var(--lamp-panel)}
+.dd .no h3{color:#C9554A}
+.dd .yes h3{color:var(--paper-ink)}
+.dd .yes ul{color:var(--paper-ink)}
+.files{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+.files a{display:block;padding:16px;text-decoration:none}
+.files a b{display:block;font-family:var(--font-figures);font-weight:500;direction:ltr;text-align:right;color:var(--paper-ink)}
+.files a span{font-size:13px;color:var(--paper-ink2)}
+footer{padding:48px 0 80px;color:var(--lamp-muted);font-size:13px;border-top:1px solid var(--lamp-line)}
+
+@media (max-width:900px){
+  .inks,.inks-l{grid-template-columns:1fr}
+  .ink{min-height:200px}
+  .rules,.sigs,.comps,.type,.dd{grid-template-columns:1fr}
+  .files{grid-template-columns:1fr 1fr}
+  .sh{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav class="top"><div class="wrap">
+  <a class="home" href="#top">قصص وتحقيقات</a>
+  <a href="#inks">الألوان</a><a href="#rules">القواعد</a><a href="#marks">العلامات</a><a href="#type">الخط</a>
+  <a href="#components">المكونات</a><a href="#screens">الشاشات</a><a href="#images">الصور</a>
+  <a class="other" href="../mafia/index.html">سيد المافيا ←</a>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="art"></div><div class="shade"></div>
+  <div class="wrap">
+    <span class="case-no">ملف الهوية · رقم ٢</span>
+    <h1>قصص وتحقيقات</h1>
+    <div class="dateline">السبت ١٠ أكتوبر ٢٠٢٦ · ١٢ بالليل · مكتب المحقق</div>
+    <p>لمبة نحاس على مكتب خشب، ملف ورق مانيلا، صور متشبكة بدبوس، وختم أحمر. <strong>دي هوية القصص، ومنفصلة تمامًا عن المافيا.</strong></p>
+  </div>
+</header>
+
+<div class="wrap">
+<section id="inks">
+  <div class="sh"><span class="tag">دليل ٠١</span><div>
+    <h2>اللمبة والورق</h2>
+    <p>الألوان مقاسة من أغلفة القضايا والأماكن والأدلة. المافيا رمادي ومطبوع، والقصص <strong>دافية ومنوّرة بلمبة</strong>. لو حطيت شاشتين جنب بعض، تعرف كل واحدة من غير ما تقرا.</p>
+  </div></div>
+  <div class="inks">
+    <div class="ink lamp"><div><h3>اللمبة</h3><div class="role">الأوضة بالليل · ٦٠٪</div>
+      <div class="swatches">
+        <div class="sw" style="background:var(--lamp-night);color:var(--lamp-muted)"><span>#0A0402</span><em>ليل</em></div>
+        <div class="sw" style="background:var(--lamp-ground);color:var(--lamp-muted);border:1px solid var(--lamp-line)"><span>#150B06</span><em>الأرضية</em></div>
+        <div class="sw" style="background:var(--lamp-raised);color:var(--lamp-text2)"><span>#2C1A0F</span><em>مرفوع</em></div>
+        <div class="sw" style="background:var(--lamp-text);color:var(--paper-ink)"><span>#F1E3C8</span><em>النص</em></div>
+      </div></div></div>
+    <div class="ink manila"><div><h3>الورق</h3><div class="role">الملف والدليل · ٢٥٪</div>
+      <div class="swatches">
+        <div class="sw" style="background:var(--paper-dim)"><span>#CDB98F</span><em>ورقة ورا</em></div>
+        <div class="sw" style="background:var(--paper-line)"><span>#B49C70</span><em>السطور</em></div>
+        <div class="sw" style="background:var(--paper-ink);color:var(--paper)"><span>#2A1A10</span><em>الحبر</em></div>
+      </div></div></div>
+    <div class="ink amber"><h3>النور</h3><div class="role" style="font-size:12px">الزرار · ١٠٪</div></div>
+    <div class="ink acc" title="velvet #6E1A16 · nile #161C28"></div>
+  </div>
+  <div class="inks-l"><span>#150B06 لمبة</span><span>#E1D0AC ورق</span><span>#B36E2D</span><span>قطيفة + نيل</span></div>
+</section>
+
+<section id="rules">
+  <div class="sh"><span class="tag">دليل ٠٢</span><div><h2>القواعد</h2><p>القصص بتتقري، مش بتتبص عليها بسرعة. كل القواعد خدامة القراية.</p></div></div>
+  <div class="rules">
+    <div class="rule paper"><span class="tag">١</span><h3>لمبة واحدة فوق المحتوى</h3><p>بقعة نور دايرية جاية من فوق، <strong>مبتتحركش ولا بترمش</strong>. مفيش أي حاجة تانية بتنوّر.</p></div>
+    <div class="rule paper"><span class="tag">٢</span><h3>الورق هو الحاجة الفاتحة الوحيدة</h3><p>الملف، كارت الشخصية، ورقة الدليل، والكارت السري. والورق هو الحاجة الوحيدة اللي ليها ظل.</p></div>
+    <div class="rule paper"><span class="tag">٣</span><h3>النور للتحرك، والقطيفة للاتهام</h3><p>الكهرماني لزرار واحد في الشاشة. الأحمر القطيفة لـ «وجّه الاتهام» والختم بس.</p></div>
+    <div class="rule paper"><span class="tag">٤</span><h3>الأزرق النيلي للوقت</h3><p>لون شباك الليل على النيل. تايمر النقاش وسطر التاريخ، ومفيش حاجة تانية زرقا.</p></div>
+    <div class="rule paper"><span class="tag">٥</span><h3>كل قضية تبدأ بتاريخ</h3><p>«الخميس ١٥ ديسمبر ١٩٦٦ · ٧:٤٠ الصبح». أرقام القصة هندي، وأرقام اللعبة (التايمر والتحركات) إنجليزي.</p></div>
+    <div class="rule paper"><span class="tag">٦</span><h3>الكارت السري واحد للكل</h3><p>«إنت متورط» و«إنت مش متورط» على <strong>نفس الورقة، نفس الطول، نفس المكان</strong>. محدش يعرف من شكل الشاشة.</p></div>
+  </div>
+</section>
+
+<section id="marks">
+  <div class="sh"><span class="tag">دليل ٠٣</span><div><h2>العلامات</h2><p>الحاجات اللي تخلي أي screenshot من القصص يتعرف لوحده.</p></div></div>
+  <div class="sigs">
+    <div class="sig"><div class="demo"><div class="paper stack mini-dossier ruled"><small>قضية ٢٠</small><b>قصر في جاردن سيتي</b><i>الخميس ١٥ ديسمبر ١٩٦٦</i></div></div><h3>الملف</h3><p>ورق مانيلا، ورقة تانية باينة وراه بميل خفيف، وسطور على النص الطويل.</p></div>
+    <div class="sig"><div class="demo"><span class="stamp light">اتحلّت</span></div><h3>الختم</h3><p>حبر قطيفة، إطار مزدوج، مايل −٦°، ومتحبّر مش vector نضيف. الكلام موجود أصلًا في اللعبة: «لسه مفتوحة»، «اتحلّت»، «اتقفلت».</p></div>
+    <div class="sig"><div class="demo"><div class="pin"><img src="img/suspects/suspect_n12.webp" alt=""></div></div><h3>الصورة المتشبكة</h3><p>صور الشخصيات على ورق بإطار فاتح ودبوس، مايلة شوية. ممنوع الدواير.</p></div>
+    <div class="sig"><div class="demo datedemo"><b>فندق شبرد ١٩٥١</b><span class="dateline">نوفمبر ١٩٥١ · وسط البلد</span></div><h3>سطر التاريخ</h3><p>تحت عنوان كل قضية. ده اللي بيبيع الزمن أكتر من أي زخرفة.</p></div>
+    <div class="sig"><div class="demo"><span class="tag" style="font-size:15px;padding:6px 16px 6px 18px">دليل ٠٧</span></div><h3>تيكت الدليل</h3><p>كهرماني، فيه خرم وخيط. بيعلّم الأدلة اللي اتفتحت.</p></div>
+    <div class="sig"><div class="demo lampdemo"></div><h3>بقعة اللمبة</h3><p>radial واحد من فوق، ١٦٪. ثابت.</p></div>
+  </div>
+</section>
+
+<section id="type">
+  <div class="sh"><span class="tag">دليل ٠٤</span><div><h2>الخط</h2><p>الرقعة للقضية والحكم بس. كل القراية بـ IBM Plex.</p></div></div>
+  <div class="type">
+    <div><div class="big">قصر في<br>جاردن سيتي</div><div class="dateline" style="font-size:17px;margin-top:10px">الخميس ١٥ ديسمبر ١٩٦٦ · ٧:٤٠ الصبح</div>
+      <p style="margin-top:16px">لقوا عزيز رضوان باشا ميت على الكنبة في الجنينة الشتوية بقصره. الدكتور بيقول جلطة، لكن سنية بنت الطباخ الراحل جابت للنيابة دفتر أبوها.</p></div>
+    <div class="scale">
+      <div><code>Ruqaa 700 / 44</code><span class="ruqaa" style="font-size:30px;color:var(--lamp-text)">الحكم</span></div>
+      <div><code>Ruqaa 700 / 30</code><span class="ruqaa" style="font-size:26px;color:var(--lamp-text)">عنوان القضية</span></div>
+      <div><code>Ruqaa 700 / 22</code><span class="ruqaa" style="font-size:22px;color:var(--lamp-text)">في القائمة</span></div>
+      <div><code>Plex 600 / 26</code><span style="font-weight:600;font-size:22px;color:var(--lamp-text)">عنوان شاشة</span></div>
+      <div><code>Plex 400 / 17</code><span>نص القصة والدليل</span></div>
+      <div><code>Plex 500 / 13</code><span class="dateline">سطر التاريخ ١٩٥٥</span></div>
+      <div><code>Plex Mono</code><span style="font-family:var(--font-figures);color:var(--lamp-text);direction:ltr;text-align:right">03:58 · 4 / 17</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="components">
+  <div class="sh"><span class="tag">دليل ٠٥</span><div><h2>المكونات</h2><p>المقاسات الكاملة في <code>IDENTITY.md §6</code>.</p></div></div>
+  <div class="comps">
+    <div class="comp"><h3>زرار التحرك</h3><span class="btn btn-amber">افتح القضية</span><span class="btn btn-amber pressed">وهو مضغوط</span><span class="note">56 · زاوية 10 · Plex 600 18 · واحد في الشاشة</span></div>
+    <div class="comp"><h3>زرار الاتهام</h3><span class="btn btn-velvet">وجّه الاتهام</span><span class="btn btn-line">شوف كارتك تاني</span><span class="note">القطيفة للاتهام بس · التاني إطار كهرماني</span></div>
+    <div class="comp"><h3>التحركات والوقت</h3>
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span>تحرّكاتك</span><span style="font-family:var(--font-figures);direction:ltr;color:var(--lamp-text)">4 / 17</span></div>
+      <div class="ticks"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="timer"><b>03:58</b><div class="track"><i></i></div></div>
+      <span class="note">علامات مش progress bar · التايمر نيلي</span></div>
+    <div class="comp"><h3>صف في الأرشيف</h3>
+      <div class="caserow"><img src="img/covers/cover_20.webp" alt=""><div><b>قصر في جاردن سيتي</b><span class="d">ديسمبر ١٩٦٦</span><small>قضايا قديمة · ٩٠ دقيقة</small></div><span class="stamp light">اتحلّت</span></div>
+      <div class="caserow locked"><img src="img/covers/cover_05.webp" alt=""><div><b>محل الدهب في الصاغة</b><span class="d">سرقة</span><small>الملف مقفول · حل ٣ من نفس التصنيف</small></div><span></span></div>
+      <span class="note">صفوف مش شبكة كروت</span></div>
+    <div class="comp" style="grid-column:span 2"><h3>ورقة دليل</h3>
+      <div class="paper clue ruled"><span class="tag">دليل ٠٧</span><h4>دفتر الطباخ</h4><p>٣ ليالي بين ١٩٤٨ و١٩٦٦، وجنب كل واحدة نفس الجملة بخط إيده. الليلة التالتة هي ليلة موت الباشا.</p></div>
+      <span class="note">ورق، تيكت فوق، سطور كل 28</span></div>
+  </div>
+</section>
+
+<section id="screens">
+  <div class="sh"><span class="tag">دليل ٠٦</span><div><h2>أربع شاشات</h2><p>من الأرشيف للحكم.</p></div></div>
+  <div class="phones">
+    <div class="pc"><div class="phone p-arch"><div class="glow"></div><div class="status"><span>12:04</span><span>▮▮▮</span></div>
+      <div class="ph-pad">
+        <div class="hd"><b>أرشيف القضايا</b></div>
+        <div class="filters"><span class="on">الكل</span><span>قضايا قديمة</span><span>سرقة</span></div>
+        <div class="caserow"><img src="img/covers/cover_20.webp" alt=""><div><b>قصر في جاردن سيتي</b><span class="d">ديسمبر ١٩٦٦</span><small>٩٠ دقيقة · ●●●●●</small></div><span class="stamp light">اتحلّت</span></div>
+        <div class="caserow"><img src="img/covers/cover_15.webp" alt=""><div><b>مزاد العربيات القديمة</b><span class="d">نصب</span><small>٤٠ دقيقة · ●●●○○</small></div><span class="stamp light" style="opacity:.6">مفتوحة</span></div>
+        <div class="caserow"><img src="img/covers/cover_09.webp" alt=""><div><b>العروسة اللي ماوصلتش</b><span class="d">اختفاء</span><small>٤٠ دقيقة · ●●●○○</small></div><span></span></div>
+        <div class="caserow locked"><img src="img/covers/cover_05.webp" alt=""><div><b>محل الدهب في الصاغة</b><span class="d">سرقة</span><small>الملف مقفول</small></div><span></span></div>
+      </div>
+    </div><div class="cap"><b>الأرشيف</b>صفوف، رقعة، تاريخ، وختم في الآخر.</div></div>
+
+    <div class="pc"><div class="phone p-case"><div class="cover"></div><div class="status"><span>12:04</span><span>▮▮▮</span></div>
+      <div class="doss paper stack ruled">
+        <small>قضية ٢٠ · قضايا قديمة</small>
+        <b>قصر في جاردن سيتي</b>
+        <div class="dl">الخميس ١٥ ديسمبر ١٩٦٦ · ٧:٤٠ الصبح</div>
+        <p>لقوا عزيز رضوان باشا ميت على الكنبة في الجنينة الشتوية. الدكتور بيقول جلطة، لكن بنت الطباخ جابت دفتر أبوها: ٣ ليالي في ٣ عقود.</p>
+        <div class="meta"><span>١٠ شخصيات</span><span>٩٠ دقيقة</span><span>●●●●●</span></div>
+        <span class="stamp">سري</span>
+      </div>
+      <div class="cta"><span class="btn btn-amber">افتح القضية</span></div>
+    </div><div class="cap"><b>ملف القضية</b>الغلاف يدوب، والملف ورق فوقه.</div></div>
+
+    <div class="pc"><div class="phone p-sec"><div class="glow"></div><div class="status"><span>12:04</span><span>▮▮▮</span></div>
+      <div class="ph-pad">
+        <div class="who"><small>الكارت ده لـ</small><b>عم إدريس السفرجي</b></div>
+        <div class="card paper ruled">
+          <div class="top"><img src="img/suspects/suspect_n04.webp" alt=""><div><b>عم إدريس</b><small>سفرجي من ١٩٤١</small></div></div>
+          <div class="slot"><small>موقفك</small><p>إنت متورط في الجريمة.</p></div>
+          <div class="slot"><small>هدفك الشخصي</small><p>اثبت إن الصينية ماقرّبتش منها إيد حد من المطبخ لحد ما طلعت.</p></div>
+          <div class="slot"><small>دليلك السري</small><p>هنا بيظهر دليلك السري، في خانة بنفس الطول لكل اللاعيبة.</p></div>
+        </div>
+      </div>
+      <div class="cta"><span class="btn btn-line">غطّي الكارت ومرّر الموبايل</span></div>
+    </div><div class="cap"><b>الكارت السري</b>نفس الورقة ونفس الخانات لكل لاعب، متورط أو لأ.</div></div>
+
+    <div class="pc"><div class="phone p-ver"><div class="art"></div><div class="status"><span>12:04</span><span>▮▮▮</span></div>
+      <div class="st"><span class="stamp light">اتحلّت · ١٢٠</span></div>
+      <div class="res"><b>الحل مظبوط</b><small>المتهم ✓ · الدافع ✓ · الطريقة ✓</small></div>
+      <div class="cta"><span class="btn btn-amber">ارجع للملفات</span></div>
+    </div><div class="cap"><b>الحكم</b>مفيش احتفال. الحكم بيتختم.</div></div>
+  </div>
+</section>
+
+<section id="images">
+  <div class="sh"><span class="tag">دليل ٠٧</span><div><h2>مكتبة الصور</h2><p>كل صورة باسمها. الأصل في <code>assets/images/stories</code>، والجدول في <code>IDENTITY.md §7</code>.</p></div></div>
+  <div class="gal">
+    <h4>الأغلفة</h4>
+    <figure><img loading="lazy" src="img/covers/cover_01.webp" alt=""><figcaption>covers/cover_01</figcaption></figure>
+    <figure><img loading="lazy" src="img/covers/cover_07.webp" alt=""><figcaption>covers/cover_07</figcaption></figure>
+    <figure><img loading="lazy" src="img/covers/cover_09.webp" alt=""><figcaption>covers/cover_09</figcaption></figure>
+    <figure><img loading="lazy" src="img/covers/cover_15.webp" alt=""><figcaption>covers/cover_15</figcaption></figure>
+    <figure><img loading="lazy" src="img/covers/cover_20.webp" alt=""><figcaption>covers/cover_20</figcaption></figure>
+    <figure><img loading="lazy" src="img/covers/cover_24.webp" alt=""><figcaption>covers/cover_24</figcaption></figure>
+    <h4>الأماكن</h4>
+    <figure><img loading="lazy" src="img/locations/loc_cinema_1955.webp" alt=""><figcaption>locations/loc_cinema_1955</figcaption></figure>
+    <figure><img loading="lazy" src="img/locations/loc_garden_city_palace.webp" alt=""><figcaption>locations/loc_garden_city_palace</figcaption></figure>
+    <figure><img loading="lazy" src="img/locations/loc_gold_souq.webp" alt=""><figcaption>locations/loc_gold_souq</figcaption></figure>
+    <figure><img loading="lazy" src="img/locations/loc_shepheard_hotel.webp" alt=""><figcaption>locations/loc_shepheard_hotel</figcaption></figure>
+    <figure><img loading="lazy" src="img/locations/loc_newspaper_press.webp" alt=""><figcaption>locations/loc_newspaper_press</figcaption></figure>
+    <figure><img loading="lazy" src="img/locations/loc_sleeper_train.webp" alt=""><figcaption>locations/loc_sleeper_train</figcaption></figure>
+    <h4>الأدلة</h4>
+    <figure><img loading="lazy" src="img/evidence/evidence_01.webp" alt=""><figcaption>evidence/evidence_01</figcaption></figure>
+    <figure><img loading="lazy" src="img/evidence/evidence_04.webp" alt=""><figcaption>evidence/evidence_04</figcaption></figure>
+    <figure><img loading="lazy" src="img/evidence/evidence_09.webp" alt=""><figcaption>evidence/evidence_09</figcaption></figure>
+    <figure><img loading="lazy" src="img/evidence/evidence_15.webp" alt=""><figcaption>evidence/evidence_15</figcaption></figure>
+    <h4>الشخصيات</h4>
+    <figure><img loading="lazy" src="img/suspects/suspect_n01.webp" alt=""><figcaption>suspects/suspect_n01</figcaption></figure>
+    <figure><img loading="lazy" src="img/suspects/suspect_n03.webp" alt=""><figcaption>suspects/suspect_n03</figcaption></figure>
+    <figure><img loading="lazy" src="img/suspects/suspect_n12.webp" alt=""><figcaption>suspects/suspect_n12</figcaption></figure>
+    <figure><img loading="lazy" src="img/suspects/suspect_n20.webp" alt=""><figcaption>suspects/suspect_n20</figcaption></figure>
+    <figure><img loading="lazy" src="img/suspects/suspect_n24.webp" alt=""><figcaption>suspects/suspect_n24</figcaption></figure>
+    <h4>الأرضيات</h4>
+    <figure><img loading="lazy" src="img/grounds/cafe.webp" alt=""><figcaption>grounds/cafe</figcaption></figure>
+    <figure><img loading="lazy" src="img/grounds/evidence_desk.webp" alt=""><figcaption>grounds/evidence_desk</figcaption></figure>
+    <figure><img loading="lazy" src="img/grounds/casebook_header.webp" alt=""><figcaption>grounds/casebook_header</figcaption></figure>
+  </div>
+</section>
+
+<section id="dd">
+  <div class="sh"><span class="tag">دليل ٠٨</span><div><h2>ممنوع ومطلوب</h2></div></div>
+  <div class="dd">
+    <div class="no"><h3>ممنوع</h3><ul>
+      <li>أي حاجة من المافيا: الرمادي، الأردواز، النبيتي، النحاس، كروت الأدوار، الهود، خط Cairo و Bebas</li>
+      <li>شريط مسرح الجريمة، بصمات، عدسات مكبرة كديكور</li>
+      <li>سيلويت البرنيطة والمعطف</li>
+      <li>نيون، glow، أو gradient على النص</li>
+      <li>شبكة كروت متطابقة للأرشيف</li>
+      <li>صور شخصيات في دواير</li>
+    </ul></div>
+    <div class="yes paper"><h3>مطلوب</h3><ul>
+      <li>الورق لأي حاجة بتتقري بتركيز</li>
+      <li>زرار كهرماني واحد</li>
+      <li>تاريخ تحت كل قضية</li>
+      <li>الأختام للحالة</li>
+      <li>الصور الملونة تفضل ملونة</li>
+      <li>سطور على النص الطويل</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="files">
+  <div class="sh"><span class="tag">دليل ٠٩</span><div><h2>الملفات</h2><p>أي agent يبدأ من <code>IDENTITY.md</code>.</p></div></div>
+  <div class="files">
+    <a class="paper" href="IDENTITY.md"><b>IDENTITY.md</b><span>المواصفات الكاملة</span></a>
+    <a class="paper" href="tokens.json"><b>tokens.json</b><span>كل القيم ومكان كل واحدة</span></a>
+    <a class="paper" href="tokens.css"><b>tokens.css</b><span>متغيرات CSS والخطوط</span></a>
+    <a class="paper" href="img/_contact_sheet.jpg"><b>img/_contact_sheet.jpg</b><span>كل الصور في صورة واحدة</span></a>
+  </div>
+</section>
+</div>
+<footer><div class="wrap">قصص وتحقيقات · نظام الهوية · مسودة للنقاش · الألوان مقاسة من الأغلفة والأماكن والأدلة</div></footer>
+</body>
+</html>

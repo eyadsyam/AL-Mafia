@@ -1,0 +1,20 @@
+{
+  "type": "registered_css_mask_rig",
+  "source": "canonical.png",
+  "background_plate": "base-clean.png",
+  "canvas": [1080, 1920],
+  "registration": "Clip polygons use normalized source placement, hand-placed and visually inspected in rendered proof frames.",
+  "face_anchor_canvas_px": [529.2, 748.8],
+  "mandible_anchor_canvas_px": [518.4, 768],
+  "forearm_anchor_canvas_px": [151.2, 1248],
+  "camera_origin_canvas_px": [540, 1056],
+  "camera_y_px": 20,
+  "camera_scale": {"rest": 1.02, "opening_close": 1.08, "reaction_close": 1.1},
+  "mandible_driver": "Precomputed narration RMS envelope at10ms hops, gated by measured speech regions.",
+  "mandible_relative_y_px": [0, 5],
+  "mandible_relative_rotation_deg": [0, 0.6],
+  "phoneme_perfect": false,
+  "timeline_owner": "HyperFrames composition time",
+  "implementation": "../../project/scene-runtime.js",
+  "mask_geometry": "../../project/style.css"
+}

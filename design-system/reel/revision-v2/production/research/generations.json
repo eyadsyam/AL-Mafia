@@ -1,0 +1,59 @@
+{
+  "flow_id": "VGfqmPBQWx3ZImBHYd2P",
+  "shots": [
+    {
+      "name": "hook",
+      "model": "kling-3-pro",
+      "sessions": [
+        "r3ueDkkxpDeNcPHwlItP"
+      ],
+      "generation": "0PCWNM02GMF2yK1zrQYa",
+      "prompt": "A continuous animated film shot starting exactly from the reference: young Egyptian man Kareem with curly black hair, short beard, charcoal hoodie at his night desk. In the first half second his eyes dart left, caught checking his friend. He quickly pulls his phone tight against his chest, covering its screen with his palm. He raises one eyebrow and offers a defensive innocent smile, then swallows and looks straight at camera. The woman in the distant separate window notices and leans forward slightly. His shoulders, fingers, facial muscles and eyelids genuinely act, the tea steam curls and sleeve creases respond. Camera makes a short sharp push toward his face then settles; no cuts. Preserve this exact painterly hand-painted adult game artwork and identities, restrained slate grey room, softly lit skin. No speaking or written text. Finish with the suspicious smile held for half a second."
+    },
+    {
+      "name": "reveal",
+      "model": "kling-3-pro",
+      "sessions": [
+        "1pPhrGEDP9mQhnx6e3m9"
+      ],
+      "generation": "LSp5gvzEOEbGIKQIJqBP",
+      "prompt": "Continuous animated close-up of this exact Egyptian curly-haired Kareem in charcoal hoodie at his night desk. His defensive innocent smile changes into a small knowingly smug grin. He relaxes his shoulders, slowly lifts his eyebrows, gives camera a tiny 'got you' nod and brings the black phone forward, turns its screen toward the camera until it fills lower central frame. Screen plain uniform charcoal, no writing. Clear fingers holding the edges, eye muscles and lips physically changing expression. Camera tracks the phone forward smoothly, then holds. Painted game artwork stays exactly consistent, not photoreal conversion, slate room, warm skin. No talking, no scene cuts. This is the moment we reveal he was the Mafia all along."
+    },
+    {
+      "name": "salma",
+      "model": "kling-3-pro",
+      "sessions": [
+        "mAWjtBgaVvUaPDpSvU3q"
+      ],
+      "generation": "VvTzEa7gfzp1joSfVA3H",
+      "prompt": "One continuous animated performance of exact Salma in this painting at her own apartment desk. Initially looking at her black phone with chin on palm. She notices something suspicious, sharply lifts her eyes toward camera, slowly narrows eyes, tilts head. Then lifts her left hand off her cheek and points her index finger toward someone just to camera left, making a short confident accusing gesture; right hand keeps secure grip on phone. A quick satisfied small smile finishes gesture. Clear anticipation, action and reaction, genuine eye blink, eyebrow, shoulder, hair and sleeve movement, no frozen expression. Camera tracks her pointing hand slightly then returns to eyes, one controlled move. Preserve the hand-painted mature game-art look, not live action or 3D, exact woman face and clothing, subtle charcoal slate surroundings with warm skin. No dialogue or text."
+    },
+    {
+      "name": "omar",
+      "model": "kling-3-pro",
+      "sessions": [
+        "W1ewQ8rdQubWowEWZJt0"
+      ],
+      "generation": "Tfcel0vyfWuRLlE8MyOC",
+      "prompt": "Exact Omar from reference, Egyptian young man round wire glasses bone sweatshirt, seated at his own night desk, hand-painted game art. First looks up sharply as if someone accuses him. Eyes widen, eyebrows rise, mouth opens briefly in disbelief. He lifts both hands palm-up from table in a clear 'me?!' protest, then turns head slightly left, shaking it once and exhales with shoulders dropping. Phone stays still on table, hands do not pass through it. Real acting in face, neck, sleeve folds and finger joints; fingers anatomically stable. Camera makes a quick small push at surprise, then holds to watch full gesture. End with disappointed bewildered face, not a smile. Silent, one continuous shot, exact illustration style and identity, no dialogue or captions."
+    },
+    {
+      "name": "mafia",
+      "model": "kling-3-pro",
+      "sessions": [
+        "b1R7bQE7fPIGXGkY5fK8"
+      ],
+      "generation": "8z5TiZ3hIbbaXXiznNJq",
+      "prompt": "Animate the exact ornate black silver hooded skeletal Mafia from reference, preserving skull anatomy and suit decoration. At a slate grey midnight room with enormous black phone, he leans forward, smoothly raises his gloved hand, points two fingers at the lens as if selecting a target, then pulls a dark playing card from other hand and slides it toward camera. Cloth folds follow shoulder movement, finger joints bend naturally. Camera tracks card, accelerates for last half second toward card until dark card occupies much of frame. Skull mouth stays closed, no talking. Painterly hand-painted noir game artwork, desaturated slate setting, no writing or UI. Body animation and cloth movement, not a flat zoom."
+    }
+  ],
+  "blocked": {
+    "cafe": "401: {'type': 'invalid_request', 'code': 'quota_exceeded', 'message': 'This request exceeds your quota of 40000. You have 237 credits remaining, while 3394 credits are required for this request.', 'status': 'quota_exceeded', 'request_id': 'ecd870f9742d88b066304124adf42226'}"
+  },
+  "voice": {
+    "model": "eleven_v3",
+    "voice_id": "OFHP1Qg30FPoNfkUFFlA",
+    "generation": "rEaviVhMZ8iVpJWhpnNK",
+    "take": 2
+  }
+}

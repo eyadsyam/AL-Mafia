@@ -1,0 +1,1165 @@
+{
+  "fps": 30,
+  "duration": 57.5,
+  "frames": 1725,
+  "voice": "Fekry passion-directed Egyptian",
+  "voice_id": "B1W8tTuESCJzhOnd15nC",
+  "source_take": "passion1",
+  "model": "eleven_v3",
+  "speech_speed_changed": false,
+  "provider_word_timing": true,
+  "script_match": true,
+  "words": [
+    {
+      "text": "تعرف",
+      "type": "word",
+      "start": 0.139,
+      "end": 0.32,
+      "source_start": 0.139,
+      "source_end": 0.32
+    },
+    {
+      "text": "لعبة",
+      "type": "word",
+      "start": 0.373,
+      "end": 0.64,
+      "source_start": 0.373,
+      "source_end": 0.64
+    },
+    {
+      "text": "المافيا؟",
+      "type": "word",
+      "start": 0.68,
+      "end": 1.2,
+      "source_start": 0.68,
+      "source_end": 1.2
+    },
+    {
+      "text": "شايف",
+      "type": "word",
+      "start": 1.93,
+      "end": 2.17,
+      "source_start": 1.93,
+      "source_end": 2.17
+    },
+    {
+      "text": "صاحبك",
+      "type": "word",
+      "start": 2.234,
+      "end": 2.57,
+      "source_start": 2.234,
+      "source_end": 2.57
+    },
+    {
+      "text": "اللي",
+      "type": "word",
+      "start": 2.597,
+      "end": 2.73,
+      "source_start": 2.597,
+      "source_end": 2.73
+    },
+    {
+      "text": "بيقول",
+      "type": "word",
+      "start": 2.783,
+      "end": 3.13,
+      "source_start": 2.783,
+      "source_end": 3.13
+    },
+    {
+      "text": "«أنا",
+      "type": "word",
+      "start": 3.17,
+      "end": 3.37,
+      "source_start": 3.17,
+      "source_end": 3.37
+    },
+    {
+      "text": "بريء»؟",
+      "type": "word",
+      "start": 3.423,
+      "end": 3.77,
+      "source_start": 3.423,
+      "source_end": 3.77
+    },
+    {
+      "text": "ده",
+      "type": "word",
+      "start": 4.01,
+      "end": 4.49,
+      "source_start": 4.01,
+      "source_end": 4.49
+    },
+    {
+      "text": "ممكن",
+      "type": "word",
+      "start": 4.543,
+      "end": 4.81,
+      "source_start": 4.543,
+      "source_end": 4.81
+    },
+    {
+      "text": "يطلّعك",
+      "type": "word",
+      "start": 4.85,
+      "end": 5.37,
+      "source_start": 4.85,
+      "source_end": 5.37
+    },
+    {
+      "text": "إنت!",
+      "type": "word",
+      "start": 5.41,
+      "end": 5.85,
+      "source_start": 5.41,
+      "source_end": 5.85
+    },
+    {
+      "text": "في",
+      "type": "word",
+      "start": 6.73,
+      "end": 6.762,
+      "source_start": 6.73,
+      "source_end": 6.762
+    },
+    {
+      "text": "سيد",
+      "type": "word",
+      "start": 6.786,
+      "end": 6.89,
+      "source_start": 6.786,
+      "source_end": 6.89
+    },
+    {
+      "text": "المافيا،",
+      "type": "word",
+      "start": 6.95,
+      "end": 7.85,
+      "source_start": 6.95,
+      "source_end": 7.85
+    },
+    {
+      "text": "تلعبوا",
+      "type": "word",
+      "start": 7.93,
+      "end": 8.25,
+      "source_start": 7.93,
+      "source_end": 8.25
+    },
+    {
+      "text": "أونلاين،",
+      "type": "word",
+      "start": 8.29,
+      "end": 8.73,
+      "source_start": 8.29,
+      "source_end": 8.73
+    },
+    {
+      "text": "كل",
+      "type": "word",
+      "start": 8.837,
+      "end": 9.05,
+      "source_start": 8.837,
+      "source_end": 9.05
+    },
+    {
+      "text": "واحد",
+      "type": "word",
+      "start": 9.114,
+      "end": 9.37,
+      "source_start": 9.114,
+      "source_end": 9.37
+    },
+    {
+      "text": "من",
+      "type": "word",
+      "start": 9.423,
+      "end": 9.53,
+      "source_start": 9.423,
+      "source_end": 9.53
+    },
+    {
+      "text": "مكانه.",
+      "type": "word",
+      "start": 9.583,
+      "end": 10.29,
+      "source_start": 9.583,
+      "source_end": 10.29
+    },
+    {
+      "text": "كل",
+      "type": "word",
+      "start": 10.703,
+      "end": 10.73,
+      "source_start": 10.703,
+      "source_end": 10.73
+    },
+    {
+      "text": "واحد",
+      "type": "word",
+      "start": 10.794,
+      "end": 11.05,
+      "source_start": 10.794,
+      "source_end": 11.05
+    },
+    {
+      "text": "يعرف",
+      "type": "word",
+      "start": 11.103,
+      "end": 11.37,
+      "source_start": 11.103,
+      "source_end": 11.37
+    },
+    {
+      "text": "دوره",
+      "type": "word",
+      "start": 11.402,
+      "end": 11.53,
+      "source_start": 11.402,
+      "source_end": 11.53
+    },
+    {
+      "text": "لوحده.",
+      "type": "word",
+      "start": 11.61,
+      "end": 12.09,
+      "source_start": 11.61,
+      "source_end": 12.09
+    },
+    {
+      "text": "الليل",
+      "type": "word",
+      "start": 12.710401,
+      "end": 12.990401,
+      "source_start": 12.777,
+      "source_end": 13.057
+    },
+    {
+      "text": "ينزل،",
+      "type": "word",
+      "start": 13.070401,
+      "end": 13.470401,
+      "source_start": 13.137,
+      "source_end": 13.537
+    },
+    {
+      "text": "والمافيا",
+      "type": "word",
+      "start": 13.534401,
+      "end": 14.030401,
+      "source_start": 13.601,
+      "source_end": 14.097
+    },
+    {
+      "text": "تختار",
+      "type": "word",
+      "start": 14.110401,
+      "end": 14.430401,
+      "source_start": 14.177,
+      "source_end": 14.497
+    },
+    {
+      "text": "ضحيتها.",
+      "type": "word",
+      "start": 14.510401,
+      "end": 15.150401,
+      "source_start": 14.577,
+      "source_end": 15.217
+    },
+    {
+      "text": "الدكتور",
+      "type": "word",
+      "start": 15.330401,
+      "end": 16.110401,
+      "source_start": 15.397,
+      "source_end": 16.177
+    },
+    {
+      "text": "يحاول",
+      "type": "word",
+      "start": 16.190401,
+      "end": 16.590401,
+      "source_start": 16.257,
+      "source_end": 16.657
+    },
+    {
+      "text": "ينقذ",
+      "type": "word",
+      "start": 16.643401,
+      "end": 16.910401,
+      "source_start": 16.71,
+      "source_end": 16.977
+    },
+    {
+      "text": "حد.",
+      "type": "word",
+      "start": 17.043401,
+      "end": 17.390401,
+      "source_start": 17.11,
+      "source_end": 17.457
+    },
+    {
+      "text": "والمحقق",
+      "type": "word",
+      "start": 17.486401,
+      "end": 18.270401,
+      "source_start": 17.553,
+      "source_end": 18.337
+    },
+    {
+      "text": "يكشف",
+      "type": "word",
+      "start": 18.377401,
+      "end": 18.750401,
+      "source_start": 18.444,
+      "source_end": 18.817
+    },
+    {
+      "text": "دور",
+      "type": "word",
+      "start": 18.790401,
+      "end": 18.910401,
+      "source_start": 18.857,
+      "source_end": 18.977
+    },
+    {
+      "text": "لاعب.",
+      "type": "word",
+      "start": 18.990401,
+      "end": 19.390401,
+      "source_start": 19.057,
+      "source_end": 19.457
+    },
+    {
+      "text": "الصبح،",
+      "type": "word",
+      "start": 20.038318999999998,
+      "end": 20.508318999999997,
+      "source_start": 20.227,
+      "source_end": 20.697
+    },
+    {
+      "text": "كله",
+      "type": "word",
+      "start": 20.608318999999998,
+      "end": 20.948318999999998,
+      "source_start": 20.797,
+      "source_end": 21.137
+    },
+    {
+      "text": "عامل",
+      "type": "word",
+      "start": 21.012318999999998,
+      "end": 21.268318999999998,
+      "source_start": 21.201,
+      "source_end": 21.457
+    },
+    {
+      "text": "بريء!",
+      "type": "word",
+      "start": 21.348318999999996,
+      "end": 21.828318999999997,
+      "source_start": 21.537,
+      "source_end": 22.017
+    },
+    {
+      "text": "تسألوا،",
+      "type": "word",
+      "start": 22.26897199999999,
+      "end": 22.624971999999993,
+      "source_start": 22.703,
+      "source_end": 23.059
+    },
+    {
+      "text": "تناقشوا،",
+      "type": "word",
+      "start": 22.731971999999992,
+      "end": 23.424971999999993,
+      "source_start": 23.166,
+      "source_end": 23.859
+    },
+    {
+      "text": "وتصوّتوا.",
+      "type": "word",
+      "start": 23.464971999999992,
+      "end": 24.50497199999999,
+      "source_start": 23.899,
+      "source_end": 24.939
+    },
+    {
+      "text": "بس",
+      "type": "word",
+      "start": 24.624971999999993,
+      "end": 24.86497199999999,
+      "source_start": 25.059,
+      "source_end": 25.299
+    },
+    {
+      "text": "لو",
+      "type": "word",
+      "start": 24.944971999999993,
+      "end": 25.104971999999993,
+      "source_start": 25.379,
+      "source_end": 25.539
+    },
+    {
+      "text": "طلّعتوا",
+      "type": "word",
+      "start": 25.18497199999999,
+      "end": 25.66497199999999,
+      "source_start": 25.619,
+      "source_end": 26.099
+    },
+    {
+      "text": "الشخص",
+      "type": "word",
+      "start": 25.691971999999993,
+      "end": 25.824971999999992,
+      "source_start": 26.126,
+      "source_end": 26.259
+    },
+    {
+      "text": "الغلط،",
+      "type": "word",
+      "start": 25.88497199999999,
+      "end": 26.86497199999999,
+      "source_start": 26.319,
+      "source_end": 27.299
+    },
+    {
+      "text": "المافيا",
+      "type": "word",
+      "start": 26.924971999999993,
+      "end": 27.264971999999993,
+      "source_start": 27.359,
+      "source_end": 27.699
+    },
+    {
+      "text": "كسبانة",
+      "type": "word",
+      "start": 27.34497199999999,
+      "end": 27.784971999999993,
+      "source_start": 27.779,
+      "source_end": 28.219
+    },
+    {
+      "text": "منكم.",
+      "type": "word",
+      "start": 27.824971999999992,
+      "end": 28.144971999999992,
+      "source_start": 28.259,
+      "source_end": 28.579
+    },
+    {
+      "text": "فاكر",
+      "type": "word",
+      "start": 28.606284999999996,
+      "end": 28.851284999999994,
+      "source_start": 29.774,
+      "source_end": 30.019
+    },
+    {
+      "text": "الوش",
+      "type": "word",
+      "start": 28.878284999999995,
+      "end": 29.091284999999996,
+      "source_start": 30.046,
+      "source_end": 30.259
+    },
+    {
+      "text": "اللي",
+      "type": "word",
+      "start": 29.144284999999996,
+      "end": 29.331284999999994,
+      "source_start": 30.312,
+      "source_end": 30.499
+    },
+    {
+      "text": "في",
+      "type": "word",
+      "start": 29.358284999999995,
+      "end": 29.411284999999996,
+      "source_start": 30.526,
+      "source_end": 30.579
+    },
+    {
+      "text": "الأول؟",
+      "type": "word",
+      "start": 29.478284999999996,
+      "end": 29.891284999999996,
+      "source_start": 30.646,
+      "source_end": 31.059
+    },
+    {
+      "text": "أهو",
+      "type": "word",
+      "start": 30.141284999999996,
+      "end": 30.311284999999998,
+      "source_start": 31.769,
+      "source_end": 31.939
+    },
+    {
+      "text": "ده",
+      "type": "word",
+      "start": 30.338285,
+      "end": 30.391284999999996,
+      "source_start": 31.966,
+      "source_end": 32.019
+    },
+    {
+      "text": "المافيا!",
+      "type": "word",
+      "start": 30.431284999999995,
+      "end": 30.951285,
+      "source_start": 32.059,
+      "source_end": 32.579
+    },
+    {
+      "text": "ومتجمعين؟",
+      "type": "word",
+      "start": 31.282196999999996,
+      "end": 31.914196999999994,
+      "source_start": 33.467,
+      "source_end": 34.099
+    },
+    {
+      "text": "العبوا",
+      "type": "word",
+      "start": 32.074197,
+      "end": 32.714197,
+      "source_start": 34.259,
+      "source_end": 34.899
+    },
+    {
+      "text": "أوفلاين.",
+      "type": "word",
+      "start": 32.754197,
+      "end": 33.194196999999996,
+      "source_start": 34.939,
+      "source_end": 35.379
+    },
+    {
+      "text": "عايز",
+      "type": "word",
+      "start": 33.444196999999996,
+      "end": 33.61419699999999,
+      "source_start": 36.249,
+      "source_end": 36.419
+    },
+    {
+      "text": "بقى",
+      "type": "word",
+      "start": 33.667196999999994,
+      "end": 33.89419699999999,
+      "source_start": 36.472,
+      "source_end": 36.699
+    },
+    {
+      "text": "تمسك",
+      "type": "word",
+      "start": 33.93419699999999,
+      "end": 34.17419699999999,
+      "source_start": 36.739,
+      "source_end": 36.979
+    },
+    {
+      "text": "حد",
+      "type": "word",
+      "start": 34.25419699999999,
+      "end": 34.414196999999994,
+      "source_start": 37.059,
+      "source_end": 37.219
+    },
+    {
+      "text": "بالأدلة؟",
+      "type": "word",
+      "start": 34.462196999999996,
+      "end": 35.054196999999995,
+      "source_start": 37.267,
+      "source_end": 37.859
+    },
+    {
+      "text": "افتح",
+      "type": "word",
+      "start": 35.72684099999999,
+      "end": 35.78284099999999,
+      "source_start": 38.811,
+      "source_end": 38.867
+    },
+    {
+      "text": "قصص",
+      "type": "word",
+      "start": 35.79384099999999,
+      "end": 35.89484099999999,
+      "source_start": 38.878,
+      "source_end": 38.979
+    },
+    {
+      "text": "وتحقيقات.",
+      "type": "word",
+      "start": 35.97484099999999,
+      "end": 36.774840999999995,
+      "source_start": 39.059,
+      "source_end": 39.859
+    },
+    {
+      "text": "قضية",
+      "type": "word",
+      "start": 37.01484099999999,
+      "end": 37.65484099999999,
+      "source_start": 40.099,
+      "source_end": 40.739
+    },
+    {
+      "text": "زي",
+      "type": "word",
+      "start": 37.734840999999996,
+      "end": 37.89484099999999,
+      "source_start": 40.819,
+      "source_end": 40.979
+    },
+    {
+      "text": "قهوة",
+      "type": "word",
+      "start": 37.93484099999999,
+      "end": 38.21484099999999,
+      "source_start": 41.019,
+      "source_end": 41.299
+    },
+    {
+      "text": "المعلم:",
+      "type": "word",
+      "start": 38.262840999999995,
+      "end": 39.25484099999999,
+      "source_start": 41.347,
+      "source_end": 42.339
+    },
+    {
+      "text": "شخصيات",
+      "type": "word",
+      "start": 39.35484099999999,
+      "end": 39.814840999999994,
+      "source_start": 42.439,
+      "source_end": 42.899
+    },
+    {
+      "text": "تسألها،",
+      "type": "word",
+      "start": 39.89484099999999,
+      "end": 40.454840999999995,
+      "source_start": 42.979,
+      "source_end": 43.539
+    },
+    {
+      "text": "وأماكن",
+      "type": "word",
+      "start": 40.53484099999999,
+      "end": 40.93484099999999,
+      "source_start": 43.619,
+      "source_end": 44.019
+    },
+    {
+      "text": "تفتّشها.",
+      "type": "word",
+      "start": 41.01484099999999,
+      "end": 41.65484099999999,
+      "source_start": 44.099,
+      "source_end": 44.739
+    },
+    {
+      "text": "وتحرّكاتك",
+      "type": "word",
+      "start": 41.92184099999999,
+      "end": 42.93484099999999,
+      "source_start": 45.006,
+      "source_end": 46.019
+    },
+    {
+      "text": "محدودة،",
+      "type": "word",
+      "start": 43.00184099999999,
+      "end": 43.494840999999994,
+      "source_start": 46.086,
+      "source_end": 46.579
+    },
+    {
+      "text": "فاختار",
+      "type": "word",
+      "start": 43.774840999999995,
+      "end": 44.374840999999996,
+      "source_start": 46.859,
+      "source_end": 47.459
+    },
+    {
+      "text": "هتبدأ",
+      "type": "word",
+      "start": 44.454840999999995,
+      "end": 44.85484099999999,
+      "source_start": 47.539,
+      "source_end": 47.939
+    },
+    {
+      "text": "بمين.",
+      "type": "word",
+      "start": 44.90784099999999,
+      "end": 45.33484099999999,
+      "source_start": 47.992,
+      "source_end": 48.419
+    },
+    {
+      "text": "وفي",
+      "type": "word",
+      "start": 45.58484099999999,
+      "end": 45.59984099999999,
+      "source_start": 49.124,
+      "source_end": 49.139
+    },
+    {
+      "text": "الآخر",
+      "type": "word",
+      "start": 45.63984099999999,
+      "end": 45.91984099999999,
+      "source_start": 49.179,
+      "source_end": 49.459
+    },
+    {
+      "text": "تقول:",
+      "type": "word",
+      "start": 45.99984099999999,
+      "end": 46.39984099999999,
+      "source_start": 49.539,
+      "source_end": 49.939
+    },
+    {
+      "text": "مين",
+      "type": "word",
+      "start": 46.71984099999999,
+      "end": 47.11984099999999,
+      "source_start": 50.259,
+      "source_end": 50.659
+    },
+    {
+      "text": "عملها؟",
+      "type": "word",
+      "start": 47.21984099999999,
+      "end": 47.67984099999999,
+      "source_start": 50.759,
+      "source_end": 51.219
+    },
+    {
+      "text": "وليه؟",
+      "type": "word",
+      "start": 47.89984099999999,
+      "end": 48.71984099999999,
+      "source_start": 51.439,
+      "source_end": 52.259
+    },
+    {
+      "text": "وإزاي؟",
+      "type": "word",
+      "start": 49.01284099999999,
+      "end": 49.99984099999999,
+      "source_start": 52.552,
+      "source_end": 53.539
+    },
+    {
+      "text": "سيد",
+      "type": "word",
+      "start": 50.33642599999999,
+      "end": 50.50642599999999,
+      "source_start": 54.729,
+      "source_end": 54.899
+    },
+    {
+      "text": "المافيا.",
+      "type": "word",
+      "start": 50.54642599999999,
+      "end": 51.06642599999999,
+      "source_start": 54.939,
+      "source_end": 55.459
+    },
+    {
+      "text": "ابعتها",
+      "type": "word",
+      "start": 51.27942599999999,
+      "end": 51.94642599999999,
+      "source_start": 55.672,
+      "source_end": 56.339
+    },
+    {
+      "text": "لصحابك!",
+      "type": "word",
+      "start": 52.02642599999999,
+      "end": 52.66642599999999,
+      "source_start": 56.419,
+      "source_end": 57.059
+    },
+    {
+      "text": "وشوف",
+      "type": "word",
+      "start": 52.93108999999998,
+      "end": 53.198089999999986,
+      "source_start": 57.592,
+      "source_end": 57.859
+    },
+    {
+      "text": "مين",
+      "type": "word",
+      "start": 53.238089999999985,
+      "end": 53.43808999999998,
+      "source_start": 57.899,
+      "source_end": 58.099
+    },
+    {
+      "text": "فيهم",
+      "type": "word",
+      "start": 53.51808999999999,
+      "end": 53.83808999999999,
+      "source_start": 58.179,
+      "source_end": 58.499
+    },
+    {
+      "text": "هيقول",
+      "type": "word",
+      "start": 53.918089999999985,
+      "end": 54.39808999999998,
+      "source_start": 58.579,
+      "source_end": 59.059
+    },
+    {
+      "text": "«أنا",
+      "type": "word",
+      "start": 54.694769999999984,
+      "end": 55.21476999999999,
+      "source_start": 59.419,
+      "source_end": 59.939
+    },
+    {
+      "text": "بريء».",
+      "type": "word",
+      "start": 55.294769999999986,
+      "end": 55.694769999999984,
+      "source_start": 60.019,
+      "source_end": 60.419
+    }
+  ],
+  "cues": [
+    {
+      "id": 1,
+      "text": "تعرف لعبة المافيا؟",
+      "start": 0.139,
+      "end": 1.2,
+      "first_frame": 4,
+      "last_frame": 36
+    },
+    {
+      "id": 2,
+      "text": "شايف صاحبك اللي بيقول «أنا بريء»؟",
+      "start": 1.93,
+      "end": 3.77,
+      "first_frame": 58,
+      "last_frame": 113
+    },
+    {
+      "id": 3,
+      "text": "ده ممكن يطلّعك إنت!",
+      "start": 4.01,
+      "end": 5.85,
+      "first_frame": 120,
+      "last_frame": 176
+    },
+    {
+      "id": 4,
+      "text": "في سيد المافيا، تلعبوا أونلاين، كل واحد من مكانه.",
+      "start": 6.73,
+      "end": 10.29,
+      "first_frame": 202,
+      "last_frame": 309
+    },
+    {
+      "id": 5,
+      "text": "كل واحد يعرف دوره لوحده.",
+      "start": 10.703,
+      "end": 12.09,
+      "first_frame": 321,
+      "last_frame": 363
+    },
+    {
+      "id": 6,
+      "text": "الليل ينزل، والمافيا تختار ضحيتها.",
+      "start": 12.710401,
+      "end": 15.150401,
+      "first_frame": 381,
+      "last_frame": 455
+    },
+    {
+      "id": 7,
+      "text": "الدكتور يحاول ينقذ حد.",
+      "start": 15.330401,
+      "end": 17.390401,
+      "first_frame": 460,
+      "last_frame": 522
+    },
+    {
+      "id": 8,
+      "text": "والمحقق يكشف دور لاعب.",
+      "start": 17.486401,
+      "end": 19.390401,
+      "first_frame": 525,
+      "last_frame": 582
+    },
+    {
+      "id": 9,
+      "text": "الصبح، كله عامل بريء!",
+      "start": 20.038318999999998,
+      "end": 21.828318999999997,
+      "first_frame": 601,
+      "last_frame": 655
+    },
+    {
+      "id": 10,
+      "text": "تسألوا، تناقشوا، وتصوّتوا.",
+      "start": 22.26897199999999,
+      "end": 24.50497199999999,
+      "first_frame": 668,
+      "last_frame": 735
+    },
+    {
+      "id": 11,
+      "text": "بس لو طلّعتوا الشخص الغلط، المافيا كسبانة منكم.",
+      "start": 24.624971999999993,
+      "end": 28.144971999999992,
+      "first_frame": 739,
+      "last_frame": 844
+    },
+    {
+      "id": 12,
+      "text": "فاكر الوش اللي في الأول؟ أهو ده المافيا!",
+      "start": 28.606284999999996,
+      "end": 30.951285,
+      "first_frame": 858,
+      "last_frame": 929
+    },
+    {
+      "id": 13,
+      "text": "ومتجمعين؟ العبوا أوفلاين.",
+      "start": 31.282196999999996,
+      "end": 33.194196999999996,
+      "first_frame": 938,
+      "last_frame": 996
+    },
+    {
+      "id": 14,
+      "text": "عايز بقى تمسك حد بالأدلة؟",
+      "start": 33.444196999999996,
+      "end": 35.054196999999995,
+      "first_frame": 1003,
+      "last_frame": 1052
+    },
+    {
+      "id": 15,
+      "text": "افتح قصص وتحقيقات.",
+      "start": 35.72684099999999,
+      "end": 36.774840999999995,
+      "first_frame": 1072,
+      "last_frame": 1103
+    },
+    {
+      "id": 16,
+      "text": "قضية زي قهوة المعلم: شخصيات تسألها، وأماكن تفتّشها.",
+      "start": 37.01484099999999,
+      "end": 41.65484099999999,
+      "first_frame": 1110,
+      "last_frame": 1250
+    },
+    {
+      "id": 17,
+      "text": "وتحرّكاتك محدودة، فاختار هتبدأ بمين.",
+      "start": 41.92184099999999,
+      "end": 45.33484099999999,
+      "first_frame": 1258,
+      "last_frame": 1360
+    },
+    {
+      "id": 18,
+      "text": "وفي الآخر تقول: مين عملها؟ وليه؟ وإزاي؟",
+      "start": 45.58484099999999,
+      "end": 49.99984099999999,
+      "first_frame": 1368,
+      "last_frame": 1500
+    },
+    {
+      "id": 19,
+      "text": "سيد المافيا. ابعتها لصحابك!",
+      "start": 50.33642599999999,
+      "end": 52.66642599999999,
+      "first_frame": 1510,
+      "last_frame": 1580
+    },
+    {
+      "id": 20,
+      "text": "وشوف مين فيهم هيقول «أنا بريء».",
+      "start": 52.93108999999998,
+      "end": 55.694769999999984,
+      "first_frame": 1588,
+      "last_frame": 1671
+    }
+  ],
+  "old_time_mapping": [
+    [
+      0,
+      0
+    ],
+    [
+      0.067,
+      0.139
+    ],
+    [
+      1.4,
+      1.93
+    ],
+    [
+      3.511,
+      4.01
+    ],
+    [
+      5.667,
+      6.73
+    ],
+    [
+      9.013,
+      10.703
+    ],
+    [
+      10.72,
+      12.710401
+    ],
+    [
+      13.62,
+      15.330401
+    ],
+    [
+      15.616,
+      17.486401
+    ],
+    [
+      18.526,
+      20.038318999999998
+    ],
+    [
+      20.533,
+      22.26897199999999
+    ],
+    [
+      22.0,
+      23.464971999999992
+    ],
+    [
+      22.96,
+      24.624971999999993
+    ],
+    [
+      27.952,
+      28.606284999999996
+    ],
+    [
+      30.0,
+      30.141284999999996
+    ],
+    [
+      31.664,
+      31.282196999999996
+    ],
+    [
+      34.47,
+      33.444196999999996
+    ],
+    [
+      36.17,
+      35.72684099999999
+    ],
+    [
+      38.223,
+      37.01484099999999
+    ],
+    [
+      42.383,
+      41.92184099999999
+    ],
+    [
+      45.67,
+      45.58484099999999
+    ],
+    [
+      50.719,
+      50.33642599999999
+    ],
+    [
+      53.363,
+      52.93108999999998
+    ],
+    [
+      55.692,
+      55.694769999999984
+    ],
+    [
+      57,
+      57.5
+    ]
+  ],
+  "voice_duration": 55.67579166666667,
+  "voice_edit_cuts": [
+    [
+      12.515805,
+      12.582404
+    ],
+    [
+      19.582,
+      19.704082000000003
+    ],
+    [
+      22.142,
+      22.261202
+    ],
+    [
+      22.432494,
+      22.558639000000003
+    ],
+    [
+      28.784000000000002,
+      29.517687
+    ],
+    [
+      31.184,
+      31.644
+    ],
+    [
+      32.704,
+      33.261088
+    ],
+    [
+      35.504,
+      36.124
+    ],
+    [
+      37.984,
+      38.263356
+    ],
+    [
+      48.544,
+      48.999
+    ],
+    [
+      53.664,
+      54.517415
+    ],
+    [
+      57.184,
+      57.452336
+    ],
+    [
+      59.23068,
+      59.294
+    ]
+  ]
+}

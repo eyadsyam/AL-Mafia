@@ -1,0 +1,743 @@
+[
+  {
+    "generation_id": "skq6Em4H34qRKiwbgBB1",
+    "text": "[excited] تعرف لعبة المافيا؟ [playfully] شايف صاحبك اللي بيقول «أنا بريء»؟ ده ممكن يطلّعك إنت! [upbeat] في سيد المافيا، تلعبوا أونلاين، كل واحد من مكانه. [confident] كل واحد يعرف دوره لوحده. [animated] الليل ينزل، والمافيا تختار ضحيتها. الدكتور يحاول ينقذ حد. والمحقق يكشف دور لاعب. [mischievously] الصبح، كله عامل بريء! [energetic] تسألوا، تناقشوا، وتصوّتوا. بس لو طلّعتوا الشخص الغلط، المافيا كسبانة منكم. [short pause] [teasing] فاكر الوش اللي في الأول؟ [excited] أهو ده المافيا! [upbeat] ومتجمعين؟ العبوا أوفلاين. [curious] عايز بقى تمسك حد بالأدلة؟ [animated] افتح قصص وتحقيقات. قضية زي قهوة المعلم: شخصيات تسألها، وأماكن تفتّشها. وتحرّكاتك محدودة، فاختار هتبدأ بمين. [curious] وفي الآخر تقول: مين عملها؟ وليه؟ وإزاي؟ [excited] سيد المافيا. ابعتها لصحابك! [playfully] وشوف مين فيهم هيقول «أنا بريء».",
+    "model_id": "eleven_scribe_v1",
+    "download_url": "https://storage.googleapis.com/xi-backend/database/workspace/f13a260c5b0f4c56bfcd744480b2c20e/content_generation/14OYBfZloZf81ouV5rY8/skq6Em4H34qRKiwbgBB1/content.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=xi-backend-prod%40xi-labs.iam.gserviceaccount.com%2F20261011%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20261011T155045Z&X-Goog-Expires=7200&X-Goog-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22transcript-skq6Em4H34qRKiwbgBB1.txt%22&X-Goog-Signature=39c72b70972e3b0f18897e88f9ded2f0847ba35aaa2ffcb91d6ecf9babfe5d11953a252e76776f7ba14a640467e3f5c6a1851f27a80cb641bd2bade6a74612f64da357b1128fbdf324e6e58bf5b1bddc3e5f67277eda3556fad75ca289f18eb96dc3f86582591ab0aea839201684ef91cbff9258b52da39e7511eeb2f9438597a9aaa2d9175b27cd3110eec4a80d35f419d6eeb110d29ace0d299966277b41bdba62b395bd623bc45fe9b2ded2692a1c4def5b088923db5af0e7953a80248ab245ff9c8c0b40f78e3e45c8bbd2f81ada9c1d3b07b3bf5b2770774036c95eec4710504425f2bfe7669eff93ea37d19b071a25d3e6973931431753e61ce937b5c0",
+    "word_count": 121,
+    "words": [
+      {
+        "text": "[excited]",
+        "type": "word",
+        "start": 0,
+        "end": 0.128
+      },
+      {
+        "text": "تعرف",
+        "type": "word",
+        "start": 0.139,
+        "end": 0.32
+      },
+      {
+        "text": "لعبة",
+        "type": "word",
+        "start": 0.373,
+        "end": 0.64
+      },
+      {
+        "text": "المافيا؟",
+        "type": "word",
+        "start": 0.68,
+        "end": 1.2
+      },
+      {
+        "text": "[playfully]",
+        "type": "word",
+        "start": 1.56,
+        "end": 1.929
+      },
+      {
+        "text": "شايف",
+        "type": "word",
+        "start": 1.93,
+        "end": 2.17
+      },
+      {
+        "text": "صاحبك",
+        "type": "word",
+        "start": 2.234,
+        "end": 2.57
+      },
+      {
+        "text": "اللي",
+        "type": "word",
+        "start": 2.597,
+        "end": 2.73
+      },
+      {
+        "text": "بيقول",
+        "type": "word",
+        "start": 2.783,
+        "end": 3.13
+      },
+      {
+        "text": "«أنا",
+        "type": "word",
+        "start": 3.17,
+        "end": 3.37
+      },
+      {
+        "text": "بريء»؟",
+        "type": "word",
+        "start": 3.423,
+        "end": 3.77
+      },
+      {
+        "text": "ده",
+        "type": "word",
+        "start": 4.01,
+        "end": 4.49
+      },
+      {
+        "text": "ممكن",
+        "type": "word",
+        "start": 4.543,
+        "end": 4.81
+      },
+      {
+        "text": "يطلّعك",
+        "type": "word",
+        "start": 4.85,
+        "end": 5.37
+      },
+      {
+        "text": "إنت!",
+        "type": "word",
+        "start": 5.41,
+        "end": 5.85
+      },
+      {
+        "text": "[upbeat]",
+        "type": "word",
+        "start": 6.21,
+        "end": 6.714
+      },
+      {
+        "text": "في",
+        "type": "word",
+        "start": 6.73,
+        "end": 6.762
+      },
+      {
+        "text": "سيد",
+        "type": "word",
+        "start": 6.786,
+        "end": 6.89
+      },
+      {
+        "text": "المافيا،",
+        "type": "word",
+        "start": 6.95,
+        "end": 7.85
+      },
+      {
+        "text": "تلعبوا",
+        "type": "word",
+        "start": 7.93,
+        "end": 8.25
+      },
+      {
+        "text": "أونلاين،",
+        "type": "word",
+        "start": 8.29,
+        "end": 8.73
+      },
+      {
+        "text": "كل",
+        "type": "word",
+        "start": 8.837,
+        "end": 9.05
+      },
+      {
+        "text": "واحد",
+        "type": "word",
+        "start": 9.114,
+        "end": 9.37
+      },
+      {
+        "text": "من",
+        "type": "word",
+        "start": 9.423,
+        "end": 9.53
+      },
+      {
+        "text": "مكانه.",
+        "type": "word",
+        "start": 9.583,
+        "end": 10.29
+      },
+      {
+        "text": "[confident]",
+        "type": "word",
+        "start": 10.43,
+        "end": 10.69
+      },
+      {
+        "text": "كل",
+        "type": "word",
+        "start": 10.703,
+        "end": 10.73
+      },
+      {
+        "text": "واحد",
+        "type": "word",
+        "start": 10.794,
+        "end": 11.05
+      },
+      {
+        "text": "يعرف",
+        "type": "word",
+        "start": 11.103,
+        "end": 11.37
+      },
+      {
+        "text": "دوره",
+        "type": "word",
+        "start": 11.402,
+        "end": 11.53
+      },
+      {
+        "text": "لوحده.",
+        "type": "word",
+        "start": 11.61,
+        "end": 12.09
+      },
+      {
+        "text": "[animated]",
+        "type": "word",
+        "start": 12.41,
+        "end": 12.738
+      },
+      {
+        "text": "الليل",
+        "type": "word",
+        "start": 12.777,
+        "end": 13.057
+      },
+      {
+        "text": "ينزل،",
+        "type": "word",
+        "start": 13.137,
+        "end": 13.537
+      },
+      {
+        "text": "والمافيا",
+        "type": "word",
+        "start": 13.601,
+        "end": 14.097
+      },
+      {
+        "text": "تختار",
+        "type": "word",
+        "start": 14.177,
+        "end": 14.497
+      },
+      {
+        "text": "ضحيتها.",
+        "type": "word",
+        "start": 14.577,
+        "end": 15.217
+      },
+      {
+        "text": "الدكتور",
+        "type": "word",
+        "start": 15.397,
+        "end": 16.177
+      },
+      {
+        "text": "يحاول",
+        "type": "word",
+        "start": 16.257,
+        "end": 16.657
+      },
+      {
+        "text": "ينقذ",
+        "type": "word",
+        "start": 16.71,
+        "end": 16.977
+      },
+      {
+        "text": "حد.",
+        "type": "word",
+        "start": 17.11,
+        "end": 17.457
+      },
+      {
+        "text": "والمحقق",
+        "type": "word",
+        "start": 17.553,
+        "end": 18.337
+      },
+      {
+        "text": "يكشف",
+        "type": "word",
+        "start": 18.444,
+        "end": 18.817
+      },
+      {
+        "text": "دور",
+        "type": "word",
+        "start": 18.857,
+        "end": 18.977
+      },
+      {
+        "text": "لاعب.",
+        "type": "word",
+        "start": 19.057,
+        "end": 19.457
+      },
+      {
+        "text": "[mischievously]",
+        "type": "word",
+        "start": 19.737,
+        "end": 20.217
+      },
+      {
+        "text": "الصبح،",
+        "type": "word",
+        "start": 20.227,
+        "end": 20.697
+      },
+      {
+        "text": "كله",
+        "type": "word",
+        "start": 20.797,
+        "end": 21.137
+      },
+      {
+        "text": "عامل",
+        "type": "word",
+        "start": 21.201,
+        "end": 21.457
+      },
+      {
+        "text": "بريء!",
+        "type": "word",
+        "start": 21.537,
+        "end": 22.017
+      },
+      {
+        "text": "[energetic]",
+        "type": "word",
+        "start": 22.297,
+        "end": 22.686
+      },
+      {
+        "text": "تسألوا،",
+        "type": "word",
+        "start": 22.703,
+        "end": 23.059
+      },
+      {
+        "text": "تناقشوا،",
+        "type": "word",
+        "start": 23.166,
+        "end": 23.859
+      },
+      {
+        "text": "وتصوّتوا.",
+        "type": "word",
+        "start": 23.899,
+        "end": 24.939
+      },
+      {
+        "text": "بس",
+        "type": "word",
+        "start": 25.059,
+        "end": 25.299
+      },
+      {
+        "text": "لو",
+        "type": "word",
+        "start": 25.379,
+        "end": 25.539
+      },
+      {
+        "text": "طلّعتوا",
+        "type": "word",
+        "start": 25.619,
+        "end": 26.099
+      },
+      {
+        "text": "الشخص",
+        "type": "word",
+        "start": 26.126,
+        "end": 26.259
+      },
+      {
+        "text": "الغلط،",
+        "type": "word",
+        "start": 26.319,
+        "end": 27.299
+      },
+      {
+        "text": "المافيا",
+        "type": "word",
+        "start": 27.359,
+        "end": 27.699
+      },
+      {
+        "text": "كسبانة",
+        "type": "word",
+        "start": 27.779,
+        "end": 28.219
+      },
+      {
+        "text": "منكم.",
+        "type": "word",
+        "start": 28.259,
+        "end": 28.579
+      },
+      {
+        "text": "[short",
+        "type": "word",
+        "start": 29.139,
+        "end": 29.709
+      },
+      {
+        "text": "pause]",
+        "type": "word",
+        "start": 29.711,
+        "end": 29.729
+      },
+      {
+        "text": "[teasing]",
+        "type": "word",
+        "start": 29.734,
+        "end": 29.769
+      },
+      {
+        "text": "فاكر",
+        "type": "word",
+        "start": 29.774,
+        "end": 30.019
+      },
+      {
+        "text": "الوش",
+        "type": "word",
+        "start": 30.046,
+        "end": 30.259
+      },
+      {
+        "text": "اللي",
+        "type": "word",
+        "start": 30.312,
+        "end": 30.499
+      },
+      {
+        "text": "في",
+        "type": "word",
+        "start": 30.526,
+        "end": 30.579
+      },
+      {
+        "text": "الأول؟",
+        "type": "word",
+        "start": 30.646,
+        "end": 31.059
+      },
+      {
+        "text": "[excited]",
+        "type": "word",
+        "start": 31.379,
+        "end": 31.759
+      },
+      {
+        "text": "أهو",
+        "type": "word",
+        "start": 31.769,
+        "end": 31.939
+      },
+      {
+        "text": "ده",
+        "type": "word",
+        "start": 31.966,
+        "end": 32.019
+      },
+      {
+        "text": "المافيا!",
+        "type": "word",
+        "start": 32.059,
+        "end": 32.579
+      },
+      {
+        "text": "[upbeat]",
+        "type": "word",
+        "start": 32.939,
+        "end": 33.443
+      },
+      {
+        "text": "ومتجمعين؟",
+        "type": "word",
+        "start": 33.467,
+        "end": 34.099
+      },
+      {
+        "text": "العبوا",
+        "type": "word",
+        "start": 34.259,
+        "end": 34.899
+      },
+      {
+        "text": "أوفلاين.",
+        "type": "word",
+        "start": 34.939,
+        "end": 35.379
+      },
+      {
+        "text": "[curious]",
+        "type": "word",
+        "start": 35.779,
+        "end": 36.239
+      },
+      {
+        "text": "عايز",
+        "type": "word",
+        "start": 36.249,
+        "end": 36.419
+      },
+      {
+        "text": "بقى",
+        "type": "word",
+        "start": 36.472,
+        "end": 36.699
+      },
+      {
+        "text": "تمسك",
+        "type": "word",
+        "start": 36.739,
+        "end": 36.979
+      },
+      {
+        "text": "حد",
+        "type": "word",
+        "start": 37.059,
+        "end": 37.219
+      },
+      {
+        "text": "بالأدلة؟",
+        "type": "word",
+        "start": 37.267,
+        "end": 37.859
+      },
+      {
+        "text": "[animated]",
+        "type": "word",
+        "start": 38.299,
+        "end": 38.803
+      },
+      {
+        "text": "افتح",
+        "type": "word",
+        "start": 38.811,
+        "end": 38.867
+      },
+      {
+        "text": "قصص",
+        "type": "word",
+        "start": 38.878,
+        "end": 38.979
+      },
+      {
+        "text": "وتحقيقات.",
+        "type": "word",
+        "start": 39.059,
+        "end": 39.859
+      },
+      {
+        "text": "قضية",
+        "type": "word",
+        "start": 40.099,
+        "end": 40.739
+      },
+      {
+        "text": "زي",
+        "type": "word",
+        "start": 40.819,
+        "end": 40.979
+      },
+      {
+        "text": "قهوة",
+        "type": "word",
+        "start": 41.019,
+        "end": 41.299
+      },
+      {
+        "text": "المعلم:",
+        "type": "word",
+        "start": 41.347,
+        "end": 42.339
+      },
+      {
+        "text": "شخصيات",
+        "type": "word",
+        "start": 42.439,
+        "end": 42.899
+      },
+      {
+        "text": "تسألها،",
+        "type": "word",
+        "start": 42.979,
+        "end": 43.539
+      },
+      {
+        "text": "وأماكن",
+        "type": "word",
+        "start": 43.619,
+        "end": 44.019
+      },
+      {
+        "text": "تفتّشها.",
+        "type": "word",
+        "start": 44.099,
+        "end": 44.739
+      },
+      {
+        "text": "وتحرّكاتك",
+        "type": "word",
+        "start": 45.006,
+        "end": 46.019
+      },
+      {
+        "text": "محدودة،",
+        "type": "word",
+        "start": 46.086,
+        "end": 46.579
+      },
+      {
+        "text": "فاختار",
+        "type": "word",
+        "start": 46.859,
+        "end": 47.459
+      },
+      {
+        "text": "هتبدأ",
+        "type": "word",
+        "start": 47.539,
+        "end": 47.939
+      },
+      {
+        "text": "بمين.",
+        "type": "word",
+        "start": 47.992,
+        "end": 48.419
+      },
+      {
+        "text": "[curious]",
+        "type": "word",
+        "start": 48.739,
+        "end": 49.119
+      },
+      {
+        "text": "وفي",
+        "type": "word",
+        "start": 49.124,
+        "end": 49.139
+      },
+      {
+        "text": "الآخر",
+        "type": "word",
+        "start": 49.179,
+        "end": 49.459
+      },
+      {
+        "text": "تقول:",
+        "type": "word",
+        "start": 49.539,
+        "end": 49.939
+      },
+      {
+        "text": "مين",
+        "type": "word",
+        "start": 50.259,
+        "end": 50.659
+      },
+      {
+        "text": "عملها؟",
+        "type": "word",
+        "start": 50.759,
+        "end": 51.219
+      },
+      {
+        "text": "وليه؟",
+        "type": "word",
+        "start": 51.439,
+        "end": 52.259
+      },
+      {
+        "text": "وإزاي؟",
+        "type": "word",
+        "start": 52.552,
+        "end": 53.539
+      },
+      {
+        "text": "[excited]",
+        "type": "word",
+        "start": 54.099,
+        "end": 54.719
+      },
+      {
+        "text": "سيد",
+        "type": "word",
+        "start": 54.729,
+        "end": 54.899
+      },
+      {
+        "text": "المافيا.",
+        "type": "word",
+        "start": 54.939,
+        "end": 55.459
+      },
+      {
+        "text": "ابعتها",
+        "type": "word",
+        "start": 55.672,
+        "end": 56.339
+      },
+      {
+        "text": "لصحابك!",
+        "type": "word",
+        "start": 56.419,
+        "end": 57.059
+      },
+      {
+        "text": "[playfully]",
+        "type": "word",
+        "start": 57.259,
+        "end": 57.579
+      },
+      {
+        "text": "وشوف",
+        "type": "word",
+        "start": 57.592,
+        "end": 57.859
+      },
+      {
+        "text": "مين",
+        "type": "word",
+        "start": 57.899,
+        "end": 58.099
+      },
+      {
+        "text": "فيهم",
+        "type": "word",
+        "start": 58.179,
+        "end": 58.499
+      },
+      {
+        "text": "هيقول",
+        "type": "word",
+        "start": 58.579,
+        "end": 59.059
+      },
+      {
+        "text": "«أنا",
+        "type": "word",
+        "start": 59.419,
+        "end": 59.939
+      },
+      {
+        "text": "بريء».",
+        "type": "word",
+        "start": 60.019,
+        "end": 60.419
+      }
+    ],
+    "words_download_url": "https://storage.googleapis.com/xi-backend/database/workspace/f13a260c5b0f4c56bfcd744480b2c20e/content_generation/14OYBfZloZf81ouV5rY8/skq6Em4H34qRKiwbgBB1/words.json?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=xi-backend-prod%40xi-labs.iam.gserviceaccount.com%2F20261011%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20261011T155045Z&X-Goog-Expires=7200&X-Goog-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22transcript-skq6Em4H34qRKiwbgBB1-words.json%22&X-Goog-Signature=185180b846736b645e48c8b0bc100db0393ed087e5716dcc23a445e89db341af0b1470a76aff5c1b4c968a381638433199ffced2e59874d40942e28ad2123545207be9f7dd35d730606d47bfad3355802ca19af2aa9a914ec2f67a6c86d04a3d69e36c215160a534c6a30408773112681181c7f7492f5db847fb25e03d2225a2284e1f3a6287dba3a5a490636988e7755f99882484c5cffc7de21be0949dbcf99bff3aa3278ffba6c1e3f3aea08ff71acea32d9c84e810a4c7eb8f887809d4972baeabd188373016ba11942bd886fefe48dc8970f6ca78028eb5a6074670d611e9fc384b007bdaadf12d0cb401071ad4794f733e25b3504e739051ba38d425f3",
+    "spoken_duration_secs": 60.42,
+    "source": {
+      "kind": "audio",
+      "url": "https://storage.googleapis.com/xi-backend/database/workspace/f13a260c5b0f4c56bfcd744480b2c20e/content_generation/2SPMaPVvVv5wu3qsblJ8/io9GFXg4vAYJBQPCcmwZ/content.mp3?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=xi-backend-prod%40xi-labs.iam.gserviceaccount.com%2F20261011%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20261011T154144Z&X-Goog-Expires=7200&X-Goog-SignedHeaders=host&X-Goog-Signature=433142b7c3784242f070a661147d018f305734550fa152c7a220d98a0023e6711dbc144e5fb906cb233594fda56e26c2051c9b4c4c5b9c5cc157f9faaa23e60fa0617c6b0f078116490af9735603c9cc5f4cd3c6397f6377580a876077962295a6f749f9e0641377711655d866744126a3aecffaa501e8e8549861363c9d3115f608ad802d795abbaedb5813eebb152a50e55804d4fa805e4de023949aad72a2a4ce8c4177d1662c6de9a5d54001fc83c22093bdc3a1135b82a89f0bc5362bd23019c193dfb4da11e16703848fb1bb3393ea1a200e0293accef15249ebdee878d80e611a1e8573c552bcb127836f755ae609583a1054dd5f073e7c7e7a3da069"
+    }
+  }
+]

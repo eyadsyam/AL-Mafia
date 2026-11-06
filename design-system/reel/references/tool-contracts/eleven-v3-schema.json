@@ -1,0 +1,26 @@
+{
+  "model_id": "eleven_v3",
+  "model_name": "ElevenLabs v3",
+  "node_type": "tts",
+  "parameters": [
+    {
+      "name": "voice_id",
+      "type": "text",
+      "required": false,
+      "description": "Deprecated: legacy alias of `voice`. Accepted on input only; not written by new clients."
+    },
+    {
+      "name": "language_code",
+      "type": "text",
+      "required": false,
+      "description": "BCP-47 language code for multilingual models."
+    }
+  ],
+  "input_ports": [
+    {
+      "key": "prompt",
+      "modality": "text",
+      "required": false
+    }
+  ]
+}

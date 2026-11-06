@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>هوية سيد المافيا</title>
+<meta name="description" content="نظام هوية لعبة سيد المافيا: تلات أحبار، قواعد، علامات، خطوط، مكونات، وصور.">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*{box-sizing:border-box;margin:0}
+html{background:var(--ash-ground);color:var(--ash-text2);scroll-behavior:smooth}
+body{font-family:var(--font-body);font-size:16px;line-height:1.7;background:var(--ash-ground);
+  background-image:radial-gradient(rgba(233,228,217,.03) .7px,transparent .8px);background-size:4px 4px}
+img{display:block;max-width:100%}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4{font-family:var(--font-display);color:var(--ash-bone);font-weight:800;line-height:1.2}
+p{max-width:62ch}
+strong{color:var(--ash-bone);font-weight:500}
+code{font-family:var(--font-figures);font-size:.86em;direction:ltr;unicode-bidi:isolate;color:var(--ash-parchment)}
+
+/* nav */
+nav.top{position:sticky;top:0;z-index:20;background:rgba(15,15,15,.92);border-bottom:1px solid var(--ash-line)}
+nav.top .wrap{display:flex;gap:22px;align-items:center;height:52px;overflow-x:auto;white-space:nowrap;font-size:14px}
+nav.top a{text-decoration:none;color:var(--ash-muted)}
+nav.top a:hover{color:var(--ash-bone)}
+nav.top .home{color:var(--ash-bone);font-family:var(--font-display);font-weight:800;font-size:16px;margin-inline-end:auto}
+nav.top .other{color:#E0A55C}
+
+/* index tag */
+.idx{display:inline-flex;flex-direction:column;align-items:center;font-family:var(--font-index);color:var(--ash-bone);line-height:.9;letter-spacing:.04em;direction:ltr}
+.idx b{font-weight:400;font-size:26px}
+.idx i{font-style:normal;font-size:14px;opacity:.8}
+.frame{border:1px solid var(--ash-rule);outline:1px solid var(--ash-rule);outline-offset:-6px}
+
+/* hero */
+header.hero{min-height:min(86vh,900px);display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:40px;padding:64px 0 40px;position:relative}
+.hero::before{content:"";position:absolute;inset:-60px -20vw auto auto;width:70vw;height:120%;pointer-events:none;background:var(--light)}
+.kicker{display:flex;gap:14px;align-items:center;color:var(--ash-muted);font-size:14px;margin-bottom:28px}
+.hero h1{font-size:clamp(56px,9vw,120px);font-weight:900}
+.hero h1 span{display:block;font-size:.3em;font-weight:500;color:var(--ash-parchment);margin-top:16px;font-family:var(--font-body)}
+.lede{font-size:19px;margin-top:28px}
+.fan{position:relative;height:520px}
+.fan img{position:absolute;width:240px;border-radius:12px;box-shadow:0 30px 60px rgba(0,0,0,.7)}
+.fan img:nth-child(1){top:50px;left:0;transform:rotate(-13deg)}
+.fan img:nth-child(2){top:16px;left:100px;transform:rotate(-4deg)}
+.fan img:nth-child(3){top:20px;left:200px;transform:rotate(5deg)}
+.fan img:nth-child(4){top:56px;left:290px;transform:rotate(13deg)}
+
+section{padding:96px 0;border-top:1px solid var(--ash-line)}
+.sh{display:grid;grid-template-columns:80px 1fr;gap:24px;align-items:start;margin-bottom:48px}
+.sh h2{font-size:clamp(32px,4.4vw,52px)}
+.sh p{margin-top:12px}
+
+/* inks */
+.inks{display:grid;grid-template-columns:5fr 3fr 2fr;min-height:540px}
+.ink{position:relative;padding:28px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.ink > *{position:relative;z-index:1}
+.ink h3{font-size:30px}
+.ink .role{font-size:14px;margin-top:6px}
+.chips{display:flex;flex-direction:column;gap:6px;margin-top:22px}
+.chip{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;font-family:var(--font-figures);font-size:12px;direction:ltr}
+.chip em{font-style:normal;font-family:var(--font-body);direction:rtl}
+.ink.ash{background:var(--ash-ground)}
+.ink.slate{background:var(--slate-wall);color:var(--slate-paper)}
+.ink.slate h3{color:var(--slate-text)}
+.ink.house{background:var(--house-panel);color:var(--house-text2)}
+.ink.house h3{color:var(--house-brass)}
+.ink .art{position:absolute;inset:auto 0 0 0;height:46%;background-size:cover;background-position:center 30%;opacity:.55;z-index:0;
+  -webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%)}
+.where{font-size:13px;margin-top:16px;opacity:.85}
+.ratio{display:flex;height:10px;margin-top:20px}
+.ratio div:nth-child(1){flex:70;background:var(--ash-overlay)}
+.ratio div:nth-child(2){flex:20;background:var(--slate-stone)}
+.ratio div:nth-child(3){flex:10;background:var(--house-oxblood)}
+.ratio-l{display:flex;justify-content:space-between;font-size:13px;color:var(--ash-muted);margin-top:8px}
+
+/* laws */
+.laws{display:grid;grid-template-columns:repeat(12,1fr);gap:28px 32px}
+.law{grid-column:span 6;display:grid;grid-template-columns:56px 1fr;gap:16px}
+.law:nth-child(5n){grid-column:span 12}
+.law .n{font-family:var(--font-index);font-size:52px;color:var(--ash-line);line-height:.9}
+.law h3{font-size:21px;margin-bottom:6px}
+.law p{font-size:15px}
+
+/* signatures */
+.sigs{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.sig{grid-column:span 2;background:var(--ash-raised);padding:24px;display:flex;flex-direction:column;gap:16px}
+.sig.wide{grid-column:span 3}
+.demo{height:170px;display:grid;place-items:center;background:var(--ash-ground);position:relative;overflow:hidden}
+.sig h3{font-size:20px}
+.sig p{font-size:14.5px}
+.demo-index{width:120px;height:160px;background:var(--ash-raised);position:relative}
+.demo-index .idx{position:absolute;top:12px;right:12px}
+.demo-index .idx.b{top:auto;right:auto;bottom:12px;left:12px;transform:rotate(180deg)}
+.seal{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:radial-gradient(circle at 38% 32%,#7a3433,var(--house-oxblood) 45%,var(--house-oxblood-deep) 100%);
+  box-shadow:inset 0 0 0 5px rgba(0,0,0,.22),inset 0 0 0 7px rgba(201,164,92,.35),0 8px 18px rgba(0,0,0,.6)}
+.seal img{width:56%;height:56%;border-radius:50%;object-fit:cover;filter:grayscale(1) contrast(1.4) brightness(.85);mix-blend-mode:luminosity;opacity:.8}
+.demo-ht{background:var(--slate-wall);background-image:radial-gradient(rgba(220,216,203,.42) 1.2px,transparent 1.6px);background-size:6px 6px;
+  -webkit-mask-image:linear-gradient(200deg,#000,transparent 85%);mask-image:linear-gradient(200deg,#000,transparent 85%)}
+.demo-lamp{background:linear-gradient(215deg,rgba(233,228,217,.30),rgba(233,228,217,.08) 30%,transparent 60%),var(--ash-ground)}
+.demo-lamp span{position:absolute;top:10px;right:14px;font-size:12px;color:var(--ash-muted)}
+.demo-feather img{width:100%;height:100%;object-fit:cover;-webkit-mask-image:radial-gradient(ellipse 60% 70% at 50% 45%,#000 40%,transparent 75%);mask-image:radial-gradient(ellipse 60% 70% at 50% 45%,#000 40%,transparent 75%)}
+.demo-rule{width:150px;height:110px;background:var(--ash-raised)}
+
+/* type */
+.type{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:end}
+.spec .d{font-family:var(--font-display);font-weight:900;font-size:clamp(64px,10vw,132px);color:var(--ash-bone);line-height:1}
+.spec .s{font-family:var(--font-display);font-weight:700;font-size:34px;color:var(--ash-parchment);margin-top:18px}
+.spec .b{font-size:18px;margin-top:18px}
+.scale{display:flex;flex-direction:column;border-top:1px solid var(--ash-line)}
+.scale div{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--ash-line)}
+.scale code{font-size:12px;color:var(--ash-muted);text-align:left}
+.nums{display:flex;gap:28px;align-items:baseline;margin-top:32px;flex-wrap:wrap}
+.nums .t{font-family:var(--font-index);font-size:84px;color:var(--ash-bone);line-height:.9;direction:ltr}
+.nums .c{font-family:var(--font-figures);font-size:15px;color:var(--house-brass);direction:ltr}
+
+/* components */
+.comps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.comp{background:var(--ash-raised);padding:24px;display:flex;flex-direction:column;gap:14px}
+.comp.house{background:var(--house-panel)}
+.comp h3{font-size:17px}
+.comp .spec-l{font-size:13px;color:var(--ash-muted)}
+.btn{display:block;text-align:center;font-family:var(--font-display);font-weight:700;font-size:18px;padding:13px;border-radius:4px}
+.btn-primary{background:var(--ash-parchment);color:var(--ash-on-parchment)}
+.btn-primary.pressed{background:var(--ash-parchment-pressed)}
+.btn-ghost{color:var(--ash-parchment);border:1px solid var(--ash-line);font-size:15px;padding:10px;font-family:var(--font-body);font-weight:500}
+.btn-house{flex:1;background:var(--house-oxblood);color:var(--house-text);border:1px solid #7a3a36}
+.pill{display:inline-flex;gap:6px;align-items:center;padding:4px 10px 4px 6px;background:var(--house-panel);border:1px solid #3a2a20;color:var(--house-brass);font-family:var(--font-figures);font-size:12px;direction:ltr}
+.pill i{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F1DFA8,var(--house-brass) 60%,var(--house-brass-deep))}
+.rowx{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--ash-line)}
+.rowx img{width:48px;height:48px;object-fit:cover;border-radius:6px}
+.rowx b{display:block;color:var(--ash-bone);font-weight:500;font-size:15px}
+.rowx small{color:var(--ash-muted);font-size:12px}
+.price{font-family:var(--font-figures);font-size:12px;color:var(--house-brass);border:1px solid #5a4632;padding:5px 9px;border-radius:3px;direction:ltr}
+
+/* phones */
+.phones{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+.pc{display:flex;flex-direction:column;gap:14px;align-items:center}
+.pc .cap{font-size:14px;color:var(--ash-muted);text-align:center;max-width:300px}
+.pc .cap b{color:var(--ash-bone);font-weight:500;display:block}
+.phone{width:300px;height:640px;border-radius:38px;overflow:hidden;position:relative;border:8px solid #050505;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+.status{position:absolute;top:0;inset-inline:0;height:34px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:11px;color:var(--ash-text2);z-index:5;direction:ltr}
+.p-home{background:var(--ash-ground)}
+.p-home .bg{position:absolute;inset:0;background:url(img/grounds/home.webp) center/cover;opacity:.9}
+.p-home .lamp{position:absolute;inset:0;background:var(--light)}
+.p-home .top{position:absolute;top:44px;inset-inline:18px;display:flex;justify-content:space-between;align-items:center}
+.p-home .ic{width:30px;height:30px;border:1px solid var(--ash-line);display:grid;place-items:center;font-size:13px;color:var(--ash-parchment)}
+.p-home .cards{position:absolute;top:92px;left:50%;width:260px;height:300px;transform:translateX(-50%)}
+.p-home .cards img{position:absolute;width:132px;border-radius:9px;box-shadow:0 16px 30px rgba(0,0,0,.7)}
+.p-home .cards img:nth-child(1){left:6px;top:20px;transform:rotate(-10deg)}
+.p-home .cards img:nth-child(2){left:56px;top:6px;transform:rotate(-2deg)}
+.p-home .cards img:nth-child(3){left:104px;top:16px;transform:rotate(8deg)}
+.p-home .title{position:absolute;bottom:162px;inset-inline:0;text-align:center}
+.p-home .title h4{font-weight:900;font-size:46px;line-height:1}
+.p-home .title .line{display:flex;justify-content:center;gap:10px;align-items:center;margin-top:10px;color:var(--ash-muted);font-size:12px}
+.p-home .title .line::before,.p-home .title .line::after{content:"";width:34px;height:1px;background:var(--ash-line)}
+.p-home .actions{position:absolute;bottom:34px;inset-inline:18px;display:flex;flex-direction:column;gap:10px}
+.p-phase{background:var(--slate-deep)}
+.p-phase .art{position:absolute;inset:0 0 auto 0;height:68%;background:url(img/stage/chair.webp) center 40%/cover;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+.p-phase .ht{position:absolute;inset:0;background:var(--halftone)}
+.p-phase .chapter{position:absolute;top:50px;right:20px}
+.p-phase .chapter .idx{color:var(--slate-text)}
+.p-phase .words{position:absolute;bottom:120px;inset-inline:24px}
+.p-phase .words small{display:block;color:var(--slate-mist);font-size:13px;margin-bottom:8px}
+.p-phase .words h4{font-size:34px;color:var(--slate-text);line-height:1.25}
+.p-phase .bar{position:absolute;bottom:56px;inset-inline:24px;height:2px;background:var(--slate-stone)}
+.p-phase .bar i{display:block;height:100%;width:62%;background:var(--slate-paper);margin-inline-start:auto}
+.p-vault{background:var(--ash-ground)}
+.p-vault .under{position:absolute;inset:0;background:url(img/grounds/home.webp) center/cover;opacity:.35}
+.p-vault .sheet{position:absolute;inset:84px 0 0 0;background:var(--house-panel);border-radius:18px 18px 0 0;overflow:hidden;box-shadow:0 -20px 40px rgba(0,0,0,.6)}
+.p-vault .sheet::before{content:"";position:absolute;inset:0 0 auto 0;height:200px;background:url(img/house/store_hero.webp) 18% center/cover;-webkit-mask-image:linear-gradient(#000 40%,transparent);mask-image:linear-gradient(#000 40%,transparent)}
+.p-vault .grab{position:absolute;top:8px;left:50%;width:36px;height:4px;border-radius:2px;background:#4a3a30;transform:translateX(-50%);z-index:2}
+.p-vault .head{position:absolute;top:128px;inset-inline:18px;display:flex;justify-content:space-between;align-items:flex-end}
+.p-vault .head h4{font-size:28px;color:var(--house-text)}
+.p-vault .rows{position:absolute;top:180px;inset-inline:18px}
+.p-vault .rowx{border-color:var(--house-line)}
+.p-vault .rowx b{color:var(--house-text)}
+.p-vault .rowx small{color:#9c8a78}
+.p-vault .rowx .owned{border:0;color:#8a7a68;font-family:var(--font-body)}
+.p-vault .commit{position:absolute;bottom:26px;inset-inline:18px;display:flex;align-items:center;gap:12px}
+.p-vault .commit .seal{width:52px;height:52px}
+.p-in{background:var(--ash-ground)}
+.p-in .who{position:absolute;top:70px;inset-inline:0;text-align:center}
+.p-in .who small{color:var(--ash-muted);font-size:13px}
+.p-in .who h4{font-size:30px;margin-top:4px}
+.p-in .card{position:absolute;top:150px;left:50%;width:200px;transform:translateX(-50%);border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.p-in .hint{position:absolute;bottom:120px;inset-inline:24px;text-align:center;color:var(--ash-text2);font-size:14px}
+.p-in .actions{position:absolute;bottom:34px;inset-inline:18px}
+
+/* gallery */
+.gal{columns:4 220px;column-gap:14px}
+.gal figure{break-inside:avoid;margin:0 0 14px;background:var(--ash-raised)}
+.gal img{width:100%}
+.gal figcaption{font-family:var(--font-figures);font-size:11px;color:var(--ash-muted);padding:6px 8px;direction:ltr;text-align:left}
+.gal h4{column-span:all;font-size:18px;margin:18px 0 12px}
+
+/* do/dont */
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.dd > div{padding:28px;background:var(--ash-raised)}
+.dd h3{font-size:20px;margin-bottom:14px}
+.dd ul{padding-inline-start:20px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.dd .no h3{color:var(--house-ember)}
+.dd .no li::marker{color:var(--house-ember)}
+.dd .yes li::marker{color:var(--ash-parchment)}
+.files{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.files a{display:block;padding:18px;background:var(--ash-raised);text-decoration:none}
+.files a b{display:block;color:var(--ash-bone);font-family:var(--font-figures);font-weight:500;direction:ltr;text-align:right}
+.files a span{font-size:13px;color:var(--ash-muted)}
+footer{padding:48px 0 80px;color:var(--ash-muted);font-size:13px;border-top:1px solid var(--ash-line)}
+
+@media (max-width:900px){
+  header.hero{grid-template-columns:1fr;min-height:auto}
+  .fan{height:360px;transform:scale(.7);transform-origin:top right}
+  .inks{grid-template-columns:1fr}
+  .ink{min-height:380px}
+  .law,.law:nth-child(5n){grid-column:span 12}
+  .sig,.sig.wide{grid-column:span 6}
+  .type,.dd,.comps{grid-template-columns:1fr}
+  .files{grid-template-columns:1fr 1fr}
+  .sh{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav class="top"><div class="wrap">
+  <a class="home" href="#top">سيد المافيا</a>
+  <a href="#inks">الأحبار</a><a href="#laws">القواعد</a><a href="#marks">العلامات</a><a href="#type">الخط</a>
+  <a href="#components">المكونات</a><a href="#screens">الشاشات</a><a href="#images">الصور</a>
+  <a class="other" href="../stories/index.html">قصص وتحقيقات ←</a>
+</div></nav>
+
+<div class="wrap" id="top">
+<header class="hero">
+  <div>
+    <div class="kicker"><span class="idx"><b>M</b><i>♠</i></span> نظام الهوية · نسخة ١ · ١٠ أكتوبر ٢٠٢٦</div>
+    <h1>سيد المافيا<span>كوتشينة مرسومة، لمبة واحدة، وختم نبيتي.</span></h1>
+    <p class="lede">الهوية مش لون واحد. هي <strong>تلات أحبار</strong> مطبوعين على نفس الورق، وكل حبر ليه مكان ومعنى. اللي يشوف أي شاشة من اللعبة يعرفها من القاعدة دي، مش من لوجو.</p>
+  </div>
+  <div class="fan" aria-hidden="true">
+    <img src="img/cards/face_sniper.webp" alt="">
+    <img src="img/cards/face_mafia.webp" alt="">
+    <img src="img/cards/face_detective.webp" alt="">
+    <img src="img/cards/face_doctor.webp" alt="">
+  </div>
+</header>
+
+<section id="inks">
+  <div class="sh"><span class="idx"><b>01</b><i>♠</i></span><div>
+    <h2>تلات أحبار، مش تلات ثيمات</h2>
+    <p>كل الألوان <strong>مقاسة من اللوحات نفسها</strong>. الرماد من الكروت، الأردواز من لوحات المراحل (فيها ميلان أخضر رمادي خفيف مش موجود في الكروت)، والبيت من الخزنة والمتجر.</p>
+  </div></div>
+  <div class="inks">
+    <div class="ink ash"><div>
+      <h3>الرماد</h3><div class="role">الكروت، الإيد، السر. الحبر الأساسي.</div>
+      <div class="chips">
+        <div class="chip" style="background:var(--ash-ground);border:1px solid var(--ash-line);color:var(--ash-muted)"><span>#0F0F0F</span><em>الأرضية</em></div>
+        <div class="chip" style="background:var(--ash-raised);color:var(--ash-muted)"><span>#1A1A1A</span><em>لوح مرفوع</em></div>
+        <div class="chip" style="background:var(--ash-overlay);color:var(--ash-text2)"><span>#252525</span><em>شيت</em></div>
+        <div class="chip" style="background:var(--ash-rule);color:var(--ash-bone)"><span>#5A5852</span><em>الخط المزدوج</em></div>
+        <div class="chip" style="background:var(--ash-parchment);color:#141312"><span>#C2BDB2</span><em>رق قديم، الزرار الوحيد</em></div>
+        <div class="chip" style="background:var(--ash-bone);color:#141312"><span>#E9E4D9</span><em>عظم، النص</em></div>
+      </div>
+      <div class="where">الرئيسية، اللاعيبة، الأدوار، وكل شاشة والموبايل في إيد لاعب.</div>
+    </div><div class="art" style="background-image:url(img/people/hood_gloved.webp)"></div></div>
+    <div class="ink slate"><div>
+      <h3>الأردواز</h3><div class="role">المسرح: الليل نزل، الصبح طلع.</div>
+      <div class="chips">
+        <div class="chip" style="background:var(--slate-deep);color:var(--slate-mist)"><span>#0B0D0D</span><em>عمق</em></div>
+        <div class="chip" style="background:var(--slate-stone);color:var(--slate-paper)"><span>#272F2E</span><em>حجر</em></div>
+        <div class="chip" style="background:var(--slate-mist);color:#101414"><span>#889697</span><em>ضباب</em></div>
+        <div class="chip" style="background:var(--slate-paper);color:#101414"><span>#B3AF9E</span><em>ورق اللوحة</em></div>
+      </div>
+      <div class="where">إعلانات المراحل، افتتاح الفصول، النتيجة.</div>
+    </div><div class="art" style="background-image:url(img/stage/door.webp)"></div></div>
+    <div class="ink house"><div>
+      <h3>البيت</h3><div class="role">الخزنة، الحكم، الفلوس.</div>
+      <div class="chips">
+        <div class="chip" style="background:var(--house-ground);color:var(--house-brass-dim)"><span>#140F0C</span><em>بني</em></div>
+        <div class="chip" style="background:var(--house-oxblood);color:var(--house-text)"><span>#562627</span><em>نبيتي</em></div>
+        <div class="chip" style="background:var(--house-ember);color:var(--house-text)"><span>#8E3A32</span><em>جمرة</em></div>
+        <div class="chip" style="background:var(--house-brass);color:#1A120E"><span>#C9A45C</span><em>نحاس</em></div>
+      </div>
+      <div class="where">الخزنة، المجلس، المهام، الحكم.</div>
+    </div><div class="art" style="background-image:url(img/house/raven.webp)"></div></div>
+  </div>
+  <div class="ratio"><div></div><div></div><div></div></div>
+  <div class="ratio-l"><span>٧٠٪ رماد</span><span>٢٠٪ أردواز</span><span>١٠٪ بيت، ولو زاد يبقى غلط</span></div>
+</section>
+
+<section id="laws">
+  <div class="sh"><span class="idx"><b>02</b><i>✚</i></span><div>
+    <h2>القواعد اللي بتعمل الهوية</h2>
+    <p>الهوية بتتعرف من الحاجات اللي اللعبة بترفض تعملها، زي ما بتتعرف من اللي بتعمله.</p>
+  </div></div>
+  <div class="laws">
+    <div class="law"><span class="n">1</span><div><h3>الأحمر معناه إن البلد اتكلمت</h3><p>النبيتي بيظهر بس لما حاجة <strong>تتحسم</strong>: حد خرج، فلوس اتدفعت، حاجة اتختمت. عمره ما يظهر والموبايل في إيد لاعب (قاعدة L-06).</p></div></div>
+    <div class="law"><span class="n">2</span><div><h3>شاشات الإيد رماد بس</h3><p>شاشة التمرير والكارت والليل: مفيش أردواز ولا بيت ولا صور غير كارت الدور. دي <strong>قاعدة التسريب</strong> مش ذوق.</p></div></div>
+    <div class="law"><span class="n">3</span><div><h3>لمبة واحدة بس</h3><p>شعاع واحد من فوق على اليمين، أقصاه ١٢٪. مفيش أي gradient تاني في اللعبة.</p></div></div>
+    <div class="law"><span class="n">4</span><div><h3>النحاس للقيمة بس</h3><p>عملات، أسعار، مكافآت. مطفي، بخط mono، بدون لمعة ولا glow.</p></div></div>
+    <div class="law"><span class="n">5</span><div><h3>الأحبار متتخلطش في شاشة واحدة</h3><p>كل شاشة ليها حبر واحد ماسكها. شيت الخزنة يطلع بني فوق الرماد، بس عمر الرماد ما يتلوّن نبيتي. الانتقال بين الأحبار هو نفسه الإحساس إنك اتنقلت من القعدة للشارع للخزنة.</p></div></div>
+    <div class="law"><span class="n">6</span><div><h3>الصور مبتتحطش في بوكس</h3><p>اللوحات بتدوب في الأرضية بحواف مريّشة. مفيش كارت مدور جواه صورة ولا إطار حوالين الرسمة.</p></div></div>
+    <div class="law"><span class="n">7</span><div><h3>زرار أساسي واحد</h3><p>رق قديم <code>#C2BDB2</code>. في شيتات البيت بيبقى نبيتي ومعاه الختم.</p></div></div>
+    <div class="law"><span class="n">8</span><div><h3>صوتين للخط</h3><p>Cairo التقيل للراوي، و IBM Plex للدفتر. خط الرقعة ممنوع هنا لأنه بتاع القصص.</p></div></div>
+    <div class="law"><span class="n">9</span><div><h3>مفيش لون من غير ما يتقاس</h3><p>أي لون جديد لازم ييجي من لوحة موجودة. ده اللي بيخلي اللعبة كلها شكلها <strong>مطبوعة على نفس المكنة</strong>.</p></div></div>
+  </div>
+</section>
+
+<section id="marks">
+  <div class="sh"><span class="idx"><b>03</b><i>◆</i></span><div>
+    <h2>ست علامات تعرّف الشاشة من غير لوجو</h2>
+    <p>لو شلت اسم اللعبة من أي screenshot، دول اللي يخلوا حد يقول «دي سيد المافيا».</p>
+  </div></div>
+  <div class="sigs">
+    <div class="sig wide"><div class="demo"><div class="demo-index frame"><span class="idx"><b>DR</b><i>✚</i></span><span class="idx b"><b>DR</b><i>✚</i></span></div></div>
+      <h3>دليل الكوتشينة</h3><p>الحرف والرمز اللي في ركن كل كارت هو نظام الترقيم في اللعبة كلها: رقم الفصل، رقم الشيت، درجة الرتبة. Bebas في الركن، زي الكوتشينة بالظبط.</p></div>
+    <div class="sig wide"><div class="demo"><div class="seal"><img src="img/brand/splash_mask.webp" alt=""></div></div>
+      <h3>الختم النبيتي</h3><p>شمع نبيتي عليه القناع. بيظهر في لحظة <strong>الالتزام</strong> بس: تأكيد شرا، حكم التصويت، حفظ القعدة. الصورة موجودة فعلًا في المجلس والـ motion.</p></div>
+    <div class="sig"><div class="demo demo-ht"></div><h3>نقط الطباعة</h3><p>الـ halftone اللي في لوحات المراحل. على أرضية الأردواز بس، ٧٪.</p></div>
+    <div class="sig"><div class="demo demo-lamp"><span>من هنا</span></div><h3>شعاع اللمبة</h3><p>gradient واحد، من فوق على اليمين، بيخلص قبل نص الشاشة.</p></div>
+    <div class="sig"><div class="demo demo-feather"><img src="img/stage/street.webp" alt=""></div><h3>الحافة المريّشة</h3><p>كل لوحة بتدوب في حبر الشاشة.</p></div>
+    <div class="sig wide"><div class="demo"><div class="demo-rule frame"></div></div><h3>الخط المزدوج</h3><p>إطار الكارت نفسه: خط، فراغ ٥، خط. بيحل محل الظلال في كل حتة.</p></div>
+    <div class="sig wide"><div class="demo"><span class="pill"><i></i>1,200</span></div><h3>رقم النحاس</h3><p>كل قيمة في اللعبة بنفس الشكل: عملة نحاس مطفي ورقم mono. لا لمعة ولا حركة.</p></div>
+  </div>
+</section>
+
+<section id="type">
+  <div class="sh"><span class="idx"><b>04</b><i>♣</i></span><div>
+    <h2>الخط: صوت الراوي وصوت الدفتر</h2>
+    <p>كلهم موجودين فعلًا في <code>assets/fonts</code>.</p>
+  </div></div>
+  <div class="type">
+    <div class="spec">
+      <div class="d">الضلمة نزلت</div>
+      <div class="s">صحّي الدكتور بالراحة</div>
+      <p class="b">Cairo تقيل للراوي (العناوين والإعلانات)، و IBM Plex Sans Arabic لكل الباقي.</p>
+      <div class="nums"><span class="t">00:47</span><span class="c">1,200 ⬤</span><span class="idx"><b>III</b><i>♠</i></span></div>
+    </div>
+    <div class="scale">
+      <div><code>Cairo 900 / 46</code><span style="font-family:var(--font-display);font-weight:900;font-size:30px;color:var(--ash-bone)">سيد المافيا</span></div>
+      <div><code>Cairo 800 / 30</code><span style="font-family:var(--font-display);font-weight:800;font-size:24px;color:var(--ash-bone)">إعلان المرحلة</span></div>
+      <div><code>Cairo 800 / 28</code><span style="font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--ash-bone)">عنوان شاشة</span></div>
+      <div><code>Plex 500 / 17</code><span style="font-weight:500;font-size:17px;color:var(--ash-bone)">اسم لاعب</span></div>
+      <div><code>Plex 400 / 15</code><span style="font-size:15px">نص وشرح</span></div>
+      <div><code>Bebas / index</code><span><span class="idx"><b style="font-size:22px">CH III · DR</b></span></span></div>
+      <div><code>Plex Mono 500</code><span style="font-family:var(--font-figures);color:var(--house-brass);direction:ltr;text-align:right">00:47 · 1,200</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="components">
+  <div class="sh"><span class="idx"><b>05</b><i>♦</i></span><div>
+    <h2>المكونات</h2>
+    <p>المقاسات بالـ dp. التفاصيل الكاملة في <code>IDENTITY.md §6</code>.</p>
+  </div></div>
+  <div class="comps">
+    <div class="comp"><h3>زرار أساسي</h3><span class="btn btn-primary">ابدأ اللعبة</span><span class="btn btn-primary pressed">وهو مضغوط</span><div class="spec-l">56 ارتفاع · زاوية 4 · Cairo 700 18 · واحد بس في الشاشة</div></div>
+    <div class="comp"><h3>زرار تاني</h3><span class="btn btn-ghost">القعدات المحفوظة</span><span class="btn btn-ghost" style="opacity:.4">مقفول</span><div class="spec-l">48 ارتفاع · خط 1 بلون line · Plex 500 15</div></div>
+    <div class="comp house"><h3 style="color:var(--house-text)">زرار الالتزام</h3><div style="display:flex;gap:12px;align-items:center"><span class="btn btn-house">اختم الشرا</span><div class="seal" style="width:52px;height:52px"><img src="img/brand/splash_mask.webp" alt=""></div></div><div class="spec-l" style="color:#9c8a78">في شيتات البيت بس · نبيتي + الختم 52</div></div>
+    <div class="comp"><h3>صف</h3>
+      <div class="rowx"><img src="img/people/avatar_male.webp" alt=""><div><b>أحمد</b><small>آخر قعدة: إمبارح</small></div><span style="color:var(--ash-muted)">‹</span></div>
+      <div class="rowx"><img src="img/people/avatar_female.webp" alt=""><div><b>منى</b><small>٣ قعدات</small></div><span style="color:var(--ash-muted)">‹</span></div>
+      <div class="spec-l">56 / 72 · الصور الصغيرة بس ليها زاوية 6</div></div>
+    <div class="comp house"><h3 style="color:var(--house-text)">صف في الخزنة</h3>
+      <div class="rowx" style="border-color:var(--house-line)"><img src="img/house/mask.webp" alt=""><div><b style="color:var(--house-text)">قناع المسرح</b><small>إطار للاعب</small></div><span class="price">⬤ 500</span></div>
+      <div class="rowx" style="border-color:var(--house-line)"><img src="img/house/key.webp" alt=""><div><b style="color:var(--house-text)">مفتاح الليل</b><small>ورق المراحل</small></div><span style="font-size:12px;color:#8a7a68">معاك</span></div>
+      <div class="spec-l" style="color:#9c8a78">السعر نحاس mono بإطار رفيع · المملوك نص هادي</div></div>
+    <div class="comp" style="background:var(--slate-wall)"><h3 style="color:var(--slate-text)">إعلان المرحلة</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="idx" style="color:var(--slate-text)"><b>III</b><i>☾</i></span><small style="color:var(--slate-mist)">الليلة التالتة</small></div>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:24px;color:var(--slate-text);line-height:1.3">الكل ينام.</div>
+      <div style="height:2px;background:var(--slate-stone)"><div style="height:2px;width:60%;background:var(--slate-paper);margin-inline-start:auto"></div></div>
+      <div class="spec-l" style="color:var(--slate-mist)">3 ثواني ثابتة · نفس المدة دايمًا</div></div>
+  </div>
+</section>
+
+<section id="screens">
+  <div class="sh"><span class="idx"><b>06</b><i>♥</i></span><div>
+    <h2>نفس القواعد على أربع شاشات</h2>
+    <p>كل شاشة حبر واحد. العين بتعرف هي فين من اللون قبل ما تقرا كلمة.</p>
+  </div></div>
+  <div class="phones">
+    <div class="pc"><div class="phone p-home"><div class="status"><span>4:46</span><span>▮▮▮</span></div>
+      <div class="bg"></div><div class="lamp"></div>
+      <div class="top"><span class="pill"><i></i>1,200</span><div style="display:flex;gap:8px"><span class="ic">⚙</span><span class="ic">?</span></div></div>
+      <div class="cards"><img src="img/cards/face_detective.webp" alt=""><img src="img/cards/face_mafia.webp" alt=""><img src="img/cards/face_doctor.webp" alt=""></div>
+      <div class="title"><h4>سيد المافيا</h4><div class="line">دوس على أي كارت</div></div>
+      <div class="actions"><span class="btn btn-primary">ابدأ اللعبة</span><span class="btn btn-ghost">قصص وتحقيقات</span></div>
+    </div><div class="cap"><b>الرماد · الرئيسية</b>شعاع واحد، زرار رق قديم واحد. الفلوس chip صغيرة بحبر البيت.</div></div>
+
+    <div class="pc"><div class="phone p-in"><div class="status"><span>4:46</span><span>▮▮▮</span></div>
+      <div class="who"><small>الدور على</small><h4>منى</h4></div>
+      <img class="card" src="img/cards/back.webp" alt="">
+      <div class="hint">اسحب الكارت عشان تشوف دورك</div>
+      <div class="actions"><span class="btn btn-primary">سلّم الموبايل</span></div>
+    </div><div class="cap"><b>الرماد · في الإيد</b>نفس الشاشة بالظبط لكل الأدوار. مفيش أي حبر تاني هنا.</div></div>
+
+    <div class="pc"><div class="phone p-phase"><div class="status"><span>4:46</span><span>▮▮▮</span></div>
+      <div class="art"></div><div class="ht"></div>
+      <div class="chapter"><span class="idx"><b>III</b><i>☾</i></span></div>
+      <div class="words"><small>الليلة التالتة</small><h4>الكل ينام.<br>المافيا بس تفتح عينها.</h4></div>
+      <div class="bar"><i></i></div>
+    </div><div class="cap"><b>الأردواز · إعلان المرحلة</b>اللوحة تدوب، رقم الفصل دليل كوتشينة، نقط طباعة خفيفة.</div></div>
+
+    <div class="pc"><div class="phone p-vault"><div class="status"><span>4:46</span><span>▮▮▮</span></div>
+      <div class="under"></div>
+      <div class="sheet"><div class="grab"></div>
+        <div class="head"><h4>الخزنة</h4><span class="pill"><i></i>1,200</span></div>
+        <div class="rows">
+          <div class="rowx"><img src="img/house/mask.webp" alt=""><div><b>قناع المسرح</b><small>إطار للاعب</small></div><span class="price">⬤ 500</span></div>
+          <div class="rowx"><img src="img/house/key.webp" alt=""><div><b>مفتاح الليل</b><small>ورق المراحل</small></div><span class="owned" style="font-size:12px">معاك</span></div>
+        </div>
+        <div class="commit"><div class="seal"><img src="img/brand/splash_mask.webp" alt=""></div><span class="btn btn-house">اختم الشرا</span></div>
+      </div>
+    </div><div class="cap"><b>البيت · الخزنة</b>شيت بني فوق الرماد، نحاس للأرقام، والنبيتي على زرار الالتزام والختم بس.</div></div>
+  </div>
+</section>
+
+<section id="images">
+  <div class="sh"><span class="idx"><b>07</b><i>▣</i></span><div>
+    <h2>مكتبة الصور</h2>
+    <p>كل صورة هنا معاها مسارها. الأصل بالمقاس الكامل في <code>assets/images</code>، والجدول الكامل في <code>IDENTITY.md §7</code>.</p>
+  </div></div>
+  <div class="gal">
+    <h4>الكروت</h4>
+    <figure><img loading="lazy" src="img/cards/face_mafia.webp" alt=""><figcaption>cards/face_mafia</figcaption></figure>
+    <figure><img loading="lazy" src="img/cards/face_doctor.webp" alt=""><figcaption>cards/face_doctor</figcaption></figure>
+    <figure><img loading="lazy" src="img/cards/face_detective.webp" alt=""><figcaption>cards/face_detective</figcaption></figure>
+    <figure><img loading="lazy" src="img/cards/face_citizen.webp" alt=""><figcaption>cards/face_citizen</figcaption></figure>
+    <figure><img loading="lazy" src="img/cards/face_elder.webp" alt=""><figcaption>cards/face_elder</figcaption></figure>
+    <figure><img loading="lazy" src="img/cards/face_silencer.webp" alt=""><figcaption>cards/face_silencer</figcaption></figure>
+    <figure><img loading="lazy" src="img/cards/face_sniper.webp" alt=""><figcaption>cards/face_sniper</figcaption></figure>
+    <figure><img loading="lazy" src="img/cards/back.webp" alt=""><figcaption>cards/back</figcaption></figure>
+    <h4>المسرح والنتايج</h4>
+    <figure><img loading="lazy" src="img/stage/chair.webp" alt=""><figcaption>stage/chair</figcaption></figure>
+    <figure><img loading="lazy" src="img/stage/door.webp" alt=""><figcaption>stage/door</figcaption></figure>
+    <figure><img loading="lazy" src="img/stage/street.webp" alt=""><figcaption>stage/street</figcaption></figure>
+    <figure><img loading="lazy" src="img/outcomes/death.webp" alt=""><figcaption>outcomes/death</figcaption></figure>
+    <figure><img loading="lazy" src="img/outcomes/saved.webp" alt=""><figcaption>outcomes/saved</figcaption></figure>
+    <figure><img loading="lazy" src="img/outcomes/mafia_win.webp" alt=""><figcaption>outcomes/mafia_win</figcaption></figure>
+    <figure><img loading="lazy" src="img/outcomes/town_win.webp" alt=""><figcaption>outcomes/town_win</figcaption></figure>
+    <figure><img loading="lazy" src="img/grounds/online_verdict.webp" alt=""><figcaption>grounds/online_verdict</figcaption></figure>
+    <h4>البيت</h4>
+    <figure><img loading="lazy" src="img/house/store_hero.webp" alt=""><figcaption>house/store_hero</figcaption></figure>
+    <figure><img loading="lazy" src="img/house/vault_hero.webp" alt=""><figcaption>house/vault_hero</figcaption></figure>
+    <figure><img loading="lazy" src="img/house/mask.webp" alt=""><figcaption>house/mask</figcaption></figure>
+    <figure><img loading="lazy" src="img/house/key.webp" alt=""><figcaption>house/key</figcaption></figure>
+    <figure><img loading="lazy" src="img/house/raven.webp" alt=""><figcaption>house/raven</figcaption></figure>
+    <figure><img loading="lazy" src="img/house/frame_crimson.webp" alt=""><figcaption>house/frame_crimson</figcaption></figure>
+    <figure><img loading="lazy" src="img/house/frame_gilded.webp" alt=""><figcaption>house/frame_gilded</figcaption></figure>
+    <figure><img loading="lazy" src="img/house/seal_trio.webp" alt=""><figcaption>house/seal_trio</figcaption></figure>
+    <figure><img loading="lazy" src="img/people/council_table.webp" alt=""><figcaption>people/council_table</figcaption></figure>
+    <h4>الناس</h4>
+    <figure><img loading="lazy" src="img/people/avatar_male.webp" alt=""><figcaption>people/avatar_male</figcaption></figure>
+    <figure><img loading="lazy" src="img/people/avatar_female.webp" alt=""><figcaption>people/avatar_female</figcaption></figure>
+    <figure><img loading="lazy" src="img/people/hood_gloved.webp" alt=""><figcaption>people/hood_gloved</figcaption></figure>
+    <figure><img loading="lazy" src="img/brand/splash_mask.webp" alt=""><figcaption>brand/splash_mask</figcaption></figure>
+  </div>
+</section>
+
+<section id="dd">
+  <div class="sh"><span class="idx"><b>08</b><i>✕</i></span><div><h2>إزاي متبقاش AI slop</h2></div></div>
+  <div class="dd">
+    <div class="no"><h3>ممنوع</h3><ul>
+      <li>دهبي لامع، glow، أو gradient على النص</li>
+      <li>أحمر دم مشبع أو بنفسجي نيون</li>
+      <li>كروت بنفس المقاس فيها أيقونة وعنوان وسطر</li>
+      <li>زخارف مرسومة بالكود حوالين كل حاجة، الزخرفة مكانها اللوحات</li>
+      <li>glassmorphism و blur</li>
+      <li>صور شخصيات القصص، خط الرقعة، أو أي حاجة من هوية القصص</li>
+    </ul></div>
+    <div class="yes"><h3>مطلوب</h3><ul>
+      <li>اللوحة هي البطل والـ UI حواليها هادي</li>
+      <li>دليل الكوتشينة في الركن بدل الأيقونات</li>
+      <li>نحاس مطفي للأرقام بخط mono</li>
+      <li>النبيتي نادر، وعشان نادر ليه وزن</li>
+      <li>خطوط مزدوجة زي إطار الكارت بدل الظلال</li>
+      <li>كلام مصري بصوت الراوي</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="files">
+  <div class="sh"><span class="idx"><b>09</b><i>⌘</i></span><div><h2>الملفات</h2><p>أي agent يبدأ من <code>IDENTITY.md</code>.</p></div></div>
+  <div class="files">
+    <a href="IDENTITY.md"><b>IDENTITY.md</b><span>المواصفات الكاملة</span></a>
+    <a href="tokens.json"><b>tokens.json</b><span>كل القيم ومكان كل واحدة</span></a>
+    <a href="tokens.css"><b>tokens.css</b><span>متغيرات CSS والخطوط</span></a>
+    <a href="img/_contact_sheet.jpg"><b>img/_contact_sheet.jpg</b><span>كل الصور في صورة واحدة</span></a>
+  </div>
+</section>
+
+<footer>سيد المافيا · نظام الهوية · مسودة للنقاش · الألوان مقاسة من card_face_* ولوحات المراحل و store_v2 · المرجع النهائي في الكود lib/core/theme</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,536 @@
+{
+  "version": 2,
+  "status": "PLANNED_NOT_AUDIO_ALIGNED",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "duration_seconds": 59,
+  "total_frames": 1770,
+  "frame_semantics": "start inclusive, end exclusive",
+  "voice_start_max_ms": 150,
+  "online_spoken_deadline_seconds": 10,
+  "end_hold": {
+    "start_frame": 1710,
+    "end_frame": 1770
+  },
+  "script_word_count": 100,
+  "cues": [
+    {
+      "id": "C01",
+      "start_frame": 0,
+      "end_frame": 84,
+      "text": "إنت المافيا. وهما لسه مايعرفوش.",
+      "tag": "[confident]",
+      "delivery": "Direct to viewer; emphasize إنت. Confidential but audible second sentence.",
+      "pause_guidance": "100–180 ms after first sentence.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C02",
+      "start_frame": 84,
+      "end_frame": 165,
+      "text": "هتعرف تخلّص الجولة من غير ما تتكشف؟",
+      "tag": "[curious]",
+      "delivery": "Natural challenge; clear questioning finish.",
+      "pause_guidance": "Small breath at end.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C03",
+      "start_frame": 165,
+      "end_frame": 315,
+      "text": "دي سيد المافيا. تلعبها أونلاين مع صحابك، كل واحد من مكانه.",
+      "tag": "[conversational]",
+      "delivery": "Friendly brisk explanation; articulate online and brand.",
+      "pause_guidance": "Short phrase break after brand, not dramatic.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C04",
+      "start_frame": 315,
+      "end_frame": 354,
+      "text": "دورك في السر.",
+      "tag": "",
+      "delivery": "Concise, matter-of-fact.",
+      "pause_guidance": "No long pause.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C05",
+      "start_frame": 354,
+      "end_frame": 435,
+      "text": "بالليل، المافيا تختار ضحيتها.",
+      "tag": "",
+      "delivery": "Explain, not threaten.",
+      "pause_guidance": "Small separator before next role.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C06",
+      "start_frame": 435,
+      "end_frame": 495,
+      "text": "الدكتور يحاول ينقذ حد،",
+      "tag": "",
+      "delivery": "Emphasize يحاول; save is not guaranteed.",
+      "pause_guidance": "Comma only.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C07",
+      "start_frame": 495,
+      "end_frame": 555,
+      "text": "والمحقق يكشف دور لاعب.",
+      "tag": "",
+      "delivery": "Clear role name.",
+      "pause_guidance": "Reset before day.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C08",
+      "start_frame": 555,
+      "end_frame": 630,
+      "text": "الصبح بقى… تبتدي الأسئلة.",
+      "tag": "[curious]",
+      "delivery": "Energy drops briefly then curiosity rises.",
+      "pause_guidance": "150–250 ms at ellipsis.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C09",
+      "start_frame": 630,
+      "end_frame": 720,
+      "text": "مين بيكدب؟ ومين بيغيّر كلامه؟",
+      "tag": "",
+      "delivery": "Two audible distinct questions.",
+      "pause_guidance": "100–180 ms between questions.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C10",
+      "start_frame": 720,
+      "end_frame": 810,
+      "text": "تتناقشوا، تصوّتوا، وتطلّعوا حد.",
+      "tag": "[conversational]",
+      "delivery": "Three actions with natural progression.",
+      "pause_guidance": "Brief commas.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C11",
+      "start_frame": 810,
+      "end_frame": 900,
+      "text": "طلّعتوا بريء؟ المافيا بتشكركم.",
+      "tag": "[dryly]",
+      "delivery": "Dry joke, tiny smile in voice, no laugh.",
+      "pause_guidance": "150–250 ms after بريء.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C12",
+      "start_frame": 900,
+      "end_frame": 990,
+      "text": "ومتجمعين في قعدة؟ العبوا أوفلاين.",
+      "tag": "[conversational]",
+      "delivery": "Casual option, pronounce offline clearly.",
+      "pause_guidance": "Small question pause.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C13",
+      "start_frame": 990,
+      "end_frame": 1110,
+      "text": "طيب… كفاية تخبّي. تعالى اكشف مين عملها.",
+      "tag": "",
+      "delivery": "Shift viewer from hiding to investigating. Inviting.",
+      "pause_guidance": "150–220 ms after طيب, short after تخبّي.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C14",
+      "start_frame": 1110,
+      "end_frame": 1245,
+      "text": "في قصص وتحقيقات، تفتح قضية زي قهوة المعلم.",
+      "tag": "",
+      "delivery": "Specific case, clear title, no documentary announcer.",
+      "pause_guidance": "Comma only.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C15",
+      "start_frame": 1245,
+      "end_frame": 1335,
+      "text": "تسأل الشخصيات، تفتّش، وتقارن الأدلة.",
+      "tag": "",
+      "delivery": "Concrete actions.",
+      "pause_guidance": "Short commas.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C16",
+      "start_frame": 1335,
+      "end_frame": 1425,
+      "text": "بس تحرّكاتك محدودة… هتبدأ بمين؟",
+      "tag": "[curious]",
+      "delivery": "Point out resource limit; invite a real choice.",
+      "pause_guidance": "200–300 ms before question.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C17",
+      "start_frame": 1425,
+      "end_frame": 1545,
+      "text": "وفي الآخر: مين عملها؟ ليه؟ وإزاي؟",
+      "tag": "",
+      "delivery": "Three clear questions, no rapid list blur.",
+      "pause_guidance": "~150 ms between questions.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C18",
+      "start_frame": 1545,
+      "end_frame": 1620,
+      "text": "سيد المافيا. ابعت لصحابك.",
+      "tag": "[conversational]",
+      "delivery": "Simple name and invitation.",
+      "pause_guidance": "Short full stop.",
+      "timing_status": "editorial_target_not_measured"
+    },
+    {
+      "id": "C19",
+      "start_frame": 1620,
+      "end_frame": 1710,
+      "text": "ونشوف… هتتلقط من أول جولة؟",
+      "tag": "[mischievously]",
+      "delivery": "Light challenge; natural pitch; no growl or laugh.",
+      "pause_guidance": "~180 ms after ونشوف.",
+      "timing_status": "editorial_target_not_measured"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "S01",
+      "start_frame": 0,
+      "end_frame": 165,
+      "cue_ids": [
+        "C01",
+        "C02"
+      ],
+      "identity": "mafia",
+      "picture": "Host close → medium; deal card to viewer.",
+      "visible_copy": "مافيا أونلاين / إنت المافيا",
+      "asset_ids": [
+        "mafia_gallery",
+        "card_mafia",
+        "stage_chair"
+      ],
+      "anchor": "Voice onset, card contact; badge from frame 0."
+    },
+    {
+      "id": "S02",
+      "start_frame": 165,
+      "end_frame": 315,
+      "cue_ids": [
+        "C03"
+      ],
+      "identity": "mafia",
+      "picture": "Three generic player areas become one editorial game arrangement; not a fake UI.",
+      "visible_copy": "سيد المافيا / كل واحد من مكانه",
+      "asset_ids": [
+        "avatar_male",
+        "avatar_female",
+        "card_back"
+      ],
+      "anchor": "Online word; optional real footage only if readily available."
+    },
+    {
+      "id": "S03",
+      "start_frame": 315,
+      "end_frame": 354,
+      "cue_ids": [
+        "C04"
+      ],
+      "identity": "mafia",
+      "picture": "Whole Mafia role card foreground; other cards face-down.",
+      "visible_copy": "دورك في السر",
+      "asset_ids": [
+        "card_mafia",
+        "card_back"
+      ],
+      "anchor": "Role reveal at phrase onset."
+    },
+    {
+      "id": "S04",
+      "start_frame": 354,
+      "end_frame": 555,
+      "cue_ids": [
+        "C05",
+        "C06",
+        "C07"
+      ],
+      "identity": "mafia",
+      "picture": "Night backdrop; role cards in spoken order, one dominant at a time.",
+      "visible_copy": "بالليل",
+      "asset_ids": [
+        "night_ground",
+        "card_mafia",
+        "card_doctor",
+        "card_detective"
+      ],
+      "anchor": "Cuts at each role name, not within a word."
+    },
+    {
+      "id": "S05",
+      "start_frame": 555,
+      "end_frame": 810,
+      "cue_ids": [
+        "C08",
+        "C09",
+        "C10"
+      ],
+      "identity": "mafia",
+      "picture": "Day street → portrait group with suspicion focus → public vote illustration.",
+      "visible_copy": "الصبح / النقاش / التصويت",
+      "asset_ids": [
+        "day_ground",
+        "stage_street",
+        "avatar_male",
+        "avatar_female",
+        "card_back"
+      ],
+      "anchor": "One action per phrase; no fake dialogue bubbles."
+    },
+    {
+      "id": "S06",
+      "start_frame": 810,
+      "end_frame": 900,
+      "cue_ids": [
+        "C11"
+      ],
+      "identity": "mafia",
+      "picture": "Whole citizen card exits group, then close host reaction.",
+      "visible_copy": "",
+      "asset_ids": [
+        "card_citizen",
+        "mafia_gallery"
+      ],
+      "anchor": "Host reaction on بتشكركم; brief music dip."
+    },
+    {
+      "id": "S07",
+      "start_frame": 900,
+      "end_frame": 990,
+      "cue_ids": [
+        "C12"
+      ],
+      "identity": "mafia",
+      "picture": "Offline table; card passes between two positions.",
+      "visible_copy": "أوفلاين كمان",
+      "asset_ids": [
+        "offline_table",
+        "card_back"
+      ],
+      "anchor": "Pass follows العبوا أوفلاين."
+    },
+    {
+      "id": "S08",
+      "start_frame": 990,
+      "end_frame": 1110,
+      "cue_ids": [
+        "C13"
+      ],
+      "identity": "mafia",
+      "picture": "Host leaves card at match-cut anchor; withdraws hand.",
+      "visible_copy": "",
+      "asset_ids": [
+        "mafia_gallery",
+        "card_back"
+      ],
+      "anchor": "Prepare folder geometry, no Stories image yet."
+    },
+    {
+      "id": "S09",
+      "start_frame": 1110,
+      "end_frame": 1245,
+      "cue_ids": [
+        "C14"
+      ],
+      "identity": "stories",
+      "picture": "Hard match cut to folder at card position; reveal warm desk and case cover.",
+      "visible_copy": "قصص وتحقيقات / قهوة المعلم",
+      "asset_ids": [
+        "story_desk",
+        "case_cover",
+        "case_location"
+      ],
+      "anchor": "Identity boundary at قصص وتحقيقات, adjusted to actual cue."
+    },
+    {
+      "id": "S10",
+      "start_frame": 1245,
+      "end_frame": 1425,
+      "cue_ids": [
+        "C15",
+        "C16"
+      ],
+      "identity": "stories",
+      "picture": "Public cast photos and action slips; choose interview, 12→10, evidence art.",
+      "visible_copy": "تحرّكاتك محدودة",
+      "asset_ids": [
+        "suspect_reda",
+        "suspect_sameh",
+        "suspect_ezza",
+        "case_evidence",
+        "story_desk"
+      ],
+      "anchor": "Action cost uses verified case data; no solution or guilt cue."
+    },
+    {
+      "id": "S11",
+      "start_frame": 1425,
+      "end_frame": 1545,
+      "cue_ids": [
+        "C17"
+      ],
+      "identity": "stories",
+      "picture": "Three paper labels/questions land in spoken order.",
+      "visible_copy": "مين؟ / ليه؟ / إزاي؟",
+      "asset_ids": [
+        "story_desk"
+      ],
+      "anchor": "Three separate word-triggered landings."
+    },
+    {
+      "id": "S12",
+      "start_frame": 1545,
+      "end_frame": 1770,
+      "cue_ids": [
+        "C18",
+        "C19"
+      ],
+      "identity": "mafia",
+      "picture": "Return to exact opening host/card arrangement; name and CTA; clean hold.",
+      "visible_copy": "سيد المافيا / ابعت لصحابك",
+      "asset_ids": [
+        "mafia_gallery",
+        "brand_mark",
+        "card_mafia"
+      ],
+      "anchor": "Final word before f1710 target; hold f1710..1770."
+    }
+  ],
+  "events": [
+    {
+      "id": "E01",
+      "frame": 0,
+      "cue": "C01",
+      "trigger": "film_start",
+      "action": "Face/card in frame, online badge already readable, card moving."
+    },
+    {
+      "id": "E02",
+      "frame": 14,
+      "cue": "C01",
+      "trigger": "card_contact",
+      "action": "Card stops; hand releases after contact, tactile foley."
+    },
+    {
+      "id": "E03",
+      "frame": 84,
+      "cue": "C02",
+      "trigger": "phrase_start",
+      "action": "Widen camera, keep direct address."
+    },
+    {
+      "id": "E04",
+      "frame": 165,
+      "cue": "C03",
+      "trigger": "phrase_start",
+      "action": "Online editorial illustration enters."
+    },
+    {
+      "id": "E05",
+      "frame": 435,
+      "cue": "C06",
+      "trigger": "word:الدكتور",
+      "action": "Doctor whole card becomes dominant."
+    },
+    {
+      "id": "E06",
+      "frame": 495,
+      "cue": "C07",
+      "trigger": "word:والمحقق",
+      "action": "Detective whole card becomes dominant."
+    },
+    {
+      "id": "E07",
+      "frame": 555,
+      "cue": "C08",
+      "trigger": "word:الصبح",
+      "action": "Day cut, music thins briefly."
+    },
+    {
+      "id": "E08",
+      "frame": 810,
+      "cue": "C11",
+      "trigger": "phrase_start",
+      "action": "Citizen card public exit and host closeup."
+    },
+    {
+      "id": "E09",
+      "frame": 855,
+      "cue": "C11",
+      "trigger": "word:بتشكركم",
+      "action": "Tiny host head incline; dry reaction, music dip."
+    },
+    {
+      "id": "E10",
+      "frame": 1110,
+      "cue": "C14",
+      "trigger": "phrase:قصص وتحقيقات",
+      "action": "Clean full identity change; folder matches card geometry."
+    },
+    {
+      "id": "E11",
+      "frame": 1290,
+      "cue": "C15",
+      "trigger": "word:تسأل",
+      "action": "Interview action selected, show cost2 and fresh budget12→10."
+    },
+    {
+      "id": "E12",
+      "frame": 1425,
+      "cue": "C17",
+      "trigger": "phrase:مين عملها",
+      "action": "First question lands."
+    },
+    {
+      "id": "E13",
+      "frame": 1470,
+      "cue": "C17",
+      "trigger": "word:ليه",
+      "action": "Second question lands."
+    },
+    {
+      "id": "E14",
+      "frame": 1500,
+      "cue": "C17",
+      "trigger": "word:وإزاي",
+      "action": "Third question lands."
+    },
+    {
+      "id": "E15",
+      "frame": 1545,
+      "cue": "C18",
+      "trigger": "phrase_start",
+      "action": "Return to Mafia world; Stories art gone."
+    },
+    {
+      "id": "E16",
+      "frame": 1710,
+      "cue": "C19",
+      "trigger": "phrase_end",
+      "action": "Final clean hold, jaw rests."
+    }
+  ],
+  "retiming": "Align real audio, preserve raw, write production/timeline.locked.json; never fake word timings."
+}

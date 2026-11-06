@@ -1,0 +1,28 @@
+# Built-in image_gen prompts / 2026-10-11
+
+Three project-bound images generated with the built-in tool. PNG originals copied unchanged to `../assets/`; default generated originals retained. No Python raster edits. Paths below are original generator outputs.
+
+## A / human opening
+
+Original: `C:/Users/LENOVO/.codex/generated_images/01a12678-7b9e-7560-8520-2d955981d478/exec-1220547f-f29a-4c5d-9739-22c1f968a106.png`
+
+Prompt:
+Create a premium visual development frame for an Egyptian Arabic Mafia online mobile game campaign. Vertical 9:16 finished cinematic illustration, NO TEXT ANYWHERE. Character-driven, playful adult social deduction, painterly editorial animation key art with expressive believable stylized faces and matte oil-paint textures, NOT glossy 3D or generic cartoon. Foreground hero: Egyptian young man aged 25 with curly black hair, short moustache and beard, slightly big expressive eyebrows, charcoal hoodie, caught halfway through an overconfident innocent grin while holding his smartphone close to his chest, three-quarter waist-up, asymmetrical posture, shoulders tense, one eyebrow betrays him, eyes glance sideways. Set: specific lived-in Egyptian flat at night, wooden desk, tea glass, plaster wall, green-grey shutter, matte slate light from window, warm tiny desk lamp; backdrop charcoal #0F0F0F and muted slate #272F2E, clear face exposure so expressions read instantly on a phone. Camera low close medium shot, subject centered slightly left, big readable face, upper 18 percent clean dark wall for Arabic title to be overlaid later, lower margin clear. Secondary visual clue a second apartment seen across a window with a female friend checking her phone, small but readable silhouette; they're physically in DIFFERENT rooms. Colours tightly muted, natural olive skin, bone whites, slate. Interesting acting and depth, human comedy mixed with intrigue. Real drawn person, no skeletal protagonist in this concept. Phone screen faces away from us: never invent interface text. No card borders, infographic, speech bubbles, collage tiles, neon, gradient marketing glow, fake typography, watermark, logos.
+
+## B / Mafia host
+
+Original: `C:/Users/LENOVO/.codex/generated_images/01a12678-7b9e-7560-8520-2d955981d478/exec-10645834-ac25-44fe-99b3-d74220ae3776.png`
+
+References: `../../references/art/mafia/gallery_mafia.webp`, `../../references/art/mafia/stage_chair.webp`; both viewed before generation.
+
+Prompt:
+Generate a NEW visual development frame for the same Egyptian Mafia game's character-host campaign, vertical9:16, no typography. Reference1 establishes exact skull face, hood and engraved silver ceremonial clothing of the game Mafia; reference2 establishes painterly slate green-grey room. NEW pose and NEW scene: friendly mischievous confident theatrical Mafia skull host in mid-presentation LEANING out from a giant smartphone like a paper theatre stage, one gloved hand reaches toward viewer as if greeting, other hand holds playing-card back. Skull anatomical appearance and hood faithful, no flesh face, no grinning human. Ornate silver-black fabric matte and richly painted. Phone shell stands on worn wood table, screen dark and EMPTY except skull character emerging, NOT app UI. Behind it tangible Egyptian shuttered flat at night, sparse theatrical slate grey charcoal architecture, distant ivory lit window, strong diagonal light readable face. Camera three-quarter slight low angle, not old seated straight portrait. Frame strong foreground/background parallax, deliberate asymmetry. Main skull shoulder/face fills middle third frame, physical emergence from phone easy to read. Top18percent dark quiet space for later live Arabic title. Colour almost monochrome charcoal bone and slate, muted tiny warm table highlight, never neon. Handpainted oil illustration crossed with tactile paper stage animation, premium adult game advertising, no stock effects, no speech bubbles, no grids, no UI, no lettering, no watermark.
+
+## Cast sheet / three people, two expressions
+
+Original: `C:/Users/LENOVO/.codex/generated_images/01a12678-7b9e-7560-8520-2d955981d478/exec-e809f0f0-46d0-427c-acc2-18e03fc3b25e.png`
+
+Reference: `../assets/concept-a-human.png`, already viewed as generator output.
+
+Prompt:
+Create a visual DEVELOPMENT CAST MODEL SHEET for Egyptian Mafia online game campaign. This is NOT a phone frame or infographic. Wide3:2 matte charcoal grey background; six clearly separated bust portraits in2rows by3columns, NO labels or text. Painterly editorial animation style exactly like reference illustration, natural olive Egyptian skin, human facial asymmetry, rich brush texture, lively adult social comedy, not stock 3D. Three cast members repeated across rows, strict identity preservation: column1 SAME curly blackhaired Egyptian25-year-old short moustache beard charcoalhoodie man from reference: row1 smug innocent grin sidewaysglance holdingphone; row2 sudden wide-eyed embarrassment mouthslightlyopen, both brows raised, SAME guy. column2 Egyptian woman24 wavy shoulder-length darkhair, slate shirt, strongassertivebrows, row1 eyes narrowed suspicions, row2 triumphant halfsmile pointingindexfinger toleft. column3 lean Egyptian28young man short neatly swept hair, round wireframeglasses, washed bone sweatshirt, row1 calm observant lookingdownphone, row2 shocked unjustlyaccused both palmsup. Busts waistup WITH legible hands not occluded by other portraits, no crossing panelboundaries. Warmnatural faces clear against darkneutral background, clothingmuted charcoal slate bone, no brightcolours, no skeletons. No generatedrolecards, interface, typography, logos, watermark. These are the same three fictional ACTORS in two different actual key acting poses. Leave generous space between poses.

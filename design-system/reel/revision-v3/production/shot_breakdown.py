@@ -1,0 +1,20 @@
+from pathlib import Path
+from html.parser import HTMLParser
+import json,math
+R=Path(__file__).resolve().parent;clips=[]
+class Parser(HTMLParser):
+    def handle_starttag(self,tag,attrs):
+        d=dict(attrs)
+        if 'data-start' in d and 'data-duration' in d:
+            a=float(d['data-start']);b=a+float(d['data-duration'])
+            clips.append({'id':d.get('id'),'kind':tag,'start':a,'end':b,'first_frame':math.ceil(a*30),'last_frame_exclusive':math.ceil(b*30),'source':d.get('src'),'source_offset':d.get('data-media-start'),'track':d.get('data-track-index')})
+Parser().feed((R/'project/index.html').read_text(encoding='utf-8'))
+clips.sort(key=lambda c:(c['start'],c['track'] or ''))
+(R/'research/cut-list.json').write_text(json.dumps(clips,ensure_ascii=False,indent=2),encoding='utf-8')
+d=json.loads((R/'timeline.locked.json').read_text(encoding='utf-8'))
+actions=['Kareem close-up, eye glance; charcoal hoodie/wood desk. Hook already readable at frame0.','Defensive smile and phone held to chest; innocent claim.','Return look toward camera; no fake lip-sync.','Actual council discussion video in perspective phone; no empty room listing.','Original private card-delivery screenshot, restrained phone rotation.','Mafia body/hand footage, then genuine own-view target selection.','Original Doctor card paired with real Doctor selection UI.','Original Detective card paired with real Detective selection UI.','Salma watches, raises eyes and begins her accusation.','Salma points; then dedicated vote UI enters, recorded selection at frame65.','Vote UI moves aside; Omar protests; oxblood verdict stamp.','Same Kareem returns with knowing smile; actual Mafia card stays separate from phone.','New joint group video; phone slides to Salma; Omar reacts.','One card carries into a manila folder; slate changes to warm lamp ground.','Folder opens on public case cover; same object/camera anchor.','Genuine case action/notes video, then a file progressively assembles source photos.','Source suspect/location/evidence remain visible; no public case solution.','Question paper begins, gives way to actual accusation page with who/why/how.','One uninterrupted Kareem ending shot, game title and one sharing CTA.','Innocent line returns; loop preparation with moving actor rather than a frozen end card.']
+lines=['# V3 scene/beat breakdown','', f"{d['duration']:.3f}s · 1080×1920 ·30fps ·{d['frames']}frames. Painterly Egyptian noir actors + real Flutter product video + physical card/paper choreography.",'', 'Mafia: ash #0F0F0F, bone #E9E4D9, slate #272F2E, oxblood #562627 only for the decided wrong vote. Stories: lamp #150B06, manila #E1D0AC, amber #B36E2D. Actual product/art colours are preserved.','', 'Typography: local Cairo heavy for main marketing titles, Plex Semibold for subtitles/instructions, Ruqaa bold only for the case title. Arabic zero letter spacing. Positions/sizes, camera/rotation/duration/easing and each asset are exact in build.py + style.css; cut-list.json records every timed object/audio/window.','', '| Frames / seconds | Voice (exact script) | Composition / movement |','|---|---|---|']
+for c,a in zip(d['cues'],actions):lines.append(f"| {c['first_frame']}–{c['last_frame']} / {c['start']:.3f}–{c['end']:.3f}s | {c['text']} | {a} |")
+lines+=['','Sound: original game card/selection/vote/phase/paper sounds, normalized and cut with tiny fades. UI clicks follow recorded input at frame65, confirm at frame105. They are editorial sound design for the advertisement; this does not alter or claim private in-game night audio. Music ducks before the reveal. Fekry voice stays at original pitch and speed.','', 'Final held beat retains live actor movement, brand title and innocent loop. Every decoded final frame is included in the ordered contact sheets; every-frame.json checks frame count, luma, consecutive pixel-identical runs and caption overlaps. These are technical evidence, not an audience-retention score.']
+(R/'research/SHOT-BREAKDOWN.md').write_text('\n'.join(lines),encoding='utf-8')
+print('Cut list',len(clips),'timed items;20 measured narration beats.')

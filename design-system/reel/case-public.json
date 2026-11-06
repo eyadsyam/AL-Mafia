@@ -1,0 +1,53 @@
+{
+  "title": "قهوة المعلم",
+  "id": "qahwet_el_moallem",
+  "actionBudget": 12,
+  "source": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\epic-roentgen-094f21\\assets\\stories\\qahwet_el_moallem.json",
+  "source_sha256": "38bbee4441632421d9cab8b5c73887016ce5d4014a439c63a0d142ef37391397",
+  "coverImage": "assets/images/stories/covers/cover_01.webp",
+  "sceneImage": "assets/images/stories/locations/loc_cafe_alley.webp",
+  "evidenceImage": "assets/images/stories/evidence/evidence_01.webp",
+  "cast": [
+    {
+      "name": "رضا المكوجي",
+      "image": "assets/images/stories/suspect_n24.webp"
+    },
+    {
+      "name": "سامح صابر",
+      "image": "assets/images/stories/suspect_n27.webp"
+    },
+    {
+      "name": "عزة بائعة الورد",
+      "image": "assets/images/stories/suspect_n20.webp"
+    }
+  ],
+  "actions": [
+    {
+      "id": "interview",
+      "title": "استجواب اللي كانوا في الصالة",
+      "cost": 2
+    },
+    {
+      "id": "search_cafe",
+      "title": "تفتيش المخزن وحوش الفحم",
+      "cost": 3
+    },
+    {
+      "id": "lab",
+      "title": "طلب تقرير السموم",
+      "cost": 4
+    },
+    {
+      "id": "timeline",
+      "title": "مراجعة التسجيلات والساعات",
+      "cost": 3
+    }
+  ],
+  "demo": {
+    "action": "interview",
+    "start_budget": 12,
+    "cost": 2,
+    "end_budget": 10
+  },
+  "spoiler_policy": "No truth, motives, private objectives, culprit, clue body or solution included."
+}

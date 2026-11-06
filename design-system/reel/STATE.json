@@ -1,0 +1,173 @@
+{
+  "package_version": 2,
+  "phase": "revision_v3_final_export_verified",
+  "user_start_received": true,
+  "reference_video_required": false,
+  "production_started": true,
+  "voice": {
+    "name": "Fekry Egyptian passion performance",
+    "voice_id": "B1W8tTuESCJzhOnd15nC",
+    "model": "eleven_v3",
+    "new_audio_generated": true,
+    "audio_generated": true,
+    "selected_take": "passion1",
+    "owner_authorized_other_egyptian_male": true,
+    "pitch_speed_changed": false,
+    "source_generation_id": "io9GFXg4vAYJBQPCcmwZ",
+    "raw_seconds": 60.4,
+    "working_seconds": 55.67577083333333,
+    "word_aligned": true
+  },
+  "character": {
+    "cast_sheet": "revision-v2/assets/cast-sheet.png",
+    "development_stills_ready": true,
+    "performance_clips_ready": true,
+    "performance_clip_count": 6
+  },
+  "timing": {
+    "locked": "revision-v3/production/timeline.locked.json",
+    "aligned": true,
+    "duration": 57.5,
+    "fps": 30,
+    "word_source": "ElevenLabs Scribe Fekry eleven_v3 passion1 through protected pause-edit map",
+    "frames": 1725
+  },
+  "milestones": {
+    "concept_page": true,
+    "art_development": true,
+    "product_reference_capture": true,
+    "voice_gate": true,
+    "character_gate": true,
+    "picture_gate": true,
+    "audio_mix_gate": true,
+    "render_gate": true
+  },
+  "outputs": {
+    "concept_page": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v2\\index.html",
+    "preview": "http://127.0.0.1:3033/review.html",
+    "treatment": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v2\\README.md",
+    "script": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v2\\SCRIPT-A.ar.txt",
+    "qa_report": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\qa\\QA_REPORT.md",
+    "video": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\exports\\MAFIA_V3_صاحبك_اللي_بريء.mp4",
+    "poster": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\exports\\POSTER.png",
+    "subtitles": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\exports\\MAFIA_V3_AR.srt",
+    "editable_project": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+    "studio": "http://localhost:3035/#project/project",
+    "highest_quality_video": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\exports\\MAFIA_V3_HIGHEST_QUALITY.mp4",
+    "highest_quality_qa": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\qa\\highest-quality.json"
+  },
+  "known_dependencies": [],
+  "no_longer_dependencies": [
+    "Reference video",
+    "YouTube clips",
+    "App build or new online game session"
+  ],
+  "last_note": "V3 complete:57.5s1725frames,Fekry eleven_v3 passion1,protected pause edit,six real widget capture sources,six acted sources,21 editorial SFX,and repaired blended transitions. All final frames decoded and visually reviewed in sheets.",
+  "previous_delivery": {
+    "version": 1,
+    "phase": "export_ready_listening_review_open",
+    "outputs": {
+      "preview": "http://localhost:3002/#project/project",
+      "final_video": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\exports\\MAFIA_ONLINE_REEL_AR_59s.mp4",
+      "poster": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\exports\\MAFIA_ONLINE_REEL_POSTER.png",
+      "srt": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\exports\\MAFIA_ONLINE_REEL_AR.srt",
+      "project": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\project",
+      "qa_report": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\production\\qa\\QA_REPORT.md"
+    },
+    "creative_acceptance": "rejected_by_owner",
+    "reason": "Weak hook, static-character treatment, marketing execution rejected; Haytham voice rejected.",
+    "voice": {
+      "selected_voice": "IES4nrmZdUBHByLBde0P",
+      "model": "eleven_v3",
+      "flow_id": "6dvmkWG775YWPbS5eLI2",
+      "sessions": [
+        "T95DGcrvJCqc6NnED44J",
+        "sf2sHy4hgaU3zFoF9RRL",
+        "m6DVFwHcrmAHX5lvK4cr",
+        "DzFvl3EpiT7EDgRfp4EA"
+      ],
+      "audio_generated": true,
+      "audition_listened": false,
+      "chosen_take": "tmyWsddiZqWMhQXSB8UU",
+      "working_duration": 56.50002083333333,
+      "provider_script_match": true,
+      "full_sessions": [
+        "vBKZ8zckS8E4eS3BJ3Nn",
+        "6nbzfcqECFaYLlVcjmSS",
+        "bcfTzk062kJSxLmqL63G",
+        "RRt3VJWX1R7Et7bH42Cn"
+      ]
+    },
+    "character": {
+      "canonical_image": "production/assets/character/canonical.png",
+      "rig": "production/project/scene-runtime.js",
+      "speech_test_passed": true
+    },
+    "timing": {
+      "plan": "timeline.plan.json",
+      "locked": "production/timeline.locked.json",
+      "aligned": true
+    },
+    "milestones": {
+      "package_integrity": true,
+      "voice_gate": false,
+      "character_gate": true,
+      "picture_gate": true,
+      "audio_mix_gate": true,
+      "render_gate": true
+    }
+  },
+  "revision_v2": {
+    "user_request": "Ideas and HTML first; rebuild hook, cast, environments, product demonstration and acting; Adam instead of Haytham.",
+    "status": "reviewable_concepts_ready",
+    "preferred_voice": {
+      "name": "Adam - Deep, Rich and Expressive",
+      "voice_id": "OFHP1Qg30FPoNfkUFFlA",
+      "language": "ar",
+      "accent": "egyptian",
+      "catalogue_verified": true,
+      "new_audio_generated": false
+    },
+    "recommended_direction": "A spine + B brief mascot cameo + C story material transition",
+    "selected_by_owner": "A: صاحبك اللي بريء; latest user authorizes one complete film first",
+    "concept_page": "revision-v2/index.html",
+    "preview_url": "http://127.0.0.1:3033/design-system/reel/revision-v2/index.html",
+    "treatment": "revision-v2/README.md",
+    "script": "revision-v2/SCRIPT-A.ar.txt",
+    "generated_art_assets": 3,
+    "production_started": true,
+    "full_video_rendered": true,
+    "character_animation_completed": true,
+    "qa": "revision-v2/QA.md"
+  },
+  "creative_flow_id": "VGfqmPBQWx3ZImBHYd2P",
+  "active_runs": {},
+  "known_limits": [
+    "Gameplay captured from genuine release widgets with seeded backend, not a real connected multiplayer match.",
+    "Subjective voice preference remains for owner; no numerical aesthetic/listening score claimed."
+  ],
+  "revision_v3": {
+    "requested": true,
+    "voice": "Fekry eleven_v3 passion1,55.676s native speech after protected gap edits",
+    "previous_voice_rejected": true,
+    "image_gate": true,
+    "gameplay_gate": true,
+    "sound_gate": true,
+    "voice_gate": true,
+    "render_gate": true,
+    "gameplay_sources": 6,
+    "sfx_palette": 14,
+    "sfx_events": 21,
+    "status": "delivered_latest_owner_corrections",
+    "duration": 57.5,
+    "frames": 1725
+  },
+  "provider_limit_previous_run": {
+    "elevenlabs_remaining": 237,
+    "rejected_cafe_cost": 3394,
+    "ltx_estimate_not_run": 1454.4,
+    "openart_remaining": 40,
+    "openart_cheapest_default_video": 50,
+    "resolved_by_owner": true
+  }
+}

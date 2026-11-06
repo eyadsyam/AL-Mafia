@@ -1,0 +1,18 @@
+
+AI DETECTION PANEL
+==============================================================
+  BURSTINESS    #######.................  29.3
+                variation 0.36 across 19 sentences (want 0.55+)
+  SPECIFICITY   ############............  50.0
+                too short to judge
+  SLOP DENSITY  ############............  50.0
+                empty
+  FINGERPRINT   ######################## 100.0
+                0 invisible, 0 em dash, 0 curly quote, 0 ellipsis, 0 hard space
+  VOICE         ############............  50.0
+                too short to judge
+--------------------------------------------------------------
+  HUMAN SCORE   ###########.............  45.3   FLAGGED
+
+  Weakest signal: BURSTINESS. Fix that first.
+

@@ -1,0 +1,52 @@
+[
+  {
+    "path": "assets/app-home.png",
+    "bytes": 2564119,
+    "sha256": "3715881f1445524197951ad80ae1843167d495b0d29514d5f1540458babdf34c"
+  },
+  {
+    "path": "assets/app-reveal.png",
+    "bytes": 2133520,
+    "sha256": "6ac32a4655e318445a34faed05616a193ae14a4286b4479e8f2dff1ae22a1a39"
+  },
+  {
+    "path": "assets/app-rooms.png",
+    "bytes": 920081,
+    "sha256": "ca1a9b9750c6ee8295c35c5269dd5045d47b31b284539232d9fff1aee8336914"
+  },
+  {
+    "path": "assets/cafe.webp",
+    "bytes": 141882,
+    "sha256": "bdcee10c9481d979e9a0b82421472f9b34089a5ebcef7c15d8436dba17c354c6"
+  },
+  {
+    "path": "assets/card-mafia.webp",
+    "bytes": 393010,
+    "sha256": "59f21555f5bac7293c9f9738f8dca8f0acdae807c69e30fa817252b4c8a58a22"
+  },
+  {
+    "path": "assets/cast-sheet.png",
+    "bytes": 2476281,
+    "sha256": "e883201b17dbb28ef252e983e4db6c159340c4154047ac2d6a755acdf891746a"
+  },
+  {
+    "path": "assets/concept-a-human.png",
+    "bytes": 2027490,
+    "sha256": "c7f548c4a94b45ebf102dabdfbf2976f16393d2d4555355b517f6b80aedcad27"
+  },
+  {
+    "path": "assets/concept-b-host.png",
+    "bytes": 2457138,
+    "sha256": "8666a3315be34e727eae3bbf64c2189dd2f4605d009bbd25692e2f1f8b00fdd4"
+  },
+  {
+    "path": "assets/evidence.webp",
+    "bytes": 85774,
+    "sha256": "fb5e867aa22f05b5dcbcc4af307d7246aa28fe5ec6a5ef9be4c5e176c3774ea2"
+  },
+  {
+    "path": "assets/suspect.webp",
+    "bytes": 19856,
+    "sha256": "ac5bf7fec1d0d2d1d910580568285ef812ad69ec2c85013cefa625bc1f9b54eb"
+  }
+]

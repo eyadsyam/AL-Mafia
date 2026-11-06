@@ -1,0 +1,51 @@
+{
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1080,
+        "height": 1920,
+        "r_frame_rate": "30/1",
+        "nb_read_frames": "1725"
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "channels": 2,
+        "r_frame_rate": "0/0",
+        "nb_read_frames": "2692"
+      }
+    ],
+    "format": {
+      "duration": "57.500000"
+    }
+  },
+  "loudness": {
+    "input_i": "-15.07",
+    "input_tp": "-1.50",
+    "input_lra": "2.50",
+    "input_thresh": "-26.03",
+    "output_i": "-15.26",
+    "output_tp": "-1.50",
+    "output_lra": "2.00",
+    "output_thresh": "-26.09",
+    "normalization_type": "dynamic",
+    "target_offset": "0.26"
+  },
+  "black_intervals": false,
+  "sha256": "18de656cff256cff5ce9024282c32af15e0212bdeb3675dd18e0f1764b421afe",
+  "file": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\exports\\MAFIA_V3_صاحبك_اللي_بريء.mp4",
+  "subjective_voice_listening": "not independently verified; new acted take/hook surfaced for owner",
+  "generated_acting_clips": 6,
+  "gameplay_clips": 6,
+  "voice": "Fekry Egyptian eleven_v3 passion1, protected pause edit, native pitch/speed",
+  "pause_edit": "passion-pause-edit.json",
+  "source_capture": "Real release widgets rendered at30fps with seeded backend; not a live multi-user online match",
+  "sfx_palette": "14 original game sounds peak balanced;21 timed events",
+  "offline": "new continuous group acting",
+  "stories": "real interactive Flutter footage plus paper/camera motion"
+}

@@ -1,0 +1,89 @@
+[
+  {
+    "hook": "تعرف لعبة المافيا؟ شايف اللي بيقول «أنا بريء»؟",
+    "checks": {
+      "LENGTH": {
+        "score": 0.0,
+        "detail": "0 words, 46 chars, ~0.0s spoken (want 5-12 words)"
+      },
+      "SPECIFICITY": {
+        "score": 15.0,
+        "detail": "0 concrete marker(s) - no number, no name, nothing checkable"
+      },
+      "STAKES": {
+        "score": 20.0,
+        "detail": "0 tension marker(s) - nothing is at stake in this line"
+      },
+      "FRONTLOAD": {
+        "score": 0.0,
+        "detail": "empty"
+      },
+      "ADDRESS": {
+        "score": 35.0,
+        "detail": "third person, nobody in the room"
+      }
+    },
+    "weakest": "LENGTH",
+    "flags": [],
+    "score": 8.4,
+    "verdict": "WEAK"
+  },
+  {
+    "hook": "أهلاً، أنا المافيا. وصاحبك ده شغال معايا.",
+    "checks": {
+      "LENGTH": {
+        "score": 0.0,
+        "detail": "0 words, 41 chars, ~0.0s spoken (want 5-12 words)"
+      },
+      "SPECIFICITY": {
+        "score": 15.0,
+        "detail": "0 concrete marker(s) - no number, no name, nothing checkable"
+      },
+      "STAKES": {
+        "score": 20.0,
+        "detail": "0 tension marker(s) - nothing is at stake in this line"
+      },
+      "FRONTLOAD": {
+        "score": 0.0,
+        "detail": "empty"
+      },
+      "ADDRESS": {
+        "score": 35.0,
+        "detail": "third person, nobody in the room"
+      }
+    },
+    "weakest": "LENGTH",
+    "flags": [],
+    "score": 8.4,
+    "verdict": "WEAK"
+  },
+  {
+    "hook": "تعرف لعبة المافيا؟ هنطلع منها وندخل قضية.",
+    "checks": {
+      "LENGTH": {
+        "score": 0.0,
+        "detail": "0 words, 41 chars, ~0.0s spoken (want 5-12 words)"
+      },
+      "SPECIFICITY": {
+        "score": 15.0,
+        "detail": "0 concrete marker(s) - no number, no name, nothing checkable"
+      },
+      "STAKES": {
+        "score": 20.0,
+        "detail": "0 tension marker(s) - nothing is at stake in this line"
+      },
+      "FRONTLOAD": {
+        "score": 0.0,
+        "detail": "empty"
+      },
+      "ADDRESS": {
+        "score": 35.0,
+        "detail": "third person, nobody in the room"
+      }
+    },
+    "weakest": "LENGTH",
+    "flags": [],
+    "score": 8.4,
+    "verdict": "WEAK"
+  }
+]

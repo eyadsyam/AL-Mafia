@@ -1,0 +1,1158 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 67,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 2 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "timeline_track_too_dense",
+        "severity": "warning",
+        "message": "Track 5 has 52 timed elements in this HTML file. Smaller sub-compositions keep timelines easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move coherent scene groups into separate .html files under compositions/ and mount them from the parent with data-composition-src so the timeline stays easier to inspect, revise, and validate."
+      },
+      {
+        "code": "timeline_track_too_dense",
+        "severity": "warning",
+        "message": "Track 2 has 9 timed elements in this HTML file. Smaller sub-compositions keep timelines easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move coherent scene groups into separate .html files under compositions/ and mount them from the parent with data-composition-src so the timeline stays easier to inspect, revise, and validate."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"online-badge\"> is a timeline element that contains nested <div id=\"online-badge-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#online-badge",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"online-badge\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"hook-question\"> is a timeline element that contains nested <div id=\"hook-question-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#hook-question",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"hook-question\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"innocent\"> is a timeline element that contains nested <div id=\"innocent-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#innocent",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"innocent\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"online-bg\"> is a timeline element that contains nested <img>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#online-bg",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"online-bg\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"online-title\"> is a timeline element that contains nested <div id=\"online-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#online-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"online-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"private\"> is a timeline element that contains nested <div id=\"private-phone\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#private",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"private\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"private-title\"> is a timeline element that contains nested <div id=\"private-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#private-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"private-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"night-title\"> is a timeline element that contains nested <div id=\"night-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#night-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"night-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"night-label\"> is a timeline element that contains nested <div id=\"night-label-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#night-label",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"night-label\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"roles\"> is a timeline element that contains nested <img>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#roles",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"roles\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"doctor-title\"> is a timeline element that contains nested <div id=\"doctor-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#doctor-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"doctor-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"detective-title\"> is a timeline element that contains nested <div id=\"detective-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#detective-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"detective-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"day-title\"> is a timeline element that contains nested <div id=\"day-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#day-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"day-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"accuse-title\"> is a timeline element that contains nested <div id=\"accuse-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#accuse-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"accuse-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"vote-background\"> is a timeline element that contains nested <img>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#vote-background",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"vote-background\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"wrong-title\"> is a timeline element that contains nested <div id=\"wrong-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#wrong-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"wrong-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"wrong-verdict\"> is a timeline element that contains nested <div id=\"wrong-verdict-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#wrong-verdict",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"wrong-verdict\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"payoff-title\"> is a timeline element that contains nested <div id=\"payoff-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#payoff-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"payoff-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"payoff\"> is a timeline element that contains nested <div id=\"payoff-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#payoff",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"payoff\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"payoff-card\"> is a timeline element that contains nested <img id=\"mafia-card\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#payoff-card",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"payoff-card\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"offline\"> is a timeline element that contains nested <img id=\"pass-card\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#offline",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"offline\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"offline-title\"> is a timeline element that contains nested <div id=\"offline-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#offline-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"offline-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"bridge\"> is a timeline element that contains nested <div id=\"warm-room\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#bridge",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"bridge\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"bridge-title\"> is a timeline element that contains nested <div id=\"bridge-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#bridge-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"bridge-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"story-title\"> is a timeline element that contains nested <div id=\"story-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#story-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"story-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"investigation\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#investigation",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"investigation\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"case-title\"> is a timeline element that contains nested <div id=\"case-title-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#case-title",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"case-title\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"case-verb\"> is a timeline element that contains nested <div id=\"case-verb-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#case-verb",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"case-verb\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"case-moves\"> is a timeline element that contains nested <div id=\"case-moves-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#case-moves",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"case-moves\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"case-questions\"> is a timeline element that contains nested <div id=\"case-questions-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#case-questions",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"case-questions\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"brand\"> is a timeline element that contains nested <div id=\"brand-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#brand",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"brand\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"end-product\"> is a timeline element that contains nested <div id=\"end-phone\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#end-product",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"end-product\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cta\"> is a timeline element that contains nested <div id=\"cta-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cta",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cta\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"loop\"> is a timeline element that contains nested <div id=\"loop-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#loop",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"loop\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap1\"> is a timeline element that contains nested <div id=\"cap1-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap1",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap1\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap2\"> is a timeline element that contains nested <div id=\"cap2-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap2",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap2\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap3\"> is a timeline element that contains nested <div id=\"cap3-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap3",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap3\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap4\"> is a timeline element that contains nested <div id=\"cap4-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap4",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap4\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap5\"> is a timeline element that contains nested <div id=\"cap5-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap5",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap5\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap6\"> is a timeline element that contains nested <div id=\"cap6-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap6",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap6\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap7\"> is a timeline element that contains nested <div id=\"cap7-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap7",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap7\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap8\"> is a timeline element that contains nested <div id=\"cap8-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap8",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap8\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap9\"> is a timeline element that contains nested <div id=\"cap9-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap9",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap9\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap10\"> is a timeline element that contains nested <div id=\"cap10-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap10",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap10\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap11\"> is a timeline element that contains nested <div id=\"cap11-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap11",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap11\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap12\"> is a timeline element that contains nested <div id=\"cap12-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap12",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap12\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap13\"> is a timeline element that contains nested <div id=\"cap13-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap13",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap13\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap14\"> is a timeline element that contains nested <div id=\"cap14-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap14",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap14\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap15\"> is a timeline element that contains nested <div id=\"cap15-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap15",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap15\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap16\"> is a timeline element that contains nested <div id=\"cap16-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap16",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap16\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap17\"> is a timeline element that contains nested <div id=\"cap17-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap17",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap17\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap18\"> is a timeline element that contains nested <div id=\"cap18-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap18",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap18\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap19\"> is a timeline element that contains nested <div id=\"cap19-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap19",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap19\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap20\"> is a timeline element that contains nested <div id=\"cap20-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap20",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap20\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap21\"> is a timeline element that contains nested <div id=\"cap21-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap21",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap21\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap22\"> is a timeline element that contains nested <div id=\"cap22-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap22",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap22\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap23\"> is a timeline element that contains nested <div id=\"cap23-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap23",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap23\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap24\"> is a timeline element that contains nested <div id=\"cap24-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap24",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap24\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap25\"> is a timeline element that contains nested <div id=\"cap25-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap25",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap25\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap26\"> is a timeline element that contains nested <div id=\"cap26-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap26",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap26\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"cap27\"> is a timeline element that contains nested <div id=\"cap27-ink\">. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#cap27",
+        "dataAttributes": {},
+        "sourceFile": "D:\\Flutter Data\\Projects\\AL Mafia\\.claude\\worktrees\\mafia-game-design-system-fca2a6\\design-system\\reel\\revision-v3\\production\\project\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"cap27\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "duplicate_audio_track",
+        "severity": "warning",
+        "message": "Multiple audible <audio>/<video> elements on track 8 overlap (assets/audio/fx-night_falls.wav at 11.994371411833624-14.0s, assets/audio/fx-vote_tick.wav at 13.352308045977011-13.4s). This causes layered audio playback.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Use non-overlapping time windows or different track indices."
+      },
+      {
+        "code": "duplicate_audio_track",
+        "severity": "warning",
+        "message": "Multiple audible <audio>/<video> elements on track 8 overlap (assets/audio/fx-elimination_reveal.wav at 22.976541666666666-23.9s, assets/audio/fx-lobby_ready_tick.wav at 23.2771347342398-23.4s). This causes layered audio playback.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Use non-overlapping time windows or different track indices."
+      },
+      {
+        "code": "duplicate_audio_track",
+        "severity": "warning",
+        "message": "Multiple audible <audio>/<video> elements on track 8 overlap (assets/audio/fx-casebook_wax_press.wav at 38.96483906297535-39.4s, assets/audio/fx-casebook_string_pluck.wav at 38.44552053544265-39.0s). This causes layered audio playback.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Use non-overlapping time windows or different track indices."
+      }
+    ],
+    "filesScanned": 1
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "duration": 52,
+    "samples": [
+      2.889,
+      8.667,
+      14.444,
+      20.222,
+      26,
+      31.778,
+      37.556,
+      43.333,
+      49.111
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 0,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      2.889,
+      14.444,
+      26,
+      37.556,
+      49.111
+    ],
+    "checked": 16,
+    "passed": 16
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "_meta": {
+    "version": "0.8.147",
+    "latestVersion": "0.8.147",
+    "updateAvailable": false
+  }
+}

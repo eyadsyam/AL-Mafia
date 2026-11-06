@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>هوية سيد المافيا</title>
+<meta name="description" content="نظامين هوية منفصلين: لعبة المافيا، وقصص وتحقيقات.">
+<style>
+@font-face{font-family:Cairo;src:url(fonts/Cairo-Variable.ttf);font-weight:200 1000}
+@font-face{font-family:Ruqaa;src:url(fonts/ArefRuqaa-Bold.ttf);font-weight:700}
+@font-face{font-family:Plex;src:url(fonts/IBMPlexSansArabic-Regular.ttf);font-weight:400}
+@font-face{font-family:Plex;src:url(fonts/IBMPlexSansArabic-Medium.ttf);font-weight:500}
+@font-face{font-family:Bebas;src:url(fonts/BebasNeue-Regular.ttf)}
+:root{--ash:#0F0F0F;--bone:#E9E4D9;--muted:#908C83;--parch:#C2BDB2;--lamp:#150B06;--paper:#E1D0AC;--ink:#2A1A10;--amber:#B36E2D;--amberhi:#E0A55C}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--ash);font-family:Plex,sans-serif}
+main{min-height:100%;display:grid;grid-template-columns:1fr 1fr}
+.door{position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:56px 48px;min-height:100vh;overflow:hidden;text-decoration:none;isolation:isolate}
+.door .art{position:absolute;inset:0;background-size:cover;background-position:center;z-index:-2;transition:transform 900ms cubic-bezier(.22,1,.36,1)}
+.door::after{content:"";position:absolute;inset:0;z-index:-1}
+.door:hover .art{transform:scale(1.04)}
+.mafia{background:var(--ash);color:var(--bone)}
+.mafia .art{background-image:url(mafia/img/grounds/home.webp);opacity:.9}
+.mafia::after{background:linear-gradient(215deg,rgba(233,228,217,.10),transparent 45%),linear-gradient(transparent 35%,rgba(15,15,15,.94) 80%)}
+.mafia .cards{position:absolute;top:12%;left:50%;width:300px;height:340px;transform:translateX(-50%)}
+.mafia .cards img{position:absolute;width:170px;border-radius:10px;box-shadow:0 20px 40px rgba(0,0,0,.7)}
+.mafia .cards img:nth-child(1){left:0;top:24px;transform:rotate(-10deg)}
+.mafia .cards img:nth-child(2){left:66px;top:6px;transform:rotate(-1deg)}
+.mafia .cards img:nth-child(3){left:128px;top:20px;transform:rotate(9deg)}
+.mafia .idx{font-family:Bebas;font-size:22px;letter-spacing:.06em;color:var(--muted);direction:ltr}
+.mafia h2{font-family:Cairo;font-weight:900;font-size:clamp(48px,6vw,84px);line-height:1.05;margin-top:8px}
+.mafia p{color:#ADA99F;margin-top:12px;font-size:17px;max-width:42ch}
+.mafia .go{margin-top:28px;align-self:flex-start;background:var(--parch);color:#141312;font-family:Cairo;font-weight:700;padding:12px 28px;border-radius:4px}
+.stories{background:var(--lamp);color:#F1E3C8}
+.stories .art{background-image:url(stories/img/covers/cover_18.webp)}
+.stories::after{background:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(224,165,92,.16),transparent 70%),linear-gradient(transparent 30%,rgba(21,11,6,.95) 78%)}
+.stories .file{background:var(--paper);color:var(--ink);padding:20px 22px;max-width:420px;box-shadow:0 1px 0 #B49C70,0 14px 30px rgba(10,4,2,.6);position:relative}
+.stories .file::before{content:"";position:absolute;inset:0;background:#CDB98F;transform:rotate(1.5deg) translate(5px,5px);z-index:-1}
+.stories small{font-size:13px;color:#5B4430}
+.stories h2{font-family:Ruqaa;font-weight:700;font-size:clamp(44px,5.4vw,72px);line-height:1.15;color:var(--ink)}
+.stories .date{color:#7A4519;font-weight:500;font-size:14px}
+.stories p{color:#C9B597;margin-top:18px;font-size:17px;max-width:42ch}
+.stories .go{margin-top:22px;align-self:flex-start;background:var(--amber);color:#1A0C04;font-weight:500;padding:12px 28px;border-radius:10px}
+.top{position:fixed;top:0;inset-inline:0;z-index:5;display:flex;justify-content:space-between;padding:18px 28px;font-size:13px;color:var(--muted);pointer-events:none}
+.top a{pointer-events:auto;color:var(--bone)}
+@media (max-width:800px){main{grid-template-columns:1fr}.door{min-height:88vh;padding:40px 22px}.mafia .cards{transform:translateX(-50%) scale(.8)}}
+</style>
+</head>
+<body>
+<div class="top"><span>نظام الهوية · مسودة ١ · أكتوبر ٢٠٢٦</span><a href="README.md">README للـ agents</a></div>
+<main>
+  <a class="door mafia" href="mafia/index.html">
+    <div class="art"></div>
+    <div class="cards" aria-hidden="true"><img src="mafia/img/cards/face_detective.webp" alt=""><img src="mafia/img/cards/face_mafia.webp" alt=""><img src="mafia/img/cards/face_doctor.webp" alt=""></div>
+    <span class="idx">M ♠ · 01</span>
+    <h2>سيد المافيا</h2>
+    <p>كوتشينة مرسومة، لمبة واحدة، وختم نبيتي. تلات أحبار: الرماد، الأردواز، والبيت.</p>
+    <span class="go">افتح الهوية</span>
+  </a>
+  <a class="door stories" href="stories/index.html">
+    <div class="art"></div>
+    <div class="file"><small>ملف رقم ٢</small><h2>قصص وتحقيقات</h2><div class="date">لمبة نحاس · ورق مانيلا · ختم قطيفة</div></div>
+    <p>مكتب المحقق بالليل. الورق للي بيتقري، الكهرماني للتحرك، والختم للحكم.</p>
+    <span class="go">افتح الهوية</span>
+  </a>
+</main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "image_tool": "image_gen.imagegen",
+  "mode": "built-in",
+  "images": [
+    {
+      "file": "../assets/character/canonical.png",
+      "references": ["../../references/art/mafia/gallery_mafia.webp", "../../references/art/mafia/stage_chair.webp"],
+      "prompt": "Create ONE canonical vertical 9:16 promotional painting of the exact SAME skull-faced Mafia character from reference 1, now seated behind a simple dark wooden table, medium waist-up shot. Preserve skull proportions, black hood silhouette, ornate coat and silver embroidery. Bone-charcoal near-monochrome painted oil/engraving texture. One soft key light from upper screen right. Face clearly readable; hollow eyes, no glowing eyes, no human lips. Torso facing viewer almost frontally, jaw CLOSED, both gloved forearms anatomically coherent above tabletop. One gloved hand rests near EMPTY table centre, positioned as if about to push a card, but DO NOT draw a card. Simple chair and shadowed room echo reference2; remove any other figure or anchor symbol. Room plate dark charcoal #0F0F0F with subtle green-grey shadows. Leave generous dark space above head and below table for separately typeset Arabic. No text, border, logos, weapons, letters, symbols, cartoon style or glossy 3D. Face near x520 y620 and table y1320 on 1080x1920 composition. Essential face and hands inside x80..900,y180..1540. Output full composition, high-resolution."
+    },
+    {
+      "file": "../assets/character/base-no-face.png",
+      "references": ["../assets/character/canonical.png"],
+      "prompt": "Precise animation-background edit. Keep the same image dimensions, camera, lighting, wall, table, arms, clothing and framing EXACTLY as reference. Remove ONLY the skull face inside the hood (from forehead through chin), leaving a plain very dark charcoal hollow interior there, including behind the lower mandible. Preserve the entire outside hood shape and embroidered clothing. This is a base plate for compositing an independently animated skull face back on top. Do not change the gloves, hands, outfit, background or posture. No other modifications. Output one full 9:16 image."
+    },
+    {
+      "file": "../assets/character/base-clean.png",
+      "references": ["../assets/character/base-no-face.png"],
+      "prompt": "Precise animation-base edit. Maintain reference camera, size, pose, all clothing, chair, wall and empty black inside hood. Remove ONLY the foreground gloved hand on the lower screen left reaching forward across the tabletop, and the adjoining forward forearm from the cuff to that hand. Reconstruct its occupied area as a clean continuation of the dark tabletop and shadow, retain the upper arm and its silver embroidered shoulder. Keep the other hand resting on screen right exactly as is. The removed forearm will be composited back as an independent moving layer. No other change, no new fingers, no skull face, no text. Output one full image with exact unchanged composition."
+    }
+  ],
+  "animation": "Registered native clip-path face/mandible/forearm masks from the same canonical bitmap; no per-frame generated character.",
+  "runtime_encodings": "project/assets/character/*.webp are lossless encodings, decoded RGB equality verified against their PNG sources.",
+  "voice": {"provider": "ElevenLabs MCP", "model": "eleven_v3", "voice_id": "IES4nrmZdUBHByLBde0P", "generation_id": "tmyWsddiZqWMhQXSB8UU", "original": "../assets/audio/voice-original.mp3", "working": "../assets/audio/voice-master.wav"},
+  "existing_media": "Owner-provided game art, score and card sound frozen in ../../assets.manifest.json; no third-party stock footage or music was added.",
+  "fonts": "Local game fonts, OFL licence shipped in ../project/assets/fonts/OFL.txt",
+  "code": "HyperFrames0.8.145 and GSAP3.14.2; no onetake renderer/template code copied."
+}

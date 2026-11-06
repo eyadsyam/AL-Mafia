@@ -1,0 +1,86 @@
+[
+  {
+    "id": "hook",
+    "source_duration": 7.066667,
+    "needed_end": 6.018515769944342,
+    "source": "assets/video/hook-loop.mp4"
+  },
+  {
+    "id": "night",
+    "source_duration": 5.041667,
+    "needed_end": 3.292209291962105,
+    "source": "assets/video/mafia.mp4"
+  },
+  {
+    "id": "accuse",
+    "source_duration": 7.866016,
+    "needed_end": 5.373737461532673,
+    "source": "assets/video/salma-long.mp4"
+  },
+  {
+    "id": "wrong",
+    "source_duration": 5.041667,
+    "needed_end": 4.008431710737183,
+    "source": "assets/video/omar.mp4"
+  },
+  {
+    "id": "reveal",
+    "source_duration": 5.041667,
+    "needed_end": 4.035440853463904,
+    "source": "assets/video/reveal.mp4"
+  },
+  {
+    "id": "offline-friends",
+    "source_duration": 5.041667,
+    "needed_end": 3.8334426229508156,
+    "source": "assets/video/offline.mp4"
+  },
+  {
+    "id": "end-k",
+    "source_duration": 8.333333,
+    "needed_end": 7.565550245791262,
+    "source": "assets/video/hook-loop-long.mp4"
+  },
+  {
+    "id": "rooms-phone-media",
+    "source_duration": 6.0,
+    "needed_end": 4.999048187019197,
+    "source": "assets/video/online-discussion.mp4"
+  },
+  {
+    "id": "mafia-ui-media",
+    "source_duration": 6.0,
+    "needed_end": 3.319517241379311,
+    "source": "assets/video/online-mafia.mp4"
+  },
+  {
+    "id": "doctor-ui-media",
+    "source_duration": 6.0,
+    "needed_end": 3.3730949654139897,
+    "source": "assets/video/online-doctor.mp4"
+  },
+  {
+    "id": "detective-ui-media",
+    "source_duration": 6.0,
+    "needed_end": 3.729145312714773,
+    "source": "assets/video/online-detective.mp4"
+  },
+  {
+    "id": "vote-ui-media",
+    "source_duration": 6.0,
+    "needed_end": 4.2072250040064105,
+    "source": "assets/video/online-vote.mp4"
+  },
+  {
+    "id": "story-ui-media",
+    "source_duration": 8.0,
+    "needed_end": 3.540088028658815,
+    "source": "assets/video/story-search.mp4"
+  },
+  {
+    "id": "accuse-ui-media",
+    "source_duration": 8.0,
+    "needed_end": 6.451515656565659,
+    "source": "assets/video/story-search.mp4"
+  }
+]

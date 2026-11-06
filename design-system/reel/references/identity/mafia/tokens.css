@@ -1,0 +1,30 @@
+/* Mafia identity tokens. Source of values: tokens.json (same folder). */
+@font-face{font-family:"MM Cairo";src:url(../fonts/Cairo-Variable.ttf);font-weight:200 1000;font-display:swap}
+@font-face{font-family:"MM Plex";src:url(../fonts/IBMPlexSansArabic-Regular.ttf);font-weight:400;font-display:swap}
+@font-face{font-family:"MM Plex";src:url(../fonts/IBMPlexSansArabic-Medium.ttf);font-weight:500;font-display:swap}
+@font-face{font-family:"MM Plex";src:url(../fonts/IBMPlexSansArabic-SemiBold.ttf);font-weight:600;font-display:swap}
+@font-face{font-family:"MM Bebas";src:url(../fonts/BebasNeue-Regular.ttf);font-display:swap}
+@font-face{font-family:"MM Mono";src:url(../fonts/IBMPlexMono-Medium.ttf);font-display:swap}
+
+:root{
+  /* ash: cards, hand, secrecy (70%) */
+  --ash-ground:#0F0F0F; --ash-raised:#1A1A1A; --ash-overlay:#252525; --ash-line:#313131; --ash-rule:#5A5852;
+  --ash-muted:#908C83; --ash-text2:#ADA99F; --ash-parchment:#C2BDB2; --ash-parchment-pressed:#8D8169;
+  --ash-bone:#E9E4D9; --ash-on-parchment:#141312;
+  /* slate: stage and chapters (20%) */
+  --slate-deep:#0B0D0D; --slate-wall:#1C2222; --slate-stone:#272F2E; --slate-mist:#889697; --slate-paper:#B3AF9E; --slate-text:#E3DFD3;
+  /* house: vault, council, verdict (10%) */
+  --house-ground:#140F0C; --house-panel:#1F1813; --house-raised:#2A211A; --house-line:#3A2D23;
+  --house-oxblood:#562627; --house-oxblood-deep:#3A1416; --house-ember:#8E3A32;
+  --house-brass:#C9A45C; --house-brass-dim:#9F825C; --house-brass-deep:#7A5C26;
+  --house-text:#F1E6D2; --house-text2:#C2BBB3;
+
+  --font-display:"MM Cairo","MM Plex",sans-serif;
+  --font-body:"MM Plex",sans-serif;
+  --font-index:"MM Bebas",sans-serif;
+  --font-figures:"MM Mono",monospace;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+  --light:linear-gradient(215deg,rgba(233,228,217,.10),transparent 45%);
+  --halftone:radial-gradient(rgba(220,216,203,.07) 1px,transparent 1.3px) 0 0/4px 4px;
+}
