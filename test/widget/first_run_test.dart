@@ -327,7 +327,9 @@ void main() {
     expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
   });
 
-  testWidgets('sound and motion choices follow the name', (tester) async {
+  testWidgets('no preferences page: the name card leads straight in', (
+    tester,
+  ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
     await answerKind(tester);
@@ -335,7 +337,8 @@ void main() {
     expect(find.byType(Switch), findsNothing);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
-    expect(find.byType(Switch), findsWidgets);
+    expect(find.byType(Switch), findsNothing);
+    expect(find.text('HOME'), findsOneWidget);
     expect(await loadReduceMotionPreference(), isFalse);
   });
 

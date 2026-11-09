@@ -136,8 +136,11 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   int get _kindIndex => _steps.indexOf(_Step.kind);
   int get _nameIndex => _steps.indexOf(_Step.name);
 
+  /// Never asked of a build without a server: reading the account there
+  /// would start a backend that has nothing to talk to.
   bool get _signedIn =>
-      ref.read(accountProfileProvider).valueOrNull?.signedIn ?? false;
+      _steps.contains(_Step.account) &&
+      (ref.read(accountProfileProvider).valueOrNull?.signedIn ?? false);
 
   /// A new account picks its username with its name.
   bool get _asksHandle => _signedIn && !_returning;
@@ -184,7 +187,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
           !_touched &&
           !widget.termsOnly &&
           mounted) {
-        setState(() => _step = 1);
+        _firstQuestion();
       }
     });
     if (!widget.termsOnly) _restore();
@@ -226,6 +229,14 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     });
     // Back from the Google browser trip: the account decides what follows.
     if (_steps[_step] == _Step.account && _signedIn) await _adoptAccount();
+  }
+
+  /// The intro hands over. An install already signed in (the app came back
+  /// from the browser, or a cold start through the sign-in link) goes on
+  /// from the account instead of showing it again.
+  void _firstQuestion() {
+    setState(() => _step = 1);
+    if (_steps[1] == _Step.account && _signedIn) _adoptAccount();
   }
 
   /// The username suggestion follows the name until the player edits it.
@@ -583,7 +594,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       onTap: () {
         _touched = true;
         _intro.stop();
-        setState(() => _step = 1);
+        _firstQuestion();
       },
       child: AnimatedBuilder(
         animation: _intro,

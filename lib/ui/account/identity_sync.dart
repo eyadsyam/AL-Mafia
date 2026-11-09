@@ -7,6 +7,7 @@ import '../../engine/models/player.dart' show PlayerGender;
 import '../../transport/account_auth.dart' show AccountProfile;
 import '../social/directory.dart';
 import 'account_sheet.dart' show accountProfileProvider;
+import 'onboarding_account_step.dart' show accountsAvailableProvider;
 
 /// One name per account, on every device.
 ///
@@ -31,6 +32,8 @@ class IdentitySync {
   /// Null for a guest, when the server cannot be reached, or when the account
   /// has no entry yet. Fetched once per account per launch.
   Future<DirectoryMe?> ensureSynced() {
+    // A build without accounts has no account to follow.
+    if (!_ref.read(accountsAvailableProvider)) return Future.value(null);
     final account =
         _ref.read(accountProfileProvider).valueOrNull ?? AccountProfile.guest;
     final id = account.userId;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/engine/models/player.dart' show PlayerGender;
@@ -171,8 +172,8 @@ void main() {
         ),
       ),
     );
+    // Signed in already: the account step goes on by itself.
     await passIntro(tester);
-    await _tap(tester, FirstRunScreen.nextKey);
     expect(find.byKey(FirstRunScreen.welcomeKey), findsOneWidget);
     expect(find.text(arStrings.firstRunWelcomeBack('أحمد')), findsOneWidget);
     expect(find.text('@ahmed_mafia'), findsOneWidget);
@@ -192,6 +193,17 @@ void main() {
     tester,
   ) async {
     await _phone(tester);
+    // The coarse country comes from the phone's time zone.
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('mafia_master/device'),
+      (_) async => 'Africa/Cairo',
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('mafia_master/device'),
+        null,
+      ),
+    );
     late _FakeDirectory directory;
     await tester.pumpWidget(
       _host(
@@ -201,8 +213,8 @@ void main() {
         directory: (ref) => directory = _FakeDirectory(ref, taken: 'Mona'),
       ),
     );
+    // Signed in already: the account step goes on by itself.
     await passIntro(tester);
-    await _tap(tester, FirstRunScreen.nextKey);
     await answerKind(tester, boy: false);
     await typeName(tester, 'Mona');
     final handle = find.byKey(FirstRunScreen.handleKey);

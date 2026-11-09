@@ -339,6 +339,7 @@ void main() {
       ),
     );
     await passIntro(tester);
+    await _tap(tester, FirstRunScreen.guestKey);
     await answerKind(tester);
     await typeName(tester, 'Mona');
 
