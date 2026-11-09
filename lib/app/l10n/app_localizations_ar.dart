@@ -8208,7 +8208,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get micOffSettingsHint =>
-      'الموبايل مش هيسأل تاني: من الإعدادات ← الأذونات ← الميكروفون ← سماح.';
+      'الموبايل مش هيسأل تاني: افتح الإعدادات، وبعدين الأذونات، وبعدين الميكروفون، واختار سماح.';
 
   @override
   String get feedbackSignInTitle => 'قولنا رأيك';
@@ -8217,7 +8217,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get feedbackSignInLine => 'سجّل الأول عشان نعرف مين باعت ونرد عليك.';
 
   @override
-  String get feedbackSignedIn => 'متسجل ✓';
+  String get feedbackSignedIn => 'متسجل';
 
   @override
   String get feedbackTooShort =>

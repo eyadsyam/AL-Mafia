@@ -8333,7 +8333,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get micOffSettingsHint =>
-      'The phone will not ask again: Settings → Permissions → Microphone → Allow.';
+      'The phone will not ask again: open Settings, then Permissions, then Microphone, and choose Allow.';
 
   @override
   String get feedbackSignInTitle => 'Tell us what you think';
@@ -8343,7 +8343,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sign in first so we know who sent it and can reply.';
 
   @override
-  String get feedbackSignedIn => 'Signed in ✓';
+  String get feedbackSignedIn => 'Signed in';
 
   @override
   String get feedbackTooShort =>

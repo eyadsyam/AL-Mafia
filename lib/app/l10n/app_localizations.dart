@@ -14308,7 +14308,7 @@ abstract class AppLocalizations {
   /// No description provided for @micOffSettingsHint.
   ///
   /// In en, this message translates to:
-  /// **'The phone will not ask again: Settings → Permissions → Microphone → Allow.'**
+  /// **'The phone will not ask again: open Settings, then Permissions, then Microphone, and choose Allow.'**
   String get micOffSettingsHint;
 
   /// No description provided for @feedbackSignInTitle.
@@ -14326,7 +14326,7 @@ abstract class AppLocalizations {
   /// No description provided for @feedbackSignedIn.
   ///
   /// In en, this message translates to:
-  /// **'Signed in ✓'**
+  /// **'Signed in'**
   String get feedbackSignedIn;
 
   /// No description provided for @feedbackTooShort.
