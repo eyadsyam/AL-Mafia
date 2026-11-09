@@ -18,6 +18,7 @@ import '../../l10n_ext.dart';
 import '../../friendly_error.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/connection_banner.dart';
+import '../../widgets/mic_off_card.dart';
 import '../../widgets/storage_warning_note.dart';
 import '../../widgets/experience_surface.dart';
 import '../../widgets/mafia_public.dart';
@@ -627,6 +628,14 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
                               child: Column(
                                 children: [
                                   SizedBox(height: spacing.sm),
+                                  // Red until the microphone works: the whole
+                                  // game is talk.
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: spacing.screenMargin,
+                                    ),
+                                    child: const MicOffCard(),
+                                  ),
                                   // Doc 12 §3.1: the letters stagger in on first
                                   // render. The code is public and identical on
                                   // every device in the room, so staggering it

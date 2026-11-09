@@ -5100,5 +5100,25 @@
       }
     }
   },
-  "onlineRoomClosedByHost": "The room closed because the host left."
+  "onlineRoomClosedByHost": "The room closed because the host left.",
+  "firstRunAccountTitle": "Sign in so your name and coins stay with you",
+  "firstRunAccountNote": "Had an account before? You come back under your old name, no questions asked.",
+  "firstRunGuestPlain": "Play as a guest, no account",
+  "firstRunWelcomeBack": "Welcome back, {name}",
+  "@firstRunWelcomeBack": {"placeholders": {"name": {"type": "String"}}},
+  "firstRunWelcomeBackHint": "We found your account. Your name, coins and level are just as you left them.",
+  "firstRunLetsPlay": "Let's play",
+  "firstRunSameName": "The same name on the phone and the website. We will not ask again.",
+  "firstRunNameVisible": "The name people see",
+  "firstRunNameLater": "You can change it later in your profile.",
+  "firstRunHandleLabel": "Your username",
+  "firstRunHandleHint": "Your username is fixed and only yours. Friends find you by it anywhere.",
+  "firstRunHandleTaken": "That username is taken, try another.",
+  "firstRunHandleInvalid": "3 to 20 letters, digits or _ with no spaces.",
+  "micOpenSettings": "Open settings",
+  "micOffTitle": "Your mic is off — nobody can hear you",
+  "micOffBody": "The whole game is talk. Turn on your mic to defend yourself and accuse others.",
+  "micOffAction": "Turn on the mic",
+  "micOffWebHint": "Tap the lock next to the address and allow the microphone.",
+  "micOffSettingsHint": "The phone will not ask again: Settings → Permissions → Microphone → Allow."
 }

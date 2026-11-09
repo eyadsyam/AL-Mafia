@@ -59,6 +59,7 @@ import '../ui/economy/daily_rewards.dart' show DailyRewardsTab;
 import '../ui/screens/setup/coin_store.dart' show CoinStore, CoinStoreStart;
 import '../transport/account_auth.dart' show AccountProfile;
 import '../transport/account_service.dart' show AccountFailure;
+import 'startup_permissions.dart';
 import '../ui/account/account_sheet.dart'
     show
         AccountSheet,
@@ -264,6 +265,9 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // The microphone, then notifications: the phone's own dialogs, as the
+      // game opens, with no page of ours in front of them.
+      if (mounted) unawaited(ref.read(startupPermissionsProvider).run());
       if (mounted && SupabaseConfig.isConfigured) {
         unawaited(ref.read(playOffersProvider.notifier).start());
       }

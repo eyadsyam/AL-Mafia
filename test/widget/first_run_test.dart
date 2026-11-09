@@ -85,8 +85,7 @@ void main() {
     expect(_continueEnabled(tester), isTrue);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
-    expect(find.byKey(PermissionsStep.continueKey), findsOneWidget);
-    await tapKey(tester, PermissionsStep.continueKey);
+    // No permissions page: the system dialogs open by themselves at launch.
     expect(find.text('HOME'), findsOneWidget);
 
     final saved = await TermsStore().load();
@@ -188,15 +187,9 @@ void main() {
     await completeFirstRun(tester);
     expect(find.text('HOME'), findsNothing);
     expect(find.byKey(FirstRunScreen.failedKey), findsOneWidget);
-    // The profile landed, so the form narrowed to the box, still ticked:
-    // no loop, one more tap.
-    expect(
-      tester
-          .widget<BoneButton>(find.byKey(PermissionsStep.continueKey))
-          .onPressed,
-      isNotNull,
-    );
-    await tester.tap(find.byKey(PermissionsStep.continueKey));
+    // Still on the name card, the box still ticked: no loop, one more tap.
+    expect(_continueEnabled(tester), isTrue);
+    await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
     expect(find.text('HOME'), findsOneWidget);
   });
@@ -209,7 +202,6 @@ void main() {
       TermsStore.versionKey: currentTermsVersion,
       TermsStore.acceptedAtKey: '2026-09-23T10:00:00.000Z',
       TermsStore.adultKey: true,
-      permissionsDoneKey: true,
     });
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
@@ -233,7 +225,6 @@ void main() {
     await tapKey(tester, FirstRunScreen.agreeKey);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
-    await tapKey(tester, PermissionsStep.continueKey);
     expect(find.text('HOME'), findsOneWidget);
     expect((await ProfileStore().load())!.name, 'Old');
     expect((await TermsStore().load())!.adult, isTrue);

@@ -15,7 +15,11 @@ import '../../../transport/account_service.dart' show AccountFailure;
 import '../../account/embedded_browser_sheet.dart' show sentToRealBrowser;
 import '../../account/account_sheet.dart'
     show accountAuthProvider, accountProfileProvider, showAccountSheet;
+import '../../account/handle_rules.dart';
 import '../../account/onboarding_account_step.dart';
+import '../../social/directory.dart'
+    show DirectoryMe, HandleRefusal, directoryApiProvider;
+import '../../../platform/device/time_zone.dart';
 import '../../l10n_ext.dart';
 import '../setup/player_name.dart';
 import '../../theme/design_tokens.dart';
@@ -24,7 +28,6 @@ import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/deck/seat_card.dart';
 import '../../widgets/legal_documents.dart';
 import '../../widgets/mafia_kit.dart';
-import 'permissions_step.dart';
 
 /// Holds every route that needs a finished setup: a saved profile and an
 /// acceptance of the current terms.
@@ -52,32 +55,8 @@ class SetupRequired extends ConsumerWidget {
         termsOnly: true,
       );
     }
-    final permissions = ref.watch(permissionsDoneProvider);
-    if (permissions.isLoading) return const _Waiting();
-    if (permissions.valueOrNull != true) {
-      return const _ExistingPermissionsScreen();
-    }
     return child;
   }
-}
-
-class _ExistingPermissionsScreen extends ConsumerWidget {
-  const _ExistingPermissionsScreen();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) => MafiaScaffold(
-    backgroundColor: DeckTokens.ground,
-    body: SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: context.spacing.maxContentWidth,
-          ),
-          child: PermissionsStep(onContinue: () async {}),
-        ),
-      ),
-    ),
-  );
 }
 
 class _Waiting extends StatelessWidget {
@@ -87,12 +66,15 @@ class _Waiting extends StatelessWidget {
       const MafiaScaffold(body: Center(child: CircularProgressIndicator()));
 }
 
-/// The first launch, with progress dots: the deck fans
-/// into the logo, «نكلّمك إزاي؟» (two big avatar cards and the one box for
-/// 18+ and the terms), «اسمك إيه؟» (the name is written on the chosen card as
-/// it is typed) and, only where the build has a server, «نحفظ لعبك؟».
+/// The first launch, with progress dots: the deck fans into the logo, then,
+/// only where the build has a server, the account (Google, email, or a guest
+/// in plain sight), «نكلّمك إزاي؟» (two big avatar cards and the one box for
+/// 18+ and the terms) and «اسمك إيه؟» (the name is written on the chosen card
+/// as it is typed; a new account also picks its username there).
 ///
-/// Permissions and general preferences follow the name card.
+/// An account that already has a name is welcomed back under it and never
+/// asked again. There is no permissions page: the system dialogs open by
+/// themselves as the app starts (`startup_permissions.dart`).
 class FirstRunScreen extends ConsumerStatefulWidget {
   /// Existing installs that have a profile: only the box.
   final bool termsOnly;
@@ -115,16 +97,20 @@ class FirstRunScreen extends ConsumerStatefulWidget {
   static const failedKey = ValueKey('first_run_failed');
   static const dotsKey = ValueKey('first_run_dots');
   static const myCardKey = ValueKey('first_run_my_card');
+  static const handleKey = ValueKey('first_run_handle');
+  static const welcomeKey = ValueKey('first_run_welcome');
+  static const playKey = ValueKey('first_run_play');
 
   @override
   ConsumerState<FirstRunScreen> createState() => _FirstRunScreenState();
 }
 
-enum _Step { intro, kind, name, permissions, save }
+enum _Step { intro, account, kind, name }
 
 class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     with TickerProviderStateMixin {
   late final TextEditingController _name;
+  final TextEditingController _handle = TextEditingController();
   PlayerGender _gender = PlayerGender.unspecified;
   bool _agreed = false;
   bool _highlightAgree = false;
@@ -133,6 +119,28 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   bool _googleBusy = false;
   int _step = 0;
   late final List<_Step> _steps;
+
+  /// The signed-in account already has a name: welcomed back, never asked.
+  bool _returning = false;
+
+  /// The account's entry has been looked up (once per sign-in).
+  bool _adopted = false;
+  bool _adopting = false;
+  String? _accountHandle;
+
+  /// The player typed in the username field (the suggestion stops following
+  /// the name).
+  bool _handleTouched = false;
+  HandleRefusal? _handleRefusal;
+
+  int get _kindIndex => _steps.indexOf(_Step.kind);
+  int get _nameIndex => _steps.indexOf(_Step.name);
+
+  bool get _signedIn =>
+      ref.read(accountProfileProvider).valueOrNull?.signedIn ?? false;
+
+  /// A new account picks its username with its name.
+  bool get _asksHandle => _signedIn && !_returning;
 
   late final AnimationController _intro = AnimationController(vsync: this);
   late final AnimationController _shake = AnimationController(
@@ -155,17 +163,19 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     super.initState();
     _steps = [
       _Step.intro,
+      if (ref.read(accountsAvailableProvider)) _Step.account,
       _Step.kind,
       _Step.name,
-      _Step.permissions,
-      if (ref.read(accountsAvailableProvider)) _Step.save,
     ];
     final profile = ref.read(playerProfileProvider).valueOrNull;
     _name = TextEditingController(text: profile?.name ?? '');
     _gender = profile?.gender ?? PlayerGender.unspecified;
+    _name.addListener(_followName);
     _flip.addStatusListener((status) {
-      if (status == AnimationStatus.completed && _step == 1 && mounted) {
-        _move(2);
+      if (status == AnimationStatus.completed &&
+          _step == _kindIndex &&
+          mounted) {
+        _afterKind();
       }
     });
     _intro.addStatusListener((status) {
@@ -205,7 +215,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         (saved.agreed && saved.termsVersion == currentTermsVersion) ||
         ref.read(termsAcceptanceProvider).valueOrNull?.current == true;
     setState(() {
-      _step = agreed ? index : math.min(index, 1);
+      _step = agreed ? index : math.min(index, _kindIndex);
       _agreed = agreed;
       if (_name.text.trim().isEmpty) {
         _name.text = saved.name.characters
@@ -214,15 +224,106 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       }
       if (_gender == PlayerGender.unspecified) _gender = saved.gender;
     });
-    if (_steps[_step] == _Step.permissions &&
-        await ref.read(permissionsDoneProvider.future) &&
-        _readyToFinish) {
-      await _finish();
-      return;
+    // Back from the Google browser trip: the account decides what follows.
+    if (_steps[_step] == _Step.account && _signedIn) await _adoptAccount();
+  }
+
+  /// The username suggestion follows the name until the player edits it.
+  void _followName() {
+    if (_handleTouched) return;
+    final next = suggestHandle(cleanPlayerName(_name.text));
+    if (_handle.text != next) _handle.text = next;
+  }
+
+  /// After sign-in: an account with a name is welcomed back under it (the
+  /// server's name wins over anything typed on this device); a new account
+  /// goes on to choose its name and username.
+  Future<void> _adoptAccount() async {
+    if (_adopting || _adopted || !mounted) return;
+    _adopting = true;
+    setState(() => _googleBusy = true);
+    DirectoryMe? me;
+    try {
+      me = await ref
+          .read(directoryApiProvider)
+          .me()
+          .timeout(FirstRunTokens.accountLookup);
+    } catch (_) {
+      // Unreachable or switched off: carried on as a new account.
     }
-    if (_steps[_step] != _Step.save) return;
-    final profile = ref.read(accountProfileProvider).valueOrNull;
-    if ((profile?.signedIn ?? false) && _readyToFinish) _finish();
+    if (!mounted) return;
+    final name = me?.name;
+    setState(() {
+      _adopting = false;
+      _adopted = true;
+      _googleBusy = false;
+      _accountHandle = me?.handle;
+      if (name != null) {
+        _returning = true;
+        _name.text = name.characters.take(FirstRunTokens.nameMax).toString();
+        if (me?.gender != null) _gender = me!.gender!;
+      } else {
+        final offered = ref.read(accountProfileProvider).valueOrNull?.name;
+        if (_name.text.trim().isEmpty && offered != null) {
+          _name.text = cleanPlayerName(
+            offered,
+          ).characters.take(FirstRunTokens.nameMax).toString();
+        }
+        _followName();
+      }
+    });
+    _move(_kindIndex);
+  }
+
+  /// The card was chosen: a returning account already has its name.
+  void _afterKind() {
+    if (_returning) {
+      _finish();
+    } else {
+      _move(_nameIndex);
+    }
+  }
+
+  /// The name card's button: a new account claims its username first, so a
+  /// taken one is said here rather than discovered later.
+  Future<void> _nameContinue() async {
+    if (!_nameOk || _saving) return;
+    if (_asksHandle) {
+      final wanted = _handle.text.trim();
+      if (!handlePattern.hasMatch(wanted)) {
+        setState(() => _handleRefusal = HandleRefusal.invalid);
+        return;
+      }
+      setState(() {
+        _saving = true;
+        _handleRefusal = null;
+      });
+      HandleRefusal? refusal;
+      try {
+        final api = ref.read(directoryApiProvider);
+        await api.hello(
+          name: cleanPlayerName(_name.text),
+          gender: _gender.name,
+          tz: await deviceTimeZone(),
+          locale: deviceLocaleTag(),
+        );
+        refusal = (await api.setHandle(wanted)).$2;
+      } catch (_) {
+        // The server's own handle stays; the profile can change it later.
+      }
+      if (!mounted) return;
+      setState(() => _saving = false);
+      if (refusal == HandleRefusal.taken ||
+          refusal == HandleRefusal.invalid ||
+          refusal == HandleRefusal.refused) {
+        setState(() {
+          _handleRefusal = refusal;
+          _handleTouched = true;
+        });
+        return;
+      }
+    }
+    await _finish();
   }
 
   void _saveProgress() {
@@ -238,7 +339,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
 
   @override
   void dispose() {
+    _name.removeListener(_followName);
     _name.dispose();
+    _handle.dispose();
     _intro.dispose();
     _shake.dispose();
     _flip.dispose();
@@ -259,9 +362,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     setState(() => _step = step);
     _saveProgress();
     // Already signed in (the browser trip came back first): nothing to ask.
-    if (_steps[step] == _Step.save &&
-        (ref.read(accountProfileProvider).valueOrNull?.signedIn ?? false)) {
-      _finish();
+    if (_steps[step] == _Step.account && _signedIn && !_adopted) {
+      _adoptAccount();
     }
   }
 
@@ -285,7 +387,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     _touched = true;
     setState(() => _gender = gender);
     if (_still) {
-      _move(2);
+      _afterKind();
     } else {
       _flip.forward(from: 0);
     }
@@ -343,7 +445,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    if (_steps.contains(_Step.save) && !widget.termsOnly) {
+    if (_steps.contains(_Step.account) && !widget.termsOnly) {
       ref.listen<AsyncValue<AccountProfile>>(accountProfileProvider, (
         previous,
         next,
@@ -351,7 +453,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         final now = next.valueOrNull;
         if (next.hasError || now == null || !now.signedIn) return;
         if (previous?.valueOrNull?.signedIn ?? false) return;
-        if (_steps[_step] == _Step.save) _finish();
+        if (_steps[_step] == _Step.account) _adoptAccount();
       });
     }
     final step = widget.termsOnly ? _Step.kind : _steps[_step];
@@ -382,23 +484,18 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                             key: ValueKey(step),
                             child: switch (step) {
                               _Step.intro => _introStep(context, l),
-                              _Step.kind => _kindStep(context, l),
+                              _Step.account => _accountStep(context, l),
+                              _Step.kind =>
+                                _returning &&
+                                        _gender != PlayerGender.unspecified
+                                    ? _welcomeStep(context, l)
+                                    : _kindStep(context, l),
                               _Step.name => _nameStep(context, l),
-                              _Step.permissions => PermissionsStep(
-                                failed: _failed,
-                                onContinue: () =>
-                                    _steps.last == _Step.permissions
-                                    ? _finish()
-                                    : _move(_step + 1),
-                              ),
-                              _Step.save => _saveStep(context, l),
                             },
                           ),
                         ),
                         if (step != _Step.intro) _dots(context),
-                        if (step == _Step.name ||
-                            step == _Step.permissions ||
-                            step == _Step.save)
+                        if (_step > 1)
                           PositionedDirectional(
                             start: context.spacing.sm,
                             top: context.spacing.xs,
@@ -413,7 +510,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                               icon: const BackButtonIcon(),
                             ),
                           ),
-                        if (step == _Step.kind)
+                        if (_step == 1)
                           PositionedDirectional(
                             end: context.spacing.md,
                             top: context.spacing.xs,
@@ -960,10 +1057,23 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                           _saveProgress();
                         },
                         onSubmitted: (_) {
-                          if (_nameOk) _move(_step + 1);
+                          if (_nameOk && !_asksHandle) _nameContinue();
                         },
                       ),
                     ),
+                    if (_asksHandle) ...[
+                      SizedBox(height: s.xs),
+                      Text(
+                        l.firstRunNameLater,
+                        style: type.caption.copyWith(
+                          color: context.colors.textMuted,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: s.md),
+                      _handleField(context, l),
+                    ],
+                    if (_failed) _failure(context, l),
                   ],
                 ),
               ),
@@ -976,12 +1086,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                 s.md,
               ),
               child: BoneButton(
-                key: _steps.contains(_Step.save)
-                    ? FirstRunScreen.nextKey
-                    : FirstRunScreen.continueKey,
+                key: FirstRunScreen.continueKey,
                 label: _saving ? l.arrivalSaving : l.continueAction,
                 disabledReason: l.firstRunNameNeed,
-                onPressed: _nameOk && !_saving ? () => _move(_step + 1) : null,
+                onPressed: _nameOk && !_saving ? _nameContinue : null,
               ),
             ),
           ],
@@ -1002,16 +1110,14 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     ),
   );
 
-  // ── step 3: keep your game ─────────────────────────────────────────────────
+  // ── step 1: the account ────────────────────────────────────────────────────
 
-  Widget _saveStep(BuildContext context, AppLocalizations l) {
+  Widget _accountStep(BuildContext context, AppLocalizations l) {
     final s = context.spacing;
     final type = context.typography;
     final signedIn =
         ref.watch(accountProfileProvider).valueOrNull?.signedIn ?? false;
-    final keep = DeckTokens.meta(
-      type,
-    ).copyWith(color: context.colors.textSecondary);
+    final busy = _googleBusy || _saving || _adopting;
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
         s.screenMargin,
@@ -1022,72 +1128,236 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _heading(context, l.firstRunSaveTitle, l.firstRunSaveHint),
-          SizedBox(height: s.lg),
-          Center(
-            child: Container(
-              width: FirstRunTokens.safeRing,
-              height: FirstRunTokens.safeRing,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: DeckTokens.rimBorder,
-                  color: DeckTokens.silverLight,
-                ),
-              ),
-              child: Image.asset(
-                AppEconomyArt.coinLarge,
-                width: FirstRunTokens.safeCoin,
-                cacheWidth:
-                    (FirstRunTokens.safeCoin *
-                            (MediaQuery.maybeDevicePixelRatioOf(context) ?? 1))
-                        .round(),
-                excludeFromSemantics: true,
-              ),
-            ),
+          Text(
+            context.l10n.appTitle,
+            style: type.display.copyWith(color: context.colors.textPrimary),
+            textAlign: TextAlign.center,
           ),
-          SizedBox(height: s.md),
-          Text(l.firstRunKeepCoins, style: keep, textAlign: TextAlign.center),
-          Text(l.firstRunKeepLevel, style: keep, textAlign: TextAlign.center),
           SizedBox(height: s.lg),
-          if (signedIn)
-            const Center(child: OnboardingAccountChoice())
-          else ...[
-            RimButton(
+          _heading(context, l.firstRunAccountTitle, null),
+          SizedBox(height: s.lg),
+          if (signedIn) ...[
+            const Center(child: OnboardingAccountChoice()),
+            SizedBox(height: s.md),
+            BoneButton(
+              key: FirstRunScreen.nextKey,
+              label: busy ? l.arrivalSaving : l.continueAction,
+              onPressed: busy ? null : _adoptAccount,
+            ),
+          ] else ...[
+            BoneButton(
               key: FirstRunScreen.googleKey,
               label: l.firstRunGoogle,
-              onPressed: _googleBusy || _saving ? null : _google,
+              onPressed: busy ? null : _google,
             ),
             SizedBox(height: s.sm),
             RimButton(
               key: FirstRunScreen.emailKey,
               label: l.firstRunEmail,
-              onPressed: _saving
+              onPressed: busy
                   ? null
                   : () => showAccountSheet(context, onboarding: true),
             ),
-          ],
-          SizedBox(height: s.sm),
-          TextButton(
-            key: FirstRunScreen.guestKey,
-            onPressed: _saving ? null : _finish,
-            child: Text(
-              _saving ? l.arrivalSaving : l.firstRunGuest,
-              style: type.body.copyWith(
-                color: context.colors.textSecondary,
-                decoration: TextDecoration.underline,
+            SizedBox(height: s.sm),
+            TextButton(
+              key: FirstRunScreen.guestKey,
+              onPressed: busy ? null : () => _move(_kindIndex),
+              child: Text(
+                l.firstRunGuestPlain,
+                style: type.body.copyWith(
+                  color: context.colors.textSecondary,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
-          ),
-          Text(
-            l.firstRunLater,
-            style: type.caption.copyWith(color: context.colors.textMuted),
-            textAlign: TextAlign.center,
+          ],
+          SizedBox(height: s.lg),
+          Container(
+            padding: EdgeInsets.all(s.sm + s.xs),
+            decoration: BoxDecoration(
+              color: DeckTokens.panel,
+              borderRadius: BorderRadius.circular(context.radii.card),
+              border: Border.all(color: DeckTokens.line),
+            ),
+            child: Text(
+              l.firstRunAccountNote,
+              style: DeckTokens.meta(
+                type,
+              ).copyWith(color: context.colors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
           ),
           if (_failed) _failure(context, l),
         ],
       ),
+    );
+  }
+
+  // ── a returning account: welcomed back under its own name ─────────────────
+
+  Widget _welcomeStep(BuildContext context, AppLocalizations l) {
+    final s = context.spacing;
+    final type = context.typography;
+    final name = cleanPlayerName(_name.text);
+    final terms = ref.watch(termsAcceptanceProvider).valueOrNull?.current;
+    return Column(
+      key: FirstRunScreen.welcomeKey,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              s.screenMargin,
+              s.xl + s.md,
+              s.screenMargin,
+              s.md,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: _Lander(
+                    still: _still,
+                    child: SizedBox(
+                      width: FirstRunTokens.myCardWidth,
+                      height: FirstRunTokens.myCardWidth / SeatTokens.aspect,
+                      child: SeatCard(
+                        name: name,
+                        seat: 0,
+                        gender: _gender,
+                        showSeat: false,
+                      ),
+                    ),
+                  ),
+                ),
+                if (_accountHandle != null)
+                  Text(
+                    '@$_accountHandle',
+                    textDirection: TextDirection.ltr,
+                    textAlign: TextAlign.center,
+                    style: DeckTokens.meta(
+                      type,
+                    ).copyWith(color: context.colors.textSecondary),
+                  ),
+                SizedBox(height: s.md),
+                _heading(
+                  context,
+                  l.firstRunWelcomeBack(name),
+                  l.firstRunWelcomeBackHint,
+                ),
+                if (terms != true) ...[
+                  SizedBox(height: s.lg),
+                  _agreeRow(context, l),
+                ],
+                if (_failed) _failure(context, l),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(s.screenMargin, 0, s.screenMargin, s.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              BoneButton(
+                key: FirstRunScreen.playKey,
+                label: _saving ? l.arrivalSaving : l.firstRunLetsPlay,
+                onPressed: _saving
+                    ? null
+                    : () {
+                        if (terms == true && !_agreed) _agreed = true;
+                        if (!_agreed) {
+                          setState(() => _highlightAgree = true);
+                          if (!_still) _shake.forward(from: 0);
+                          return;
+                        }
+                        _finish();
+                      },
+              ),
+              SizedBox(height: s.xs),
+              Text(
+                l.firstRunSameName,
+                style: type.caption.copyWith(color: context.colors.textMuted),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── a new account's username, under its name ──────────────────────────────
+
+  Widget _handleField(BuildContext context, AppLocalizations l) {
+    final s = context.spacing;
+    final type = context.typography;
+    final colors = context.colors;
+    final refusal = _handleRefusal;
+    final problem = switch (refusal) {
+      HandleRefusal.taken => l.firstRunHandleTaken,
+      HandleRefusal.invalid || HandleRefusal.refused => l.firstRunHandleInvalid,
+      _ => null,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l.firstRunHandleLabel,
+          style: type.body.copyWith(color: colors.textPrimary),
+        ),
+        SizedBox(height: s.xs),
+        Container(
+          height: DeckTokens.primaryHeight + s.xs,
+          padding: EdgeInsets.symmetric(horizontal: s.md),
+          decoration: BoxDecoration(
+            color: DeckTokens.panel,
+            borderRadius: BorderRadius.circular(context.radii.card),
+            border: Border.all(
+              color: problem == null ? DeckTokens.line : colors.accentCrimson,
+            ),
+          ),
+          child: Row(
+            textDirection: TextDirection.ltr,
+            children: [
+              Text(
+                '@',
+                style: type.title.copyWith(color: colors.textMuted),
+              ),
+              SizedBox(width: s.xs),
+              Expanded(
+                child: TextField(
+                  key: FirstRunScreen.handleKey,
+                  controller: _handle,
+                  maxLength: FirstRunTokens.handleMax,
+                  textDirection: TextDirection.ltr,
+                  textInputAction: TextInputAction.done,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  style: type.title.copyWith(color: colors.textPrimary),
+                  decoration: const InputDecoration(
+                    counterText: '',
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                  onChanged: (_) => setState(() {
+                    _handleTouched = true;
+                    _handleRefusal = null;
+                  }),
+                  onSubmitted: (_) => _nameContinue(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: s.xs),
+        Text(
+          problem ?? l.firstRunHandleHint,
+          style: type.caption.copyWith(
+            color: problem == null ? colors.textMuted : colors.accentCrimson,
+          ),
+        ),
+      ],
     );
   }
 

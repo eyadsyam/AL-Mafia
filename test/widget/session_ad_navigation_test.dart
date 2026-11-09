@@ -32,7 +32,6 @@ void main() {
       'community_rules_2026_09': true,
       ProfileStore.profileKey: '{"name":"A","gender":"male"}',
       ...acceptedTermsPrefs,
-      permissionsDoneKey: true,
       'interstitial_ledger_v1':
           '{"completedMatches":3,"highWaterMs":${noon - 60 * minute}}',
     });

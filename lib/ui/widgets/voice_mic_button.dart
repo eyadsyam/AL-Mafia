@@ -6,6 +6,7 @@ import '../../platform/voice/voice_controller.dart';
 import '../l10n_ext.dart';
 import '../screens/online/voice_session.dart';
 import '../theme/mafia_theme.dart';
+import 'mic_off_card.dart';
 import 'voice_controls.dart';
 
 /// The lobby's whole voice surface: one microphone, no words (task 9).
@@ -70,12 +71,18 @@ class VoiceMicButton extends ConsumerWidget {
           child: IconButton(
             key: micKey,
             tooltip: off ? l10n.voiceUnmuteMe : l10n.voiceMuteMe,
-            onPressed: unavailable
+            // A refused microphone is not inert: the tap asks again (or opens
+            // the phone's settings), the same as the lobby's red card.
+            onPressed: state.microphoneRefused
+                ? () => openMicrophone(context, ref)
+                : unavailable
                 ? null
                 : () => controller.setSelfMuted(!state.selfMuted),
             icon: Icon(
               off ? Icons.mic_off : Icons.mic_none,
-              color: unavailable
+              color: state.microphoneRefused
+                  ? colors.accentCrimson
+                  : unavailable
                   ? colors.textMuted
                   : (off ? colors.textMuted : colors.textSecondary),
             ),

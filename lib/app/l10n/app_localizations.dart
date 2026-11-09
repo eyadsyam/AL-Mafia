@@ -14196,6 +14196,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The room closed because the host left.'**
   String get onlineRoomClosedByHost;
+
+  /// No description provided for @firstRunAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in so your name and coins stay with you'**
+  String get firstRunAccountTitle;
+
+  /// No description provided for @firstRunAccountNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Had an account before? You come back under your old name, no questions asked.'**
+  String get firstRunAccountNote;
+
+  /// No description provided for @firstRunGuestPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Play as a guest, no account'**
+  String get firstRunGuestPlain;
+
+  /// No description provided for @firstRunWelcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, {name}'**
+  String firstRunWelcomeBack(String name);
+
+  /// No description provided for @firstRunWelcomeBackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We found your account. Your name, coins and level are just as you left them.'**
+  String get firstRunWelcomeBackHint;
+
+  /// No description provided for @firstRunLetsPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s play'**
+  String get firstRunLetsPlay;
+
+  /// No description provided for @firstRunSameName.
+  ///
+  /// In en, this message translates to:
+  /// **'The same name on the phone and the website. We will not ask again.'**
+  String get firstRunSameName;
+
+  /// No description provided for @firstRunNameVisible.
+  ///
+  /// In en, this message translates to:
+  /// **'The name people see'**
+  String get firstRunNameVisible;
+
+  /// No description provided for @firstRunNameLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change it later in your profile.'**
+  String get firstRunNameLater;
+
+  /// No description provided for @firstRunHandleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your username'**
+  String get firstRunHandleLabel;
+
+  /// No description provided for @firstRunHandleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your username is fixed and only yours. Friends find you by it anywhere.'**
+  String get firstRunHandleHint;
+
+  /// No description provided for @firstRunHandleTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That username is taken, try another.'**
+  String get firstRunHandleTaken;
+
+  /// No description provided for @firstRunHandleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'3 to 20 letters, digits or _ with no spaces.'**
+  String get firstRunHandleInvalid;
+
+  /// No description provided for @micOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get micOpenSettings;
+
+  /// No description provided for @micOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your mic is off — nobody can hear you'**
+  String get micOffTitle;
+
+  /// No description provided for @micOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole game is talk. Turn on your mic to defend yourself and accuse others.'**
+  String get micOffBody;
+
+  /// No description provided for @micOffAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the mic'**
+  String get micOffAction;
+
+  /// No description provided for @micOffWebHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the lock next to the address and allow the microphone.'**
+  String get micOffWebHint;
+
+  /// No description provided for @micOffSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone will not ask again: Settings → Permissions → Microphone → Allow.'**
+  String get micOffSettingsHint;
 }
 
 class _AppLocalizationsDelegate

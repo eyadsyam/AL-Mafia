@@ -1,7 +1,6 @@
 import 'package:mafia_master/data/memory_match_repository.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/data/terms_consent.dart';
-import 'package:mafia_master/ui/screens/onboarding/permissions_step.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A match store for a launch that is **not** a first run.
@@ -24,7 +23,6 @@ MemoryMatchStore returningHostStore() {
 void seedReturningProfile() => SharedPreferences.setMockInitialValues({
   'community_rules_2026_09': true,
   ProfileStore.profileKey: '{"name":"A","gender":"male"}',
-  permissionsDoneKey: true,
   ...acceptedTermsPrefs,
 });
 

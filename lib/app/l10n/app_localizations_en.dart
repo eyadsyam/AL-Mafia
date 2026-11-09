@@ -8266,4 +8266,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onlineRoomClosedByHost => 'The room closed because the host left.';
+
+  @override
+  String get firstRunAccountTitle =>
+      'Sign in so your name and coins stay with you';
+
+  @override
+  String get firstRunAccountNote =>
+      'Had an account before? You come back under your old name, no questions asked.';
+
+  @override
+  String get firstRunGuestPlain => 'Play as a guest, no account';
+
+  @override
+  String firstRunWelcomeBack(String name) {
+    return 'Welcome back, $name';
+  }
+
+  @override
+  String get firstRunWelcomeBackHint =>
+      'We found your account. Your name, coins and level are just as you left them.';
+
+  @override
+  String get firstRunLetsPlay => 'Let\'s play';
+
+  @override
+  String get firstRunSameName =>
+      'The same name on the phone and the website. We will not ask again.';
+
+  @override
+  String get firstRunNameVisible => 'The name people see';
+
+  @override
+  String get firstRunNameLater => 'You can change it later in your profile.';
+
+  @override
+  String get firstRunHandleLabel => 'Your username';
+
+  @override
+  String get firstRunHandleHint =>
+      'Your username is fixed and only yours. Friends find you by it anywhere.';
+
+  @override
+  String get firstRunHandleTaken => 'That username is taken, try another.';
+
+  @override
+  String get firstRunHandleInvalid =>
+      '3 to 20 letters, digits or _ with no spaces.';
+
+  @override
+  String get micOpenSettings => 'Open settings';
+
+  @override
+  String get micOffTitle => 'Your mic is off — nobody can hear you';
+
+  @override
+  String get micOffBody =>
+      'The whole game is talk. Turn on your mic to defend yourself and accuse others.';
+
+  @override
+  String get micOffAction => 'Turn on the mic';
+
+  @override
+  String get micOffWebHint =>
+      'Tap the lock next to the address and allow the microphone.';
+
+  @override
+  String get micOffSettingsHint =>
+      'The phone will not ask again: Settings → Permissions → Microphone → Allow.';
 }

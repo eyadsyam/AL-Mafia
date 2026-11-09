@@ -3314,6 +3314,15 @@ abstract final class BotTokens {
 
 /// First run: the deck fans into the logo, «نكلّمك إزاي؟», «اسمك إيه؟»,
 /// «نحفظ لعبك؟».
+/// The lobby's «المايك مقفول» card and its small in-match chip.
+abstract final class MicOffTokens {
+  /// The crimson wash behind the card, as an alpha over the accent.
+  static const double tintAlpha = 0.14;
+  static const double border = 1.5;
+  static const double icon = 28;
+  static const double chipIcon = 18;
+}
+
 abstract final class FirstRunTokens {
   /// The opening: how long the deck takes to fan, and how long the logo is
   /// held before the first question. Reduced motion holds the end state only.
@@ -3325,6 +3334,13 @@ abstract final class FirstRunTokens {
   static const Duration flip = Duration(milliseconds: 600);
   static const Duration hold = Duration(milliseconds: 600);
   static const Duration land = Duration(milliseconds: 600);
+
+  /// How long the account's name is waited for after sign-in before the
+  /// player carries on as a new account.
+  static const Duration accountLookup = Duration(seconds: 8);
+
+  /// The username field (the server's own limit).
+  static const int handleMax = 20;
 
   /// The fanned deck: card size, spread, tilt (radians), drop at the edges.
   static const Size deckCard = Size(76, 114);

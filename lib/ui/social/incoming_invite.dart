@@ -9,6 +9,7 @@ import '../../engine/models/player.dart' show PlayerGender;
 import '../../platform/audio_director.dart';
 import '../../platform/device/time_zone.dart';
 import '../../platform/haptics.dart';
+import '../account/identity_sync.dart';
 import '../economy/cosmetic_paint.dart';
 import '../economy/economy_capabilities.dart';
 import '../economy/vault_kit.dart';
@@ -187,10 +188,17 @@ class IncomingInviteHostState extends ConsumerState<IncomingInviteHost>
         now.difference(_helloAt!) < InviteTokens.presenceBeat) {
       return;
     }
+    _helloAt = now;
+    // The account's name first: a device set up under another name must not
+    // publish it over the name every other device of this account shows.
+    await ref.read(identitySyncProvider).ensureSynced();
+    if (!mounted) return;
     final profile = ref.read(playerProfileProvider).valueOrNull;
     final name = profile?.name.trim() ?? '';
-    if (name.isEmpty) return;
-    _helloAt = now;
+    if (name.isEmpty) {
+      _helloAt = null;
+      return;
+    }
     try {
       await api.hello(
         name: name,

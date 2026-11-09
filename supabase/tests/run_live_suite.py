@@ -33,6 +33,18 @@ TRANSPORT = (TimeoutError, socket.timeout, ConnectionError, http.client.Incomple
              http.client.RemoteDisconnected, urllib.error.URLError)
 
 
+members = {}  # roomId -> tokens that acted in it (never logged)
+
+
+def ready_everyone(room_id):
+    """The server opens the ballot only once every living player said
+    «جاهزين للتصويت» (or the discussion clock ran out); the harness says it
+    for every bot it has seen in the room, quietly — the dead are refused."""
+    for token in list(members.get(room_id, ())):
+        with contextlib.suppress(*TRANSPORT):
+            original('/functions/v1/ready_to_vote', {'roomId': room_id, 'ready': True}, token, 'POST')
+
+
 def request(path, payload, token=None, method='POST'):
     if method == 'DELETE' or '/admin/' in path:
         raise RuntimeError('privileged HTTP disabled')
@@ -41,6 +53,10 @@ def request(path, payload, token=None, method='POST'):
     if path.startswith('/functions/') and payload and payload.get('roomId'):
         if payload['roomId'] not in owned:
             return 403, {'error': 'TEST_OWNED_ROOMS_ONLY'}
+        if token:
+            members.setdefault(payload['roomId'], set()).add(token)
+        if path.endswith('/open_phase') and payload.get('phase') == 'vote':
+            ready_everyone(payload['roomId'])
     for wait in (2, 5, None):  # Dropped connections are local; the server never failed these calls.
         try:
             status, data = original(path, payload, token, method)
@@ -55,6 +71,9 @@ def request(path, payload, token=None, method='POST'):
     if path.endswith('/create_room') and status == 200 and data.get('roomId'):
         owned.add(data['roomId'])
         codes.add(data['code'])
+    if (path.endswith('/create_room') or path.endswith('/join_room')) and token \
+            and status == 200 and isinstance(data, dict) and data.get('roomId'):
+        members.setdefault(data['roomId'], set()).add(token)
     if status >= 400:
         err = data.get('error', data.get('code', 'HTTP_ERROR')) if isinstance(data, dict) else 'HTTP_ERROR'
         errors.append({'endpoint': path.split('?')[0], 'status': status, 'code': err})

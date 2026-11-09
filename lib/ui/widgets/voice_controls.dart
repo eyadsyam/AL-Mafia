@@ -8,7 +8,9 @@ import '../../app/l10n/app_localizations.dart';
 import '../../transport/voice_link.dart' show FloorClaim;
 import '../l10n_ext.dart';
 import '../screens/online/voice_session.dart';
+import '../theme/design_tokens.dart' show MicOffTokens;
 import '../theme/mafia_theme.dart';
+import 'mic_off_card.dart';
 
 /// Why a floor request was not granted, as one short line; null when there is
 /// nothing to say (every mic is already live, or the server never answered:
@@ -52,6 +54,9 @@ class VoiceControls extends ConsumerWidget {
 
   /// The player's own microphone switch. Live from the lobby onwards.
   static const Key micButton = ValueKey('voice_mic');
+
+  /// «افتح المايك» while the microphone is refused.
+  static const Key micOffChip = ValueKey('voice_mic_off');
 
   /// The diagnostics sheet. Reached only by holding the status line down.
   static const Key diagnosticsSheet = ValueKey('voice_diagnostics');
@@ -126,6 +131,22 @@ class VoiceControls extends ConsumerWidget {
           // the match and is the same control every call app on the phone
           // draws exactly this way. The floor below it keeps its words,
           // because taking the floor is a move.
+          // In a match the lobby's card is a small red microphone: the same
+          // action, never over the role, the ballot or the night.
+          if (controller != null && state.microphoneRefused)
+            TextButton.icon(
+              key: micOffChip,
+              onPressed: () => openMicrophone(context, ref),
+              icon: Icon(
+                Icons.mic_off,
+                size: MicOffTokens.chipIcon,
+                color: colors.accentCrimson,
+              ),
+              label: Text(
+                l10n.micOffAction,
+                style: type.caption.copyWith(color: colors.accentCrimson),
+              ),
+            ),
           if (controller != null && state.canMuteSelf)
             IconButton(
               key: micButton,

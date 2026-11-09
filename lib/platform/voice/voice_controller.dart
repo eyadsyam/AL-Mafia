@@ -53,6 +53,11 @@ class VoiceState {
   /// refused. V1: *"told once, calmly, then never again."*
   final bool receiveOnlyNotice;
 
+  /// The microphone was asked for in this room and is not here: the lobby's
+  /// «المايك مقفول» card stays until it is. Unlike [receiveOnlyNotice] this is
+  /// carried forward, and cleared only when a microphone arrives.
+  final bool microphoneRefused;
+
   /// Whether this player has silenced their own microphone.
   ///
   /// The one thing about the call a player decides. It only ever subtracts —
@@ -77,6 +82,7 @@ class VoiceState {
     this.activeSpeakerSeat,
     this.holdsFloor = false,
     this.receiveOnlyNotice = false,
+    this.microphoneRefused = false,
     this.selfMuted = false,
     this.speakingLevels = const {},
     this.witness = false,
@@ -115,6 +121,7 @@ class VoiceState {
     int? activeSpeakerSeat,
     bool? holdsFloor,
     bool? receiveOnlyNotice,
+    bool? microphoneRefused,
     bool? selfMuted,
     Map<int, double>? speakingLevels,
     bool? witness,
@@ -133,6 +140,7 @@ class VoiceState {
     // Never carried forward. The notice is a one-shot by construction
     // rather than by anybody remembering to clear it (V1).
     receiveOnlyNotice: receiveOnlyNotice ?? false,
+    microphoneRefused: microphoneRefused ?? this.microphoneRefused,
     selfMuted: selfMuted ?? this.selfMuted,
     speakingLevels: speakingLevels ?? this.speakingLevels,
     witness: witness ?? this.witness,
@@ -465,6 +473,27 @@ class VoiceController {
     await _syncMicrophone();
   }
 
+  /// Asks for the microphone again: from the lobby's «افتح المايك», or when
+  /// the player comes back from the phone's settings. A track acquired now is
+  /// attached to the mesh already standing (the engine does that), so nothing
+  /// is rebuilt. True when this device can now be heard.
+  Future<bool> retryMicrophone() async {
+    if (_tornDown || _disposed) return false;
+    if (_micAvailable) return true;
+    _micAsked = true;
+    _micAvailable = await _quietly(engine.acquireMicrophone) ?? false;
+    if (_tornDown || _disposed) return _micAvailable;
+    _emit(
+      _state.copyWith(
+        microphoneAvailable: _micAvailable,
+        receiveOnlyNotice: !_micAvailable,
+        microphoneRefused: !_micAvailable,
+      ),
+    );
+    await _syncMicrophone();
+    return _micAvailable;
+  }
+
   /// Whether this player has silenced themselves.
   bool get selfMuted => _selfMuted;
 
@@ -636,6 +665,7 @@ class VoiceController {
         _state.copyWith(
           microphoneAvailable: _micAvailable,
           receiveOnlyNotice: !_micAvailable,
+          microphoneRefused: !_micAvailable,
         ),
       );
     }

@@ -123,6 +123,27 @@ class PushPrompt {
     return enabled;
   }
 
+  /// The launch question: the phone's dialog, by itself, on every launch until
+  /// the answer is yes. A player's «off» in settings still wins. Registration
+  /// is left to [onPlayerReady], so a launch never opens a guest session.
+  Future<void> askAtStartup() async {
+    final push = _ref.read(pushServiceProvider);
+    if (_busy || push.platform == null || push.needsInstall) return;
+    if (await _explicitlyOff()) return;
+    _busy = true;
+    try {
+      if (await push.isGranted()) return;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(askedKey, true);
+      prompts++;
+      if (await push.askPermission()) await prefs.setBool(onKey, true);
+    } catch (_) {
+      // Push is a convenience; the in-app invite still arrives.
+    } finally {
+      _busy = false;
+    }
+  }
+
   /// A submitted transfer also needs a notification when the app is closed.
   /// Payment delivery does not depend on the optional invite switch.
   Future<void> askForPayment() async {

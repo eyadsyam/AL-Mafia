@@ -69,14 +69,22 @@ class DirectoryPage {
 /// «ناس قريبة» filter chips.
 enum DiscoverFilter { near, online, played, level }
 
-/// The caller's own entry: handle and the two switches.
+/// The caller's own entry: handle, the account's name and the two switches.
 class DirectoryMe {
   final String? handle;
+
+  /// The name every device of this account shows (null: no entry yet).
+  final String? name;
+
+  /// `male` / `female`, or null when the server does not say.
+  final PlayerGender? gender;
   final bool searchable;
   final bool strangerInvites;
   final DateTime? handleChangeAt;
   const DirectoryMe({
     this.handle,
+    this.name,
+    this.gender,
     this.searchable = true,
     this.strangerInvites = true,
     this.handleChangeAt,
@@ -84,8 +92,15 @@ class DirectoryMe {
 
   static DirectoryMe fromJson(Object? json) {
     if (json is! Map) return const DirectoryMe();
+    final name = json['name'];
     return DirectoryMe(
       handle: json['handle'] is String ? json['handle'] as String : null,
+      name: name is String && name.trim().isNotEmpty ? name.trim() : null,
+      gender: switch (json['gender']) {
+        'male' => PlayerGender.male,
+        'female' => PlayerGender.female,
+        _ => null,
+      },
       searchable: json['searchable'] != false,
       strangerInvites: json['strangerInvites'] != false,
       handleChangeAt: json['handleChangeAt'] is String

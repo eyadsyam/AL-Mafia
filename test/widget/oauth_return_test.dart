@@ -17,8 +17,8 @@ import 'package:mafia_master/ui/account/account_sheet.dart';
 import 'package:mafia_master/ui/account/onboarding_account_step.dart';
 import 'package:mafia_master/ui/account/profile_panels.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
-import 'package:mafia_master/ui/screens/onboarding/permissions_step.dart';
 import 'package:mafia_master/ui/screens/setup/profile_screen.dart';
+import 'package:mafia_master/ui/social/directory.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,6 +47,14 @@ class _FakeAuth extends AccountAuth {
 
   @override
   Future<void> googleSignIn() async => calls.add('googleSignIn');
+}
+
+/// A new account: no entry yet, so setup goes on to the card and the name.
+class _NewAccountDirectory extends DirectoryApi {
+  _NewAccountDirectory(super.ref);
+
+  @override
+  Future<DirectoryMe> me() async => const DirectoryMe();
 }
 
 const _callback = 'mafiamaster://login-callback?code=abc123';
@@ -106,6 +114,7 @@ void main() {
         audioDirectorProvider.overrideWithValue(AudioDirector()),
         accountsAvailableProvider.overrideWithValue(true),
         accountAuthProvider.overrideWithValue(auth),
+        directoryApiProvider.overrideWith(_NewAccountDirectory.new),
         accountProfileProvider.overrideWith((ref) async* {
           yield initial;
           yield* profiles.stream;
@@ -125,21 +134,18 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> toSaveStep(WidgetTester tester) async {
-    await passIntro(tester);
-    await answerKind(tester);
-    await typeName(tester, 'Eyad');
-    await _tap(tester, FirstRunScreen.nextKey);
-    await _tap(tester, PermissionsStep.continueKey);
-  }
+  /// The account is the first question after the intro.
+  Future<void> toAccountStep(WidgetTester tester) => passIntro(tester);
 
   group('bug 1: Google during onboarding', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
-    testWidgets('the return finishes setup, never restarts it', (tester) async {
+    testWidgets('the return carries setup on, never restarts it', (
+      tester,
+    ) async {
       await launch(tester);
       expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
-      await toSaveStep(tester);
+      await toAccountStep(tester);
       await _tap(tester, FirstRunScreen.emailKey);
       await _tap(tester, AccountSheet.googleKey);
       expect(auth.calls, hasLength(1));
@@ -155,48 +161,49 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(AccountSheet), findsNothing);
       expect(
-        find.byKey(FirstRunScreen.boyKey),
+        find.byKey(FirstRunScreen.googleKey),
         findsNothing,
-        reason: 'the first question is not asked again',
+        reason: 'the account question is not asked again',
       );
-      expect((await ProfileStore().load())!.name, 'Eyad');
+      expect(
+        find.byKey(FirstRunScreen.boyKey),
+        findsOneWidget,
+        reason: 'a new account goes on to the card',
+      );
     });
 
-    testWidgets('a cold start from the return resumes the same step', (
+    testWidgets('a cold start from the return resumes after the account', (
       tester,
     ) async {
       await launch(tester);
-      await toSaveStep(tester);
+      await toAccountStep(tester);
       await _tap(tester, FirstRunScreen.googleKey);
 
       // Android killed the app while the browser was open; the link starts
       // it again, already signed in.
       await launch(tester, at: _callback, initial: _google);
-      expect(find.byKey(FirstRunScreen.boyKey), findsNothing);
-      expect(
-        (await ProfileStore().load())?.name,
-        'Eyad',
-        reason: 'the typed name and the ticked box came back with it',
-      );
+      expect(find.byKey(FirstRunScreen.googleKey), findsNothing);
+      expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
     });
 
     testWidgets('system back during first run steps back one step', (
       tester,
     ) async {
       await launch(tester);
-      await toSaveStep(tester);
-      expect(find.byKey(FirstRunScreen.guestKey), findsOneWidget);
+      await toAccountStep(tester);
+      await _tap(tester, FirstRunScreen.guestKey);
+      expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
       // Used to `go` Home, which is a brand-new first-run screen.
       await tester.runAsync(() => tester.binding.handlePopRoute());
       await tester.pumpAndSettle();
-      expect(find.byKey(PermissionsStep.continueKey), findsOneWidget);
+      expect(find.byKey(FirstRunScreen.guestKey), findsOneWidget);
     });
 
     testWidgets('onboarding links Google and keeps the anonymous id', (
       tester,
     ) async {
       await launch(tester);
-      await toSaveStep(tester);
+      await toAccountStep(tester);
       await _tap(tester, FirstRunScreen.googleKey);
       expect(auth.calls, ['google']);
     });

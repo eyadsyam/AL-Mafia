@@ -8142,4 +8142,71 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get onlineRoomClosedByHost => 'الأوضة اتقفلت لأن الهوست خرج.';
+
+  @override
+  String get firstRunAccountTitle => 'ادخل بحسابك عشان اسمك وفلوسك يفضلوا معاك';
+
+  @override
+  String get firstRunAccountNote =>
+      'لو عندك حساب قبل كده، هتدخل باسمك القديم على طول، من غير ما نسألك تاني.';
+
+  @override
+  String get firstRunGuestPlain => 'العب كضيف من غير حساب';
+
+  @override
+  String firstRunWelcomeBack(String name) {
+    return 'أهلًا تاني يا $name';
+  }
+
+  @override
+  String get firstRunWelcomeBackHint =>
+      'لقينا حسابك. اسمك وفلوسك ومستواك هنا زي ما سبتهم.';
+
+  @override
+  String get firstRunLetsPlay => 'يلا نلعب';
+
+  @override
+  String get firstRunSameName =>
+      'نفس الاسم في الموبايل والموقع. مش هنسألك عن اسمك تاني.';
+
+  @override
+  String get firstRunNameVisible => 'الاسم اللي الناس هتشوفه';
+
+  @override
+  String get firstRunNameLater => 'تقدر تغيّره بعدين من البروفايل.';
+
+  @override
+  String get firstRunHandleLabel => 'اليوزر نيم بتاعك';
+
+  @override
+  String get firstRunHandleHint =>
+      'اليوزر نيم ثابت ومحدش غيرك ياخده. صحابك بيدوّروا عليك بيه في أي مكان.';
+
+  @override
+  String get firstRunHandleTaken => 'اليوزر نيم ده مأخود، جرّب غيره.';
+
+  @override
+  String get firstRunHandleInvalid =>
+      'من ٣ لـ ٢٠ حرف أو رقم أو _ من غير مسافات.';
+
+  @override
+  String get micOpenSettings => 'افتح الإعدادات';
+
+  @override
+  String get micOffTitle => 'المايك مقفول — محدش هيسمعك';
+
+  @override
+  String get micOffBody =>
+      'اللعبة كلها كلام. افتح المايك عشان تقدر تدافع عن نفسك وتتهم غيرك.';
+
+  @override
+  String get micOffAction => 'افتح المايك';
+
+  @override
+  String get micOffWebHint =>
+      'اضغط على علامة القفل جنب عنوان الموقع وفعّل الميكروفون.';
+
+  @override
+  String get micOffSettingsHint =>
+      'الموبايل مش هيسأل تاني: من الإعدادات ← الأذونات ← الميكروفون ← سماح.';
 }
