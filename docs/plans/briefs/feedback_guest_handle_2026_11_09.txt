@@ -1,0 +1,34 @@
+TASK: Mafia Master — feedback only from a signed-in player with a real message, a visible «save your account» card for guests on Home, and a username that is fixed once chosen.
+
+Read first (binding): docs/plans/briefs/impl_common_2026_10_29.md and the repo CLAUDE.md (tokens only in lib/ui/theme/design_tokens.dart, no literal strings in widgets, Arabic line-height 1.6 and zero letter-spacing, Doc 05 zero leakage). For UI load the skills frontend-design and ui-ux-pro-max (Skill tool, or read C:\Users\LENOVO\.claude\skills\frontend-design\SKILL.md and C:\Users\LENOVO\.claude\skills\ui-ux-pro-max\SKILL.md). Reuse the existing deck look (DeckTokens, BoneButton, RimButton) — no new style. The owner approved the mockups; their exact copy is quoted here (you cannot open them).
+
+THE OWNER'S WORDS: feedback can never be sent empty; the sender must be registered with a name; it must contain something real. Accounts must be clear and visible for a player who is not signed in. The username must be fixed: every player has one username; the profile name may change.
+
+CURRENT STATE (verified by the orchestrator)
+- lib/ui/feedback/feedback_sheet.dart: kind tiles + body; _ready = kind chosen AND >= 2 words. lib/ui/feedback/feedback_api.dart calls Edge Function player_feedback after backend.ensureSession() (which creates an anonymous session for guests).
+- Server: supabase/functions/player_feedback/ and supabase/migrations/20261030002000_player_feedback.sql. Hosted DB facts: 993 auth users, 797 anonymous; feedback table empty so far.
+- Accounts: lib/ui/account/account_sheet.dart (accountProfileProvider: AccountProfile.signedIn; showAccountSheet; accountAuthProvider.google()), lib/ui/account/embedded_browser_sheet.dart (sentToRealBrowser — use the same Google path the first-run screen uses).
+- Username: player_directory.handle / handle_norm / handle_changed_at; directory_set_handle in supabase/migrations/20260930000100_invites_push.sql (rate-limited, refusals HANDLE_TAKEN, RATE_LIMITED, NAME_NOT_ALLOWED); friends action 'setHandle' in supabase/functions/_shared/friends_actions.ts; client DirectoryApi.setHandle in lib/ui/social/directory.dart and the handle editor in lib/ui/social/directory_settings.dart (grep). Every directory row has a handle today (auto-assigned at first hello).
+- Home: find the Home screen (grep HomeScreen under lib/ui/screens).
+
+WHAT TO BUILD
+1. Feedback.
+   - Client: if the player is not signed in to an account (accountProfileProvider not signed in, including anonymous sessions), the sheet shows, instead of the form: title «قولنا رأيك», line «سجّل الأول عشان نعرف مين باعت ونرد عليك.», buttons «سجّل بحساب Google» and «أو بالإيميل» (same actions as first run); after sign-in the form appears in place. Signed in: a header row with the player's name and @handle and «متسجل ✓»; kind tiles as today; send enabled only with a kind AND at least 3 words AND at least 10 non-space characters; under the field while not ready: «اكتب جملة كاملة على الأقل (٣ كلمات) عشان نفهم المشكلة.»; the send button shows why it is disabled (existing disabledReason pattern if available).
+   - Server (NEW migration supabase/migrations/20261109000200_feedback_rules.sql and the function): refuse anonymous users (auth is_anonymous / no email) with code SIGN_IN_REQUIRED; refuse bodies under 3 words or under 10 non-space characters with code TOO_SHORT; keep the existing rate limit. Client maps SIGN_IN_REQUIRED to the sign-in state and TOO_SHORT to the hint. Make sure the owner review screen (lib/ui/screens/admin/owner_review_screen.dart + supabase/functions/owner_review) shows each feedback with the sender's display name, @handle, app build and platform (add a join if missing).
+2. Guest card on Home.
+   - Shown at the top of Home only when not signed in to an account: title «احفظ اسمك وفلوسك», line «أنت داخل كضيف. لو مسحت اللعبة أو غيّرت الموبايل هتخسر كل حاجة. سجّل في ثانية وكل حاجة تفضل معاك.», primary «سجّل بحساب Google», text button «أو بالإيميل», a small close (X, aria label «اقفل»). Closing hides it; it comes back after 3 more finished matches (store a counter in SharedPreferences). Signing in removes it for good. The player's chip/avatar row on Home shows «ضيف — مش متسجل» under the name for guests.
+   - Builds without accounts (accountsAvailableProvider false) never show it.
+3. Username fixed once chosen.
+   - Server (same new migration): a handle the player chose stays: directory_set_handle refuses with HANDLE_LOCKED when the row's handle was already set by the player (handle_changed_at is not null). An auto-assigned handle (handle_changed_at null) may be replaced exactly once. Keep every other existing check. Update the TS routing tests if any.
+   - Client: the handle editor shows the handle read-only with «اليوزر نيم ثابت ومحدش غيرك ياخده.» once locked; maps HANDLE_LOCKED to that. The display name stays editable as today.
+4. Copy into lib/app/l10n/app_ar.arb and app_en.arb, then flutter gen-l10n. Egyptian Arabic, short, plain. Remove keys you make unused.
+
+TESTS: widget tests for the feedback sheet (guest sees sign-in, signed-in sees form, 2 words disabled, 3 words enabled, server TOO_SHORT and SIGN_IN_REQUIRED mapped), the Home guest card (shown for guest, hidden when signed in, hidden after close and back after 3 matches, never without accounts), the handle editor locked state. Update existing tests that break (grep test/ for FeedbackSheet, setHandle, HomeScreen). Node/Deno tests for friends_actions / player_feedback routing if the repo has them (look at how existing *.test.ts run).
+
+GATES (run, paste tails):
+flutter analyze --no-pub 2>&1 | tail -30
+flutter test --no-pub <touched/added test files and test/ui> 2>&1 | tail -40
+SQL: say whether a local SQL runner exists and whether you ran it; do not fake it.
+
+BOUNDARIES: no builds, no deploys, no hosted Supabase calls, no git commit (the orchestrator commits), no version bump. Do NOT touch onboarding/first_run_screen.dart, permissions_step.dart, voice files or the lobby (another task is changing them). No game-rule or Doc 05 changes.
+REPORT: files changed + why, gate output tails, anything unrun and why, any decision this brief did not settle.
