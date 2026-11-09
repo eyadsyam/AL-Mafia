@@ -14310,6 +14310,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The phone will not ask again: Settings → Permissions → Microphone → Allow.'**
   String get micOffSettingsHint;
+
+  /// No description provided for @feedbackSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what you think'**
+  String get feedbackSignInTitle;
+
+  /// No description provided for @feedbackSignInLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in first so we know who sent it and can reply.'**
+  String get feedbackSignInLine;
+
+  /// No description provided for @feedbackSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in ✓'**
+  String get feedbackSignedIn;
+
+  /// No description provided for @feedbackTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a full sentence, at least 3 words, so we understand the problem.'**
+  String get feedbackTooShort;
+
+  /// No description provided for @accountSaveGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get accountSaveGoogle;
+
+  /// No description provided for @accountSaveEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Or with email'**
+  String get accountSaveEmail;
+
+  /// No description provided for @guestCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your name and coins'**
+  String get guestCardTitle;
+
+  /// No description provided for @guestCardLine.
+  ///
+  /// In en, this message translates to:
+  /// **'You are playing as a guest. If you delete the game or change phones you lose everything. Sign in in a second and it all stays with you.'**
+  String get guestCardLine;
+
+  /// No description provided for @guestCardClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get guestCardClose;
+
+  /// No description provided for @guestStatusLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest — not signed in'**
+  String get guestStatusLine;
+
+  /// No description provided for @profileHandleLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your username is fixed and nobody else can take it.'**
+  String get profileHandleLocked;
 }
 
 class _AppLocalizationsDelegate

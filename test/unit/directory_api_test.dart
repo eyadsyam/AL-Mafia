@@ -148,6 +148,7 @@ void main() {
 
     for (final (message, refusal) in [
       ('HANDLE_TAKEN', HandleRefusal.taken),
+      ('HANDLE_LOCKED', HandleRefusal.locked),
       ('RATE_LIMITED', HandleRefusal.tooSoon),
       ('NAME_NOT_ALLOWED', HandleRefusal.refused),
       ('BAD_REQUEST', HandleRefusal.invalid),
@@ -167,6 +168,13 @@ void main() {
       final (me, why) = await api.setHandle('new');
       expect(me?.handle, 'new');
       expect(why, isNull);
+    });
+
+    test('the entry says whether the username is locked', () async {
+      backend.responses['friends'] = {'handle': 'new', 'handleLocked': true};
+      expect((await api.me()).handleLocked, isTrue);
+      backend.responses['friends'] = {'handle': 'new'};
+      expect((await api.me()).handleLocked, isFalse);
     });
 
     test('prefs send only the switch that changed', () async {

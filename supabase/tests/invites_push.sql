@@ -77,10 +77,17 @@ begin
   me := public.directory_set_handle(c,'salma_ali');
   assert me->>'handle' = 'salma_ali' and me->>'handleChangeAt' is not null, me::text;
   begin perform public.directory_set_handle(c,'salma2'); assert false, 'changed twice in a week';
-  exception when others then assert sqlerrm='RATE_LIMITED', sqlerrm; end;
+  exception when others then assert sqlerrm='HANDLE_LOCKED', sqlerrm; end;
   -- Unchanged is not a change.
   perform public.directory_set_handle(c,'salma_ali');
-  update public.player_directory set handle_changed_at=now()-interval '8 days' where user_id=c;
+  -- A chosen username stays, however long ago it was chosen.
+  update public.player_directory set handle_changed_at=now()-interval '80 days' where user_id=c;
+  begin perform public.directory_set_handle(c,'salma2'); assert false, 'chosen handle changed';
+  exception when others then assert sqlerrm='HANDLE_LOCKED', sqlerrm; end;
+  assert (public.directory_me(c)->>'handleLocked')::boolean, 'locked flag missing';
+  -- An auto-assigned handle (never chosen) may be replaced exactly once.
+  update public.player_directory set handle_changed_at=null where user_id=c;
+  assert not (public.directory_me(c)->>'handleLocked')::boolean, 'auto handle shown as locked';
   assert public.directory_set_handle(c,'salma2')->>'handle' = 'salma2';
 
   assert not has_function_privilege('authenticated','public.directory_search(uuid,text,int)','execute');

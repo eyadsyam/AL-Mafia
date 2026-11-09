@@ -186,6 +186,12 @@ abstract final class HomeTokens {
   /// The close mark of the web «العبها من التطبيق» ribbon.
   static const double ribbonIcon = 18;
 
+  /// Lets the guest card keep clear of the title and start button.
+  static const double guestCardCompactBelow = 500;
+
+  /// A closed guest card returns after this many finished matches.
+  static const int guestCardReturnAfter = 3;
+
   /// «أهلاً يا <name>» after first run: fade in, hold, fade out.
   static const Duration greetingFade = Duration(milliseconds: 600);
   static const Duration greetingHold = Duration(seconds: 4);
@@ -3542,4 +3548,8 @@ abstract final class FeedbackTokens {
   static const double progressSize = 20;
   static const int maxLength = 500;
   static const int gridColumns = 3;
+
+  /// A real message: at least this many words and non-space characters.
+  static const int minWords = 3;
+  static const int minLetters = 10;
 }

@@ -8334,4 +8334,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get micOffSettingsHint =>
       'The phone will not ask again: Settings → Permissions → Microphone → Allow.';
+
+  @override
+  String get feedbackSignInTitle => 'Tell us what you think';
+
+  @override
+  String get feedbackSignInLine =>
+      'Sign in first so we know who sent it and can reply.';
+
+  @override
+  String get feedbackSignedIn => 'Signed in ✓';
+
+  @override
+  String get feedbackTooShort =>
+      'Write a full sentence, at least 3 words, so we understand the problem.';
+
+  @override
+  String get accountSaveGoogle => 'Sign in with Google';
+
+  @override
+  String get accountSaveEmail => 'Or with email';
+
+  @override
+  String get guestCardTitle => 'Save your name and coins';
+
+  @override
+  String get guestCardLine =>
+      'You are playing as a guest. If you delete the game or change phones you lose everything. Sign in in a second and it all stays with you.';
+
+  @override
+  String get guestCardClose => 'Close';
+
+  @override
+  String get guestStatusLine => 'Guest — not signed in';
+
+  @override
+  String get profileHandleLocked =>
+      'Your username is fixed and nobody else can take it.';
 }

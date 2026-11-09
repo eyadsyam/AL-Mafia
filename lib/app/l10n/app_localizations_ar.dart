@@ -8209,4 +8209,39 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get micOffSettingsHint =>
       'الموبايل مش هيسأل تاني: من الإعدادات ← الأذونات ← الميكروفون ← سماح.';
+
+  @override
+  String get feedbackSignInTitle => 'قولنا رأيك';
+
+  @override
+  String get feedbackSignInLine => 'سجّل الأول عشان نعرف مين باعت ونرد عليك.';
+
+  @override
+  String get feedbackSignedIn => 'متسجل ✓';
+
+  @override
+  String get feedbackTooShort =>
+      'اكتب جملة كاملة على الأقل (٣ كلمات) عشان نفهم المشكلة.';
+
+  @override
+  String get accountSaveGoogle => 'سجّل بحساب Google';
+
+  @override
+  String get accountSaveEmail => 'أو بالإيميل';
+
+  @override
+  String get guestCardTitle => 'احفظ اسمك وفلوسك';
+
+  @override
+  String get guestCardLine =>
+      'أنت داخل كضيف. لو مسحت اللعبة أو غيّرت الموبايل هتخسر كل حاجة. سجّل في ثانية وكل حاجة تفضل معاك.';
+
+  @override
+  String get guestCardClose => 'اقفل';
+
+  @override
+  String get guestStatusLine => 'ضيف — مش متسجل';
+
+  @override
+  String get profileHandleLocked => 'اليوزر نيم ثابت ومحدش غيرك ياخده.';
 }

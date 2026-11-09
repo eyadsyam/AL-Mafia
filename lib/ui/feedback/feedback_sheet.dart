@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/asset_constants.dart';
+import '../../data/player_profile.dart' show playerProfileProvider;
+import '../../transport/account_auth.dart' show AccountProfile;
 import '../../transport/online_backend.dart';
+import '../account/account_sheet.dart'
+    show AccountStep, accountProfileProvider, showAccountSheet;
+import '../account/guest_save_card.dart' show signInWithGoogle;
 import '../l10n_ext.dart';
+import '../social/directory.dart' show directoryApiProvider;
 import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
+import '../widgets/deck/deck_buttons.dart';
 import 'feedback_api.dart';
 
 Future<void> showFeedbackSheet(BuildContext context) =>
@@ -21,6 +28,10 @@ class FeedbackSheet extends ConsumerStatefulWidget {
 
   static const sendKey = ValueKey('feedback_send');
   static const fieldKey = ValueKey('feedback_body');
+  static const googleKey = ValueKey('feedback_google');
+  static const emailKey = ValueKey('feedback_email');
+  static const senderKey = ValueKey('feedback_sender');
+  static const hintKey = ValueKey('feedback_short_hint');
   static Key kindKey(String kind) => ValueKey('feedback_kind_$kind');
 
   @override
@@ -34,6 +45,15 @@ class _FeedbackSheetState extends ConsumerState<FeedbackSheet> {
   bool _sent = false;
   String? _error;
 
+  /// The server said this session is not an account (stale sign-in): the
+  /// sign-in state shows again until the identity changes.
+  bool _needSignIn = false;
+
+  /// The server turned the text away as too short.
+  bool _serverShort = false;
+  bool _googleBusy = false;
+  String? _handle;
+
   static const _kinds = [
     ('roles', Icons.theater_comedy_outlined),
     ('online', Icons.public),
@@ -44,25 +64,55 @@ class _FeedbackSheetState extends ConsumerState<FeedbackSheet> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadHandle();
+  }
+
+  @override
   void dispose() {
     _body.dispose();
     super.dispose();
   }
 
-  bool get _ready =>
-      _kind != null &&
-      _body.text
-              .trim()
-              .split(RegExp(r'\s+'))
-              .where((word) => word.isNotEmpty)
-              .length >=
-          2;
+  /// The @handle shown beside the name; best effort, the sheet works without.
+  Future<void> _loadHandle() async {
+    try {
+      final me = await ref.read(directoryApiProvider).me();
+      if (mounted && me.handle != null) setState(() => _handle = me.handle);
+    } catch (_) {
+      // No handle line; sending does not depend on it.
+    }
+  }
+
+  bool get _bodyReady {
+    final text = _body.text.trim();
+    final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    final letters = text.replaceAll(RegExp(r'\s'), '').runes.length;
+    return words >= FeedbackTokens.minWords &&
+        letters >= FeedbackTokens.minLetters;
+  }
+
+  bool get _ready => _kind != null && _bodyReady;
+
+  Future<void> _google() async {
+    setState(() => _googleBusy = true);
+    try {
+      final failed = await signInWithGoogle(context, ref);
+      if (mounted && failed) {
+        setState(() => _error = context.l10n.feedbackError);
+      }
+    } finally {
+      if (mounted) setState(() => _googleBusy = false);
+    }
+  }
 
   Future<void> _send() async {
     if (!_ready || _sending) return;
     setState(() {
       _sending = true;
       _error = null;
+      _serverShort = false;
     });
     try {
       await ref.read(feedbackApiProvider).submit(_kind!, _body.text);
@@ -74,11 +124,16 @@ class _FeedbackSheetState extends ConsumerState<FeedbackSheet> {
       }
     } catch (error) {
       if (!mounted) return;
+      final code = error is BackendException ? error.code : null;
       setState(() {
         _sending = false;
-        _error = error is BackendException && error.code == 'RATE_LIMITED'
-            ? context.l10n.feedbackRateLimited
-            : context.l10n.feedbackError;
+        if (code == 'SIGN_IN_REQUIRED') _needSignIn = true;
+        if (code == 'TOO_SHORT') _serverShort = true;
+        _error = switch (code) {
+          'RATE_LIMITED' => context.l10n.feedbackRateLimited,
+          'SIGN_IN_REQUIRED' || 'TOO_SHORT' => null,
+          _ => context.l10n.feedbackError,
+        };
       });
     }
   }
@@ -108,6 +163,23 @@ class _FeedbackSheetState extends ConsumerState<FeedbackSheet> {
     final s = context.spacing;
     final type = context.typography;
     final colors = context.colors;
+    ref.listen<AsyncValue<AccountProfile>>(accountProfileProvider, (
+      previous,
+      next,
+    ) {
+      final before = previous?.valueOrNull;
+      final now = next.valueOrNull;
+      if (now != null &&
+          now.signedIn &&
+          (before == null || before.differs(now))) {
+        setState(() => _needSignIn = false);
+        _loadHandle();
+      }
+    });
+    final profile =
+        ref.watch(accountProfileProvider).valueOrNull ?? AccountProfile.guest;
+    final signedIn = profile.signedIn && !_needSignIn;
+    final name = ref.watch(playerProfileProvider).valueOrNull?.name ?? '';
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SingleChildScrollView(
@@ -154,11 +226,66 @@ class _FeedbackSheetState extends ConsumerState<FeedbackSheet> {
                       ),
                     ],
                   )
+                : !signedIn
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        context.l10n.feedbackSignInTitle,
+                        style: type.headline,
+                      ),
+                      SizedBox(height: s.sm),
+                      Text(context.l10n.feedbackSignInLine, style: type.body),
+                      SizedBox(height: s.md),
+                      BoneButton(
+                        key: FeedbackSheet.googleKey,
+                        label: context.l10n.accountSaveGoogle,
+                        onPressed: _googleBusy ? null : _google,
+                      ),
+                      SizedBox(height: s.sm),
+                      RimButton(
+                        key: FeedbackSheet.emailKey,
+                        label: context.l10n.accountSaveEmail,
+                        onPressed: () => showAccountSheet(
+                          context,
+                          initial: AccountStep.signUp,
+                        ),
+                      ),
+                      if (_error != null) ...[
+                        SizedBox(height: s.sm),
+                        Text(_error!, style: type.bodySmall),
+                      ],
+                    ],
+                  )
                 : Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(context.l10n.feedbackTitle, style: type.headline),
+                      SizedBox(height: s.xs),
+                      Row(
+                        key: FeedbackSheet.senderKey,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              [
+                                if (name.isNotEmpty) name,
+                                if (_handle != null) '@$_handle',
+                              ].join('  '),
+                              style: type.bodySmall,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Text(
+                            context.l10n.feedbackSignedIn,
+                            style: type.bodySmall.copyWith(
+                              color: colors.accentGold,
+                            ),
+                          ),
+                        ],
+                      ),
                       SizedBox(height: s.sm),
                       for (final (number, line) in [
                         (1, context.l10n.feedbackStep1),
@@ -238,26 +365,37 @@ class _FeedbackSheetState extends ConsumerState<FeedbackSheet> {
                           hintText: context.l10n.feedbackHint,
                           counterText: '',
                         ),
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (_) => setState(() => _serverShort = false),
                       ),
-                      Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: Text(
-                          '${_digits(_body.text.characters.length)} / ${_digits(FeedbackTokens.maxLength)}',
-                          style: type.caption,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: !_bodyReady || _serverShort
+                                ? Text(
+                                    context.l10n.feedbackTooShort,
+                                    key: FeedbackSheet.hintKey,
+                                    style: type.caption.copyWith(
+                                      color: _serverShort
+                                          ? colors.accentCrimson
+                                          : colors.textMuted,
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                          Text(
+                            '${_digits(_body.text.characters.length)} / ${_digits(FeedbackTokens.maxLength)}',
+                            style: type.caption,
+                          ),
+                        ],
                       ),
                       SizedBox(height: s.sm),
-                      FilledButton(
+                      BoneButton(
                         key: FeedbackSheet.sendKey,
+                        label: _sending ? '...' : context.l10n.feedbackSend,
                         onPressed: _ready && !_sending ? _send : null,
-                        child: _sending
-                            ? const SizedBox(
-                                height: FeedbackTokens.progressSize,
-                                width: FeedbackTokens.progressSize,
-                                child: CircularProgressIndicator(),
-                              )
-                            : Text(context.l10n.feedbackSend),
+                        disabledReason: _kind == null
+                            ? context.l10n.feedbackStep1
+                            : null,
                       ),
                       if (_error != null)
                         Text(

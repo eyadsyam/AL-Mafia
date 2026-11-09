@@ -81,6 +81,9 @@ class DirectoryMe {
   final bool searchable;
   final bool strangerInvites;
   final DateTime? handleChangeAt;
+
+  /// The player chose this username; it never changes again.
+  final bool handleLocked;
   const DirectoryMe({
     this.handle,
     this.name,
@@ -88,6 +91,7 @@ class DirectoryMe {
     this.searchable = true,
     this.strangerInvites = true,
     this.handleChangeAt,
+    this.handleLocked = false,
   });
 
   static DirectoryMe fromJson(Object? json) {
@@ -106,12 +110,13 @@ class DirectoryMe {
       handleChangeAt: json['handleChangeAt'] is String
           ? DateTime.tryParse(json['handleChangeAt'] as String)
           : null,
+      handleLocked: json['handleLocked'] == true,
     );
   }
 }
 
 /// Why a handle change was refused.
-enum HandleRefusal { taken, tooSoon, refused, invalid, failed }
+enum HandleRefusal { taken, tooSoon, refused, invalid, locked, failed }
 
 /// An invite waiting for this player.
 class IncomingInvite {
@@ -213,6 +218,7 @@ class DirectoryApi {
         null,
         switch (e.message) {
           'HANDLE_TAKEN' => HandleRefusal.taken,
+          'HANDLE_LOCKED' => HandleRefusal.locked,
           'RATE_LIMITED' => HandleRefusal.tooSoon,
           'NAME_NOT_ALLOWED' => HandleRefusal.refused,
           'invalid request' || 'BAD_REQUEST' => HandleRefusal.invalid,

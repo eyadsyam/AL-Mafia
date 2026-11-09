@@ -36,6 +36,7 @@ Deno.serve(handler(async (req, userId, db) => {
       NOT_ALLOWED: ["BAD_REQUEST", 403],
       FRIENDS_FULL: ["BAD_REQUEST", 400],
       HANDLE_TAKEN: ["BAD_REQUEST", 409],
+      HANDLE_LOCKED: ["HANDLE_LOCKED", 409],
       NAME_NOT_ALLOWED: ["NAME_NOT_ALLOWED", 400],
       RATE_LIMITED: ["RATE_LIMITED", 429],
       NOT_A_MEMBER: ["NOT_A_MEMBER", 403],

@@ -21,7 +21,11 @@ Deno.serve(handler(async (req, userId, db) => {
   });
   if (error) {
     if (error.message.includes("RATE_LIMITED")) return fail("RATE_LIMITED", "try later", 429);
-    if (error.message.includes("BAD_REQUEST")) return fail("BAD_REQUEST", "invalid feedback");
+    if (error.message.includes("SIGN_IN_REQUIRED")) {
+      return fail("SIGN_IN_REQUIRED", "sign in first", 403);
+    }
+    if (error.message.includes("TOO_SHORT")) return fail("TOO_SHORT", "write a full sentence");
+    if (error.message.includes("BAD_REQUEST"))return fail("BAD_REQUEST", "invalid feedback");
     throw error;
   }
   return ok({ id: data });

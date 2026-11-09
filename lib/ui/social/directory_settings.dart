@@ -30,6 +30,7 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
   String? _error;
   bool _busy = false;
   DirectoryMe? _local;
+  bool _locked = false;
 
   @override
   void dispose() {
@@ -52,12 +53,15 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
     setState(() {
       _busy = false;
       if (next != null) _local = next;
+      if (refusal == HandleRefusal.locked) _locked = true;
       _error = switch (refusal) {
         null => null,
         HandleRefusal.taken => l.profileHandleTaken,
         HandleRefusal.tooSoon => l.profileHandleWait,
         HandleRefusal.refused => l.profileHandleRefused,
         HandleRefusal.invalid => l.profileHandleInvalid,
+        // Shown as the field's own note once the field is read-only.
+        HandleRefusal.locked => null,
         HandleRefusal.failed => l.inviteFailed,
       };
     });
@@ -87,6 +91,7 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
     final s = context.spacing;
     final colors = context.colors;
     _handle ??= TextEditingController(text: me.handle);
+    final locked = _locked || me.handleLocked;
     return Padding(
       padding: EdgeInsets.only(top: s.sm),
       child: Column(
@@ -99,22 +104,28 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
                   key: DirectorySettings.handleField,
                   controller: _handle,
                   maxLength: 20,
+                  readOnly: locked,
                   decoration: InputDecoration(
                     labelText: l.profileHandleLabel,
-                    helperText: l.profileHandleHint,
+                    helperText: locked
+                        ? l.profileHandleLocked
+                        : l.profileHandleHint,
+                    helperMaxLines: 2,
                     prefixText: '@',
                     errorText: _error,
                     counterText: '',
                   ),
-                  onSubmitted: (_) => _saveHandle(me),
+                  onSubmitted: locked ? null : (_) => _saveHandle(me),
                 ),
               ),
-              SizedBox(width: s.xs),
-              TextButton(
-                key: DirectorySettings.handleSave,
-                onPressed: _busy ? null : () => _saveHandle(me),
-                child: Text(l.profileHandleSave),
-              ),
+              if (!locked) ...[
+                SizedBox(width: s.xs),
+                TextButton(
+                  key: DirectorySettings.handleSave,
+                  onPressed: _busy ? null : () => _saveHandle(me),
+                  child: Text(l.profileHandleSave),
+                ),
+              ],
             ],
           ),
           SwitchListTile(

@@ -110,6 +110,9 @@ export type ErrorCode =
   | "STALE_REVISION"
   | "NOT_READY"
   | "SAME_PROTECT"
+  | "SIGN_IN_REQUIRED"
+  | "TOO_SHORT"
+  | "HANDLE_LOCKED"
   | "BAD_REQUEST";
 
 export function ok(body: unknown = { ok: true }): Response {

@@ -5120,5 +5120,16 @@
   "micOffBody": "The whole game is talk. Turn on your mic to defend yourself and accuse others.",
   "micOffAction": "Turn on the mic",
   "micOffWebHint": "Tap the lock next to the address and allow the microphone.",
-  "micOffSettingsHint": "The phone will not ask again: Settings → Permissions → Microphone → Allow."
+  "micOffSettingsHint": "The phone will not ask again: Settings → Permissions → Microphone → Allow.",
+  "feedbackSignInTitle": "Tell us what you think",
+  "feedbackSignInLine": "Sign in first so we know who sent it and can reply.",
+  "feedbackSignedIn": "Signed in ✓",
+  "feedbackTooShort": "Write a full sentence, at least 3 words, so we understand the problem.",
+  "accountSaveGoogle": "Sign in with Google",
+  "accountSaveEmail": "Or with email",
+  "guestCardTitle": "Save your name and coins",
+  "guestCardLine": "You are playing as a guest. If you delete the game or change phones you lose everything. Sign in in a second and it all stays with you.",
+  "guestCardClose": "Close",
+  "guestStatusLine": "Guest — not signed in",
+  "profileHandleLocked": "Your username is fixed and nobody else can take it."
 }

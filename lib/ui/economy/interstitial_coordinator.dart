@@ -8,6 +8,7 @@ import '../../data/repository_provider.dart';
 import '../../platform/audio_director.dart';
 import '../../platform/monetization/interstitial_ads.dart';
 import '../../platform/monetization/interstitial_policy.dart';
+import '../account/guest_save_card.dart' show GuestNudge;
 import '../screens/online/online_session.dart';
 import '../screens/online/voice_session.dart';
 import '../theme/design_tokens.dart';
@@ -106,6 +107,7 @@ class InterstitialCoordinator {
   /// The result of a completed match is on screen (online room id, or a
   /// pass-and-play match id). Counts it once and warms an ad.
   Future<void> matchCompleted(String matchId, {bool online = true}) async {
+    unawaited(GuestNudge.matchFinished());
     await _save((await _load()).matchCompleted(matchId, _now()));
     _warm(online ? await _caps() : _loadedCaps(), online: online);
   }
@@ -229,6 +231,7 @@ class InterstitialCoordinator {
   /// The player left a completed pass-and-play result ([matchId] is that
   /// match, counted once). Home is already on screen.
   Future<InterstitialVerdict> leftPassAndPlayResult(String matchId) async {
+    unawaited(GuestNudge.matchFinished());
     if (!_ref.read(interstitialAdsProvider).configured) {
       return InterstitialVerdict.off;
     }
