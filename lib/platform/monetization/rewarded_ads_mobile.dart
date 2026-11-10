@@ -251,7 +251,10 @@ class _AdsRuntime {
       } catch (_) {
         if (!shown.isCompleted) shown.complete();
       }
-      await shown.future;
+      await shown.future.timeout(
+        MafiaTiming.adConsentFormTimeout,
+        onTimeout: () {},
+      );
     }
     await refreshPrivacyRequirement();
     // canRequestAds decides — not the button the player pressed: a
@@ -423,24 +426,55 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
   }) async {
     if (!configured) return RewardedAdOutcome.unavailable;
     _listen();
-    final allowed = await _runtime.start(prompt: true);
-    if (!allowed) {
-      return _runtime.initialized
-          ? RewardedAdOutcome.unavailable
-          : RewardedAdOutcome.notConsented;
-    }
-    if (!await _runtime.canRequestNow()) {
-      _discardAll();
-      return RewardedAdOutcome.notConsented;
-    }
+    final outcome = await _show(claimId, userId, placement);
+    // Whatever happened, the next ad for this offer starts loading now, so
+    // the next tap finds it ready instead of waiting on the network.
+    unawaited(preload(placement));
+    return outcome;
+  }
 
+  Future<RewardedAdOutcome> _show(
+    String claimId,
+    String userId,
+    RewardedPlacement placement,
+  ) async {
     final unit = _Units.rewardedFor(placement);
-    // A preloaded ad shows at once; otherwise this tap loads one (or joins
-    // the preload already on its way).
-    var ad = _take(unit);
+    // A ready ad shows at once, before any other check can cost time.
+    var ad = _ready.containsKey(unit) && _runtime.initialized ? _take(unit) : null;
     if (ad == null) {
-      await _load(unit);
+      // One budget from the tap: consent check, SDK start and load together.
+      // A consent form Google asks for stays up past it if the player is
+      // reading it; their next tap then finds everything started.
+      final deadline = DateTime.now().add(MafiaTiming.adTapBudget);
+      Duration left() {
+        final d = deadline.difference(DateTime.now());
+        return d.isNegative ? Duration.zero : d;
+      }
+
+      final allowed = await _runtime
+          .start(prompt: true)
+          .timeout(left(), onTimeout: () => _runtime.initialized);
+      if (!allowed) {
+        return _runtime.initialized
+            ? RewardedAdOutcome.unavailable
+            : RewardedAdOutcome.notConsented;
+      }
+      if (!await _runtime.canRequestNow().timeout(
+        left(),
+        onTimeout: () => false,
+      )) {
+        _discardAll();
+        return RewardedAdOutcome.notConsented;
+      }
       ad = _take(unit);
+      if (ad == null) {
+        // The load keeps running past the budget; it lands in [_ready] for
+        // the next tap.
+        try {
+          await _load(unit).timeout(left());
+        } catch (_) {}
+        ad = _take(unit);
+      }
     }
     if (ad == null) return RewardedAdOutcome.unavailable;
     final showing = ad;

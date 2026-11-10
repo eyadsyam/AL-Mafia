@@ -42,7 +42,10 @@ def ready_everyone(room_id):
     for every bot it has seen in the room, quietly — the dead are refused."""
     for token in list(members.get(room_id, ())):
         with contextlib.suppress(*TRANSPORT):
-            original('/functions/v1/ready_to_vote', {'roomId': room_id, 'ready': True}, token, 'POST')
+            status, data = original('/functions/v1/ready_to_vote', {'roomId': room_id, 'ready': True}, token, 'POST')
+            if status >= 400:
+                err = data.get('error', data.get('code', 'HTTP_ERROR')) if isinstance(data, dict) else 'HTTP_ERROR'
+                errors.append({'endpoint': 'harness:ready_to_vote', 'status': status, 'code': err})
 
 
 def request(path, payload, token=None, method='POST'):
@@ -57,6 +60,13 @@ def request(path, payload, token=None, method='POST'):
             members.setdefault(payload['roomId'], set()).add(token)
         if path.endswith('/open_phase') and payload.get('phase') == 'vote':
             ready_everyone(payload['roomId'])
+            # The last «جاهزين» opens the ballot by itself (atomic_ready_open),
+            # exactly as in the app; the host's tap then has nothing left to do.
+            with contextlib.suppress(*TRANSPORT):
+                status, rows = original('/rest/v1/room_state?select=phase&room_id=eq.' + payload['roomId'],
+                                        None, token, 'GET')
+                if status == 200 and isinstance(rows, list) and rows and rows[0].get('phase') == 'vote':
+                    return 200, {'ok': True, 'phase': 'vote', 'openedBy': 'ready'}
     for wait in (2, 5, None):  # Dropped connections are local; the server never failed these calls.
         try:
             status, data = original(path, payload, token, method)

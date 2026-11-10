@@ -1702,6 +1702,16 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// الإعلان» veil gives the tap back instead of waiting [adShowTimeout].
   static const adOpenTimeout = Duration(seconds: 8);
 
+  /// The whole wait between a tap on a rewarded offer and the ad covering
+  /// the screen (consent check, SDK start, load), the consent form itself
+  /// aside. Past it the tap is answered «not ready»; the load keeps going in
+  /// the background so the next tap shows at once.
+  static const adTapBudget = Duration(seconds: 12);
+
+  /// Google's consent form is a person reading, but a form that never
+  /// answers must not hold the tap for good.
+  static const adConsentFormTimeout = Duration(seconds: 90);
+
   /// An interstitial that is not loaded within this is skipped, never awaited.
   static const interstitialLoadTimeout = Duration(seconds: 12);
 

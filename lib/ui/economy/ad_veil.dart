@@ -23,9 +23,11 @@ typedef ProviderReader = T Function<T>(ProviderListenable<T> provider);
 /// otherwise carry the ad's audio into the room, and the score would play
 /// over it. Both are put back exactly as they were, whatever the outcome.
 ///
-/// The tap is answered at once: the loading veil goes up and gets one frame
-/// to paint before any SDK or platform-channel work starts, so a slow first
-/// ad never looks like a frozen phone.
+/// No screen goes over the game while the ad is fetched (owner, 2026-11-10:
+/// the «بنجهّز الإعلان» veil sat there until players killed the app). The
+/// button that was tapped shows its own spinner, the attempt is bounded
+/// ([MafiaTiming.adTapBudget]), and the flag below only tells buttons that
+/// an attempt is running.
 Future<RewardedAdOutcome> showRewardedWith(
   ProviderReader read, {
   required String customData,
@@ -39,6 +41,8 @@ Future<RewardedAdOutcome> showRewardedWith(
   final micWasOpen = voice != null && !voice.selfMuted;
   final audioWasMuted = audio.muted;
   veil.state = true;
+  // One frame for the button's spinner to paint (and for a second tap in the
+  // same instant to find the attempt already running).
   await nextFrame();
   try {
     // Bounded: a voice link that never answers must not hold the veil up.
@@ -79,105 +83,16 @@ Future<void> nextFrame() async {
   }
 }
 
-/// The instant, light answer to a tap on a rewarded offer: a dim veil with a
-/// spinner and one line, over every route and overlay. No blur and no art,
-/// so it costs nothing to draw while the ad SDK works.
-class RewardedAdVeil extends ConsumerStatefulWidget {
+/// Kept so the app shell's wrapper stays where it is: it draws nothing over
+/// the game any more. A rewarded attempt is shown on the button that started
+/// it (its spinner), never as a screen the player has to leave the app to
+/// get out of.
+class RewardedAdVeil extends StatelessWidget {
   final Widget child;
   const RewardedAdVeil({super.key, required this.child});
 
   static const veilKey = ValueKey('rewarded_ad_veil');
 
   @override
-  ConsumerState<RewardedAdVeil> createState() => _RewardedAdVeilState();
-}
-
-class _RewardedAdVeilState extends ConsumerState<RewardedAdVeil>
-    with WidgetsBindingObserver {
-  /// The ad has covered the game since the veil went up: it stays down, so
-  /// it never flashes back while the player returns from the ad.
-  bool _covered = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed &&
-        !_covered &&
-        ref.read(rewardedAdLoadingProvider)) {
-      setState(() => _covered = true);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    ref.listen<bool>(rewardedAdLoadingProvider, (_, next) {
-      if (next && _covered) setState(() => _covered = false);
-    });
-    final visible = ref.watch(rewardedAdLoadingProvider) && !_covered;
-    final colors = context.colors;
-    // Always the same Stack, so raising the veil never remounts the app.
-    return Stack(
-      children: [
-        widget.child,
-        Positioned.fill(
-          child: IgnorePointer(
-            ignoring: !visible,
-            child: AnimatedOpacity(
-              opacity: visible ? 1 : 0,
-              duration: MediaQuery.disableAnimationsOf(context)
-                  ? Duration.zero
-                  : AdTokens.loadingVeilFade,
-              child: visible
-                  ? Semantics(
-                      key: RewardedAdVeil.veilKey,
-                      liveRegion: true,
-                      label: context.l10n.adPreparing,
-                      child: Material(
-                        type: MaterialType.canvas,
-                        color: colors.surfaceBase.withValues(
-                          alpha: AdTokens.loadingVeilAlpha,
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox.square(
-                                dimension: AdTokens.loadingVeilSpinner,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: AdTokens.loadingVeilStroke,
-                                  color: colors.accentGold,
-                                ),
-                              ),
-                              SizedBox(height: context.spacing.sm),
-                              ExcludeSemantics(
-                                child: Text(
-                                  context.l10n.adPreparing,
-                                  style: context.typography.body.copyWith(
-                                    color: colors.textPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => child;
 }
