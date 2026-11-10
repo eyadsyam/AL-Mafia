@@ -1070,7 +1070,8 @@ class _ResultStageState extends State<_ResultStage>
                   style: type.body.emphasised.copyWith(color: DeckTokens.text),
                 ),
               ),
-              Icon(Icons.chevron_left_rounded, color: context.colors.textMuted),
+              // Forward, toward the reading end: Flutter mirrors it in Arabic.
+              Icon(Icons.chevron_right_rounded, color: context.colors.textMuted),
             ],
           ),
         ),

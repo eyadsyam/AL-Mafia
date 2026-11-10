@@ -4079,3 +4079,16 @@ Files:      lib/app/router.dart; lib/ui/widgets/warmup_gate.dart; lib/ui/fun/cha
 Verified:   flutter build web --release succeeded; main.dart.js 6,156 KB with 10 part files; flutter analyze No issues found; flutter test 4,799 passed; git diff --check clean.
 Gate:       FAIL
 Open:       RTL icon issues remain in protected lib/ui/account/profile_panels.dart, lib/ui/screens/postgame/result_screen.dart, and lib/ui/screens/online/lobby_header.dart. Final small edits occurred after the one requested web build; analyze and tests cover final source.
+## PHASE avatar WebP optimization (2026-11-11) — done
+Built:      Replaced two 1254×1254 transparent PNG avatars with visually checked 512×512 WebP assets; female 1,715,781→47,630 bytes, male 1,549,107→38,194 bytes; generated paths now point to WebP.
+Files:      assets/images/online/avatar_{female,male}_transparent.{png,webp}; lib/app/asset_constants.dart; tool/generate_asset_constants.py; docs/PROGRESS.md.
+Verified:   132 px side-by-side comparisons on light/dark backgrounds at %TEMP%\avatar_webp_check\{female,male}_comparison.png, cut-out edges clean; flutter analyze: No issues found; flutter test: 4,799 passed; PNG runtime references absent in lib/, test/, pubspec.yaml, web/, tool/.
+Gate:       PASS
+Open:       No release build/device render (not requested). Web first paint loads splash_mask.webp; service-worker install fetches onboarding.mp4 after window load, independent of visiting the onboarding route; score_loop.mp3 begins request after the first Flutter frame during audio startup if enabled, and may also be fetched by first-visit warmup.
+
+## PHASE polish set (2026-11-11) — done (not deployed)
+Built:      Home «ارجع لأوضتك» card, only for this player's seat in a room the server still holds, straight back with no break; «دقة تصويتك» on the profile (own ballots as town, scored once the result makes roles public, shown from 5 ballots); room list and invite list show row outlines while their first read is in flight; the phase curtain's words wait for the veil (2.4 → 2.8 s); last three RTL arrows; the onboarding film moved to a cache a deploy keeps and is never prefetched for a visitor saving data; avatars as WebP (3.2 MB → 86 KB, by Codex). Per-event haptics NOT built: doc 01/05 allow only light select/confirm, identical for every role.
+Files:      lib/ui/screens/setup/{home_room_return,home_screen,profile_screen}.dart; lib/ui/screens/online/{online_entry_screen,invite_sheet,online_session,lobby_header}.dart; lib/ui/screens/postgame/result_screen.dart; lib/ui/account/profile_panels.dart; lib/ui/widgets/skeleton_rows.dart; lib/data/{own_vote_log,online_match_history}.dart; lib/transport/online_transport.dart; lib/app/router.dart; lib/ui/theme/design_tokens.dart; lib/app/l10n/*; web/offline_service_worker.js; test/widget/home_room_return_test.dart; test/data/own_vote_log_test.dart; test/web/offline_video_test.dart
+Verified:   flutter analyze: no issues; flutter test: 4807/4807; node --check on the worker.
+Gate:       PASS for local checks
+Open:       Web build + browser check next; Google sign-in branding waits on the owner signing in to the Brave window (port 9333); digit style (Western vs Arabic-Indic) is mixed and needs the owner's choice.

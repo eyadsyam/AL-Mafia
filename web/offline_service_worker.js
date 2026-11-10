@@ -19,27 +19,45 @@
 const VERSION = '__BUILD_VERSION__';
 const CACHE = `almafia-${VERSION}`;
 
-// The shell and the film. Everything else arrives through the fetch handler as
-// the app asks for it, which is how the cache stays to what this build uses
-// rather than the 60 MB of renderer variants a build directory contains.
-const PRECACHE = ['./', './flutter_bootstrap.js', './main.dart.js', './assets/assets/video/onboarding.mp4'];
+// The shell. Everything else arrives through the fetch handler as the app asks
+// for it, which is how the cache stays to what this build uses rather than the
+// 60 MB of renderer variants a build directory contains.
+const PRECACHE = ['./', './flutter_bootstrap.js', './main.dart.js'];
+
+// The film (9.8 MB) lives in a cache of its own that a deploy does not drop.
+// It used to sit in the versioned cache, so every deploy made every returning
+// visitor download it again in the background, on mobile data, whether they
+// ever opened it or not. Bump FILM_CACHE only when the film itself changes.
+const FILM = './assets/assets/video/onboarding.mp4';
+const FILM_CACHE = 'almafia-film-1';
+
+// A visitor who asked their browser to save data does not get 9.8 MB fetched
+// behind their back; the film streams when they open it, as any video does.
+function savingData() {
+  return Boolean(self.navigator && self.navigator.connection &&
+      self.navigator.connection.saveData);
+}
+
+async function precache(cacheName, path, onlyIfMissing) {
+  const cache = await caches.open(cacheName);
+  const url = new URL(path, self.registration.scope);
+  if (onlyIfMissing && await cache.match(url)) return;
+  try {
+    // `reload` on purpose. Assets are served immutable for a year, so a
+    // plain fetch here would hand a new build the previous build's files
+    // out of the HTTP cache and never notice.
+    const response = await fetch(new Request(url, { cache: 'reload' }));
+    if (response.ok) await cache.put(url, response);
+  } catch (error) {
+    // A precache miss is not a failed install: the app still works, it
+    // just pays for the file the first time it is asked for.
+  }
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
-    const cache = await caches.open(CACHE);
-    await Promise.all(PRECACHE.map(async (path) => {
-      const url = new URL(path, self.registration.scope);
-      try {
-        // `reload` on purpose. Assets are served immutable for a year, so a
-        // plain fetch here would hand a new build the previous build's film
-        // out of the HTTP cache and never notice.
-        const response = await fetch(new Request(url, { cache: 'reload' }));
-        if (response.ok) await cache.put(url, response);
-      } catch (error) {
-        // A precache miss is not a failed install: the app still works, it
-        // just pays for the file the first time it is asked for.
-      }
-    }));
+    await Promise.all(PRECACHE.map((path) => precache(CACHE, path, false)));
+    if (!savingData()) await precache(FILM_CACHE, FILM, true);
     await self.skipWaiting();
   })());
 });
@@ -47,7 +65,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     for (const name of await caches.keys()) {
-      if (name !== CACHE) await caches.delete(name);
+      if (name !== CACHE && name !== FILM_CACHE) await caches.delete(name);
     }
     await self.clients.claim();
   })());
@@ -100,7 +118,8 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    const hit = await cache.match(request);
+    const hit = await cache.match(request) ??
+        await (await caches.open(FILM_CACHE)).match(request);
     if (hit) return hit;
     try {
       const response = await fetch(request);

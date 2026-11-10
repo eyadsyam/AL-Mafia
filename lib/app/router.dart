@@ -87,6 +87,9 @@ abstract final class Routes {
   static const adminSafety = '/admin/safety';
   static const adminReview = '/admin/review';
   static const online = '/online';
+
+  /// The online door, told to take the stored seat back (Home's card).
+  static const onlineResume = '/online?resume=1';
   static const lobby = '/online/lobby';
 
   /// Where a room invite lands (doc 12 §3.1).
@@ -487,6 +490,11 @@ GoRouter buildRouter(
               ),
               onProfile: () => forwardTo(context, Routes.profile),
               onCharacters: () => forwardTo(context, Routes.characters),
+              onReturnToRoom: SupabaseConfig.isConfigured
+                  // Straight there: no break stands between a player and a
+                  // table that is waiting on their seat.
+                  ? (_) => context.go(Routes.onlineResume)
+                  : null,
               store: SupabaseConfig.isConfigured
                   ? const CoinStoreButton(compact: true, pill: true)
                   : null,
@@ -622,6 +630,7 @@ GoRouter buildRouter(
         path: Routes.online,
         builder: (context, state) => SetupRequired(
           child: OnlineEntryScreen(
+            autoResume: state.uri.queryParameters['resume'] == '1',
             onJoined: () => context.go(Routes.lobby),
             onBack: () => context.go(Routes.mode),
           ),

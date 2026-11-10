@@ -84,6 +84,11 @@ class OnlineMatchHistory {
     /// result, kept for the profile's record. Older rows have neither.
     String? role,
     bool? won,
+
+    /// Ballots this player cast as town, and how many named a mafia seat
+    /// (see `OwnVoteLog`). Null for a mafia player and for older rows.
+    int? votes,
+    int? onMafia,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final owner =
@@ -97,6 +102,8 @@ class OnlineMatchHistory {
       'days': days,
       'role': ?role,
       'won': ?won,
+      'votes': ?votes,
+      'onMafia': ?onMafia,
     });
     final value = jsonEncode(rows.take(200).toList());
     final written = writeOverride != null

@@ -94,9 +94,9 @@ abstract final class AppGallery {
 /// Doc 15's council furniture: seat rings, backdrops, the timer ornament and the two victory emblems. Every one of them is a tintable alpha mask or a full-bleed ground — none carries a role, and none may.
 abstract final class AppCouncilArt {
   static const String avatarFemale =
-      'assets/images/online/avatar_female_transparent.png';
+      'assets/images/online/avatar_female_transparent.webp';
   static const String avatarMale =
-      'assets/images/online/avatar_male_transparent.png';
+      'assets/images/online/avatar_male_transparent.webp';
   static const String backdropDawn = 'assets/images/online/backdrop_dawn.webp';
   static const String backdropDay = 'assets/images/online/backdrop_day.webp';
   static const String backdropNight =
@@ -229,12 +229,6 @@ abstract final class AppIcons {
   ];
 }
 
-/// Each role's card read out in the deal's «اسمع» (tool/voice/render_v2.mjs
-/// --only roles). A public setup surface only, never a private turn.
-abstract final class AppRoleVoice {
-  static String of(String roleName) => 'assets/voice/roles/$roleName.ogg';
-}
-
 /// Table cues. Never played while the phone is in a player's hand — see AudioDirector.
 abstract final class AppAudio {
   static const String academyGraduation = 'assets/audio/academy_graduation.ogg';
@@ -363,6 +357,12 @@ abstract final class AppVideo {
     outcomeSavedLoop,
     outcomeTownWinLoop,
   ];
+}
+
+/// Each role's card read out in the deal's «اسمع» (tool/voice/render_v2.mjs
+/// --only roles). A public setup surface only, never a private turn.
+abstract final class AppRoleVoice {
+  static String of(String roleName) => 'assets/voice/roles/$roleName.ogg';
 }
 
 /// «عملات المافيا». Derived from raw_assets/store/economy-v1/mafia-coin.png

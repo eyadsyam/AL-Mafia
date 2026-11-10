@@ -45,6 +45,13 @@ void main() {
       expect(worker, contains("'./flutter_bootstrap.js'"));
       expect(worker, contains("'./main.dart.js'"));
       expect(worker, contains("cache.match(request, {ignoreSearch: true})"));
+      // The film sits in a cache a deploy keeps, fetched only when missing and
+      // never for a visitor saving data: a deploy must not make every
+      // returning phone download 9.8 MB again.
+      expect(worker, contains("const FILM_CACHE = 'almafia-film-"));
+      expect(worker, contains('name !== FILM_CACHE'));
+      expect(worker, contains('precache(FILM_CACHE, FILM, true)'));
+      expect(worker, contains('connection.saveData'));
     });
 
     test('the build stamps the worker and publishes it as sw.js', () {

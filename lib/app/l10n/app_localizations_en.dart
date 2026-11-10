@@ -7538,6 +7538,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileStatOnlineMatches => 'Online matches';
 
   @override
+  String profileVoteAccuracy(int percent) {
+    return 'Your vote accuracy: $percent%';
+  }
+
+  @override
+  String profileVoteAccuracyDetail(int onMafia, int votes) {
+    return '$onMafia of $votes votes you cast as town landed on the mafia';
+  }
+
+  @override
   String get profileStatCoins => 'Coins';
 
   @override
@@ -8357,6 +8367,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guestCardTitle => 'Save your name and coins';
+
+  @override
+  String get homeRoomReturnTitle => 'Your room is still on';
+
+  @override
+  String get homeRoomReturnAction => 'Back to your room';
 
   @override
   String get guestCardLine =>

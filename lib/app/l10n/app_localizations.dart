@@ -12997,6 +12997,18 @@ abstract class AppLocalizations {
   /// **'Online matches'**
   String get profileStatOnlineMatches;
 
+  /// No description provided for @profileVoteAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vote accuracy: {percent}%'**
+  String profileVoteAccuracy(int percent);
+
+  /// No description provided for @profileVoteAccuracyDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{onMafia} of {votes} votes you cast as town landed on the mafia'**
+  String profileVoteAccuracyDetail(int onMafia, int votes);
+
   /// No description provided for @profileStatCoins.
   ///
   /// In en, this message translates to:
@@ -14352,6 +14364,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save your name and coins'**
   String get guestCardTitle;
+
+  /// No description provided for @homeRoomReturnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your room is still on'**
+  String get homeRoomReturnTitle;
+
+  /// No description provided for @homeRoomReturnAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to your room'**
+  String get homeRoomReturnAction;
 
   /// No description provided for @guestCardLine.
   ///

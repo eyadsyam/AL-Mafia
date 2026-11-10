@@ -158,7 +158,12 @@ class _LobbyHeaderState extends ConsumerState<LobbyHeader> {
               key: widget.leaveKey,
               tooltip: l10n.onlineLeave,
               onPressed: widget.onLeave,
-              icon: Icon(Icons.logout, color: colors.textSecondary),
+              // The door is on the reading side's end: mirrored in Arabic,
+              // as the table's own exit is.
+              icon: Transform.flip(
+                flipX: Directionality.of(context) == TextDirection.rtl,
+                child: Icon(Icons.logout, color: colors.textSecondary),
+              ),
             ),
             PopupMenuButton<_More>(
               key: LobbyHeader.moreButton,

@@ -12,14 +12,18 @@ Accounts and ids:
 - Logo file (120x120 PNG, square): D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21\build\branding\google-logo-120.png
 
 Browser:
-- Use BRAVE, not Chrome (the owner asked for Brave). Brave is at
+- A Brave window is ALREADY OPEN and signed in by the owner, with a debugging port: connect to it with Playwright
+  `chromium.connectOverCDP('http://127.0.0.1:9333')` and use its existing context and page (open a new tab in that
+  context if you need one). Do NOT launch another browser, do NOT use Computer Use / screen clicking, and do NOT
+  close this Brave window when you finish. Read page state from the DOM (page.url(), text, accessibility snapshot);
+  take screenshots with page.screenshot().
+- (Fallback only if port 9333 does not answer:) Use BRAVE, not Chrome (the owner asked for Brave). Brave is at
   "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe". Open a visible Brave window you can drive:
   Playwright chromium.launch({ executablePath: <that path>, headless: false }) or launchPersistentContext with a
   separate user-data-dir under %TEMP%, or Brave started with --remote-debugging-port and a separate
   --user-data-dir under %TEMP%. Do not close or kill the owner's own Brave or Chrome windows.
 - If Google asks to sign in, do NOT type any email or password and do not read saved passwords, cookies or profile
-  files. Leave the sign-in page open, print the line "OWNER_SIGNIN_NEEDED" once, and wait (check every 30 s, up to
-  30 minutes) until the console loads, then continue.
+  files. Leave the sign-in page open, print the line "OWNER_SIGNIN_NEEDED" once, and wait (check every 30 s, up to 90 minutes) until the console loads, then continue.
 - If any terms, agreement, policy declaration, identity or billing step appears, do not accept or fill it: stop that
   part, quote the dialog exactly, and go on with the rest.
 
@@ -54,4 +58,5 @@ REPORT (your final message, plain text):
 - Before / after of every Branding field, the Audience status before / after, the Verification centre status.
 - Every dialog or warning you did not act on, quoted exactly, and which step it blocked.
 - One screenshot path of the final Branding page and one of the Verification centre, saved under %TEMP%.
+
 

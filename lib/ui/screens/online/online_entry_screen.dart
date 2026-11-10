@@ -25,6 +25,7 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/storage_warning_note.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/connection_problem.dart';
+import '../../widgets/skeleton_rows.dart';
 import '../../friendly_error.dart';
 import '../../widgets/player_avatar.dart';
 import '../../widgets/experience_surface.dart';
@@ -51,12 +52,17 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
   final VoidCallback onBack;
   final String? initialCode;
   final String? initialReferralCode;
+
+  /// Home's «ارجع لأوضتك»: take the stored seat back as soon as it is known to
+  /// be this player's, instead of waiting for a second tap on «كمل».
+  final bool autoResume;
   const OnlineEntryScreen({
     super.key,
     required this.onJoined,
     required this.onBack,
     this.initialCode,
     this.initialReferralCode,
+    this.autoResume = false,
   });
   static const codeField = ValueKey('online_code');
   static const hostButton = ValueKey('online_host');
@@ -235,7 +241,15 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
       }
     }
     if (mounted) setState(() => _resume = resume);
+    if (widget.autoResume && !_autoResumed && mounted && resume != null) {
+      _autoResumed = true;
+      if (!ref.read(onlineSessionProvider).isInRoom) {
+        await _enter(code: resume.code, resume: true);
+      }
+    }
   }
+
+  bool _autoResumed = false;
 
   @override
   void dispose() {
@@ -771,6 +785,10 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       ),
                                     ],
                                   ),
+                                  // The first read is in flight: the list's
+                                  // shape, not an empty gap under the chips.
+                                  if (!_everLoaded && !_browseFailed)
+                                    const SkeletonRows(),
                                   if (_everLoaded &&
                                       !_browseFailed &&
                                       _nearlyReadyOnly &&

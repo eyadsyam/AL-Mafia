@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import '../data/own_vote_log.dart';
 import '../data/read_whisper_store.dart';
 
 import 'package:flutter/foundation.dart' show mapEquals;
@@ -1252,6 +1253,17 @@ class OnlineTransport implements GameTransport {
     final result = sent.payload;
     if (result == null) {
       throw const BackendException('ACTION_NOT_SAVED', 'No acknowledgement');
+    }
+    if (state != null) {
+      // This device's own ballot, for its own profile after the result.
+      unawaited(
+        OwnVoteLog.record(
+          roomId: roomId,
+          day: state.phaseNumber,
+          round: _round(state),
+          targetSeat: targetSeat,
+        ),
+      );
     }
     final own = _own;
     if (own != null &&

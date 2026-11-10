@@ -1,9 +1,10 @@
 import 'dart:async';
 import '../../../data/online_match_history.dart';
 import '../../../data/online_session_store.dart';
+import '../../../data/own_vote_log.dart';
 import '../../../data/request_id.dart';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide Alignment;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../engine/models/enums.dart';
@@ -374,6 +375,14 @@ class OnlineSession extends Notifier<OnlineSessionState> {
           final mine = snapshot.standings
               .where((s) => s.seat == snapshot.viewerSeat)
               .firstOrNull;
+          // Every role is public now. A town player's own ballots, scored
+          // against them; a mafia player's are not a guess, so not counted.
+          final voted = await OwnVoteLog.take(handle.roomId);
+          final mafiaSeats = {
+            for (final s in snapshot.standings)
+              if (s.role.alignment == Alignment.mafia) s.seat,
+          };
+          final scored = mine != null && mine.role.alignment == Alignment.town;
           await OnlineMatchHistory.save(
             userId: backend.userId,
             roomId: handle.roomId,
@@ -384,6 +393,8 @@ class OnlineSession extends Notifier<OnlineSessionState> {
             won: mine == null
                 ? null
                 : mine.role.alignment == snapshot.outcome!.winner,
+            votes: scored ? voted.length : null,
+            onMafia: scored ? voted.where(mafiaSeats.contains).length : null,
           );
 
           saved = true;

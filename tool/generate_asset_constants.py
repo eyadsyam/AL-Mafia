@@ -54,7 +54,13 @@ GROUPS = [
      "first-run introduction is an MP4. None may be used on an in-hand surface."),
 ]
 
-MANUAL = """/// «عملات المافيا». Derived from raw_assets/store/economy-v1/mafia-coin.png
+MANUAL = """/// Each role's card read out in the deal's «اسمع» (tool/voice/render_v2.mjs
+/// --only roles). A public setup surface only, never a private turn.
+abstract final class AppRoleVoice {
+  static String of(String roleName) => 'assets/voice/roles/$roleName.ogg';
+}
+
+/// «عملات المافيا». Derived from raw_assets/store/economy-v1/mafia-coin.png
 /// (cropped square, alpha kept); the vault concept is not shipped.
 abstract final class AppEconomyArt {
   static const String coinSmall = 'assets/images/economy/mafia_coin_96.webp';
@@ -69,7 +75,7 @@ SKIP = {".gitkeep", "OFL.txt", "avatar_male.webp", "avatar_female.webp"}
 def _ident(filename: str) -> str:
     """role_detective.webp -> roleDetective"""
     # Preserve the public avatar names and their corrected transparent artwork.
-    filename = filename.replace('_transparent.png', '.png')
+    filename = filename.replace('_transparent.png', '.png').replace('_transparent.webp', '.webp')
     stem = os.path.splitext(filename)[0]
     parts = re.split(r"[^0-9a-zA-Z]+", stem)
     parts = [p for p in parts if p]

@@ -1,0 +1,30 @@
+TASK: shrink the two heaviest images of the Flutter app «سيد المافيا» (Mafia Master) without any visible change.
+Repo at the --cd path. You edit and run checks. You do NOT build release, deploy, push or commit.
+Another agent (Claude) is editing at the same time — DO NOT touch: lib/ui/screens/setup/home_screen.dart,
+lib/platform/haptics.dart, lib/ui/screens/online/council/**, lib/ui/screens/online/lobby_*.dart,
+lib/ui/screens/postgame/**, lib/ui/account/**, lib/app/l10n/**, lib/app/router.dart.
+
+1. assets/images/online/avatar_female_transparent.png (1,676 KB) and avatar_male_transparent.png (1,513 KB).
+   - Find every reference (grep the whole repo: lib/, test/, pubspec.yaml, web/, tool/). Note where they are drawn and
+     at what largest on-screen size (read the widget code).
+   - Make WebP copies with alpha kept (Python Pillow: quality 90, method 6; if the file has a lot of flat areas try
+     lossless too and keep the smaller). If the largest on-screen size is far below the source size, also downscale to
+     3x that size (keep aspect), never below 512 px on the long side.
+   - Compare: render original and WebP side by side at the largest on-screen size and save the comparison PNG under
+     %TEMP%\avatar_webp_check\ ; look at it yourself. Edges of the transparent cut-out must stay clean (no halo).
+   - Switch the references to the .webp files (asset constants in lib/app/asset_constants.dart or wherever they live)
+     and remove the .png files only if nothing references them anymore. pubspec asset folders stay as they are.
+2. Report also (no change): which assets the WEB build fetches before the first screen is drawn. Check web/index.html,
+   flutter_bootstrap, and whether assets/video/onboarding.mp4 (9.8 MB) or assets/audio/score_loop.* are requested on
+   the very first screen on web (read the code that plays them: onboarding_video_screen.dart, audio director). Say
+   exactly when each is first requested.
+
+PROJECT RULES: no hardcoded colours/sizes/durations outside lib/ui/theme/design_tokens.dart; no literal strings in
+widgets; never print or open dart_defines.json, key.properties, *.jks. Flutter's SDK path contains a space; run flutter
+from PowerShell.
+
+CHECKS (quote the tail):
+- flutter analyze 2>&1 | Select-Object -Last 30   → "No issues found".
+- flutter test 2>&1 | Select-Object -Last 40      → all pass.
+
+REPORT: files changed, sizes before/after, the comparison image path, the first-screen web fetch list, check results.

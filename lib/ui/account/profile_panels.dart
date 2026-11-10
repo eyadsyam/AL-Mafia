@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/online_match_history.dart';
+import '../../data/own_vote_log.dart' show voteAccuracy;
 import '../../data/player_profile.dart';
 import '../../data/repository_provider.dart';
 import '../../engine/models/enums.dart' as engine;
@@ -46,7 +47,6 @@ class ProfileRow extends StatelessWidget {
     final colors = context.colors;
     final type = context.typography;
     final s = context.spacing;
-    final rtl = Directionality.of(context) == TextDirection.rtl;
     return InkWell(
       onTap: onTap,
       highlightColor: colors.surfaceOverlay,
@@ -99,8 +99,10 @@ class ProfileRow extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: s.xs),
-                Icon(
-                  rtl ? Icons.chevron_left : Icons.chevron_right,
+                const Icon(
+                  // Flutter already mirrors it in Arabic; choosing by
+                  // direction here turned it back the wrong way.
+                  Icons.chevron_right,
                   size: DeckTokens.chevron,
                   color: DeckTokens.silver,
                 ),
@@ -264,6 +266,61 @@ final profileStatsProvider = FutureProvider<(int, int)>((ref) async {
   } catch (_) {}
   return (local, online);
 });
+
+/// «دقة تصويتك» from the kept online matches, or null while there are too few
+/// ballots to mean anything.
+final profileVoteAccuracyProvider = FutureProvider<({int votes, int onMafia})?>(
+  (ref) async {
+    ref.watch(onlineHistoryRevisionProvider);
+    final userId = ref.watch(allAccessAccountProvider).valueOrNull;
+    try {
+      return voteAccuracy(await OnlineMatchHistory.load(userId: userId));
+    } catch (_) {
+      return null;
+    }
+  },
+);
+
+/// One line under the record: how often this player's own ballots, cast as
+/// town, named a mafia seat. Counted only from roles the result already made
+/// public; shown only once there are enough ballots to count.
+class ProfileVoteAccuracy extends ConsumerWidget {
+  const ProfileVoteAccuracy({super.key});
+
+  static const lineKey = ValueKey('profile_vote_accuracy');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final score = ref.watch(profileVoteAccuracyProvider).valueOrNull;
+    if (score == null) return const SizedBox.shrink();
+    final l = context.l10n;
+    final colors = context.colors;
+    final type = context.typography;
+    final percent = (score.onMafia * 100 / score.votes).round();
+    return Padding(
+      key: lineKey,
+      padding: EdgeInsets.only(top: context.spacing.sm),
+      child: DeckPanel(
+        radius: DeckTokens.statRadius,
+        padding: EdgeInsets.all(context.spacing.sm),
+        child: Column(
+          children: [
+            Text(
+              l.profileVoteAccuracy(percent),
+              textAlign: TextAlign.center,
+              style: type.title.copyWith(color: colors.textPrimary),
+            ),
+            Text(
+              l.profileVoteAccuracyDetail(score.onMafia, score.votes),
+              textAlign: TextAlign.center,
+              style: type.caption.copyWith(color: colors.textSecondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// When the last match on this phone was played, or null for none.
 final profileLastMatchProvider = FutureProvider<DateTime?>((ref) async {

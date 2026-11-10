@@ -7419,6 +7419,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileStatOnlineMatches => 'ماتش أونلاين';
 
   @override
+  String profileVoteAccuracy(int percent) {
+    return 'دقة تصويتك: $percent٪';
+  }
+
+  @override
+  String profileVoteAccuracyDetail(int onMafia, int votes) {
+    return '$onMafia من $votes صوت إديتهم وإنت من البلد وقعوا على مافيا';
+  }
+
+  @override
   String get profileStatCoins => 'عملة';
 
   @override
@@ -8231,6 +8241,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get guestCardTitle => 'احفظ اسمك وفلوسك';
+
+  @override
+  String get homeRoomReturnTitle => 'عندك أوضة لسه شغالة';
+
+  @override
+  String get homeRoomReturnAction => 'ارجع لأوضتك';
 
   @override
   String get guestCardLine =>

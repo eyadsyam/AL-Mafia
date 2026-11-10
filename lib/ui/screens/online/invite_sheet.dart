@@ -13,6 +13,7 @@ import '../../social/push_prompt.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/player_avatar.dart';
+import '../../widgets/skeleton_rows.dart';
 
 /// «ادعي صحابك» — invite anyone into this lobby, inside the scene (doc 12
 /// §2.1: a layer in the lobby's Stack, never a route or a dialog).
@@ -372,7 +373,10 @@ class _InviteSheetState extends ConsumerState<InviteSheet> {
         SizedBox(height: context.spacing.sm),
         Expanded(
           child: near == null
-              ? const Center(child: CircularProgressIndicator())
+              ? const Align(
+                  alignment: Alignment.topCenter,
+                  child: SingleChildScrollView(child: SkeletonRows()),
+                )
               : near.rows.isEmpty
               ? _Empty(l.inviteNearbyEmpty)
               : _rows(

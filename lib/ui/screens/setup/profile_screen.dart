@@ -213,6 +213,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const Center(child: FounderBadge()),
         SizedBox(height: s.md),
         const ProfileStats(),
+        const ProfileVoteAccuracy(),
         const ProfileRecordPanel(),
       ],
     );

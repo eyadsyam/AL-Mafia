@@ -832,7 +832,10 @@ abstract final class CouncilTokens {
 
   static const double curtainDarkness = 0.82;
   static const double curtainVeil = 0.82;
-  static const double curtainWordsDelay = 0.14;
+  /// The words wait for the veil to be fully down (it is at 0.3 of the run):
+  /// first the light changes, then the table reads the night's name. Words
+  /// arriving over a half-dark table read as one more thing happening at once.
+  static const double curtainWordsDelay = 0.3;
   static const double curtainDawnGlow = 0.28;
   static const double curtainRuleWidth = 96;
   static const double curtainRuleHeight = 1.5;
@@ -1614,7 +1617,9 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// How long before a discussion or ballot closes its warning sounds.
   static const timerWarningLead = Duration(seconds: 10);
 
-  static const phaseCurtain = Duration(milliseconds: 2400);
+  /// Long enough that the words, which now wait for the veil, still hold for
+  /// most of a second before they go.
+  static const phaseCurtain = Duration(milliseconds: 2800);
   static const phaseCurtainReduced = Duration(milliseconds: 1000);
 
   /// How often an eliminated player's open table is read again. Night choices
@@ -3037,6 +3042,28 @@ abstract final class OnlineEntryTokens {
 
   /// The bar under a public room: seats taken toward the start minimum.
   static const double seatBarHeight = 3.0;
+}
+
+/// Outlines of the rows a list is about to show, while its first read is in
+/// flight: the screen keeps its shape instead of a bare spinner.
+abstract final class SkeletonTokens {
+  /// How many placeholder rows stand in for a list nobody has read yet.
+  static const int rows = 3;
+
+  /// One breath of the placeholder, out and back.
+  static const Duration pulse = Duration(milliseconds: 1100);
+
+  /// The placeholder's faintest and strongest strength.
+  static const double dim = 0.35;
+  static const double bright = 0.7;
+
+  /// The leading mark (where a row's icon sits).
+  static const double leading = 24;
+
+  /// A line of text, as a bar: its height and its share of the row's width.
+  static const double lineHeight = 12;
+  static const double titleWidth = 0.55;
+  static const double captionWidth = 0.35;
 }
 
 abstract final class ConnectionProblemTokens {

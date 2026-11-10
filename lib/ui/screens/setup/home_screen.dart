@@ -27,6 +27,8 @@ import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/play_app_ribbon.dart';
 import '../../account/guest_save_card.dart';
 
+import 'home_room_return.dart';
+
 /// Home screen (S-01) — the spread.
 ///
 /// ## The deck is the screen
@@ -69,6 +71,10 @@ class HomeScreen extends ConsumerWidget {
   /// The Four Dossiers; the character's line on Home opens them.
   final VoidCallback? onCharacters;
 
+  /// Back into an online seat the server still holds, by its room code; null
+  /// where the build has no server.
+  final void Function(String code)? onReturnToRoom;
+
   /// The store's corner control, or null where the build has no server.
   final Widget? store;
 
@@ -88,6 +94,7 @@ class HomeScreen extends ConsumerWidget {
     required this.onHowToPlay,
     this.onProfile,
     this.onCharacters,
+    this.onReturnToRoom,
     this.store,
     this.banner,
     this.tiltSource = defaultTiltSource,
@@ -203,6 +210,8 @@ class HomeScreen extends ConsumerWidget {
               children: [
                 _cornerRow(context, ref, l10n),
                 const GuestStatusLine(),
+                if (onReturnToRoom != null)
+                  HomeRoomReturn(onReturn: onReturnToRoom!),
                 const GuestSaveCard(),
                 ?banner,
                 const PlayAppRibbon(),
@@ -303,6 +312,8 @@ class HomeScreen extends ConsumerWidget {
             children: [
               _cornerRow(context, ref, l10n),
               const GuestStatusLine(),
+              if (onReturnToRoom != null)
+                HomeRoomReturn(onReturn: onReturnToRoom!),
               const GuestSaveCard(),
               ?banner,
               // Web on an Android phone only; closed once, gone for good.
