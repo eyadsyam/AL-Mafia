@@ -8244,4 +8244,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileHandleLocked => 'اليوزر نيم ثابت ومحدش غيرك ياخده.';
+
+  @override
+  String get backAgainToExit => 'دوس رجوع تاني عشان تخرج من اللعبة';
 }

@@ -14376,6 +14376,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your username is fixed and nobody else can take it.'**
   String get profileHandleLocked;
+
+  /// No description provided for @backAgainToExit.
+  ///
+  /// In en, this message translates to:
+  /// **'Press back again to leave the game'**
+  String get backAgainToExit;
 }
 
 class _AppLocalizationsDelegate

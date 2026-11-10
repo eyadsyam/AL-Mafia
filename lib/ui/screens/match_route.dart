@@ -106,6 +106,11 @@ class MatchRoute extends ConsumerWidget {
 
     return PopScope(
       canPop: !locked,
+      // The phone's back during a match asks the same question as the cross
+      // in the corner. Over a table, the table answers it (its leave button).
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && locked && !_tableShown(ref)) _confirmEnd(context, ref);
+      },
       child: Scaffold(
         backgroundColor: colors.surfaceBase,
         body: Stack(

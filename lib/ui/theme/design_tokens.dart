@@ -1702,6 +1702,9 @@ class MafiaTiming extends ThemeExtension<MafiaTiming> {
   /// الإعلان» veil gives the tap back instead of waiting [adShowTimeout].
   static const adOpenTimeout = Duration(seconds: 8);
 
+  /// Two backs on Home within this leave the app; one shows how.
+  static const backToExitWindow = Duration(seconds: 2);
+
   /// The whole wait between a tap on a rewarded offer and the ad covering
   /// the screen (consent check, SDK start, load), the consent form itself
   /// aside. Past it the tap is answered «not ready»; the load keeps going in

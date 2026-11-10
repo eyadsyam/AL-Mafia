@@ -8371,4 +8371,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get profileHandleLocked =>
       'Your username is fixed and nobody else can take it.';
+
+  @override
+  String get backAgainToExit => 'Press back again to leave the game';
 }

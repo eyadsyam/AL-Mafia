@@ -117,7 +117,10 @@ String? systemBackTarget(String location, {bool hasGroups = true}) {
   if (location == Routes.stories) return Routes.mode;
   if (location == Routes.online) return Routes.mode;
   if (location == Routes.lobby) return Routes.online;
-  if (RegExp(r'^/join/[^/]+$').hasMatch(location)) return Routes.online;
+  if (RegExp(r'^/(join|room)/[^/]+$').hasMatch(location)) return Routes.online;
+  if (location == Routes.howToPlay) return Routes.home;
+  if (location.startsWith('/admin/')) return Routes.admin;
+  if (location == Routes.admin) return Routes.home;
   if (location == Routes.profile ||
       location == Routes.characters ||
       location == Routes.defaults ||

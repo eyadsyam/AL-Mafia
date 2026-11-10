@@ -367,7 +367,30 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       hasGroups:
           ref.read(playerGroupsProvider).valueOrNull?.isNotEmpty ?? false,
     );
-    if (target == null) return false;
+    if (target == null) {
+      // Home: a first back says how to leave, a second one leaves. A player
+      // stepping back through the app never drops out of it by one press too
+      // many.
+      if (location != Routes.home || kIsWeb) return false;
+      final now = DateTime.now();
+      final last = _homeBackAt;
+      if (last != null && now.difference(last) < MafiaTiming.backToExitWindow) {
+        return false;
+      }
+      _homeBackAt = now;
+      final context = _navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        ScaffoldMessenger.maybeOf(context)
+          ?..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.backAgainToExit),
+              duration: MafiaTiming.backToExitWindow,
+            ),
+          );
+      }
+      return true;
+    }
     if (location == Routes.lobby) {
       final session = ref.read(onlineSessionProvider);
       if (session.isInRoom &&
@@ -385,6 +408,10 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     _router.go(target);
     return true;
   }
+
+  /// When back was last pressed on Home (the second press within the window
+  /// leaves the app).
+  DateTime? _homeBackAt;
 
   /// Whether `SetupRequired` is showing the first-run screen over the route.
   bool _setupPending() {

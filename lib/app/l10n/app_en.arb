@@ -5131,5 +5131,6 @@
   "guestCardLine": "You are playing as a guest. If you delete the game or change phones you lose everything. Sign in in a second and it all stays with you.",
   "guestCardClose": "Close",
   "guestStatusLine": "Guest — not signed in",
-  "profileHandleLocked": "Your username is fixed and nobody else can take it."
+  "profileHandleLocked": "Your username is fixed and nobody else can take it.",
+  "backAgainToExit": "Press back again to leave the game"
 }

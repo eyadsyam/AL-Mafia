@@ -22,6 +22,13 @@ void main() {
       expect(systemBackTarget(Routes.lobby), Routes.online);
     });
 
+    test('every other page has a parent too', () {
+      expect(systemBackTarget('/room/K7M2QP'), Routes.online);
+      expect(systemBackTarget(Routes.howToPlay), Routes.home);
+      expect(systemBackTarget(Routes.adminReview), Routes.admin);
+      expect(systemBackTarget(Routes.admin), Routes.home);
+    });
+
     test('is the platform\'s at Home and inside a match', () {
       expect(systemBackTarget(Routes.home), isNull);
       expect(systemBackTarget(Routes.match), isNull);

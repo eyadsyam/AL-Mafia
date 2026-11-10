@@ -253,6 +253,26 @@ class TableScene extends StatelessWidget {
         .where((player) => player.seat == snapshot.viewerSeat)
         .firstOrNull;
 
+    // The phone's back is the table's own exit (the header's leave button):
+    // players who only ever use back get the same question, not a silent
+    // screen or the app closing under them.
+    final leave = onCloseRoom;
+    return PopScope(
+      canPop: leave == null,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) leave?.call();
+      },
+      child: _scene(context, colors, spacing, mood, viewer),
+    );
+  }
+
+  Widget _scene(
+    BuildContext context,
+    MafiaColors colors,
+    MafiaSpacing spacing,
+    TableMood mood,
+    PublicPlayer? viewer,
+  ) {
     return TablePulse(
       child: LayoutBuilder(
         builder: (context, box) => Stack(
