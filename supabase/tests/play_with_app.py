@@ -63,7 +63,7 @@ def main():
     if not h.KEY:
         raise SystemExit("set SUPABASE_ANON_KEY")
 
-    names = ["Bassem", "Camelia", "Dawoud", "Enas"]
+    names = ["Bassem", "Camelia", "Dawoud", "Enas"][:int(os.environ.get("BOT_COUNT", "4"))]
     # Reuse the last run's sessions when they are still valid: the hosted
     # anonymous sign-up limit is small, and a restart should not spend it.
     import json

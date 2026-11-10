@@ -12,8 +12,7 @@ compare-and-set and the phase guards are real:
     exactly one step
   * a move acknowledged with 200 exists in the table for the phase it was made
     in, and a move refused with PHASE_CLOSED does not — never a lost move
-  * the host leaving mid-match hands the room to the lowest connected seat and
-    the match keeps going under the new host
+  * three seats resolving one ballot at once move the room exactly once
   * the last player leaving a lobby leaves no room behind
   * a user racing two joins ends up seated in exactly one room
 
@@ -198,27 +197,20 @@ def main():
     results = parallel(calls)
     check("simultaneous ballots all acknowledged", all(r[0] == 200 for r in results), results)
 
-    # The handover is presence-aware (a seat heard from in the last thirty
-    # seconds), so the other seats report in the way the app's heartbeat does.
-    parallel([lambda p=p: fn("heartbeat", {"roomId": room_id}, p) for p in players[1:]])
-    status, gone = fn("leave_room", {"roomId": room_id}, players[0])
-    check("the host leaves the running match", status == 200, gone)
-    status, room = rest("rooms_public?select=host_id,status&id=eq." + room_id, players[1])
-    heir = min(players[1:], key=lambda p: p["seat"])
-    check("the room passed to the lowest connected seat", status == 200 and room and room[0]["host_id"] == heir["id"], (room, heir["seat"]))
-    check("the room is still playing", room and room[0]["status"] == "playing", room)
-
-    # Three copies of the new host's resolver, plus a late duplicate ballot with
-    # the SAME action id (a retry) — the retry is either the same row or refused.
+    # Owner rule (2026-10-30): a host who leaves closes the room for everybody;
+    # nobody inherits it. So the resolver race runs under the host's own table:
+    # three copies of the resolver from three seats, plus a late duplicate
+    # ballot (a retry) — the retry is either the same row or refused.
     retry_voter = voters[0]
+    drivers = [p for p in players if p["seat"] in living][:3]
     results = parallel([
-        lambda: fn("resolve_vote", {"roomId": room_id}, heir),
+        lambda: fn("resolve_vote", {"roomId": room_id}, drivers[0]),
         lambda: fn("submit_vote", {"roomId": room_id, "targetSeat": target, "round": 1, "actionId": aid()}, retry_voter),
-        lambda: fn("resolve_vote", {"roomId": room_id}, heir),
-        lambda: fn("resolve_vote", {"roomId": room_id}, heir),
+        lambda: fn("resolve_vote", {"roomId": room_id}, drivers[1 % len(drivers)]),
+        lambda: fn("resolve_vote", {"roomId": room_id}, drivers[2 % len(drivers)]),
     ])
     resolves = [results[0], results[2], results[3]]
-    verdict = one_winner("resolve_vote x3 under the new host", resolves)
+    verdict = one_winner("resolve_vote x3", resolves)
     retry = results[1]
     check("a retried ballot is acknowledged or PHASE_CLOSED, never lost",
           retry[0] == 200 or retry[1].get("error") == "PHASE_CLOSED", retry)
@@ -228,16 +220,12 @@ def main():
     status, again = fn("submit_vote", {"roomId": room_id, "targetSeat": target, "round": 1, "actionId": aid()}, retry_voter)
     check("a ballot after the verdict is PHASE_CLOSED", again.get("error") == "PHASE_CLOSED", again)
 
-    # The departed host cannot drive from outside; the heir closes the match.
-    status, refused = fn("open_phase", {"roomId": room_id, "phase": "result"}, players[0])
-    check("the departed host still holds a seat but not the room", refused.get("error") in ("NOT_HOST", "PHASE_CLOSED"), refused)
-    results = parallel([lambda p=p: fn("open_phase", {"roomId": room_id, "phase": "result"}, p) for p in [heir, heir]])
+    results = parallel([lambda p=p: fn("open_phase", {"roomId": room_id, "phase": "result"}, p) for p in [players[0], players[0]]])
     one_winner("verdict -> result x2", results)
     s = state_of(room_id, players[1])
     check("the match ended on the result", s.get("phase") == "result", s)
     standings = (s.get("public_data") or {}).get("standings") or []
     check("standings are published with the result only", len(standings) == 5 and all("role" in x for x in standings), standings)
-
     # ── 5. a user racing two joins sits in exactly one room ─────────────
     # Every session first, then the rooms: a lobby whose host has been silent
     # for ninety seconds is given up (`lobby_departures`), and a sign-in that

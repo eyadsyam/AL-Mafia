@@ -299,6 +299,14 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   /// taken one is said here rather than discovered later.
   Future<void> _nameContinue() async {
     if (!_nameOk || _saving) return;
+    // The box can be untouched again on the card behind (a tap that landed
+    // while the card was turning, found in a real web run on 2026-11-10).
+    // Never a silent dead end: back to the card, with the box pointed at.
+    if (!_agreed || _gender == PlayerGender.unspecified) {
+      _move(_kindIndex);
+      setState(() => _highlightAgree = !_agreed);
+      return;
+    }
     if (_asksHandle) {
       final wanted = _handle.text.trim();
       if (!handlePattern.hasMatch(wanted)) {
@@ -379,7 +387,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   }
 
   void _toggleAgree() {
-    if (_saving) return;
+    // A card already turning has been chosen with the box ticked.
+    if (_saving || _flip.isAnimating) return;
     _touched = true;
     setState(() {
       _agreed = !_agreed;

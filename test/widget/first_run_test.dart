@@ -66,6 +66,25 @@ bool _continueEnabled(WidgetTester tester) =>
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  // Real web run on the hosted server (2026-11-10): a second tap on the box
+  // while the chosen card was still turning untied it, and «كمل» on the name
+  // card then did nothing at all. The box holds once a card is turning.
+  testWidgets('a tap on the box while the card turns does not strand the name card', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app());
+    await passIntro(tester);
+    await tapKey(tester, FirstRunScreen.agreeKey);
+    await tester.tap(find.byKey(FirstRunScreen.boyKey));
+    await tester.pump(const Duration(milliseconds: 60));
+    if (find.byKey(FirstRunScreen.agreeKey).hitTestable().evaluate().isNotEmpty) {
+      await tester.tap(find.byKey(FirstRunScreen.agreeKey), warnIfMissed: false);
+    }
+    await tester.pumpAndSettle();
+    await typeName(tester, 'Eyad');
+    await tapKey(tester, FirstRunScreen.continueKey);
+    expect(find.text('HOME'), findsOneWidget);
+  });
   testWidgets('fresh install: the three steps, the record, then Home', (
     tester,
   ) async {
