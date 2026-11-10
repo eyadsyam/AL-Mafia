@@ -142,8 +142,10 @@ async function player(i) {
       await click('ادخل أوضة', 'button', -1); await page.waitForTimeout(4000); continue;
     }
     if (i === 0 && has('يلا نبدأ')) {
-      const ready = rows.filter((r) => seatNames.has(r.label) && r.y < 200).length;
-      if (ready >= count + bots) { await click('يلا نبدأ'); await page.waitForTimeout(3000); }
+      const ready = new Set(rows.filter((r) => seatNames.has(r.label)).map((r) => r.label)).size;
+      if (!acted.has('lobbyAt')) acted.add('lobbyAt'), (player.lobbyAt = Date.now());
+      if (ready >= count + bots || Date.now() - player.lobbyAt > 60000) {
+        await log(me, 'starting with ' + ready + ' seats seen'); await click('يلا نبدأ'); await page.waitForTimeout(3000); }
       else await page.waitForTimeout(2000);
       continue;
     }
@@ -171,21 +173,22 @@ async function player(i) {
       await page.waitForTimeout(1500); continue;
     }
     // ── discussion
-    if (has('جاهزين للتصويت', 'button') && !acted.has('ready' + labels.find((l) => l.startsWith('اليوم')))) {
+    if (has('جاهز للتصويت', 'button') && !acted.has('ready' + labels.find((l) => l.startsWith('اليوم')))) {
       await shot('discuss');
-      await click('جاهزين للتصويت', 'button');
+      await click('جاهز للتصويت', 'button');
       acted.add('ready' + labels.find((l) => l.startsWith('اليوم')));
       continue;
     }
     // ── ballot
-    if (has('مين يخرج') && has('أكد صوتك', 'button')) {
+    if (has('مين يخرج') && !acted.has('vote' + labels.find((l) => l.startsWith('اليوم')))) {
       await shot('vote');
       const options = seats(rows, me);
       if (options.length) {
         const t = options[Math.floor(Math.random() * options.length)];
         await page.mouse.click(t.x, t.y); await page.waitForTimeout(700);
         const v = find(await nodes(page), 'صوّت', 'button')[0] || find(await nodes(page), 'أكد صوتك', 'button')[0];
-        if (v) { await page.mouse.click(v.x, v.y); await log(me, 'voted ' + t.label); }
+        if (v) { await page.mouse.click(v.x, v.y); await log(me, 'voted ' + t.label); acted.add('vote' + labels.find((l) => l.startsWith('اليوم'))); }
+        else await log(me, 'NO VOTE BUTTON after picking ' + t.label);
       }
       await page.waitForTimeout(1500); continue;
     }
@@ -199,7 +202,7 @@ async function player(i) {
       break;
     }
     // Nothing above matched: a lone «كمل» moves most screens on.
-    if (find(rows, 'كمل', 'button').length && !has('جاهزين')) { await click('كمل', 'button', -1); continue; }
+    if (find(rows, 'كمل', 'button').length && !has('جاهز للتصويت')) { await click('كمل', 'button', -1); continue; }
     await page.waitForTimeout(1500);
   }
   await context.close();

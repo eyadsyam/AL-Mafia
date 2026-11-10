@@ -44,6 +44,8 @@ def draw_roles(r, n):
     roles = {'mafia': team - silencer, 'silencer': silencer}
     left = n - team
     for role in ('doctor', 'detective', 'elder', 'sniper'):
+        if (role == 'elder' and n < 6) or (role == 'sniper' and n < 7):
+            continue  # the server's own minimum tables
         if left > 1 and r.random() < (0.85 if role in ('doctor', 'detective') else 0.45):
             roles[role] = 1
             left -= 1
@@ -61,6 +63,9 @@ class Chaos:
         self.settings = {'openingRoundEnabled': self.r.random() < 0.5,
                          'discussionSeconds': 180, 'confrontationEnabled': False}
         self.roles = draw_roles(self.r, n)
+        # A special role is dealt only when its switch is on (start_match).
+        self.settings.update({'silencerEnabled': 'silencer' in self.roles, 'elderEnabled': 'elder' in self.roles,
+                              'sniperEnabled': 'sniper' in self.roles})
 
     # ── calls ────────────────────────────────────────────────────────────────
     def call(self, name, p, **body):
@@ -94,7 +99,8 @@ class Chaos:
         st = self.state()
         ends = st.get('phase_ends_at')
         if ends:
-            deadline = time.mktime(time.strptime(ends[:19], '%Y-%m-%dT%H:%M:%S')) - time.timezone
+            import calendar
+            deadline = calendar.timegm(time.strptime(ends[:19], '%Y-%m-%dT%H:%M:%S'))
             pause = max(0, min(130, deadline - time.time() + 8))  # this laptop's clock runs ~5 s ahead
             time.sleep(pause)
         self.call('advance_phase', self.r.choice(self.living() or self.players))
@@ -104,6 +110,16 @@ class Chaos:
         self.host = self.players[0]
         status, room = fn('create_room', {'name': 'Chaos', 'visibility': 'private',
                                           'settings': dict(self.settings, maxPlayers=15)}, self.host)
+        if status == 403 and isinstance(room, dict) and room.get('error') == 'PURCHASE_REQUIRED':
+            # The bots own no paid role (the server is right to refuse): the
+            # same table with the base roles. Paid roles are covered by the
+            # new_roles / hosted_night_tools suites with an owning account.
+            extra = sum(self.roles.pop(k, 0) for k in ('elder', 'sniper'))
+            self.roles['mafia'] = self.roles.get('mafia', 0) + self.roles.pop('silencer', 0)
+            self.roles['citizen'] = self.roles.get('citizen', 0) + extra
+            self.settings.update({'silencerEnabled': False, 'elderEnabled': False, 'sniperEnabled': False})
+            status, room = fn('create_room', {'name': 'Chaos', 'visibility': 'private',
+                                              'settings': dict(self.settings, maxPlayers=15)}, self.host)
         check('chaos %d: create' % self.seed, status == 200, room)
         self.room, code = room['roomId'], room['code']
         self.host['seat'] = 0
@@ -184,7 +200,9 @@ class Chaos:
             if self.call('open_phase', self.host, phase=nxt)[0] != 200:
                 self.wait_clock()
         elif phase == 'opening':
-            speaker = next((p for p in live if p['seat'] == st.get('active_speaker')), None)
+            # The round's floor is public_data.openingSeat, not active_speaker.
+            floor = (st.get('public_data') or {}).get('openingSeat')
+            speaker = next((p for p in live if p['seat'] == floor), None)
             if speaker and r.random() < 0.8:
                 self.call('submit_accusation', speaker, targetSeat=self.wild_seat())
             else:
