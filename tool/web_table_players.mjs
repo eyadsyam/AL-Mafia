@@ -57,7 +57,12 @@ async function swipe(page, x, y) {
 
 const seatNames = new Set(['Bassem', 'Camelia', 'Dawoud', 'Enas', ...names]);
 function seats(rows, me) {
-  return rows.filter((r) => r.role === 'button' && r.y < 330 && r.w < 90 && seatNames.has(r.label) && r.label !== me);
+  // A seat's label repeats the name on two lines («ماجد\nماجد»).
+  const name = (r) => r.label.split('\n')[0].trim();
+  const seen = new Set();
+  return rows.filter((r) => r.role === 'button' && r.w < 120 && seatNames.has(name(r)) && name(r) !== me)
+    .filter((r) => !seen.has(name(r)) && seen.add(name(r)))
+    .map((r) => ({ ...r, label: name(r) }));
 }
 
 let roomCode = null;
@@ -142,7 +147,7 @@ async function player(i) {
       await click('ادخل أوضة', 'button', -1); await page.waitForTimeout(4000); continue;
     }
     if (i === 0 && has('يلا نبدأ')) {
-      const ready = new Set(rows.filter((r) => seatNames.has(r.label)).map((r) => r.label)).size;
+      const ready = new Set(rows.filter((r) => seatNames.has(r.label.split('\n')[0].trim())).map((r) => r.label.split('\n')[0].trim())).size;
       if (!acted.has('lobbyAt')) acted.add('lobbyAt'), (player.lobbyAt = Date.now());
       if (ready >= count + bots || Date.now() - player.lobbyAt > 60000) {
         await log(me, 'starting with ' + ready + ' seats seen'); await click('يلا نبدأ'); await page.waitForTimeout(3000); }
