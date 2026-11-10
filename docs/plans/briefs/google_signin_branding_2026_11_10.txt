@@ -1,0 +1,57 @@
+﻿TASK: in a real Brave browser window, set the Google sign-in branding of the game so the Google account chooser shows the
+game's name and logo instead of "hezjbrnveajypfqmjfnh.supabase.co". The owner asked for this. You do the clicks
+yourself. You will NOT change code, build, deploy, or commit.
+
+Accounts and ids:
+- Google account eyadsyam124@gmail.com. Check the account email shown on every page before you click anything.
+- Google Cloud project "mafia-master-billing" (project number 893004749085). The web OAuth client starts with
+  893004749085-9iji. The Android client uses package com.mafiamaster.mafia_master.
+- The game: Â«Ø³ÙŠØ¯ Ø§Ù„Ù…Ø§ÙÙŠØ§Â» (Mafia Master). Site https://saidalmafia.com (the home page h1 reads
+  Â«Ø³ÙŠØ¯ Ø§Ù„Ù…Ø§ÙÙŠØ§ â€” Mafia MasterÂ»). Privacy page https://saidalmafia.com/privacy . Data deletion page
+  https://saidalmafia.com/delete-data . Contact page https://saidalmafia.com/contact .
+- Logo file (120x120 PNG, square): D:\Flutter Data\Projects\AL Mafia\.claude\worktrees\epic-roentgen-094f21\build\branding\google-logo-120.png
+
+Browser:
+- Use BRAVE, not Chrome (the owner asked for Brave). Brave is at
+  "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe". Open a visible Brave window you can drive:
+  Playwright chromium.launch({ executablePath: <that path>, headless: false }) or launchPersistentContext with a
+  separate user-data-dir under %TEMP%, or Brave started with --remote-debugging-port and a separate
+  --user-data-dir under %TEMP%. Do not close or kill the owner's own Brave or Chrome windows.
+- If Google asks to sign in, do NOT type any email or password and do not read saved passwords, cookies or profile
+  files. Leave the sign-in page open, print the line "OWNER_SIGNIN_NEEDED" once, and wait (check every 30 s, up to
+  30 minutes) until the console loads, then continue.
+- If any terms, agreement, policy declaration, identity or billing step appears, do not accept or fill it: stop that
+  part, quote the dialog exactly, and go on with the rest.
+
+STEPS (console.cloud.google.com, project mafia-master-billing, menu "Google Auth Platform" / "APIs & Services >
+OAuth consent screen"):
+1. READ FIRST and quote: Branding page as it is now (app name, support email, logo, home page, privacy, terms,
+   authorized domains, developer contact); Audience page (publishing status Testing / In production, user type);
+   Verification centre status; Data access page (the scopes listed).
+2. Branding â€” set exactly:
+   - App name: Ø³ÙŠØ¯ Ø§Ù„Ù…Ø§ÙÙŠØ§
+   - User support email: eyadsyam124@gmail.com (pick it from the list)
+   - App logo: upload the file above.
+   - Application home page: https://saidalmafia.com
+   - Application privacy policy link: https://saidalmafia.com/privacy
+   - Terms of service link: leave empty.
+   - Authorized domains: make sure saidalmafia.com is listed. KEEP hezjbrnveajypfqmjfnh.supabase.co / supabase.co if
+     it is there (sign-in redirects through it; removing it can break sign-in). Remove nothing.
+   - Developer contact email: eyadsyam124@gmail.com
+   Save. Quote any warning Google shows after saving (for example about verification or domain ownership).
+3. Audience: if the status is "Testing", press "Publish app" ONLY if the dialog asks for nothing but a confirmation
+   (the scopes are only openid, email, profile, which need no review). If it asks to agree to a policy or shows any
+   checkbox, do not press it: quote the dialog and stop that step.
+4. Verification centre: if it offers "Verify branding" / "Prepare for verification" / "Submit for verification",
+   open it and quote every field and checkbox it shows. Submit ONLY if there is no agreement checkbox or policy
+   declaration. Otherwise stop and quote it, the owner submits.
+5. If Google says a domain must be verified in Search Console, do not start a Search Console verification. Quote the
+   message and stop that step.
+6. Do not touch: OAuth clients (ids, secrets, redirect URIs, JavaScript origins), API keys, billing, IAM, any other
+   project, Firebase, Play Console, AdMob.
+
+REPORT (your final message, plain text):
+- Before / after of every Branding field, the Audience status before / after, the Verification centre status.
+- Every dialog or warning you did not act on, quoted exactly, and which step it blocked.
+- One screenshot path of the final Branding page and one of the Verification centre, saved under %TEMP%.
+

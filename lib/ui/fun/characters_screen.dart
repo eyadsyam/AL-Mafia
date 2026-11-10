@@ -126,7 +126,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                   IconButton(
                     tooltip: l.characterPrevious,
                     onPressed: _index == 0 ? null : () => _goTo(_index - 1),
-                    icon: const Icon(Icons.chevron_right),
+                    icon: const Icon(Icons.chevron_left),
                   ),
                   _PageDots(
                     count: kBondRoles.length,
@@ -139,7 +139,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                     onPressed: _index == kBondRoles.length - 1
                         ? null
                         : () => _goTo(_index + 1),
-                    icon: const Icon(Icons.chevron_left),
+                    icon: const Icon(Icons.chevron_right),
                   ),
                 ],
               ),

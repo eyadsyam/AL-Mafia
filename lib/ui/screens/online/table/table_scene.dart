@@ -688,7 +688,10 @@ class _CouncilHeader extends StatelessWidget {
             key: TableScene.exitRoomButton,
             tooltip: context.l10n.onlineLeave,
             onPressed: onCloseRoom,
-            icon: Icon(Icons.logout, color: colors.textSecondary),
+            icon: Transform.flip(
+              flipX: Directionality.of(context) == TextDirection.rtl,
+              child: Icon(Icons.logout, color: colors.textSecondary),
+            ),
             visualDensity: VisualDensity.compact,
           ),
       ],

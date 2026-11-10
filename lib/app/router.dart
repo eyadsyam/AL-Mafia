@@ -19,9 +19,10 @@ import '../ui/screens/stories/widgets/story_palette.dart';
 import '../ui/economy/interstitial_coordinator.dart';
 import '../ui/fun/welcome_back.dart';
 import '../ui/l10n_ext.dart';
-import '../ui/screens/admin/payments_admin_screen.dart';
-import '../ui/screens/admin/safety_admin_screen.dart';
-import '../ui/screens/admin/owner_review_screen.dart';
+import '../ui/screens/admin/payments_admin_screen.dart'
+    deferred as payments_admin;
+import '../ui/screens/admin/safety_admin_screen.dart' deferred as safety_admin;
+import '../ui/screens/admin/owner_review_screen.dart' deferred as owner_review;
 import '../ui/screens/match_controller.dart';
 import '../ui/screens/match_route.dart';
 import '../ui/screens/onboarding/first_run_screen.dart';
@@ -30,8 +31,8 @@ import '../ui/screens/online/lobby_screen.dart';
 import '../ui/screens/online/online_entry_screen.dart';
 import '../ui/screens/online/online_session.dart';
 import '../ui/screens/online/room_invite.dart';
-import '../ui/screens/postgame/analytics_screen.dart';
-import '../ui/screens/postgame/history_screen.dart';
+import '../ui/screens/postgame/analytics_screen.dart' deferred as analytics;
+import '../ui/screens/postgame/history_screen.dart' deferred as history;
 import '../ui/screens/setup/add_players_screen.dart';
 import '../ui/screens/setup/coin_store.dart';
 import '../ui/screens/setup/group_picker_screen.dart';
@@ -39,12 +40,12 @@ import '../ui/screens/setup/home_screen.dart';
 import '../ui/screens/setup/profile_screen.dart';
 import '../ui/screens/setup/mode_screen.dart';
 import '../ui/screens/setup/optional_roles.dart';
-import '../ui/screens/setup/how_to_play_screen.dart';
+import '../ui/screens/setup/how_to_play_screen.dart' deferred as how_to_play;
 import '../ui/screens/setup/roles_screen.dart';
 import '../ui/screens/setup/how_to_sheet.dart';
 import '../ui/screens/setup/settings_screen.dart';
 import '../ui/screens/setup/settings_sheet.dart';
-import '../ui/screens/stories/stories_screen.dart';
+import '../ui/screens/stories/stories_screen.dart' deferred as stories;
 import '../ui/screens/stories/story_rewards.dart';
 import '../ui/screens/stories/v2/story_table_screen.dart' show StoryExitGuard;
 import '../ui/economy/bot_rewards.dart';
@@ -56,6 +57,7 @@ import '../platform/monetization/rewarded_ads.dart';
 import '../ui/screens/setup/before_start_sheet.dart';
 import '../ui/screens/setup/bot_match_sheet.dart';
 import '../ui/screens/online/room_closed_notice.dart';
+import '../ui/widgets/warmup_gate.dart' show DeferredRouteLoading;
 
 /// Route paths, in one place so navigation calls cannot drift from the table.
 abstract final class Routes {
@@ -234,6 +236,34 @@ const _offerBotMatch = false;
 /// cases are not read in the background. Its screens and server stay as they
 /// are; flipping this brings it all back.
 const kOfferStories = false;
+
+final _routeLoads = <String, Future<dynamic>>{};
+
+Widget _deferredRoute(
+  String name,
+  Future<dynamic> Function() load,
+  Widget Function() build,
+) => StatefulBuilder(
+  builder: (context, retry) => FutureBuilder<dynamic>(
+    future: _routeLoads.putIfAbsent(name, load),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState != ConnectionState.done) {
+        return const DeferredRouteLoading();
+      }
+      if (snapshot.hasError) {
+        return Scaffold(
+          body: Center(
+            child: TextButton(
+              onPressed: () => retry(() => _routeLoads.remove(name)),
+              child: Text(context.l10n.errRetry),
+            ),
+          ),
+        );
+      }
+      return build();
+    },
+  ),
+);
 
 GoRouter buildRouter(
   WidgetRef ref, {
@@ -532,49 +562,53 @@ GoRouter buildRouter(
         // The browser's back (and a phone browser's back gesture) asks an
         // open Stories table first, as the app's own back does.
         onExit: (context, state) => _storiesExit.mayLeave(),
-        builder: (context, state) => SetupRequired(
-          child: StoryPalette(
-            child: StoriesScreen(
-              exitGuard: _storiesExit,
-              onBack: () => context.go(Routes.mode),
-              newSeed: newMatchSeed,
-              claimReward: (completion) => claimStoryReward(
-                ProviderScope.containerOf(context),
-                completion,
+        builder: (context, state) => _deferredRoute(
+          'stories',
+          stories.loadLibrary,
+          () => SetupRequired(
+            child: StoryPalette(
+              child: stories.StoriesScreen(
+                exitGuard: _storiesExit,
+                onBack: () => context.go(Routes.mode),
+                newSeed: newMatchSeed,
+                claimReward: (completion) => claimStoryReward(
+                  ProviderScope.containerOf(context),
+                  completion,
+                ),
+                startV2Session: (story, players, avoid) => startStorySession(
+                  ProviderScope.containerOf(context),
+                  storyId: story,
+                  players: players,
+                  avoid: avoid,
+                ),
+                claimV2Reward: (session, accusation) => claimStorySession(
+                  ProviderScope.containerOf(context),
+                  sessionId: session,
+                  accusation: accusation,
+                ),
+                beforeStory: () async {
+                  await ref.read(interstitialCoordinatorProvider).beforeDeal();
+                },
+                afterStory: (id) async {
+                  await ref
+                      .read(interstitialCoordinatorProvider)
+                      .leftPassAndPlayResult(
+                        'story:$id:${DateTime.now().millisecondsSinceEpoch}',
+                      );
+                },
+                playNarration: (asset) =>
+                    ref.read(audioDirectorProvider).playAccent(asset),
+                stopNarration: () =>
+                    ref.read(audioDirectorProvider).backend.stopAll(),
+                watchAdForStep: () async =>
+                    await showRewardedWith(
+                      ref.read,
+                      customData: 'l1:story_step',
+                      userId: '',
+                      placement: RewardedPlacement.extra,
+                    ) ==
+                    RewardedAdOutcome.earned,
               ),
-              startV2Session: (story, players, avoid) => startStorySession(
-                ProviderScope.containerOf(context),
-                storyId: story,
-                players: players,
-                avoid: avoid,
-              ),
-              claimV2Reward: (session, accusation) => claimStorySession(
-                ProviderScope.containerOf(context),
-                sessionId: session,
-                accusation: accusation,
-              ),
-              beforeStory: () async {
-                await ref.read(interstitialCoordinatorProvider).beforeDeal();
-              },
-              afterStory: (id) async {
-                await ref
-                    .read(interstitialCoordinatorProvider)
-                    .leftPassAndPlayResult(
-                      'story:$id:${DateTime.now().millisecondsSinceEpoch}',
-                    );
-              },
-              playNarration: (asset) =>
-                  ref.read(audioDirectorProvider).playAccent(asset),
-              stopNarration: () =>
-                  ref.read(audioDirectorProvider).backend.stopAll(),
-              watchAdForStep: () async =>
-                  await showRewardedWith(
-                    ref.read,
-                    customData: 'l1:story_step',
-                    userId: '',
-                    placement: RewardedPlacement.extra,
-                  ) ==
-                  RewardedAdOutcome.earned,
             ),
           ),
         ),
@@ -639,11 +673,15 @@ GoRouter buildRouter(
       ),
       GoRoute(
         path: Routes.howToPlay,
-        builder: (context, state) => HowToPlayScreen(
-          onBack: () =>
-              context.go(_safeReturn(state.uri.queryParameters['next'])),
-          onStartMatch: () =>
-              context.go(_safeReturn(state.uri.queryParameters['next'])),
+        builder: (context, state) => _deferredRoute(
+          'how-to',
+          how_to_play.loadLibrary,
+          () => how_to_play.HowToPlayScreen(
+            onBack: () =>
+                context.go(_safeReturn(state.uri.queryParameters['next'])),
+            onStartMatch: () =>
+                context.go(_safeReturn(state.uri.queryParameters['next'])),
+          ),
         ),
       ),
       // One cinematic introduction, followed by the concise rules reference.
@@ -666,24 +704,37 @@ GoRouter buildRouter(
       ),
       GoRoute(
         path: Routes.admin,
-        builder: (context, state) => PaymentsAdminScreen(
-          focusOrder: state.uri.queryParameters['order'],
-          onBack: () => context.go(Routes.home),
-          onSafety: () => context.go(Routes.adminSafety),
-          onReview: () => context.go(Routes.adminReview),
+        builder: (context, state) => _deferredRoute(
+          'admin-payments',
+          payments_admin.loadLibrary,
+          () => payments_admin.PaymentsAdminScreen(
+            focusOrder: state.uri.queryParameters['order'],
+            onBack: () => context.go(Routes.home),
+            onSafety: () => context.go(Routes.adminSafety),
+            onReview: () => context.go(Routes.adminReview),
+          ),
         ),
       ),
       GoRoute(
         path: Routes.adminSafety,
-        builder: (context, state) => SafetyAdminScreen(
-          onBack: () => context.go(Routes.admin),
-          onReview: () => context.go(Routes.adminReview),
+        builder: (context, state) => _deferredRoute(
+          'admin-safety',
+          safety_admin.loadLibrary,
+          () => safety_admin.SafetyAdminScreen(
+            onBack: () => context.go(Routes.admin),
+            onReview: () => context.go(Routes.adminReview),
+          ),
         ),
       ),
       GoRoute(
         path: Routes.adminReview,
-        builder: (context, state) =>
-            OwnerReviewScreen(onBack: () => context.go(Routes.admin)),
+        builder: (context, state) => _deferredRoute(
+          'admin-review',
+          owner_review.loadLibrary,
+          () => owner_review.OwnerReviewScreen(
+            onBack: () => context.go(Routes.admin),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.adminCoins,
@@ -845,14 +896,23 @@ GoRouter buildRouter(
       ),
       GoRoute(
         path: Routes.analytics,
-        builder: (context, state) =>
-            LiveAnalyticsScreen(onClose: () => context.go(Routes.home)),
+        builder: (context, state) => _deferredRoute(
+          'analytics',
+          analytics.loadLibrary,
+          () => analytics.LiveAnalyticsScreen(
+            onClose: () => context.go(Routes.home),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.history,
-        builder: (context, state) => HistoryScreen(
-          onOpen: (id) => forwardTo(context, Routes.storedAnalytics(id)),
-          onBack: () => context.go(Routes.home),
+        builder: (context, state) => _deferredRoute(
+          'history',
+          history.loadLibrary,
+          () => history.HistoryScreen(
+            onOpen: (id) => forwardTo(context, Routes.storedAnalytics(id)),
+            onBack: () => context.go(Routes.home),
+          ),
         ),
       ),
       GoRoute(
@@ -862,9 +922,13 @@ GoRouter buildRouter(
             int.tryParse(state.pathParameters['id'] ?? '') == null
             ? Routes.history
             : null,
-        builder: (context, state) => StoredAnalyticsScreen(
-          matchId: int.parse(state.pathParameters['id']!),
-          onClose: () => context.go(Routes.history),
+        builder: (context, state) => _deferredRoute(
+          'analytics',
+          analytics.loadLibrary,
+          () => analytics.StoredAnalyticsScreen(
+            matchId: int.parse(state.pathParameters['id']!),
+            onClose: () => context.go(Routes.history),
+          ),
         ),
       ),
     ],

@@ -1,0 +1,50 @@
+TASK: two code improvements in the Flutter app «سيد المافيا» (Mafia Master), repo at the --cd path. Do them in this
+order. You edit code and run the checks. You do NOT build release, deploy, push or commit (Claude reviews and commits).
+Another agent (Claude) is editing these files at the same time — DO NOT touch them:
+  lib/ui/screens/setup/home_screen.dart, lib/platform/haptics.dart, lib/ui/theme/design_tokens.dart (only ADD new
+  tokens at the end of an existing class if you must; never edit existing lines), lib/ui/screens/online/council/**,
+  lib/ui/screens/online/lobby_*.dart, lib/ui/screens/postgame/**, lib/ui/account/**, lib/app/l10n/** (if you need a
+  new string, list it in your report instead of adding it).
+
+PROJECT RULES (binding):
+- lib/engine/** is pure Dart: no Flutter imports, no DateTime.now(), no unseeded Random().
+- No hardcoded colours, sizes or durations outside lib/ui/theme/design_tokens.dart.
+- No literal strings or Arabic text inside widgets: all player-facing text comes from l10n (context.l10n).
+- Arabic text: line-height 1.6, zero letter-spacing, text scale locked at 1.0.
+- Never print or open dart_defines.json, key.properties, *.jks.
+- Flutter's SDK path contains a space; run flutter from PowerShell.
+
+PART 1 — the web build loads faster.
+Measured: build/web/main.dart.js is 6.35 MB; assets/video/onboarding.mp4 is 9.8 MB; audio score_loop.mp3 2.9 MB and
+.ogg 2.0 MB; online avatars avatar_*_transparent.png ~1.6 MB each.
+1. Deferred loading: move screens a first-time web player never needs on the first screen behind Dart deferred imports
+   (`import '...' deferred as x;` + `await x.loadLibrary()` before building the route). Candidates, check each is
+   really reached only through a route or a sheet: the Stories feature (lib/ui/screens/stories/**, closed to players
+   by kOfferStories), the admin screens (lib/ui/screens/admin/**), the coin store / scenario store, help/how-to pages,
+   history/analytics. Show the existing app's loading look while a deferred library loads (find the widget the app
+   already uses for a short wait — e.g. lib/ui/widgets/warmup_gate.dart or similar; do not invent a new style).
+   Routes live in lib/app/router.dart. Deferred imports only change the web build; Android must keep working the same.
+2. Assets: report (do not convert) the biggest images that would shrink a lot as WebP, with their sizes and where each
+   is used. Do NOT delete or replace any asset file.
+3. Check: `flutter build web --release` once with NO dart-defines (compile check only; output to the default
+   build/web is fine) and report main.dart.js size before (6,353 KB) and after, and how many main.dart.js_*.part.js
+   files appeared with their sizes.
+
+PART 2 — numbers and direction, one look everywhere.
+1. Find every place a number is shown to the player (counts like «٣ من ٥», timers, coins, seats, days/nights, prices,
+   room codes). Report how each is formatted today: Western digits (0-9) or Arabic-Indic (٠-٩), and whether it goes
+   through a shared helper. Room codes and prices with currency stay as they are.
+2. If the app already has a shared formatter for numbers, route the stragglers through it. If it has none, do not
+   add one: report the list only. Do not change which digit style the app uses — report the mix.
+3. Directional icons: find Icons.arrow_back/forward, chevron_left/right, arrow_left/right, navigate_next/before,
+   keyboard_arrow_left/right, send, reply, undo/redo, exit/logout and similar, used in widgets. Each must point the
+   right way in RTL: prefer the *_ios / directional variants that Flutter mirrors, or wrap with
+   `Directionality`-aware logic that already exists in the codebase. Fix the wrong ones. List each fix (file:line).
+
+CHECKS (run them, quote the tail of the output):
+- flutter analyze 2>&1 | Select-Object -Last 30   → must say "No issues found".
+- flutter test 2>&1 | Select-Object -Last 40      → all tests pass. If a test breaks only because a route now loads
+  deferred, fix the test the smallest way and say so.
+
+REPORT (final message): files changed with one line each; Part 1 sizes before/after; the WebP candidate list; the
+number-format map and what you changed; the icon fixes; the check results quoted; anything you did not finish.

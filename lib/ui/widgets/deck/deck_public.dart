@@ -348,10 +348,8 @@ class ArtCard extends StatelessWidget {
               ),
             ),
             if (onTap != null && reason == null)
-              Icon(
-                Directionality.of(context) == TextDirection.rtl
-                    ? Icons.chevron_left
-                    : Icons.chevron_right,
+              const Icon(
+                Icons.chevron_right,
                 size: DeckTokens.chevron,
                 color: DeckTokens.silverLight,
               ),
@@ -481,10 +479,8 @@ class DeckRow extends StatelessWidget {
               ),
               ?trailing,
               if (trailing == null && onTap != null)
-                Icon(
-                  Directionality.of(context) == TextDirection.rtl
-                      ? Icons.chevron_left
-                      : Icons.chevron_right,
+                const Icon(
+                  Icons.chevron_right,
                   size: DeckTokens.chevron,
                   color: DeckTokens.silver,
                 ),

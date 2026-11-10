@@ -58,14 +58,16 @@ List<Map<String, dynamic>> oracle(Map<String, dynamic> input) {
       if (quiet) victim = null;
       final deaths = <int>{if (victim != null) victim};
       for (final action in actions) {
-        if (action['action'] != 'suspect' || action['used_bullet'] != true)
+        if (action['action'] != 'suspect' || action['used_bullet'] != true) {
           continue;
+        }
         final actor = seat(action['actor_id'] as String);
         final target = seat(action['target_id'] as String?);
         if (!alive.contains(actor) ||
             !alive.contains(target) ||
-            locked.contains(target))
+            locked.contains(target)) {
           continue;
+        }
         deaths.add(target!);
         if (roles[target] != 'mafia' && roles[target] != 'silencer') {
           deaths.add(actor!);
@@ -124,8 +126,9 @@ void main() {
         reason: row['name'] as String,
       );
       if (row['repeatRefused'] != null) expect(row['repeatRefused'], true);
-      if (row['secondBulletRefused'] != null)
+      if (row['secondBulletRefused'] != null) {
         expect(row['secondBulletRefused'], true);
+      }
       for (final investigation in (row['investigations'] as List? ?? [])) {
         final fact = investigation as Map<String, dynamic>;
         final target = fact['targetSeat'] as int;

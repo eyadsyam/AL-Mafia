@@ -50,8 +50,9 @@ void main() {
     if (directive.startsWith('package:mafia_master/')) {
       return 'lib/${directive.substring('package:mafia_master/'.length)}';
     }
-    if (directive.startsWith('package:') || directive.startsWith('dart:'))
+    if (directive.startsWith('package:') || directive.startsWith('dart:')) {
       return null;
+    }
     final stack = <String>[];
     for (final segment in [
       ...from.substring(0, from.lastIndexOf('/')).split('/'),

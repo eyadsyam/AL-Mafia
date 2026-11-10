@@ -13,7 +13,6 @@ import 'package:mafia_master/data/terms_consent.dart';
 import 'package:mafia_master/engine/models/player.dart';
 import 'package:mafia_master/platform/launcher_label.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
-import 'package:mafia_master/ui/screens/onboarding/permissions_step.dart';
 import 'package:mafia_master/ui/screens/online/safety_center.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/theme/mafia_theme.dart';

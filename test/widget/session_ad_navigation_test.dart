@@ -9,7 +9,6 @@ import 'package:mafia_master/platform/monetization/interstitial_policy.dart';
 import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 import 'package:mafia_master/ui/economy/interstitial_coordinator.dart';
 import 'package:mafia_master/ui/screens/postgame/history_screen.dart';
-import 'package:mafia_master/ui/screens/onboarding/permissions_step.dart';
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/ambient_motion.dart';

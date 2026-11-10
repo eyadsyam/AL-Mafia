@@ -39,6 +39,14 @@ class WarmupGate extends ConsumerStatefulWidget {
   ConsumerState<WarmupGate> createState() => _WarmupGateState();
 }
 
+/// The same preparation surface while a route's web code is fetched.
+class DeferredRouteLoading extends StatelessWidget {
+  const DeferredRouteLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) => const _Preparation(progress: null);
+}
+
 class _WarmupGateState extends ConsumerState<WarmupGate> {
   /// Null: nothing to show. Otherwise the share of the bundle read so far.
   double? _progress;
@@ -168,7 +176,7 @@ class _WarmupGateState extends ConsumerState<WarmupGate> {
 }
 
 class _Preparation extends StatelessWidget {
-  final double progress;
+  final double? progress;
   const _Preparation({super.key, required this.progress});
 
   @override

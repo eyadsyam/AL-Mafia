@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/app/app.dart';
 import 'package:mafia_master/app/router.dart';
 import 'package:mafia_master/data/memory_match_repository.dart';
-import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/data/repository_provider.dart';
 import 'package:mafia_master/platform/audio_director.dart';
 import 'package:mafia_master/transport/account_auth.dart';
