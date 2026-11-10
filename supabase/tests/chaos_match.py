@@ -59,7 +59,7 @@ class Chaos:
         self.players = [dict(b) for b in self.r.sample(bots, n)]
         self.problems, self.trace, self.steps = [], [], 0
         self.settings = {'openingRoundEnabled': self.r.random() < 0.5,
-                         'discussionSeconds': 60, 'confrontationEnabled': False}
+                         'discussionSeconds': 180, 'confrontationEnabled': False}
         self.roles = draw_roles(self.r, n)
 
     # ── calls ────────────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ class Chaos:
         ends = st.get('phase_ends_at')
         if ends:
             deadline = time.mktime(time.strptime(ends[:19], '%Y-%m-%dT%H:%M:%S')) - time.timezone
-            pause = max(0, min(130, deadline - time.time() + 1.5))
+            pause = max(0, min(130, deadline - time.time() + 8))  # this laptop's clock runs ~5 s ahead
             time.sleep(pause)
         self.call('advance_phase', self.r.choice(self.living() or self.players))
 

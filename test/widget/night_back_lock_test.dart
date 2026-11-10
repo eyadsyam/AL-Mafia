@@ -84,7 +84,7 @@ void main() {
         // `PopScope(canPop: false)` is what the framework consults; asserting on
         // it directly is more honest than simulating a platform back event,
         // which the test binding routes differently on each platform.
-        final popScope = tester.widget<PopScope>(find.byType(PopScope).first);
+        final popScope = tester.widget<PopScope<Object?>>(find.byWidgetPredicate((w) => w is PopScope).first);
         expect(
           popScope.canPop,
           isFalse,
@@ -96,7 +96,7 @@ void main() {
 
     testWidgets('back works again once the match is over', (tester) async {
       await pumpMatch(tester, phase: GamePhase.result, onExit: () {});
-      final popScope = tester.widget<PopScope>(find.byType(PopScope).first);
+      final popScope = tester.widget<PopScope<Object?>>(find.byWidgetPredicate((w) => w is PopScope).first);
       expect(
         popScope.canPop,
         isTrue,

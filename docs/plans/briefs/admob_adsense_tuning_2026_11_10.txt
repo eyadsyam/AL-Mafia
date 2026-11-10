@@ -1,0 +1,64 @@
+TASK: in a real Chrome window, review and tune AdMob (Android app) and AdSense (website saidalmafia.com) so the game
+earns as much as it can from ads without hurting players. The owner asked for you (Codex) to do this in Chrome. You do
+the clicks yourself. You will NOT change code, build, deploy, or commit. Claude wires any new ids into the code after.
+
+Accounts and ids:
+- Google account eyadsyam124@gmail.com. Verify the account email shown on every page before you click anything.
+- AdMob publisher pub-9179063936085117. App «سيد المافيا: Mafia Master», ca-app-pub-9179063936085117~7320479940
+  (console id 7320479940), Play package com.mafiamaster.mafia_master.
+- AdSense: site saidalmafia.com. web/ads.txt in the repo lists pub-5174049351369803 and pub-9179063936085117.
+  Find out which publisher id the AdSense account for saidalmafia.com really uses.
+- The game shows: rewarded ads (player taps to earn coins), interstitials only between matches (never inside a match),
+  app-open on cold start, one banner on menu screens. The web build shows one display banner and H5 breaks between
+  matches only.
+
+Browser:
+- Open a visible Chrome window you can drive (Playwright with channel "chrome", or Chrome started with
+  --remote-debugging-port and a separate --user-data-dir under %TEMP%). Do not close or kill the owner's own Chrome.
+- If Google asks to sign in, do NOT type any email or password and do not read saved passwords, cookies or profile
+  files. Leave the sign-in page open, print the line "OWNER_SIGNIN_NEEDED" once, and wait (check every 30 s, up to
+  30 minutes) until the console loads, then continue.
+- If any terms, agreement, policy declaration, identity or tax step appears, do not accept or fill it: stop that part,
+  quote the dialog exactly, and go on with the rest.
+
+PART A — AdMob (read first, then change only what is listed as allowed):
+1. Home and Apps: read and quote the app status (Ready / Limited ad serving / Requires review, with the reason), the
+   linked store listing, and the app-ads.txt status. If app-ads.txt shows "not verified", press "check for updates"
+   once. The live files are https://saidalmafia.com/app-ads.txt (developer website on the Play listing).
+2. Policy center: quote every open issue for this app, if any.
+3. Ad units of this app: list each unit with its exact name, format and unit id (ca-app-pub-.../...). For each, read
+   its eCPM floor setting. ALLOWED: set the floor to "Google optimized" (high or all-prices is fine; pick "Google
+   optimized – all prices" if offered) when it is currently "disabled" or a manual floor. Note before/after.
+4. If there is NO interstitial, app-open, banner or rewarded unit for this app, create the missing one(s), named
+   "MM interstitial", "MM app open", "MM banner", "MM rewarded". For a new rewarded unit, set reward 1 "coins" and leave
+   server-side verification off (Claude adds it). Report each new unit id exactly.
+5. Blocking controls > Sensitive categories (app level): report what is blocked. ALLOWED: block only gambling/betting,
+   dating and sexual/suggestive categories if they are allowed now (a family party game). Change nothing else there.
+6. Privacy & messaging: report whether a GDPR (European regulations) message and a US states message exist and are
+   published for this app. Do not create or publish a new message if it asks to accept anything; just report.
+7. Mediation: report only. Do not create mediation groups.
+8. Reports: last 28 days for this app — requests, match rate, impressions, show rate, eCPM per format. Quote numbers.
+
+PART B — AdSense (saidalmafia.com):
+1. Sites: quote the status of saidalmafia.com (Ready / Getting ready / Needs attention, with the reason) and the
+   ads.txt status. Quote the publisher id AdSense shows (pub-...), and the exact ads.txt line it asks for.
+2. If the site is not added, add saidalmafia.com and press "Request review" (no terms involved; if asked to accept
+   something, stop). If it says "needs attention", quote every reason.
+3. Ads > By site > saidalmafia.com: Auto ads must be OFF (the game draws its own layout; overlay ads would cover
+   private screens). ALLOWED: switch Auto ads off if it is on. Do not enable any auto format.
+4. Ads > By ad unit: list existing units. If there is no display unit, create one: Display ads, name
+   "MM web banner", FIXED size 728x90. Report its data-ad-slot number exactly.
+5. Report whether H5 Games Ads (Ad Placement API) is available or applied for in this account. Do not apply if it
+   needs accepting anything.
+6. Privacy & messaging: report whether the GDPR message is on for the site.
+
+Do not touch anywhere:
+- Account-level settings of any kind, users and access, or any other app/site.
+- Do not delete or pause any ad unit, app or site.
+- Do not edit files in the repo. Do not commit.
+
+REPORT (plain text, no praise):
+- Every status and number quoted exactly, before/after for each change.
+- A table of all AdMob ad unit ids (name, format, id) and the AdSense publisher id + display slot id.
+- Every blocker or dialog, quoted exactly.
+- Your top 5 recommendations to raise revenue without new ad placements inside a match, ranked by expected effect.

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart' hide Alignment;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -1899,6 +1898,8 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         return CouncilVoice(
           headline: snapshot.phase == GamePhase.voteResolving
               ? l10n.onlineVoteResolving
+              : _viewerIsDead(snapshot)
+              ? l10n.witnessEventVoting
               : _submitted
               ? (_acknowledged
                     ? l10n.onlineVoteReceived
@@ -1915,7 +1916,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
           // empty and the band falls back to your own choice. Neither branch
           // reads a setting: an empty `liveBallots` *is* the secret ballot.
           support: tally.isEmpty
-              ? (_submitted || snapshot.phase == GamePhase.voteResolving
+              ? (_submitted ||
+                        snapshot.phase == GamePhase.voteResolving ||
+                        _viewerIsDead(snapshot)
                     ? null
                     : chosen() ??
                           caption(
@@ -2174,7 +2177,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
         );
 
       case GamePhase.voting:
-        if (_submitted) return null;
+        // The dead have no ballot, even while the beat that tells them so is
+        // still playing: a fast table can open the vote before it ends.
+        if (_submitted || _viewerIsDead(snapshot)) return null;
         if (snapshot.viewerSilenced) {
           return FilledButton(
             key: OnlineTableFlow.confirmAction,
@@ -2429,7 +2434,11 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
                 snapshot: snapshot,
                 onGone: () => (widget.onRematch ?? widget.onExit)(),
               ),
-              if (kIsWeb) const WebAdBanner(),
+              // No web banner here (real web match, 2026-11-10): the hand is a
+              // quarter of the screen, and a pinned 90 px banner left the roles,
+              // share and home a sliver to scroll in. Inside the scroll its page
+              // overlay would draw past the clip, over the rematch. The break
+              // between matches and the lobby banner carry the ads instead.
             ],
           ),
         );

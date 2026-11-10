@@ -34,6 +34,54 @@ TRANSPORT = (TimeoutError, socket.timeout, ConnectionError, http.client.Incomple
 
 
 members = {}  # roomId -> tokens that acted in it (never logged)
+credited = set()  # (roomId, phase_number) whose ready-opened ballot a driver was credited with
+
+
+def room_phase(room_id, token):
+    with contextlib.suppress(*TRANSPORT):
+        status, rows = original('/rest/v1/room_state?select=phase,phase_number,phase_ends_at&room_id=eq.' + room_id,
+                                None, token, 'GET')
+        if status == 200 and isinstance(rows, list) and rows:
+            return rows[0]
+    return None
+
+
+_AHEAD = []
+
+
+def clock_ahead():
+    """Seconds this machine's clock runs ahead of the server's (measured once
+    from the HTTP Date header; this laptop drifted 5.4 s on 2026-11-10, which
+    made every «the clock ran out» call land before the server's clock had)."""
+    if not _AHEAD:
+        import email.utils
+        import urllib.request
+        try:
+            with urllib.request.urlopen(os.environ['SUPABASE_URL'].rstrip('/') + '/auth/v1/health', timeout=10) as r:
+                server = email.utils.parsedate_to_datetime(r.headers['Date']).timestamp()
+            _AHEAD.append(max(0.0, time.time() - server) + 1.0)
+        except Exception:  # noqa: BLE001
+            _AHEAD.append(8.0)
+    return _AHEAD[0]
+
+
+def wait_until(iso, room_id=None):
+    """Waits until a server deadline has passed (at most two minutes). The
+    seats keep beating meanwhile, as open apps do: a silent host would be
+    taken for gone and the room closed under the suite."""
+    import calendar
+    try:
+        deadline = calendar.timegm(time.strptime(iso[:19], '%Y-%m-%dT%H:%M:%S'))
+    except ValueError:
+        return
+    end = deadline + 1.5 + clock_ahead()
+    if not 0 < end - time.time() <= 130:
+        return
+    while time.time() < end:
+        for token in list(members.get(room_id, ())) if room_id else ():
+            with contextlib.suppress(*TRANSPORT):
+                original('/functions/v1/heartbeat', {'roomId': room_id}, token, 'POST')
+        time.sleep(max(0, min(8, end - time.time())))
 
 
 def ready_everyone(room_id):
@@ -62,11 +110,21 @@ def request(path, payload, token=None, method='POST'):
             ready_everyone(payload['roomId'])
             # The last «جاهزين» opens the ballot by itself (atomic_ready_open),
             # exactly as in the app; the host's tap then has nothing left to do.
-            with contextlib.suppress(*TRANSPORT):
-                status, rows = original('/rest/v1/room_state?select=phase&room_id=eq.' + payload['roomId'],
-                                        None, token, 'GET')
-                if status == 200 and isinstance(rows, list) and rows and rows[0].get('phase') == 'vote':
+            # Only the first driver is credited with the move, so a race of
+            # drivers still sees exactly one winner and the rest refused.
+            row = room_phase(payload['roomId'], token)
+            if row and row.get('phase') == 'vote':
+                key = (payload['roomId'], row.get('phase_number'))
+                if key not in credited:
+                    credited.add(key)
                     return 200, {'ok': True, 'phase': 'vote', 'openedBy': 'ready'}
+        if path.endswith('/resolve_vote'):
+            # The ballot closes when every living player has voted or its clock
+            # runs out, not on the host's word (owner, 2026-10-30). A suite
+            # that leaves a seat silent waits for the clock, as a table would.
+            row = room_phase(payload['roomId'], token)
+            if row and row.get('phase') == 'vote' and row.get('phase_ends_at'):
+                wait_until(row['phase_ends_at'], payload['roomId'])
     for wait in (2, 5, None):  # Dropped connections are local; the server never failed these calls.
         try:
             status, data = original(path, payload, token, method)
