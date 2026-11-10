@@ -145,7 +145,11 @@ class Chaos:
     def disrupt(self):
         r = self.r
         live = self.living()
-        out = [p for p in self.players if p not in live]
+        # Out by the server's roster (dead or removed). A seat that walked out
+        # keeps its chair for 90 s so it can come back (owner rule 2026-10-30),
+        # so 'gone' alone does not make it out.
+        seated = {x['seat'] for x in self.seats() if x['alive'] and not x.get('kicked')}
+        out = [p for p in self.players if p.get('seat') not in seated]
         if out and r.random() < 0.3:
             ghost = r.choice(out)
             name, body = r.choice([
