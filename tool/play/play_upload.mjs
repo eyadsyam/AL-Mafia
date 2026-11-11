@@ -22,7 +22,9 @@ async function token() {
   const sign = createSign("RSA-SHA256");
   sign.update(`${head}.${body}`);
   const jwt = `${head}.${body}.${sign.sign(key.private_key, "base64url")}`;
-  const r = await fetch("https://oauth2.googleapis.com/token", {
+  // PLAY_TOKEN_URL: another of Google's token endpoints, for a network that
+  // cannot reach oauth2.googleapis.com (seen 2026-11-11); the JWT is the same.
+  const r = await fetch(process.env.PLAY_TOKEN_URL ?? "https://oauth2.googleapis.com/token", {
     method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion: jwt }),
   });

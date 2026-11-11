@@ -4093,9 +4093,9 @@ Verified:   flutter analyze: no issues; flutter test: 4807/4807; node --check on
 Gate:       PASS for local checks
 Open:       Web build + browser check next; Google sign-in branding waits on the owner signing in to the Brave window (port 9333); digit style (Western vs Arabic-Indic) is mixed and needs the owner's choice.
 
-## PHASE digits, app-open, release 1.6.0 (22) (2026-11-11) — in progress
+## PHASE digits, ads per match, release 1.6.0 (22) (2026-11-11) — done
 Built:      Every number in Western digits (owner: «خليها انجليزي 3»): app_ar.arb (55 digits), stories counts, dates and numbered steps through `westernDigits`; a guard test keeps app_ar.arb free of Arabic-Indic digits. App-open: a return-to-app ad loads in the background after a launch that could not show one and after every shown one, held up to 4 h, so a return no longer races the 3 s budget. Google sign-in branding parked by the owner.
 Files:      lib/ui/western_digits.dart; lib/app/l10n/*; lib/ui/screens/{stories/stories_screen,setup/before_start_sheet,online/online_entry_screen,admin/safety_admin_screen}.dart; lib/platform/monetization/{ad_formats,rewarded_ads_mobile,rewarded_ads_stub}.dart; lib/ui/economy/app_open_gate.dart; test/unit/{western_digits_test,app_open_coordinator_test,app_open_race_test}.dart
 Verified:   flutter analyze: no issues; flutter test 4811/4811; web built and deployed, live main.dart.js length equals local (6,322,314).
-Gate:       PASS so far; AAB build and Play upload running
-Open:       —
+Gate:       PASS
+Open:       Ads per match (owner: 3 per match, not per day): 20261111000100_ads_per_match applied live, perMatch rhythm read only by build 22; interstitials refilled after each show and dropped after 1 h; Android banner switched on (waiting surfaces only). Full suite 4814/4814. Web deployed (live length = local). AAB 1.6.0+22 committed to Play production through the API (oauth2.googleapis.com unreachable from this network; PLAY_TOKEN_URL=www.googleapis.com/oauth2/v4/token). Waiting on Google review; play_release_watch raises the update notice once it is live. Real ad numbers to be read in AdMob after rollout.
