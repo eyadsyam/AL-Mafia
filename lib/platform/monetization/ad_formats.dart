@@ -22,6 +22,13 @@ abstract interface class AppOpenAds {
   /// Shows the loaded ad and completes when it is dismissed or failed.
   Future<bool> show();
   void discard();
+
+  /// Starts loading one return-to-app ad in the background and keeps it (up
+  /// to `AdTokens.appOpenExpiry`), so the next return finds it ready instead
+  /// of racing the 3 s budget — which a fresh request on a phone network
+  /// almost never wins. Never shows anything and never asks for consent;
+  /// does nothing while an ad is held, loading or showing.
+  void preloadForReturn();
 }
 
 /// The large anchored adaptive banner for waiting surfaces only (full width,

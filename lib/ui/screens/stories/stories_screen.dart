@@ -646,17 +646,9 @@ class _StoriesHubState extends ConsumerState<StoriesHub> {
     );
   }
 
-  /// [n] in the digits of the line it sits in (the Arabic copy writes
-  /// «من ١ لـ١٠», so a number beside it is written the same way).
-  static String _digits(BuildContext context, int n) =>
-      Localizations.localeOf(context).languageCode == 'ar'
-      ? String.fromCharCodes([
-          for (final unit in '$n'.codeUnits) unit - _asciiZero + _arabicZero,
-        ])
-      : '$n';
-
-  static const _asciiZero = 0x30;
-  static const _arabicZero = 0x0660;
+  /// [n] as every number in the app is written: Western digits, in Arabic
+  /// too (see `westernDigits`).
+  static String _digits(BuildContext context, int n) => '$n';
 
   /// A case's length in plain words, to the nearest quarter hour.
   static String _length(AppLocalizations l, int minutes) =>

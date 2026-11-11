@@ -26,6 +26,7 @@ import '../../widgets/storage_warning_note.dart';
 import '../../widgets/back_action.dart';
 import '../../widgets/connection_problem.dart';
 import '../../widgets/skeleton_rows.dart';
+import '../../western_digits.dart';
 import '../../friendly_error.dart';
 import '../../widgets/player_avatar.dart';
 import '../../widgets/experience_surface.dart';
@@ -195,7 +196,11 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     final when = ends == null
         ? l.safetyNoticeForever
         : l.safetyNoticeUntil(
-            MaterialLocalizations.of(context).formatMediumDate(ends.toLocal()),
+            westernDigits(
+              MaterialLocalizations.of(
+                context,
+              ).formatMediumDate(ends.toLocal()),
+            ),
           );
     return '$what $when';
   }

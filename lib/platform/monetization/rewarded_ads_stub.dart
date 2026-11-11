@@ -99,6 +99,8 @@ class _NoAppOpenAds implements AppOpenAds {
   Future<bool> show() async => false;
   @override
   void discard() {}
+  @override
+  void preloadForReturn() {}
 }
 
 class _NoBannerAds implements BannerAds {

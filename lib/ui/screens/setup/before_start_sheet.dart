@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
+import '../../western_digits.dart';
 
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
@@ -59,7 +60,7 @@ class BeforeStartBody extends StatelessWidget {
             const SizedBox(height: BeforeStartTokens.lineGap),
           _Line(
             key: BeforeStartKeys.line(i + 1),
-            number: number.format(i + 1),
+            number: westernDigits(number.format(i + 1)),
             text: lines[i],
           ),
         ],

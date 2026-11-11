@@ -71,7 +71,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get actionSameProtect => 'مينفعش تحمي نفس الشخص ليلتين ورا بعض';
 
   @override
-  String get toolLimitMatch => 'وصلت للحد: ٤ أدوات في الماتش الواحد';
+  String get toolLimitMatch => 'وصلت للحد: 4 أدوات في الماتش الواحد';
 
   @override
   String get toolLimitHeavy => 'وصلت للحد: أداتين تقيلة في الماتش الواحد';
@@ -98,7 +98,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get toolMatchOver => 'الماتش مش شغال دلوقتي';
 
   @override
-  String get toolBadNote => 'اكتب الرسالة الأول، لحد ١٤٠ حرف';
+  String get toolBadNote => 'اكتب الرسالة الأول، لحد 140 حرف';
 
   @override
   String get floorSilenced => 'ممنوع عليك الكلام النهارده';
@@ -169,7 +169,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noPlayersYet => 'ضيف أول لاعب';
 
   @override
-  String get minPlayersHint => 'لازم ٥ لاعبين على الأقل عشان تكمل';
+  String get minPlayersHint => 'لازم 5 لاعبين على الأقل عشان تكمل';
 
   @override
   String get next => 'كمل';
@@ -243,10 +243,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get balanceOneSniperOnly => 'القناص واحد بس';
 
   @override
-  String get balanceElderMinPlayers => 'شيخ الصالحين محتاج ٦ لاعبين على الأقل';
+  String get balanceElderMinPlayers => 'شيخ الصالحين محتاج 6 لاعبين على الأقل';
 
   @override
-  String get balanceSniperMinPlayers => 'القناص محتاج ٧ لاعبين على الأقل';
+  String get balanceSniperMinPlayers => 'القناص محتاج 7 لاعبين على الأقل';
 
   @override
   String get settingsTitle => 'الإعدادات';
@@ -1075,7 +1075,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get whisperPickRecipient => 'لمين؟';
 
   @override
-  String get whisperBodyHint => 'لغاية ١٢٠ حرف';
+  String get whisperBodyHint => 'لغاية 120 حرف';
 
   @override
   String get whisperSend => 'ابعت';
@@ -1913,7 +1913,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get elderRevealAction => 'اكشف للترابيزة';
 
   @override
-  String get elderRevealedMark => 'شيخ مكشوف · صوته ×٣';
+  String get elderRevealedMark => 'شيخ مكشوف · صوته ×3';
 
   @override
   String get myCard => 'كارتي';
@@ -1930,14 +1930,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingElderHint =>
-      'مواطن يقدر يكشف من ٦ لاعبين، وبعدها صوته يتحسب بثلاثة.';
+      'مواطن يقدر يكشف من 6 لاعبين، وبعدها صوته يتحسب بثلاثة.';
 
   @override
   String get settingSniper => 'القناص';
 
   @override
   String get settingSniperHint =>
-      'مواطن معاه طلقة واحدة من ٧ لاعبين، ولو أخطأ الاتنين بيخرجوا.';
+      'مواطن معاه طلقة واحدة من 7 لاعبين، ولو أخطأ الاتنين بيخرجوا.';
 
   @override
   String get settingsSectionPace => 'وقت اللعب';
@@ -3557,7 +3557,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String inviteBody(int inviter, int invitee) {
-    return '١. ابعت الكود أو لينك أوضتك لصاحب لسه منزّل اللعبة (خلال أول ٧ أيام).\n٢. يفتح اللينك، أو يكتب الكود في «معاك كود دعوة؟» في المجلس.\n٣. أول ما يخلّص أول ماتش أونلاين: انت +$inviter وهو +$invitee.';
+    return '1. ابعت الكود أو لينك أوضتك لصاحب لسه منزّل اللعبة (خلال أول 7 أيام).\n2. يفتح اللينك، أو يكتب الكود في «معاك كود دعوة؟» في المجلس.\n3. أول ما يخلّص أول ماتش أونلاين: انت +$inviter وهو +$invitee.';
   }
 
   @override
@@ -5456,7 +5456,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolExtraMinuteDesc =>
-      '٤٥ ثانية زيادة على دورك لما الكلام يبقى بالدور.';
+      '45 ثانية زيادة على دورك لما الكلام يبقى بالدور.';
 
   @override
   String get toolAnonNoteName => 'ورقة من غير اسم';
@@ -5483,7 +5483,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolObjectionDesc =>
-      '٣٠ ثانية زيادة على دورك لما الكلام يبقى بالدور.';
+      '30 ثانية زيادة على دورك لما الكلام يبقى بالدور.';
 
   @override
   String get toolLastWordName => 'كلمة أخيرة';
@@ -5510,7 +5510,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get toolDoubleVoteName => 'صوت مضاعف';
 
   @override
-  String get toolDoubleVoteDesc => 'صوتك بـ ٢ في تصويت النهارده، والكل شايف.';
+  String get toolDoubleVoteDesc => 'صوتك بـ 2 في تصويت النهارده، والكل شايف.';
 
   @override
   String get toolCamouflageName => 'تمويه';
@@ -5537,7 +5537,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolSenseDesc =>
-      'تختار ٣ لاعيبة، والراوي يهمسلك: فيه مافيا بينهم ولا لأ.';
+      'تختار 3 لاعيبة، والراوي يهمسلك: فيه مافيا بينهم ولا لأ.';
 
   @override
   String get toolImpersonateName => 'انتحال شخصية';
@@ -5572,7 +5572,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get toolsIntro =>
-      'أدوات بتفرق جوّه الماتش الأونلاين. لحد ٤ أدوات في الماتش، منهم ٢ تقيلة.';
+      'أدوات بتفرق جوّه الماتش الأونلاين. لحد 4 أدوات في الماتش، منهم 2 تقيلة.';
 
   @override
   String get toolTierLight => 'خفيفة';
@@ -5617,7 +5617,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get toolNoteHint => 'اكتب رسالتك (١٤٠ حرف)';
+  String get toolNoteHint => 'اكتب رسالتك (140 حرف)';
 
   @override
   String get toolImpersonateCitizen => 'اظهر مواطن';
@@ -5665,7 +5665,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get storiesLocked => 'الملف مقفول';
 
   @override
-  String get storiesUnlockRule => 'حل ٣ ملفات من نفس التصنيف عشان تفتحه';
+  String get storiesUnlockRule => 'حل 3 ملفات من نفس التصنيف عشان تفتحه';
 
   @override
   String get storiesMinutes => 'دقيقة';
@@ -5842,7 +5842,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get elderVoteMark => '×٣';
+  String get elderVoteMark => '×3';
 
   @override
   String get silencedMark => 'متسكّت';
@@ -6702,7 +6702,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'في كل قضية جريمة حصلت، واللي عملها واحد من الشخصيات.';
 
   @override
-  String get sv2ModeSoloCount => '١';
+  String get sv2ModeSoloCount => '1';
 
   @override
   String get sv2ModeSoloTitle => 'لوحدك';
@@ -6711,7 +6711,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sv2ModeSoloBody => 'انت المحقق. تقرا، وتفتّش، وتقول مين.';
 
   @override
-  String get sv2ModeAllCount => '٢–٤';
+  String get sv2ModeAllCount => '2–4';
 
   @override
   String get sv2ModeAllTitle => 'كلكم مشتبه فيهم';
@@ -6721,7 +6721,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'كل واحد شخصية، وواحد منكم هو اللي عملها. محدش عارف، ولا حتى هو.';
 
   @override
-  String get sv2ModeDetCount => '٥–١٠';
+  String get sv2ModeDetCount => '5–10';
 
   @override
   String get sv2ModeDetTitle => 'المحقق بينا';
@@ -6745,7 +6745,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get sv2PlayerRange => 'من ١ لـ١٠ لاعيبة';
+  String get sv2PlayerRange => 'من 1 لـ10 لاعيبة';
 
   @override
   String get sv2NarratorName => 'زياد بيحكي';
@@ -6763,10 +6763,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sv2NarrRestart => 'من الأول';
 
   @override
-  String get sv2NarrBack => '٥ ثواني لورا';
+  String get sv2NarrBack => '5 ثواني لورا';
 
   @override
-  String get sv2NarrForward => '٥ ثواني لقدام';
+  String get sv2NarrForward => '5 ثواني لقدام';
 
   @override
   String get sv2NarrPlay => 'شغّل';
@@ -6778,16 +6778,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sv2NarrAgain => 'اسمعها تاني';
 
   @override
-  String get sv2NarrBackLabel => '٥−';
+  String get sv2NarrBackLabel => '5−';
 
   @override
-  String get sv2NarrForwardLabel => '+٥';
+  String get sv2NarrForwardLabel => '+5';
 
   @override
   String get sv2CountTitle => 'كام واحد هيلعب؟';
 
   @override
-  String get sv2CountSolo => 'لوحدك: انت المحقق، وقدامك ٤ مشتبه فيهم.';
+  String get sv2CountSolo => 'لوحدك: انت المحقق، وقدامك 4 مشتبه فيهم.';
 
   @override
   String sv2CountAll(int n) {
@@ -6883,7 +6883,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sv2HowAll3Body =>
-      'عندكم ٣ تفتيشات. اختاروا الأماكن مع بعض، واقروا اللي تلاقوه بصوت عالي.';
+      'عندكم 3 تفتيشات. اختاروا الأماكن مع بعض، واقروا اللي تلاقوه بصوت عالي.';
 
   @override
   String get sv2HowAll4Title => 'اتفقوا';
@@ -6897,14 +6897,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sv2HowSolo1Body =>
-      'انت المحقق بتاع القصة. قدامك ٤ مشتبه فيهم، وواحد منهم هو اللي عملها.';
+      'انت المحقق بتاع القصة. قدامك 4 مشتبه فيهم، وواحد منهم هو اللي عملها.';
 
   @override
   String get sv2HowSolo2Title => 'فتّش';
 
   @override
   String get sv2HowSolo2Body =>
-      'اقرا كارت كل واحد، وبعدين اختار ٣ أماكن تفتّشها.';
+      'اقرا كارت كل واحد، وبعدين اختار 3 أماكن تفتّشها.';
 
   @override
   String get sv2HowSolo3Title => 'قرارك';
@@ -7177,11 +7177,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sv2HubOpen => 'لسه ما اتحلّتش';
 
   @override
-  String get sv2HubPlayersAll => 'من ١ لـ١٠';
+  String get sv2HubPlayersAll => 'من 1 لـ10';
 
   @override
   String sv2HubPlayersFrom(String n) {
-    return 'لوحدك، أو من $n لـ١٠';
+    return 'لوحدك، أو من $n لـ10';
   }
 
   @override
@@ -7875,16 +7875,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminReviewAccountsTotal => 'كل الحسابات';
 
   @override
-  String get adminReviewAccountsNew7d => 'حسابات جديدة خلال ٧ أيام';
+  String get adminReviewAccountsNew7d => 'حسابات جديدة خلال 7 أيام';
 
   @override
-  String get adminReviewSignedIn7d => 'دخلوا خلال ٧ أيام';
+  String get adminReviewSignedIn7d => 'دخلوا خلال 7 أيام';
 
   @override
   String get adminReviewRoomsOpen => 'أوض مفتوحة';
 
   @override
-  String get adminReviewMatches7d => 'مباريات خلال ٧ أيام';
+  String get adminReviewMatches7d => 'مباريات خلال 7 أيام';
 
   @override
   String get adminReviewMatchesEver => 'كل المباريات';
@@ -8142,7 +8142,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String roomInfoOn(int count) {
-    return '$count من ٤ شغالين';
+    return '$count من 4 شغالين';
   }
 
   @override
@@ -8197,7 +8197,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get firstRunHandleInvalid =>
-      'من ٣ لـ ٢٠ حرف أو رقم أو _ من غير مسافات.';
+      'من 3 لـ 20 حرف أو رقم أو _ من غير مسافات.';
 
   @override
   String get micOpenSettings => 'افتح الإعدادات';
@@ -8231,7 +8231,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get feedbackTooShort =>
-      'اكتب جملة كاملة على الأقل (٣ كلمات) عشان نفهم المشكلة.';
+      'اكتب جملة كاملة على الأقل (3 كلمات) عشان نفهم المشكلة.';
 
   @override
   String get accountSaveGoogle => 'سجّل بحساب Google';

@@ -47,6 +47,10 @@ class _Ads implements AppOpenAds {
 
   @override
   void discard() => discards++;
+
+  int preloads = 0;
+  @override
+  void preloadForReturn() => preloads++;
 }
 
 final _now = DateTime.utc(2026, 10, 29, 20).millisecondsSinceEpoch;
@@ -157,6 +161,38 @@ void main() {
     expect(verdict, AppOpenVerdict.notLoaded);
     expect(ads.shows, 0);
     expect(ads.discards, greaterThan(0));
+    expect(
+      ads.preloads,
+      1,
+      reason: 'the next return gets an ad loaded in the background',
+    );
+  });
+
+  test('after an ad is shown, the next return\'s ad loads behind it', () async {
+    final c = container();
+    expect(await attempt(c), AppOpenVerdict.show);
+    expect(ads.preloads, 1);
+  });
+
+  test('nothing waits in the background for an ad-free account, a player '
+      'without consent, or before onboarding', () async {
+    var c = container(
+      caps: const EconomyCapabilities(
+        ads: AdsCapabilities(appOpen: AppOpenRules.on),
+        adFree: true,
+      ),
+    );
+    await attempt(c);
+    expect(ads.preloads, 0);
+
+    c = container();
+    ads.consent = false;
+    await attempt(c);
+    expect(ads.preloads, 0);
+
+    c = container();
+    await attempt(c, onboarded: false);
+    expect(ads.preloads, 0);
   });
 
   test('a second attempt while one runs is refused', () async {

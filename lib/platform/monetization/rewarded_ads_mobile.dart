@@ -705,6 +705,9 @@ class GoogleAppOpenAds implements AppOpenAds {
       _listening = true;
       _runtime.onConsentChanged(discard);
     }
+    // A return-to-app ad loaded in the background is ready now: no request,
+    // no wait on the budget.
+    if (_holdsFresh(resume: resume)) return _heldAt;
     discard();
     final loaded = Completer<AppOpenAd?>();
     try {
@@ -740,7 +743,9 @@ class GoogleAppOpenAds implements AppOpenAds {
         return null;
       },
     );
-    return _ad == null ? null : DateTime.now().millisecondsSinceEpoch;
+    _heldAt = _ad == null ? null : DateTime.now().millisecondsSinceEpoch;
+    _heldForReturn = resume;
+    return _heldAt;
   }
 
   @override
@@ -783,6 +788,58 @@ class GoogleAppOpenAds implements AppOpenAds {
   void discard() {
     _ad?.dispose();
     _ad = null;
+    _heldAt = null;
+  }
+
+  /// When the held ad loaded, and whether it is a return-to-app one.
+  int? _heldAt;
+  bool _heldForReturn = false;
+  bool _preloading = false;
+
+  bool _holdsFresh({required bool resume}) {
+    final at = _heldAt;
+    return _ad != null &&
+        at != null &&
+        _heldForReturn == resume &&
+        DateTime.now().millisecondsSinceEpoch - at <
+            AdTokens.appOpenExpiry.inMilliseconds;
+  }
+
+  @override
+  void preloadForReturn() {
+    if (!configured || _showing || _preloading) return;
+    if (_holdsFresh(resume: true)) return;
+    _preloading = true;
+    unawaited(() async {
+      try {
+        if (!await canRequestAds()) return;
+        final loaded = Completer<AppOpenAd?>();
+        await AppOpenAd.load(
+          adUnitId: _Units.appOpenUnit(resume: true),
+          request: const AdRequest(),
+          adLoadCallback: AppOpenAdLoadCallback(
+            onAdLoaded: loaded.complete,
+            onAdFailedToLoad: (_) => loaded.complete(null),
+          ),
+        );
+        final ad = await loaded.future;
+        if (ad == null) return;
+        // Something else took the slot meanwhile (a launch's own load, or a
+        // show): this one is not needed.
+        if (_ad != null || _showing) {
+          ad.dispose();
+          return;
+        }
+        _ad = ad;
+        _heldAt = DateTime.now().millisecondsSinceEpoch;
+        _heldForReturn = true;
+      } catch (_) {
+        // A background load that fails costs nothing; the next return tries
+        // its own load as before.
+      } finally {
+        _preloading = false;
+      }
+    }());
   }
 }
 

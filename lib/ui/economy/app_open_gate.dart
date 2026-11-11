@@ -142,6 +142,10 @@ class AppOpenCoordinator {
       // Set when the 3 s budget runs out: the work still in flight must not
       // start an ad load nobody will show.
       var timedOut = false;
+      // The server's rules, this account and its consent all said yes: an ad
+      // may wait in the background for the next return, even if this one
+      // could not be shown.
+      var allowed = false;
       final verdict =
           await () async {
             EconomyCapabilities caps;
@@ -170,6 +174,7 @@ class AppOpenCoordinator {
             final consent = await ads.canRequestAds();
             final before = decide(consent, _now(), await busy());
             if (before != AppOpenVerdict.show) return before;
+            allowed = true;
             if (timedOut) return AppOpenVerdict.notLoaded;
             loading = ads.load(
               AdTokens.appOpenLoadTimeout,
@@ -188,6 +193,9 @@ class AppOpenCoordinator {
         // A late ad has nobody to show it.
         unawaited(loading?.then((_) => ads.discard()) ?? Future.value());
         ads.discard();
+        // But the next return can have one ready: a fresh request almost
+        // never beats the budget on a phone network.
+        if (allowed) ads.preloadForReturn();
         return verdict;
       }
       final audio = _ref.read(audioDirectorProvider);
@@ -202,6 +210,9 @@ class AppOpenCoordinator {
         await _save((await _load()).shown(_now()));
         await pacing.fullScreenShown();
         await showing;
+        // The next return's ad loads now, while the player plays (the
+        // pacing rules still decide whether it is ever shown).
+        ads.preloadForReturn();
       } finally {
         audio.muted = wasMuted;
       }

@@ -34,6 +34,10 @@ class _Ads implements AppOpenAds {
 
   @override
   void discard() => discards++;
+
+  int preloads = 0;
+  @override
+  void preloadForReturn() => preloads++;
 }
 
 void main() {

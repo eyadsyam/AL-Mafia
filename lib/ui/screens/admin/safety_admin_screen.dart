@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/request_id.dart';
 import '../../../transport/online_backend.dart';
 import '../../economy/account_protection.dart';
+import '../../western_digits.dart';
 import '../../economy/vault_kit.dart';
 import '../../l10n_ext.dart';
 import '../../theme/design_tokens.dart';
@@ -287,7 +288,9 @@ class _SafetyAdminScreenState extends ConsumerState<SafetyAdminScreen> {
     final at = DateTime.tryParse(iso is String ? iso : '')?.toLocal();
     if (at == null) return '';
     final m = MaterialLocalizations.of(context);
-    return '${m.formatMediumDate(at)} ${m.formatTimeOfDay(TimeOfDay.fromDateTime(at))}';
+    return westernDigits(
+      '${m.formatMediumDate(at)} ${m.formatTimeOfDay(TimeOfDay.fromDateTime(at))}',
+    );
   }
 
   String _contextLabel(Object? name) {
