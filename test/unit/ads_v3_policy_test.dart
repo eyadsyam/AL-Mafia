@@ -194,6 +194,67 @@ void main() {
       );
     });
 
+    test('three per match, not per day: the budget refills with each '
+        'completed match', () {
+      const perMatch = InterstitialRules(
+        enabled: true,
+        preMatch: true,
+        passAndPlay: true,
+        session: true,
+        maxPerDay: AdTokens.fullScreenMaxPerDay,
+        gap: AdTokens.fullScreenMinGap,
+        afterReward: Duration(minutes: 3),
+        graceMatches: 1,
+        maxPerMatch: 3,
+      );
+      var ledger = played(3);
+      for (var i = 0; i < 3; i++) {
+        expect(
+          decide(AdPlacement.postMatch, ledger: ledger, rules: perMatch),
+          InterstitialVerdict.show,
+        );
+        ledger = ledger.shown(noon - (30 - 5 * i) * _minute);
+      }
+      expect(
+        decide(AdPlacement.preMatch, ledger: ledger, rules: perMatch),
+        InterstitialVerdict.matchCap,
+        reason: 'a fourth before the next match is one too many',
+      );
+      ledger = ledger.matchCompleted('next', noon - _minute * 3);
+      expect(
+        decide(AdPlacement.postMatch, ledger: ledger, rules: perMatch),
+        InterstitialVerdict.show,
+        reason: 'a new match, a new budget, the same day',
+      );
+      // The counter survives a restart.
+      final saved = InterstitialLedger.fromJson(ledger.shown(noon).toJson());
+      expect(saved.shownSinceMatch, 1);
+    });
+
+    test('the per-match rhythm is read only from its own object', () {
+      final rhythm = InterstitialRules.fromJson(const {
+        'enabled': true,
+        'preMatch': true,
+        'session': false,
+        'maxPerDay': 20,
+        'gapSeconds': 240,
+        'perMatch': {'maxPerMatch': 9, 'gapSeconds': 90, 'session': true},
+      });
+      expect(rhythm.maxPerMatch, 3, reason: 'never above three');
+      expect(rhythm.gap, const Duration(seconds: 90));
+      expect(rhythm.session, isTrue);
+      expect(rhythm.preMatch, isTrue);
+      expect(rhythm.maxPerDay, AdTokens.fullScreenMaxPerDay);
+      final old = InterstitialRules.fromJson(const {
+        'enabled': true,
+        'maxPerDay': 20,
+        'gapSeconds': 240,
+      });
+      expect(old.maxPerMatch, isNull);
+      expect(old.gap, const Duration(seconds: 240));
+      expect(old.session, isFalse);
+    });
+
     test('server numbers: cap never above 60, gap never below 60 s', () {
       final wild = InterstitialRules.fromJson(const {
         'maxPerDay': 500,
@@ -425,6 +486,15 @@ void main() {
       expect(ads.shows, 0);
     });
 
+    test('a shown ad is replaced at once: the next break finds one ready', () async {
+      final c = await ready();
+      await c.beforeOnlineMatch(); // first of launch
+      now += 5 * _minute;
+      expect(await c.beforeRematch(), InterstitialVerdict.show);
+      expect(ads.preloads, greaterThan(0));
+      expect(ads.ready, isTrue);
+    });
+
     test('Quiet Pass owners get none', () async {
       final c = await ready(adFree: true);
       expect(
@@ -538,15 +608,22 @@ class _FakeAds implements InterstitialAds {
   @override
   bool get configured => true;
 
-  @override
-  bool get ready => true;
+  /// One ad held; a show spends it and a preload fills the slot again.
+  bool held = true;
 
   @override
-  Future<void> preload({bool online = true}) async => preloads++;
+  bool get ready => held;
+
+  @override
+  Future<void> preload({bool online = true}) async {
+    preloads++;
+    held = true;
+  }
 
   @override
   Future<bool> showIfReady() async {
     shows++;
+    held = false;
     return true;
   }
 

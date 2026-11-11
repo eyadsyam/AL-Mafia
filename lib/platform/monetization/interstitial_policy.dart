@@ -46,6 +46,12 @@ class InterstitialRules {
   /// before which none starts).
   final int graceMatches;
 
+  /// Owner, 2026-11-11: full-screen ads are budgeted per match — at most this
+  /// many between one completed match and the next, never inside one. Null
+  /// on a server that has not sent the per-match rhythm (the daily pacing
+  /// alone then decides, as before).
+  final int? maxPerMatch;
+
   const InterstitialRules({
     required this.enabled,
     this.preMatch = false,
@@ -56,6 +62,7 @@ class InterstitialRules {
     required this.gap,
     required this.afterReward,
     required this.graceMatches,
+    this.maxPerMatch,
   });
 
   static const off = InterstitialRules(
@@ -81,6 +88,34 @@ class InterstitialRules {
     int read(String key, int fallback) =>
         (json[key] as num?)?.toInt() ?? fallback;
     bool flag(String key) => json[key] == true;
+    // The per-match rhythm (2026-11-11), sent apart so that only a build that
+    // enforces the per-match budget gets its shorter gap and menu slot.
+    final perMatch = json['perMatch'];
+    if (perMatch is Map) {
+      final per = Map<String, dynamic>.from(perMatch);
+      final base = InterstitialRules.fromJson({...json}..remove('perMatch'));
+      return InterstitialRules(
+        enabled: base.enabled,
+        preMatch: base.preMatch,
+        passAndPlay: base.passAndPlay,
+        session: base.session || per['session'] == true,
+        sessionAfter: base.sessionAfter,
+        // The match budget is the limit now; the day only stops a runaway.
+        maxPerDay: AdTokens.fullScreenMaxPerDay,
+        gap: Duration(
+          seconds: ((per['gapSeconds'] as num?)?.toInt() ?? _minGap).clamp(
+            _minGap,
+            _day,
+          ),
+        ),
+        afterReward: base.afterReward,
+        graceMatches: base.graceMatches,
+        maxPerMatch: ((per['maxPerMatch'] as num?)?.toInt() ?? 0).clamp(
+          0,
+          AdTokens.fullScreenMaxPerMatch,
+        ),
+      );
+    }
     // A pre-v3 server sent a 3-a-day / 10-minute pair; v3 sends the global
     // pacing under the same keys. Either way the ceiling is the safety cap.
     return InterstitialRules(
@@ -129,6 +164,9 @@ class InterstitialLedger {
   final String? day;
   final int shownToday;
 
+  /// Full-screen ads shown since the last completed match was counted.
+  final int shownSinceMatch;
+
   /// The latest wall-clock time this ledger has seen. A clock moved
   /// backwards is read as "no time has passed", never as a fresh day.
   final int highWaterMs;
@@ -141,6 +179,7 @@ class InterstitialLedger {
     this.day,
     this.shownToday = 0,
     this.highWaterMs = 0,
+    this.shownSinceMatch = 0,
   });
 
   static const empty = InterstitialLedger();
@@ -163,6 +202,7 @@ class InterstitialLedger {
       day: today,
       shownToday: today == day ? shownToday : 0,
       highWaterMs: now,
+      shownSinceMatch: shownSinceMatch,
     );
   }
 
@@ -173,6 +213,8 @@ class InterstitialLedger {
     return base._copy(
       completedMatches: completedMatches + 1,
       lastCountedRoom: roomId,
+      // A new match: its own budget starts.
+      shownSinceMatch: 0,
     );
   }
 
@@ -186,6 +228,7 @@ class InterstitialLedger {
     return base._copy(
       lastShownMs: base.highWaterMs,
       shownToday: base.shownToday + 1,
+      shownSinceMatch: base.shownSinceMatch + 1,
     );
   }
 
@@ -195,6 +238,7 @@ class InterstitialLedger {
     int? lastShownMs,
     int? lastRewardMs,
     int? shownToday,
+    int? shownSinceMatch,
   }) => InterstitialLedger(
     completedMatches: completedMatches ?? this.completedMatches,
     lastCountedRoom: lastCountedRoom ?? this.lastCountedRoom,
@@ -203,6 +247,7 @@ class InterstitialLedger {
     day: day,
     shownToday: shownToday ?? this.shownToday,
     highWaterMs: highWaterMs,
+    shownSinceMatch: shownSinceMatch ?? this.shownSinceMatch,
   );
 
   Map<String, Object?> toJson() => {
@@ -213,6 +258,7 @@ class InterstitialLedger {
     'day': day,
     'shownToday': shownToday,
     'highWaterMs': highWaterMs,
+    'shownSinceMatch': shownSinceMatch,
   };
 
   factory InterstitialLedger.fromJson(Map<String, dynamic> json) {
@@ -225,6 +271,7 @@ class InterstitialLedger {
       day: json['day'] as String?,
       shownToday: read('shownToday') ?? 0,
       highWaterMs: read('highWaterMs') ?? 0,
+      shownSinceMatch: read('shownSinceMatch') ?? 0,
     );
   }
 }
@@ -239,6 +286,9 @@ enum InterstitialVerdict {
   firstAfterLaunch,
   notDue,
   dailyCap,
+
+  /// This match's budget of full-screen ads is spent (owner: three a match).
+  matchCap,
   tooSoon,
   afterReward,
   noConsent,
@@ -257,6 +307,10 @@ InterstitialVerdict? fullScreenPacing({
   final today = InterstitialLedger.dayOf(now);
   final shownToday = today == ledger.day ? ledger.shownToday : 0;
   if (shownToday >= rules.maxPerDay) return InterstitialVerdict.dailyCap;
+  final perMatch = rules.maxPerMatch;
+  if (perMatch != null && ledger.shownSinceMatch >= perMatch) {
+    return InterstitialVerdict.matchCap;
+  }
   final lastShown = ledger.lastShownMs;
   if (lastShown != null && now - lastShown < rules.gap.inMilliseconds) {
     return InterstitialVerdict.tooSoon;

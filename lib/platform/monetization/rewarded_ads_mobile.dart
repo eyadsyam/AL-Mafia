@@ -405,6 +405,14 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
   Future<void> preload(RewardedPlacement placement) async {
     if (!configured) return;
     final unit = _Units.rewardedFor(placement);
+    // A held ad past its hour no longer counts as ready: dropped here and
+    // loaded again, so the tap does not find it stale and wait on the network.
+    final held = _ready[unit];
+    if (held != null &&
+        DateTime.now().millisecondsSinceEpoch - held.$2 >=
+            AdTokens.rewardedExpiry.inMilliseconds) {
+      _ready.remove(unit)?.$1.dispose();
+    }
     if (_ready.containsKey(unit) || _loading.containsKey(unit)) return;
     _listen();
     try {
@@ -563,17 +571,33 @@ class GoogleInterstitialAds implements InterstitialAds {
   @override
   bool get configured => _Units.interstitialConfigured;
 
+  /// When the held ad loaded. Google's guidance: an interstitial held past an
+  /// hour may no longer show (or pay); it is dropped and loaded again.
+  int? _loadedAt;
+
+  bool get _stale {
+    final at = _loadedAt;
+    return at != null &&
+        DateTime.now().millisecondsSinceEpoch - at >=
+            AdTokens.interstitialExpiry.inMilliseconds;
+  }
+
   @override
-  bool get ready => _ad != null && !_showing;
+  bool get ready {
+    if (_ad != null && !_showing && _stale) _discard();
+    return _ad != null && !_showing;
+  }
 
   bool _listening = false;
   void _discard() {
     _ad?.dispose();
     _ad = null;
+    _loadedAt = null;
   }
 
   @override
   Future<void> preload({bool online = true}) async {
+    if (_stale) _discard();
     if (!configured || _ad != null || _loading || _showing) return;
     if (!_listening) {
       _listening = true;
@@ -614,8 +638,10 @@ class GoogleInterstitialAds implements InterstitialAds {
           return null;
         },
       );
+      _loadedAt = _ad == null ? null : DateTime.now().millisecondsSinceEpoch;
     } catch (_) {
       _ad = null;
+      _loadedAt = null;
     } finally {
       _loading = false;
     }

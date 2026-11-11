@@ -299,6 +299,9 @@ class InterstitialCoordinator {
         _showing = false;
         _clock = _clock.reset(_now());
         _syncClock();
+        // The next break's ad loads now, while the player plays, instead of
+        // at the moment it is wanted (which it would then miss).
+        _warm(caps);
       }
       return verdict;
     } catch (_) {

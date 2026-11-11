@@ -2333,6 +2333,10 @@ abstract final class AdTokens {
   static const appOpenMinGap = Duration(minutes: 20);
   static const appOpenResumeAfter = Duration(minutes: 15);
   static const appOpenExpiry = Duration(hours: 4);
+
+  /// A loaded interstitial is dropped and loaded again after this (Google's
+  /// guidance: one held longer may fail to show).
+  static const interstitialExpiry = Duration(hours: 1);
   static const appOpenMaxPerDay = 10;
 
   /// A system back that reaches the game this soon after a full-screen ad
@@ -2358,6 +2362,10 @@ abstract final class AdTokens {
   /// and interstitials). A safety cap the server may only lower, and a gap
   /// it may only widen.
   static const fullScreenMaxPerDay = 60;
+
+  /// Full-screen ads between one completed match and the next, whatever the
+  /// server sends (owner, 2026-11-11: three per match, none inside one).
+  static const fullScreenMaxPerMatch = 3;
   static const fullScreenMinGap = Duration(seconds: 60);
 
   /// Menu time without any full-screen ad before a session interstitial may

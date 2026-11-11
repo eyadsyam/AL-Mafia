@@ -4092,3 +4092,10 @@ Files:      lib/ui/screens/setup/{home_room_return,home_screen,profile_screen}.d
 Verified:   flutter analyze: no issues; flutter test: 4807/4807; node --check on the worker.
 Gate:       PASS for local checks
 Open:       Web build + browser check next; Google sign-in branding waits on the owner signing in to the Brave window (port 9333); digit style (Western vs Arabic-Indic) is mixed and needs the owner's choice.
+
+## PHASE digits, app-open, release 1.6.0 (22) (2026-11-11) — in progress
+Built:      Every number in Western digits (owner: «خليها انجليزي 3»): app_ar.arb (55 digits), stories counts, dates and numbered steps through `westernDigits`; a guard test keeps app_ar.arb free of Arabic-Indic digits. App-open: a return-to-app ad loads in the background after a launch that could not show one and after every shown one, held up to 4 h, so a return no longer races the 3 s budget. Google sign-in branding parked by the owner.
+Files:      lib/ui/western_digits.dart; lib/app/l10n/*; lib/ui/screens/{stories/stories_screen,setup/before_start_sheet,online/online_entry_screen,admin/safety_admin_screen}.dart; lib/platform/monetization/{ad_formats,rewarded_ads_mobile,rewarded_ads_stub}.dart; lib/ui/economy/app_open_gate.dart; test/unit/{western_digits_test,app_open_coordinator_test,app_open_race_test}.dart
+Verified:   flutter analyze: no issues; flutter test 4811/4811; web built and deployed, live main.dart.js length equals local (6,322,314).
+Gate:       PASS so far; AAB build and Play upload running
+Open:       —

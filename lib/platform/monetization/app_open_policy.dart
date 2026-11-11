@@ -231,7 +231,11 @@ AppOpenVerdict decideAppOpen({
     if (left == null || now - left < resume) return AppOpenVerdict.notLongAway;
   }
   final paced = fullScreenPacing(rules: pacing, ledger: fullScreen, nowMs: now);
-  if (paced == InterstitialVerdict.dailyCap) return AppOpenVerdict.dailyCap;
+  // The day's ceiling or this match's budget: either way, spent.
+  if (paced == InterstitialVerdict.dailyCap ||
+      paced == InterstitialVerdict.matchCap) {
+    return AppOpenVerdict.dailyCap;
+  }
   if (paced == InterstitialVerdict.tooSoon) return AppOpenVerdict.tooSoon;
   if (!canRequestAds) return AppOpenVerdict.noConsent;
   if (loadedAtMs == null) return AppOpenVerdict.notLoaded;
