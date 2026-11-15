@@ -4099,3 +4099,10 @@ Files:      lib/ui/western_digits.dart; lib/app/l10n/*; lib/ui/screens/{stories/
 Verified:   flutter analyze: no issues; flutter test 4811/4811; web built and deployed, live main.dart.js length equals local (6,322,314).
 Gate:       PASS
 Open:       Ads per match (owner: 3 per match, not per day): 20261111000100_ads_per_match applied live, perMatch rhythm read only by build 22; interstitials refilled after each show and dropped after 1 h; Android banner switched on (waiting surfaces only). Full suite 4814/4814. Web deployed (live length = local). AAB 1.6.0+22 committed to Play production through the API (oauth2.googleapis.com unreachable from this network; PLAY_TOKEN_URL=www.googleapis.com/oauth2/v4/token). Waiting on Google review; play_release_watch raises the update notice once it is live. Real ad numbers to be read in AdMob after rollout.
+
+## PHASE machine rebuild + Home banner fix (2026-11-15) — done
+Built:      dev machine restored after the owner's reformat (Flutter 3.44.4 at C:\src\flutter, emulator + Pixel_9_Pro_2 on Android 36, Supabase CLI, wrangler, Playwright, image tools, CLI sign-ins, MCP fixes); Home banner no longer misses a capabilities read that starts after its first frame (root-scope observer + one rebuild).
+Files:      lib/ui/fun/loaded_capabilities.dart, lib/main.dart, test/widget/waiting_banner_test.dart
+Verified:   flutter analyze clean; flutter test 4815/4815; release APK (x86_64) on the emulator: guest onboarding, Home shows the banner (Test Ad) after onboarding and after a cold start.
+Gate:       PASS
+Open:       fix rides with the next planned update (no extra version); 1.6.0 (22) still in Google review.
