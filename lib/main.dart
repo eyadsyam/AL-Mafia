@@ -23,6 +23,7 @@ import 'platform/launcher_label.dart';
 import 'platform/push/firebase_push_service.dart';
 import 'platform/push/push_service.dart';
 import 'app/l10n/app_localizations.dart';
+import 'ui/fun/loaded_capabilities.dart' show CapabilitiesReadObserver;
 import 'ui/theme/design_tokens.dart' show InviteTokens;
 import 'ui/screens/setup/setup_draft.dart';
 
@@ -112,6 +113,7 @@ Future<void> main() async {
   final push = await pushStarting;
   runApp(
     ProviderScope(
+      observers: const [CapabilitiesReadObserver()],
       overrides: [
         initialLocaleProvider.overrideWithValue(savedLocale),
         initialReduceMotionProvider.overrideWithValue(reduceMotion),

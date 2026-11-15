@@ -8,6 +8,7 @@ import 'package:mafia_master/platform/monetization/ad_formats.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/economy_capabilities.dart';
 import 'package:mafia_master/ui/economy/waiting_banner.dart';
+import 'package:mafia_master/ui/fun/loaded_capabilities.dart';
 import 'package:mafia_master/ui/screens/online/lobby_screen.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/voice_session.dart';
@@ -139,6 +140,35 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
+      expect(find.byKey(WaitingBanner.slotKey), findsOneWidget);
+      expect(backendAsked, 0);
+    });
+
+    testWidgets('a read that starts long after the banner drew still shows '
+        'it (Home on a cold start)', (tester) async {
+      final container = ProviderContainer(
+        observers: const [CapabilitiesReadObserver()],
+        overrides: [
+          ...offline(),
+          economyCapabilitiesProvider.overrideWith((ref) async => _bannerOn),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: localizedApp(const Scaffold(body: WaitingBanner())),
+        ),
+      );
+      // Several quiet frames: the one-frame look has come and gone.
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+      expect(find.byKey(WaitingBanner.slotKey), findsNothing);
+
+      // The start-up read, outside any widget, well after Home drew.
+      await container.read(economyCapabilitiesProvider.future);
       await tester.pumpAndSettle();
       expect(find.byKey(WaitingBanner.slotKey), findsOneWidget);
       expect(backendAsked, 0);
