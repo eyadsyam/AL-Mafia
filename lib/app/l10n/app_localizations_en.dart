@@ -1191,6 +1191,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onlineCreateRoom => 'Create a room';
 
   @override
+  String get onlineQuickMatch => 'Play with people now';
+
+  @override
+  String get onlineQuickMatchHint =>
+      'We\'ll seat you in a public room with people waiting, or open one for you.';
+
+  @override
   String get onlineJoinRoom => 'Join a room';
 
   @override

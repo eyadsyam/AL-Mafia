@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/online_session_store.dart';
 import 'package:mafia_master/data/player_profile.dart';
 import 'package:mafia_master/data/terms_consent.dart';
+import 'package:mafia_master/platform/voice/microphone_permission.dart';
 import 'package:mafia_master/transport/online_backend.dart';
 import 'package:mafia_master/ui/economy/room_referral.dart';
 import 'package:mafia_master/ui/economy/economy_capabilities.dart';
@@ -30,6 +32,28 @@ import 'package:mafia_master/ui/economy/wallet.dart';
 
 import '../support/stores.dart';
 
+class _QuickMatchMic implements MicrophoneAccess {
+  _QuickMatchMic({required this.onAsk});
+  final VoidCallback onAsk;
+  int asks = 0;
+
+  @override
+  bool get supported => true;
+
+  @override
+  Future<MicrophoneStatus> status() async => MicrophoneStatus.denied;
+
+  @override
+  Future<MicrophoneStatus> request() async {
+    asks++;
+    onAsk();
+    return MicrophoneStatus.denied;
+  }
+
+  @override
+  Future<bool> openSettings() async => false;
+}
+
 /// P1 — the online front door, for a player who already has a profile.
 ///
 /// The thing under test here is not the transport, which has its own suite. It
@@ -47,6 +71,7 @@ void main() {
     bool unreachable = false,
     BackendException? refuseCreate,
     bool thursdayEvent = false,
+    MicrophoneAccess? microphone,
   }) {
     backend = FakeBackend(
       roomId: 'room-1',
@@ -66,6 +91,8 @@ void main() {
       overrides: [
         onlineBackendFactoryProvider.overrideWithValue(() async => backend),
         onlineHeartbeatProvider.overrideWithValue(Duration.zero),
+        if (microphone != null)
+          microphoneAccessProvider.overrideWithValue(microphone),
         voiceStatsIntervalProvider.overrideWithValue(Duration.zero),
         if (thursdayEvent) ...[
           economyCapabilitiesProvider.overrideWith(
@@ -120,6 +147,97 @@ void main() {
 
   Map<String, dynamic> createPayload() =>
       backend.calls.firstWhere((call) => call.function == 'create_room').body;
+
+  group('quick match', () {
+    testWidgets(
+      'one tap asks for the microphone, calls once, and enters lobby',
+      (tester) async {
+        final order = <String>[];
+        final mic = _QuickMatchMic(onAsk: () => order.add('microphone'));
+        final container = containerWith(microphone: mic);
+        backend.responders['quick_match'] = (body) {
+          order.add('network');
+          return {
+            'roomId': 'room-1',
+            'code': 'ABCDEF',
+            'seat': 0,
+            'created': true,
+          };
+        };
+        var joined = false;
+        await pumpEntry(tester, container, onJoined: () => joined = true);
+
+        await tester.tap(find.byKey(OnlineEntryScreen.quickMatchButton));
+        await tester.pump();
+        await tester.pump();
+
+        expect(order, ['microphone', 'network']);
+        expect(mic.asks, 1);
+        expect(
+          backend.calls.where((c) => c.function == 'quick_match'),
+          hasLength(1),
+        );
+        expect(backend.lastCall('quick_match')!.body, {
+          'name': 'A',
+          'gender': 'male',
+        });
+        expect(joined, isTrue);
+        expect(container.read(onlineSessionProvider).isInRoom, isTrue);
+      },
+    );
+
+    testWidgets('a second tap is ignored while the request is pending', (
+      tester,
+    ) async {
+      final pending = Completer<Map<String, dynamic>>();
+      final container = containerWith();
+      backend.delayedResponses['quick_match'] = pending.future;
+      await pumpEntry(tester, container);
+
+      await tester.tap(find.byKey(OnlineEntryScreen.quickMatchButton));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsWidgets);
+      await tester.tap(find.byKey(OnlineEntryScreen.quickMatchButton));
+      await tester.pump();
+      expect(
+        backend.calls.where((c) => c.function == 'quick_match'),
+        hasLength(1),
+      );
+
+      pending.complete({
+        'roomId': 'room-1',
+        'code': 'ABCDEF',
+        'seat': 0,
+        'created': true,
+      });
+      await tester.pump();
+      await tester.pump();
+    });
+
+    for (final (code, message) in [
+      ('NEW_ROOMS_PAUSED', arStrings.onlineNewRoomsPaused),
+      ('ACCOUNT_RESTRICTED', arStrings.onlineAccountRestricted),
+      ('NAME_NOT_ALLOWED', arStrings.onlineNameNotAllowed),
+    ]) {
+      testWidgets('$code stays on entry and shows its existing message', (
+        tester,
+      ) async {
+        final container = containerWith();
+        backend.refusals['quick_match'] = BackendException(code, 'refused');
+        var joined = false;
+        await pumpEntry(tester, container, onJoined: () => joined = true);
+
+        await tester.tap(find.byKey(OnlineEntryScreen.quickMatchButton));
+        await tester.pump();
+        await tester.pump();
+
+        expect(find.text(message), findsWidgets);
+        expect(find.byKey(OnlineEntryScreen.quickMatchButton), findsOneWidget);
+        expect(joined, isFalse);
+        expect(container.read(onlineSessionProvider).isInRoom, isFalse);
+      });
+    }
+  });
 
   testWidgets('Arabic room list screenshot at phone size', (tester) async {
     final path = Platform.environment['ROOMS_SCREENSHOT_PATH'];

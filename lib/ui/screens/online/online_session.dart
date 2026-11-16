@@ -264,6 +264,23 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     }
   }
 
+  /// Seats the player in a filling public room, or creates one when none fit.
+  Future<void> quickMatch({
+    required String name,
+    String gender = 'unspecified',
+  }) => _enter((backend) async {
+    final result = await backend.call('quick_match', {
+      'name': name.trim(),
+      'gender': gender,
+    });
+    return RoomHandle(
+      roomId: result['roomId'] as String,
+      code: result['code'] as String,
+      seat: (result['seat'] as num).toInt(),
+      rejoined: result['rejoined'] as bool? ?? false,
+    );
+  });
+
   static const _obsoleteAfter = {
     'ROOM_NOT_FOUND',
     'ROOM_FINISHED',

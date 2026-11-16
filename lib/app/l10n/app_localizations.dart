@@ -2156,6 +2156,18 @@ abstract class AppLocalizations {
   /// **'Create a room'**
   String get onlineCreateRoom;
 
+  /// No description provided for @onlineQuickMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with people now'**
+  String get onlineQuickMatch;
+
+  /// No description provided for @onlineQuickMatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll seat you in a public room with people waiting, or open one for you.'**
+  String get onlineQuickMatchHint;
+
   /// No description provided for @onlineJoinRoom.
   ///
   /// In en, this message translates to:

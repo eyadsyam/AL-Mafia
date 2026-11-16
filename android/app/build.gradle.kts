@@ -5,6 +5,17 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.firebase.crashlytics")
+}
+
+// The test-ads build is another package (release + ".adstest", see
+// buildTypes) that google-services.json does not list, and the Google
+// Services plugin refuses a package it cannot find. The store build takes
+// Firebase's values (push, Crashlytics) from the plugin; the test-ads build
+// keeps the hand-written values in defaultConfig below.
+val testAdsBuild = project.findProperty("TEST_ADS_SUFFIX") == "true"
+if (!testAdsBuild) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 // Release signing is mandatory. Credentials remain in ignored local files.
@@ -19,7 +30,8 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // resValue below (invite push); off by default in newer Gradle plugins.
+    // resValue below (test-ads build's Firebase values); off by default in
+    // newer Gradle plugins.
     buildFeatures {
         resValues = true
     }
@@ -64,31 +76,17 @@ android {
 
         // Keep every ABI selected by Flutter for the universal release APK.
 
-        // Invite push (docs/setup/PUSH-SETUP.md): the four values Firebase reads at
-        // start, taken from google-services.json once the owner has put it
-        // next to this file — what the google-services plugin would generate,
-        // without the plugin (so a build without the file still builds, with
-        // push simply off).
+        // Test-ads build only: the four values Firebase reads at start, taken
+        // from google-services.json by hand (the store build gets them from
+        // the Google Services plugin). The release app's values are used.
         val googleServices = file("google-services.json")
-        if (googleServices.exists()) {
+        if (testAdsBuild && googleServices.exists()) {
             @Suppress("UNCHECKED_CAST")
             val json = groovy.json.JsonSlurper().parse(googleServices) as Map<String, Any?>
             @Suppress("UNCHECKED_CAST")
             val info = json["project_info"] as Map<String, Any?>
             @Suppress("UNCHECKED_CAST")
-            val clients = json["client"] as List<Map<String, Any?>>
-            @Suppress("UNCHECKED_CAST")
-            fun packageOf(client: Map<String, Any?>): Any? =
-                ((client["client_info"] as Map<String, Any?>)["android_client_info"]
-                    as Map<String, Any?>)["package_name"]
-            // The test-ads build is a different package (release + ".adstest",
-            // see buildTypes); it takes its own Firebase app when the file
-            // lists one (docs/setup/PUSH-SETUP.md), else the release app's values.
-            val installed = applicationId +
-                (if (project.findProperty("TEST_ADS_SUFFIX") == "true") ".adstest" else "")
-            val client = clients.firstOrNull { packageOf(it) == installed }
-                ?: clients.firstOrNull { packageOf(it) == applicationId }
-                ?: clients.first()
+            val client = (json["client"] as List<Map<String, Any?>>).first()
             @Suppress("UNCHECKED_CAST")
             val appId = (client["client_info"] as Map<String, Any?>)["mobilesdk_app_id"] as String
             @Suppress("UNCHECKED_CAST")
@@ -125,6 +123,11 @@ android {
 
     buildTypes {
         release {
+            firebaseCrashlytics {
+                // Store builds only: the test-ads package has no Firebase app.
+                mappingFileUploadEnabled = !testAdsBuild
+                nativeSymbolUploadEnabled = false
+            }
             signingConfig = signingConfigs.findByName("release")
             // See proguard-rules.pro: the startup crash in R8 full mode.
             proguardFiles(

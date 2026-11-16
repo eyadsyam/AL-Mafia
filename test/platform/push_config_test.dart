@@ -68,9 +68,13 @@ void main() {
       expect(gradle, contains('resValue("string", "$name"'), reason: name);
     }
     expect(gradle, contains('file("google-services.json")'));
-    // The test-ads build (release + ".adstest") picks its own Firebase app
-    // when the file lists one.
-    expect(gradle, contains('".adstest" else ""'));
+    // The store build takes the values from the Google Services plugin
+    // (Crashlytics needs it); the test-ads build (release + ".adstest") is a
+    // package the file does not list, so it keeps the hand-written values.
+    expect(gradle, contains('apply(plugin = "com.google.gms.google-services")'));
+    expect(gradle, contains('if (!testAdsBuild)'));
+    expect(gradle, contains('if (testAdsBuild && googleServices.exists())'));
+    expect(gradle, contains('id("com.google.firebase.crashlytics")'));
     expect(gradle, contains('resValues = true'));
   });
 

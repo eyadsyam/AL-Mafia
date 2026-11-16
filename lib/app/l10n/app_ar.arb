@@ -642,6 +642,8 @@
   "settingRevealWhispersHint": "بعد ما الماتش يخلص، كل اللي في الأوضة يقروا الهمسات ونصها. اللاعبين بيشوفوا ده في اللوبي وقبل ما يهمسوا.",
   "onlineMatch": "العب أونلاين",
   "onlineCreateRoom": "اعمل أوضة",
+  "onlineQuickMatch": "العب مع ناس دلوقتي",
+  "onlineQuickMatchHint": "هندخلك أوضة عامة فيها ناس مستنية، أو نفتحلك واحدة",
   "onlineJoinRoom": "ادخل أوضة",
   "onlineCreateRoomHint": "هتاخد كود وتبعته للباقي",
   "onlineJoinRoomHint": "معاك كود من حد؟",

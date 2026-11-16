@@ -287,6 +287,57 @@ class _AdsRuntime {
   Future<bool> canRequestNow() => _canRequest();
 }
 
+/// Session-wide retry budget for failed automatic rewarded loads.
+class RewardedRetryQueue {
+  RewardedRetryQueue(this.retry);
+
+  final void Function(RewardedPlacement) retry;
+  final _attempts = <RewardedPlacement, int>{};
+  final _timers = <RewardedPlacement, Timer>{};
+  bool _disposed = false;
+
+  void failed(RewardedPlacement placement) {
+    if (_disposed) return;
+    cancel(placement);
+    final attempts = (_attempts[placement] ?? 0) + 1;
+    _attempts[placement] = attempts;
+    if (attempts >= AdTokens.rewardedMaxLoadAttempts) return;
+    const delays = AdTokens.rewardedRetryDelays;
+    final delay = delays[(attempts - 1).clamp(0, delays.length - 1)];
+    _timers[placement] = Timer(delay, () {
+      _timers.remove(placement);
+      if (!_disposed) retry(placement);
+    });
+  }
+
+  void succeeded(RewardedPlacement placement) => cancel(placement);
+
+  void cancel(RewardedPlacement placement) {
+    _timers.remove(placement)?.cancel();
+  }
+
+  void dispose() {
+    _disposed = true;
+    for (final timer in _timers.values) {
+      timer.cancel();
+    }
+    _timers.clear();
+  }
+}
+
+/// Joins all callers for the same SDK load, including a tap during warm-up.
+class RewardedLoadGate {
+  final _running = <String, Future<void>>{};
+
+  Future<void> run(String unit, Future<void> Function() load) =>
+      // A block body, not `=> _running.remove(unit)`: whenComplete waits on a
+      // Future its callback returns, and remove() returns this very future, so
+      // the arrow form waits on itself and never completes.
+      _running[unit] ??= load().whenComplete(() {
+        _running.remove(unit);
+      });
+}
+
 class GoogleRewardedAds implements RewardedAds, RewardedPreload {
   _AdsRuntime get _runtime => _AdsRuntime.instance;
 
@@ -296,8 +347,13 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
   final _ready = <String, (RewardedAd, int)>{};
 
   /// A load in flight per unit, shared by a preload and a tap.
-  final _loading = <String, Future<void>>{};
+  final _loads = RewardedLoadGate();
+  final _warming = <RewardedPlacement, Future<void>>{};
+  late final _retries = RewardedRetryQueue((placement) {
+    unawaited(preload(placement));
+  });
   bool _listening = false;
+  bool _disposed = false;
 
   @override
   bool get configured => _Units.rewardedConfigured;
@@ -353,9 +409,7 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
   }
 
   /// Loads one ad for [unit] into [_ready]. Parallel callers share it.
-  Future<void> _load(String unit) => _loading[unit] ??= _loadNow(
-    unit,
-  ).whenComplete(() => _loading.remove(unit));
+  Future<void> _load(String unit) => _loads.run(unit, () => _loadNow(unit));
 
   Future<void> _loadNow(String unit) async {
     final loaded = Completer<RewardedAd?>();
@@ -397,14 +451,27 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
       },
     );
     if (ad == null) return;
+    if (_disposed) {
+      ad.dispose();
+      return;
+    }
     _ready.remove(unit)?.$1.dispose();
     _ready[unit] = (ad, DateTime.now().millisecondsSinceEpoch);
   }
 
   @override
-  Future<void> preload(RewardedPlacement placement) async {
-    if (!configured) return;
+  Future<void> preload(RewardedPlacement placement) {
+    if (!configured || _disposed) return Future.value();
+    return _warming[placement] ??= _preloadNow(
+      placement,
+    ).whenComplete(() {
+      _warming.remove(placement);
+    });
+  }
+
+  Future<void> _preloadNow(RewardedPlacement placement) async {
     final unit = _Units.rewardedFor(placement);
+    var attemptedLoad = false;
     // A held ad past its hour no longer counts as ready: dropped here and
     // loaded again, so the tap does not find it stale and wait on the network.
     final held = _ready[unit];
@@ -413,7 +480,11 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
             AdTokens.rewardedExpiry.inMilliseconds) {
       _ready.remove(unit)?.$1.dispose();
     }
-    if (_ready.containsKey(unit) || _loading.containsKey(unit)) return;
+    if (_ready.containsKey(unit)) {
+      _retries.succeeded(placement);
+      return;
+    }
+    _retries.cancel(placement);
     _listen();
     try {
       // Never a consent form from a preload: only an answer already given
@@ -422,8 +493,16 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
       // the tap.
       if (!await _runtime.start(prompt: false)) return;
       if (!await _runtime.canRequestNow()) return;
+      attemptedLoad = true;
       await _load(unit);
-    } catch (_) {}
+      if (_ready.containsKey(unit)) {
+        _retries.succeeded(placement);
+      } else {
+        _retries.failed(placement);
+      }
+    } catch (_) {
+      if (attemptedLoad) _retries.failed(placement);
+    }
   }
 
   @override
@@ -448,7 +527,9 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
   ) async {
     final unit = _Units.rewardedFor(placement);
     // A ready ad shows at once, before any other check can cost time.
-    var ad = _ready.containsKey(unit) && _runtime.initialized ? _take(unit) : null;
+    var ad = _ready.containsKey(unit) && _runtime.initialized
+        ? _take(unit)
+        : null;
     if (ad == null) {
       // One budget from the tap: consent check, SDK start and load together.
       // A consent form Google asks for stays up past it if the player is
@@ -479,7 +560,7 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
         // The load keeps running past the budget; it lands in [_ready] for
         // the next tap.
         try {
-          await _load(unit).timeout(left());
+          await preload(placement).timeout(left());
         } catch (_) {}
         ad = _take(unit);
       }
@@ -557,6 +638,8 @@ class GoogleRewardedAds implements RewardedAds, RewardedPreload {
 
   @override
   void dispose() {
+    _disposed = true;
+    _retries.dispose();
     _runtime.offConsentChanged(_discardAll);
     _discardAll();
   }

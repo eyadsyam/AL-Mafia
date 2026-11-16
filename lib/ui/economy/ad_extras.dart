@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -253,21 +251,13 @@ class AdOfferButton extends ConsumerStatefulWidget {
 }
 
 class _AdOfferButtonState extends ConsumerState<AdOfferButton> {
-  Timer? _warm;
   bool _warmed = false;
 
-  @override
-  void dispose() {
-    _warm?.cancel();
-    super.dispose();
-  }
-
   void _warmSoon() {
-    if (_warmed || _warm != null) return;
-    _warm = Timer(AdTokens.rewardedPreloadAfter, () {
-      _warm = null;
+    if (_warmed) return;
+    _warmed = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _warmed = true;
       preloadRewarded(ref.read(rewardedAdsProvider), widget.kind.placement);
     });
   }

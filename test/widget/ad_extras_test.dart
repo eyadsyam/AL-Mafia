@@ -196,7 +196,7 @@ void main() {
       await tester.pump();
       expect(find.text(arStrings.wheelAgainAd), findsOneWidget);
       // The offer is on screen: its ad loads before any tap.
-      await tester.pump(AdTokens.rewardedPreloadAfter);
+      await tester.pump();
       expect(ads.preloaded, contains(RewardedPlacement.extra));
 
       await tester.tap(find.byKey(DailyRewardsTab.extraSpinKey));
@@ -286,6 +286,26 @@ void main() {
       // Closed early: the offer is simply there again.
       await tester.pump();
       expect(find.text(arStrings.wheelAgainAd), findsOneWidget);
+    });
+
+    testWidgets('a failed show leaves the reward uncredited', (tester) async {
+      backend.responders['economy'] = (body) => switch (body['action']) {
+        'capabilities' => caps(),
+        'extras_status' => extras(),
+        'extra_claim' => {'claimId': 'e1', 'state': 'pending', 'kind': 'spin'},
+        'sync' || 'summary' => {'balance': 100},
+        _ => daily(spun: true),
+      };
+      ads.outcome = RewardedAdOutcome.failed;
+      final container = await pump(tester, const DailyRewardsTab());
+      await container.read(walletProvider.notifier).refresh();
+      await tester.tap(find.byKey(DailyRewardsTab.extraSpinKey));
+      await tester.pump();
+      await tester.pump();
+      expect(ads.shown, hasLength(1));
+      expect(container.read(walletProvider).valueOrNull?.balance, 100);
+      expect(find.text(arStrings.wheelAgainAd), findsOneWidget);
+      expect(calls('extra_claim'), 1);
     });
 
     testWidgets('switched off, or no rewarded unit: the wheel offers no ad', (

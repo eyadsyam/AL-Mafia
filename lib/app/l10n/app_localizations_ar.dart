@@ -1163,6 +1163,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onlineCreateRoom => 'اعمل أوضة';
 
   @override
+  String get onlineQuickMatch => 'العب مع ناس دلوقتي';
+
+  @override
+  String get onlineQuickMatchHint =>
+      'هندخلك أوضة عامة فيها ناس مستنية، أو نفتحلك واحدة';
+
+  @override
   String get onlineJoinRoom => 'ادخل أوضة';
 
   @override

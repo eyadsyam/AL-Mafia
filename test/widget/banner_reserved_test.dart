@@ -198,6 +198,17 @@ void main() {
     );
     await tester.pump();
     await tester.pump();
+    // The online hub keeps its banner after the room list; on a short phone
+    // it is only built once the list is scrolled to it, as a player would.
+    if (find.byKey(BannerFrame.adKey).evaluate().isEmpty &&
+        find.byType(Scrollable).evaluate().isNotEmpty) {
+      await tester.scrollUntilVisible(
+        find.byKey(BannerFrame.adKey),
+        120,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pump();
+    }
     return (container, ads);
   }
 

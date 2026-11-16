@@ -1,55 +1,38 @@
-# Next update (after 1.4.0 build 17)
+# Next update (after 1.6.0 build 22)
 
-Decided 2026-10-24: 1.4.0 (17) ships as built on 2026-10-23 at 20:21. Everything below waits for the next update.
+Live today: 1.6.0 (22) on Play production since 2026-11-11; web on saidalmafia.com.
+Everything below is committed and waits for the next planned release (no extra
+version for small fixes, owner rule). Nothing here is built or uploaded yet.
 
-## App fixes found by the new tests
+## In the app (needs the next Android build)
 
-1. **Investigation result outlives the night.** After a reconnect or resync that lands on the morning, the
-   detective's private result (`InvestigateResult`) stays in `MatchController`
-   (`lib/ui/screens/match_controller.dart` ~224). It is the player's own result and nobody else sees it, but
-   it must be cleared when its night ends, on every path. Test: `phase_resync_privacy_test.dart` (X10).
-   Fixed (not released): `match_controller.dart` `_onSnapshot` now clears the private secrets when a server snapshot
-   changes phase or day (online only; offline the pass still clears them, so the outgoing actor keeps their view).
-2. **Night screen overflows in landscape.** `lib/ui/widgets/hold_pad.dart` ~186 and
-   `lib/ui/screens/online/council/voice_band.dart` ~57. Test: `rotation_no_double_submit_test.dart` (X18).
-   Fixed (not released): `hold_pad.dart` and `voice_band.dart` switch to a side-by-side row when the box is
-   landscape and shorter than the portrait stack (constraints-based; portrait unchanged).
-3. **Controller used after dispose.** An async callback in `lib/ui/screens/online/online_table_flow.dart` ~374
-   touches the controller after the screen is closed; needs a mounted/disposed guard.
-   Fixed (not released): `online_table_flow.dart` and `match_flow.dart` check `privacy.mounted` in the post-frame
-   callback before resetting the privacy flag.
+| Change | Commit / files |
+|---|---|
+| Home banner no longer misses a capabilities read that starts after its first frame | 73ea9d4c |
+| Microphone asked on the tap that enters an online room, not at launch (Play audio policy) | 54b060b1 |
+| Microphone closes while the app is off screen; the phase decides again on return | 41aca80f |
+| Rewarded ads: the load no longer waits on itself (every tap without a ready ad used to sit out the whole tap budget); failed preloads retry at 15 s, 30 s, 60 s, then 120 s, up to 6 per placement per session; an offer warms its ad on its first frame; a tap joins the load already in flight | lib/platform/monetization/rewarded_ads_mobile.dart, lib/ui/economy/ad_extras.dart |
+| «العب مع ناس دلوقتي»: one tap seats the player in a filling public room or opens one (server `quick_match`, deployed since October, never called before) | lib/ui/screens/online/{online_entry_screen,online_session}.dart |
+| Crash reporting: Firebase Crashlytics on Android only, off in debug, no custom keys or logs | lib/platform/crash_reporting*.dart, lib/main.dart, android/ gradle, pubspec |
 
-### Changed files
+## Already live on the server (no build needed)
 
-- lib/ui/screens/match_controller.dart
-- lib/ui/widgets/hold_pad.dart
-- lib/ui/screens/online/council/voice_band.dart
-- lib/ui/screens/online/online_table_flow.dart
-- lib/ui/screens/match_flow.dart
-- test/online/phase_resync_privacy_test.dart (new)
-- test/widget/rotation_no_double_submit_test.dart (new)
+- Play products: all five were left inactive by the 2026-09-28 rollback, so the
+  Google Play buy tab never appeared. Switched back on 2026-11-16.
+- Owner alerts: no longer held back by the player-push switch; one reminder a day
+  at 09:00 Cairo while a report waits (20261116000100_owner_alerts).
 
-Codex had started on all three when it was stopped. Its unfinished diff is kept in
-`docs/plans/next-update/codex-wip-fixes.patch` (not applied, not reviewed). The two tests that found them are in
-`docs/plans/next-update/`; move them back to `test/online/` and `test/widget/` with the fixes.
-Brief: `docs/plans/briefs/fix_resync_rotation_bugs_2026_10_24.txt`.
+## Release checklist for this update
 
-## Live tests (done 2026-10-24, against the deployed server)
-
-- `supabase/tests/silence_floor_match.py` D6: PASS (32/32 with `LIVE_SCENARIOS=D6`). The survivor confrontation (C11)
-  only names a save from an earlier night (doc 09: one day later or more), so the test now saves on night 1 and
-  silences on night 2. The server was right; only the test changed. The full suite also passed its other 8 rows.
-- `supabase/tests/hosted_night_tools_match.py` T25: PASS (222 passed, 0 failed).
-
-## Store
-
-- 2026-10-24: Google granted production access. Codex (Chrome) rolled 1.4.0 (17) to closed testing at 100%,
-  created Production release 1 with the same bundle and notes (full rollout, 178 countries/regions = the closed
-  track's list) and sent 3 changes for review ("تم إرسال 3 تغييرات للمراجعة"). Screenshot: build/play_1_4_sent.png.
-- Trailer: `raw_assets/play-1.4/trailer/mafia_master_trailer_25s_1080p.mp4`; Play takes only a YouTube link.
-- Play API account `play-verify@mafia-master-billing.iam.gserviceaccount.com` can't release or edit the
-  listing until the owner grants «إصدار التطبيقات إلى مسارات الاختبار» and «إدارة الظهور في المتجر».
-
-## Later (owner's order)
-
-In-game reward rules, then screen polish. Story content stays as it is.
+1. Play Console › App content › Data safety: add **Crash logs** and
+   **Diagnostics** (App info and performance), collected, not shared, required,
+   purpose App functionality + Analytics; processed by Firebase Crashlytics.
+   Privacy page (web/privacy) gets the same line. Do this in the same release
+   as the build that carries Crashlytics, not before.
+2. Data safety deletion question: the web deletion URL is
+   https://saidalmafia.com/delete-data/ (page live).
+3. After rollout: read Crashlytics for the first crashes, AdMob for the rewarded
+   match rate, and the usage page for quick-match rooms.
+4. The test-ads build (`TEST_ADS_SUFFIX=true`) skips the Google Services plugin
+   (its package is not in google-services.json) and keeps the hand-written
+   Firebase values; it has no Crashlytics mapping upload.

@@ -2348,9 +2348,18 @@ abstract final class AdTokens {
   /// expires them after an hour).
   static const rewardedExpiry = Duration(minutes: 55);
 
-  /// How long an offer must stay on screen before its ad is preloaded, so
-  /// scrolling past a card never starts the SDK or a request.
+  /// Kept for the online reward button, which still uses a delayed warm-up.
   static const rewardedPreloadAfter = Duration(milliseconds: 700);
+
+  /// Delays after failed rewarded loads. The last delay repeats until the
+  /// session's attempt cap is reached.
+  static const rewardedRetryDelays = [
+    Duration(seconds: 15),
+    Duration(seconds: 30),
+    Duration(seconds: 60),
+    Duration(seconds: 120),
+  ];
+  static const rewardedMaxLoadAttempts = 6;
 
   /// The light veil a tap raises while its rewarded ad is being prepared.
   static const loadingVeilAlpha = 0.72;

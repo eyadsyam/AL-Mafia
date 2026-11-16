@@ -759,6 +759,8 @@
   "settingRevealWhispersHint": "After the match, everyone in the room reads the whispers and what they said. Players see this in the lobby and before they whisper.",
   "onlineMatch": "Play online",
   "onlineCreateRoom": "Create a room",
+  "onlineQuickMatch": "Play with people now",
+  "onlineQuickMatchHint": "We'll seat you in a public room with people waiting, or open one for you.",
   "onlineJoinRoom": "Join a room",
   "onlineCreateRoomHint": "You get a code to send the others",
   "onlineJoinRoomHint": "Somebody sent you a code?",

@@ -67,6 +67,7 @@ class OnlineEntryScreen extends ConsumerStatefulWidget {
   });
   static const codeField = ValueKey('online_code');
   static const hostButton = ValueKey('online_host');
+  static const quickMatchButton = ValueKey('online_quick_match');
   static const haveCodeButton = ValueKey('online_have_code');
   static const joinButton = ValueKey('online_join');
   static const closeCodeButton = ValueKey('online_code_close');
@@ -98,6 +99,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
   late _Step _step = widget.initialCode == null ? _Step.browse : _Step.join;
   List<PublicRoom> _rooms = [];
   bool _loading = true;
+  bool _quickMatchBusy = false;
 
   /// The last read failed. [_rooms] is still the last good list, if there was
   /// one, and the screen says it may be out of date instead of emptying it.
@@ -298,6 +300,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
 
   Future<void> _enter({
     bool host = false,
+    bool quickMatch = false,
     bool thursday = false,
     String? code,
     bool resume = false,
@@ -308,7 +311,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     // screen (doc 12 §2.1: nothing is pushed over the online surface), before
     // the rules, the ad or any network; «كمل اللعب» leaves everything as it was.
     var leaveCurrent = false;
-    if (!host && !resume) {
+    if (!host && !quickMatch && !resume) {
       final target = code ?? _code.text;
       if (ref.read(onlineSessionProvider.notifier).seatedElsewhere(target)) {
         if (!leaveConfirmed) {
@@ -337,7 +340,9 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     // reject the later remote audio element until the player taps playback.
     unawaited(primeWebPlayout());
     final online = ref.read(onlineSessionProvider.notifier);
-    if (thursday) {
+    if (quickMatch) {
+      await online.quickMatch(name: profile.name, gender: profile.gender.name);
+    } else if (thursday) {
       await online.hostThursday();
     } else if (host) {
       await online.host(
@@ -381,6 +386,16 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     // The pointer may have just been proven obsolete (the room is gone, or has
     // no seat for this player any more) and dropped; the button follows it.
     if (mounted) await _loadResume();
+  }
+
+  Future<void> _startQuickMatch() async {
+    if (_quickMatchBusy || ref.read(onlineSessionProvider).busy) return;
+    setState(() => _quickMatchBusy = true);
+    try {
+      await _enter(quickMatch: true);
+    } finally {
+      if (mounted) setState(() => _quickMatchBusy = false);
+    }
   }
 
   /// Records the setup acceptance on the server once. Never blocks play: a
@@ -663,6 +678,24 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                         onJoin: (code) => _enter(code: code),
                                       ),
                                     ],
+                                  ),
+                                  SizedBox(height: s.md),
+                                  FilledButton.icon(
+                                    key: OnlineEntryScreen.quickMatchButton,
+                                    onPressed: state.busy || _quickMatchBusy
+                                        ? null
+                                        : _startQuickMatch,
+                                    icon: _quickMatchBusy
+                                        ? const CircularProgressIndicator()
+                                        : const Icon(Icons.groups),
+                                    label: Text(l.onlineQuickMatch),
+                                  ),
+                                  SizedBox(height: s.xs),
+                                  Text(
+                                    l.onlineQuickMatchHint,
+                                    style: context.typography.caption.copyWith(
+                                      color: c.textSecondary,
+                                    ),
                                   ),
                                   SizedBox(height: s.md),
                                   Row(

@@ -18,6 +18,7 @@ import 'data/player_group_provider.dart';
 import 'data/repository_provider.dart';
 import 'data/whisper_store.dart';
 import 'platform/frame_report.dart';
+import 'platform/crash_reporting.dart';
 import 'data/motion_preference.dart';
 import 'platform/launcher_label.dart';
 import 'platform/push/firebase_push_service.dart';
@@ -129,4 +130,13 @@ Future<void> main() async {
       child: const MafiaApp(),
     ),
   );
+  // Firebase was started with push above; finish Crashlytics setup off the
+  // first-frame path. A missing Firebase config must never prevent startup.
+  unawaited(() async {
+    try {
+      await installCrashReporting();
+    } catch (_) {
+      // Crash reporting is optional; startup still succeeds without Firebase.
+    }
+  }());
 }
