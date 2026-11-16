@@ -42,10 +42,27 @@ begin
   assert jsonb_array_length(claimed)=3, claimed::text;
   assert claimed->0->'tokens'->0->>'token'=repeat('o',40), claimed::text;
 
-  -- Push switched off: nothing is queued.
+  -- The player switch off holds back players' pushes, never the owner's
+  -- (20261116000100_owner_alerts).
   update public.economy_config set push_invites_enabled=false;
   perform public.push_owner('owner_play','play:off');
-  assert not exists(select 1 from public.push_outbox where kind='owner_play');
+  assert (select count(*) from public.push_outbox where kind='owner_play')=1;
+  claimed := public.push_outbox_claim(100);
+  assert jsonb_array_length(claimed)=1, claimed::text;
+  assert claimed->0->>'kind'='owner_play', claimed::text;
+  assert public.push_enqueue('daily', array[player], '{}'::jsonb, 'daily:off', interval '1 day')=0;
+
+  -- A report still pending: one reminder a day, and only one.
+  delete from public.push_outbox;
+  assert public.push_owner_pending_reports()=1;
+  assert public.push_owner_pending_reports()=0;
+  assert (select count(*) from public.push_outbox where kind='owner_report')=1;
+  -- Nothing pending: no reminder.
+  delete from public.push_outbox;
+  update public.safety_reports set status='dismissed', resolved_at=now();
+  assert public.push_owner_pending_reports()=0;
+  assert exists(select 1 from cron.job where jobname='owner-pending-reports' and schedule='0 7 * * *');
+  assert not has_function_privilege('authenticated','public.push_owner_pending_reports()','execute');
 
   -- A kind outside the list is refused by the table, and push_owner swallows
   -- it rather than breaking the row that caused it.
