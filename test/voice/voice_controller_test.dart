@@ -304,6 +304,41 @@ void main() {
     });
   });
 
+  group('the app goes off screen', () {
+    test('the microphone closes and comes back with the phase', () async {
+      final (controller, engine, _) = await connected();
+      await controller.apply(snapshotIn(GamePhase.discussion, speaker: 1));
+      expect(engine.microphoneLive, isTrue);
+
+      await controller.setBackgrounded(true);
+      expect(engine.microphoneLive, isFalse);
+      expect(controller.state.microphoneLive, isFalse);
+
+      await controller.setBackgrounded(false);
+      expect(engine.microphoneLive, isTrue);
+    });
+
+    test('coming back grants nothing the phase does not', () async {
+      final (controller, engine, _) = await connected();
+      await controller.apply(snapshotIn(GamePhase.discussion, speaker: 2));
+      await controller.setBackgrounded(true);
+      await controller.setBackgrounded(false);
+
+      expect(engine.microphoneLive, isFalse);
+    });
+
+    test('a player who muted stays muted after returning', () async {
+      final (controller, engine, _) = await connected();
+      await controller.apply(snapshotIn(GamePhase.discussion, speaker: 1));
+      await controller.setSelfMuted(true);
+      await controller.setBackgrounded(true);
+      await controller.setBackgrounded(false);
+
+      expect(engine.microphoneLive, isFalse);
+      expect(controller.selfMuted, isTrue);
+    });
+  });
+
   group('V4 — speaking out of turn', () {
     test('a seat that does not hold the floor is hard-muted', () async {
       final (controller, engine, _) = await connected();

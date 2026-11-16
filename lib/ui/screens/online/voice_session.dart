@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../platform/voice/voice_controller.dart';
@@ -69,7 +70,26 @@ final voiceControllerProvider = Provider<VoiceController?>((ref) {
     await controller.enableAudio();
   }());
 
+  // Off screen, the microphone closes; back on screen, the phase decides
+  // again. `inactive` is left alone: it fires for a notification shade or
+  // the app switcher, and a glance must not cut a speaker off mid-sentence.
+  final lifecycle = AppLifecycleListener(
+    onStateChange: (state) {
+      switch (state) {
+        case AppLifecycleState.hidden:
+        case AppLifecycleState.paused:
+        case AppLifecycleState.detached:
+          unawaited(controller.setBackgrounded(true));
+        case AppLifecycleState.resumed:
+          unawaited(controller.setBackgrounded(false));
+        case AppLifecycleState.inactive:
+          break;
+      }
+    },
+  );
+
   ref.onDispose(() {
+    lifecycle.dispose();
     unawaited(subscription.cancel());
     unawaited(controller.dispose());
   });

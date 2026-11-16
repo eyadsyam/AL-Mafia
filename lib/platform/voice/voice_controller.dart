@@ -259,6 +259,10 @@ class VoiceController {
 
   /// Set by the player, cleared by the player, and by nothing else.
   bool _selfMuted = false;
+
+  /// True while the app is not on screen. Set by the app's lifecycle and by
+  /// nothing else; it only ever subtracts, like [_selfMuted].
+  bool _backgrounded = false;
   bool _viewerSilenced = false;
   int _revision = 0;
   bool _disposed = false;
@@ -450,6 +454,20 @@ class VoiceController {
     await _syncMicrophone();
   }
 
+  /// Closes the microphone while the app is off screen, and lets it go back
+  /// to whatever the phase allows when the player returns.
+  ///
+  /// A phone in a pocket must not keep publishing (Play's audio policy), and
+  /// a player who switched apps has not chosen to speak. Like [setSelfMuted]
+  /// this only subtracts: coming back grants nothing [_syncMicrophone] would
+  /// not grant anyway. Hearing is untouched, so the call is still there.
+  Future<void> setBackgrounded(bool backgrounded) async {
+    if (_backgrounded == backgrounded) return;
+    _backgrounded = backgrounded;
+    if (_tornDown || _disposed) return;
+    await _syncMicrophone();
+  }
+
   /// Called by a user gesture: browsers may refuse audio autoplay even with
   /// permission to capture the microphone. Retry output separately from mute.
   Future<void> enableAudio() async {
@@ -521,6 +539,7 @@ class VoiceController {
         maySpeak &&
         _micAvailable &&
         !_selfMuted &&
+        !_backgrounded &&
         !_mutedSeats.contains(_selfSeat) &&
         _state.mode == VoiceMode.live;
     await _quietly(() => engine.setMicrophoneLive(live));
