@@ -3,18 +3,18 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../platform/voice/microphone_permission.dart';
 import '../ui/social/push_prompt.dart';
 
-/// The two system questions, asked by themselves the moment the game opens.
+/// The one system question asked by itself as the game opens: notifications.
 ///
-/// No page and no «not now» of ours stands before them: the phone's own
-/// dialog for the microphone, then the phone's own dialog for notifications.
-/// Asked again on the next launch while the answer is not yes; a microphone
-/// the phone has blocked for good is left to the lobby's card, which can open
-/// the settings page.
+/// No page and no «not now» of ours stands before it: the phone's own dialog.
+/// Asked again on the next launch while the answer is not yes.
+///
+/// The microphone is not asked here any more. It is asked on the tap that
+/// enters an online room (`askMicrophoneForRoom`), the only place the game
+/// uses it: Google Play's audio policy flags a launch-time microphone request
+/// that is repeated for players who never go online.
 ///
 /// On the web the notification question waits for the first touch: browsers
 /// drop (or hide) a request that no gesture started.
@@ -26,37 +26,16 @@ class StartupPermissions {
   PointerRoute? _firstTap;
 
   /// Test hook: how far the last [run] got.
-  bool micAsked = false;
   bool pushAsked = false;
 
   Future<void> run() async {
     if (_ran) return;
     _ran = true;
-    await _microphone();
     if (kIsWeb) {
       _askPushOnFirstTap();
     } else {
       pushAsked = true;
       await _push();
-    }
-  }
-
-  Future<void> _microphone() async {
-    try {
-      final access = _ref.read(microphoneAccessProvider);
-      if (!access.supported) return;
-      var status = await access.status();
-      if (status == MicrophoneStatus.denied) {
-        micAsked = true;
-        status = await access.request();
-      }
-      if (status == MicrophoneStatus.unsupported) return;
-      await (await SharedPreferences.getInstance()).setBool(
-        microphoneAllowedKey,
-        status == MicrophoneStatus.granted,
-      );
-    } catch (_) {
-      // The room asks again; a launch never fails over a dialog.
     }
   }
 

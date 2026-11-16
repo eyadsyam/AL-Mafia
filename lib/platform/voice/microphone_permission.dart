@@ -2,9 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// The last answer the system gave, kept only to draw the settings row. It
-/// never stops a later request: every launch and every room asks again.
+/// never stops a later request: every room entry asks again.
 const microphoneAllowedKey = 'mafia.microphone.allowed.v1';
 
 enum MicrophoneStatus {
@@ -108,3 +109,33 @@ class DeviceMicrophoneAccess implements MicrophoneAccess {
 final microphoneAccessProvider = Provider<MicrophoneAccess>(
   (_) => const DeviceMicrophoneAccess(),
 );
+
+/// Asks for the microphone at the one moment it is needed: the player just
+/// chose to enter an online room, where the voice is.
+///
+/// It used to be asked the moment the game opened, and again on every launch
+/// while the answer was not yes, which Google Play's audio policy flags: a
+/// player who only ever plays at one table was asked for a microphone the game
+/// never used. Now the system's own dialog appears on the tap that enters a
+/// room, with nothing of ours in front of it, and only while the phone can
+/// still ask; a microphone blocked for good is left to the lobby's card.
+///
+/// The web is skipped: the browser asks on the room's own `getUserMedia`, and
+/// asking here as well would show its prompt twice. Never throws, never blocks
+/// the entry.
+Future<void> askMicrophoneForRoom(MicrophoneAccess access) async {
+  if (kIsWeb) return;
+  try {
+    if (!access.supported) return;
+    var status = await access.status();
+    if (status == MicrophoneStatus.denied) status = await access.request();
+    if (status == MicrophoneStatus.unsupported) return;
+    await (await SharedPreferences.getInstance()).setBool(
+      microphoneAllowedKey,
+      status == MicrophoneStatus.granted,
+    );
+  } catch (_) {
+    // The voice engine asks again when it starts; an entry never fails over a
+    // dialog.
+  }
+}

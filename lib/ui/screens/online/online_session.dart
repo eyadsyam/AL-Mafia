@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../engine/models/enums.dart';
 import '../../../engine/models/match_settings.dart';
+import '../../../platform/voice/microphone_permission.dart';
 import '../../../transport/game_snapshot.dart';
 import '../../../transport/online_backend.dart';
 import '../../../transport/online_transport.dart';
@@ -331,6 +332,9 @@ class OnlineSession extends Notifier<OnlineSessionState> {
   ) async {
     state = state.copyWith(busy: true, clearError: true);
     try {
+      // On the tap that enters the room, before the network: the phone's own
+      // microphone dialog, now that the player is going where the voice is.
+      await askMicrophoneForRoom(ref.read(microphoneAccessProvider));
       await _teardown();
       final backend = await _ensureBackend();
       await backend.ensureSession();

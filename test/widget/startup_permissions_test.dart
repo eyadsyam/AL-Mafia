@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -74,6 +76,17 @@ class _Mic implements MicrophoneAccess {
   }
 }
 
+class _BrokenMic implements MicrophoneAccess {
+  @override
+  bool get supported => true;
+  @override
+  Future<MicrophoneStatus> status() => throw StateError('no plugin');
+  @override
+  Future<MicrophoneStatus> request() => throw StateError('no plugin');
+  @override
+  Future<bool> openSettings() async => false;
+}
+
 ProviderContainer _container(_Push push, _Mic mic) {
   final container = ProviderContainer(
     overrides: [
@@ -88,16 +101,17 @@ ProviderContainer _container(_Push push, _Mic mic) {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  group('at launch, by themselves', () {
-    test('the microphone, then notifications, with no page before them', () async {
+  group('at launch, by itself', () {
+    test('notifications only: the microphone is never asked as the game opens '
+        '(Play audio policy)', () async {
       final push = _Push(grant: true);
       final mic = _Mic(MicrophoneStatus.denied, answer: MicrophoneStatus.granted);
       final c = _container(push, mic);
       await c.read(startupPermissionsProvider).run();
-      expect(mic.asks, 1);
+      expect(mic.asks, 0, reason: 'the microphone waits for an online room');
       expect(push.asks, 1);
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool(microphoneAllowedKey), isTrue);
+      expect(prefs.getBool(microphoneAllowedKey), isNull);
       expect(prefs.getBool(PushPrompt.onKey), isTrue);
     });
 
@@ -108,18 +122,12 @@ void main() {
       final once = c.read(startupPermissionsProvider);
       await once.run();
       await once.run();
-      expect(mic.asks, 1);
       expect(push.asks, 1);
-      // The stored «no» is information only.
-      expect(
-        (await SharedPreferences.getInstance()).getBool(microphoneAllowedKey),
-        isFalse,
-      );
 
       final next = _container(push, mic);
       await next.read(startupPermissionsProvider).run();
-      expect(mic.asks, 2);
       expect(push.asks, 2);
+      expect(mic.asks, 0);
     });
 
     test('nothing is shown for what is already allowed', () async {
@@ -129,11 +137,56 @@ void main() {
       expect(mic.asks, 0);
       expect(push.asks, 0);
     });
+  });
+
+  group('the microphone is asked on the way into a room', () {
+    test('the system dialog once, and the answer kept for the settings row', () async {
+      final mic = _Mic(MicrophoneStatus.denied, answer: MicrophoneStatus.granted);
+      await askMicrophoneForRoom(mic);
+      expect(mic.asks, 1);
+      expect(
+        (await SharedPreferences.getInstance()).getBool(microphoneAllowedKey),
+        isTrue,
+      );
+    });
+
+    test('a refusal is kept as information and asked again next room', () async {
+      final mic = _Mic(MicrophoneStatus.denied);
+      await askMicrophoneForRoom(mic);
+      expect(
+        (await SharedPreferences.getInstance()).getBool(microphoneAllowedKey),
+        isFalse,
+      );
+      await askMicrophoneForRoom(mic);
+      expect(mic.asks, 2);
+    });
+
+    test('nothing is shown when it is already allowed', () async {
+      final mic = _Mic(MicrophoneStatus.granted);
+      await askMicrophoneForRoom(mic);
+      expect(mic.asks, 0);
+    });
 
     test('a blocked microphone is left to the room card', () async {
       final mic = _Mic(MicrophoneStatus.blocked);
-      await _container(_Push(), mic).read(startupPermissionsProvider).run();
+      await askMicrophoneForRoom(mic);
       expect(mic.asks, 0);
+    });
+
+    test('a failing permission plugin never stops the entry', () async {
+      await askMicrophoneForRoom(_BrokenMic());
+    });
+
+    test('entering a room asks before anything else', () {
+      final source = File(
+        'lib/ui/screens/online/online_session.dart',
+      ).readAsStringSync();
+      final enter = source.indexOf('Future<void> _enter(');
+      expect(enter, isNonNegative);
+      final ask = source.indexOf('askMicrophoneForRoom(', enter);
+      final network = source.indexOf('_ensureBackend()', enter);
+      expect(ask, isNonNegative, reason: 'every room entry goes through _enter');
+      expect(ask, lessThan(network), reason: 'the dialog comes on the tap');
     });
 
     test('the settings switch turned off still wins for notifications', () async {

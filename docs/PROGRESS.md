@@ -4106,3 +4106,10 @@ Files:      lib/ui/fun/loaded_capabilities.dart, lib/main.dart, test/widget/wait
 Verified:   flutter analyze clean; flutter test 4815/4815; release APK (x86_64) on the emulator: guest onboarding, Home shows the banner (Test Ad) after onboarding and after a cold start.
 Gate:       PASS
 Open:       fix rides with the next planned update (no extra version); 1.6.0 (22) still in Google review.
+
+## PHASE microphone at room entry (2026-11-16) — done
+Built:      Play audio policy (audit finding, owner «Yes, move it»): the microphone is no longer asked as the game opens; the system dialog appears on the tap that enters an online room (askMicrophoneForRoom, before any network), the lobby card and settings row still ask again; launch asks notifications only.
+Files:      lib/platform/voice/microphone_permission.dart, lib/app/startup_permissions.dart, lib/ui/screens/online/online_session.dart, lib/app/app.dart, lib/ui/screens/onboarding/permissions_step.dart, test/widget/startup_permissions_test.dart, test/flutter_test_config.dart
+Verified:   flutter analyze clean; flutter test 4820/4820 (the permission plugin is answered in test config, room tests hung on it before); emulator cold start shows the notifications dialog only.
+Gate:       PASS
+Open:       rides with the next planned update (no extra version); room-entry dialog not yet seen on a device; audit leftovers: Data safety vs live listing not compared, web deletion URL in Data safety, mic track while backgrounded.

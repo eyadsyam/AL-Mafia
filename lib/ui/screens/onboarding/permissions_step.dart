@@ -7,9 +7,9 @@ import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 
 /// The microphone row of the settings sheet. There is no permissions page:
-/// the system dialogs open by themselves at launch and in every room (see
-/// `startup_permissions.dart` and the lobby's microphone card); this row is
-/// where a player can look and try again.
+/// the system dialog opens by itself on the tap that enters an online room
+/// (`askMicrophoneForRoom`) and again from the lobby's microphone card; this
+/// row is where a player can look and try again.
 class MicrophoneSettingsRow extends ConsumerStatefulWidget {
   const MicrophoneSettingsRow({super.key});
 

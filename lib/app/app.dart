@@ -265,8 +265,8 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // The microphone, then notifications: the phone's own dialogs, as the
-      // game opens, with no page of ours in front of them.
+      // Notifications: the phone's own dialog, as the game opens, with no page
+      // of ours in front of it. The microphone waits for an online room.
       if (mounted) unawaited(ref.read(startupPermissionsProvider).run());
       if (mounted && SupabaseConfig.isConfigured) {
         unawaited(ref.read(playOffersProvider.notifier).start());
