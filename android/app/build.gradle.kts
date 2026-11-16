@@ -1,3 +1,4 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -123,7 +124,7 @@ android {
 
     buildTypes {
         release {
-            firebaseCrashlytics {
+            configure<CrashlyticsExtension> {
                 // Store builds only: the test-ads package has no Firebase app.
                 mappingFileUploadEnabled = !testAdsBuild
                 nativeSymbolUploadEnabled = false
