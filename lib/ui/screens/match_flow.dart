@@ -12,11 +12,13 @@ import '../../platform/audio_director.dart';
 import '../../platform/metrics.dart'
     show metricsClientProvider, tableSizeBucket;
 import '../../platform/narrator_bank.dart';
+import '../../platform/rating_prompt.dart';
 import '../../platform/review_prompt.dart';
 import '../../transport/game_snapshot.dart' show ConnectionQuality;
 import '../information_text.dart';
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
+import '../feedback/rating_sheet.dart';
 import '../theme/design_tokens.dart';
 import '../widgets/motion_sprite.dart';
 import 'day/confrontation_screen.dart';
@@ -168,6 +170,8 @@ enum _Moment {
 class MatchFlowState extends ConsumerState<MatchFlow> {
   bool _victorySeen = false;
   bool _webResultQueued = false;
+  bool _ratingQueued = false;
+  Timer? _ratingTimer;
   late final AudioDirector _audio;
 
   /// Captured once, so leaving the match can clear the privacy flag.
@@ -184,6 +188,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 
   @override
   void dispose() {
+    _ratingTimer?.cancel();
     _audio.activeVoice = null;
     final privacy = _privacy;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -374,6 +379,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
           // P9: a pass-and-play match that reached its result is a clean
           // completed match; the prompt itself waits for a calm home screen.
           unawaited(ref.read(reviewPromptProvider).noteCleanMatch());
+          // «إيه رأيك في اللعبة؟»: one more finished match, one-phone or online.
+          unawaited(ref.read(ratingPromptProvider).noteFinishedMatch());
           // Usage counts: a one-phone match reached its result, by size.
           if (ref.read(matchControllerProvider.notifier).transport
               is LocalTransport) {
@@ -896,6 +903,18 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     );
   }
 
+  /// The rating sheet, two seconds after the result screen is up (so it never
+  /// covers who won) and only while this screen is still the one in front.
+  Future<void> _askRating() async {
+    if (!mounted) return;
+    if (!await ref.read(ratingPromptProvider).shouldShow()) return;
+    if (!mounted) return;
+    final stillResult =
+        ref.read(matchControllerProvider)?.phase == GamePhase.result;
+    if (!stillResult || !(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    await showRatingSheet(context, ref);
+  }
+
   Widget _result(MatchUiState state) {
     final outcome = state.public.outcome;
     if (outcome == null) return const SizedBox.shrink();
@@ -904,6 +923,11 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) requestWebAd(ref, WebAdMoment.afterMatch);
       });
+    }
+
+    if (!_ratingQueued) {
+      _ratingQueued = true;
+      _ratingTimer = Timer(FeedbackSheetTokens.delay, _askRating);
     }
 
     final snapshot = _controller.snapshot;

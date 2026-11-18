@@ -3845,5 +3845,17 @@
   "guestCardClose": "اقفل",
   "guestStatusLine": "ضيف — مش متسجل",
   "profileHandleLocked": "اليوزر نيم ثابت ومحدش غيرك ياخده.",
-  "backAgainToExit": "دوس رجوع تاني عشان تخرج من اللعبة"
+  "backAgainToExit": "دوس رجوع تاني عشان تخرج من اللعبة",
+  "onlineNobodyWaiting": "مفيش حد مستني دلوقتي",
+  "onlineShareWithFriends": "ابعت لصحابك",
+  "onlineRemindMe": "فكّرني لما ناس تتجمع",
+  "onlineRemindOn": "هنبعتلك لما ناس تتجمع",
+  "ratingTitle": "إيه رأيك في اللعبة؟",
+  "ratingStars": "{count, plural, =1{نجمة واحدة} =2{نجمتين} few{{count} نجوم} other{{count} نجمة}}",
+  "ratingHint": "عايز تقول حاجة؟ (مش لازم)",
+  "ratingThanks": "شكرًا!",
+  "adminRatingsTitle": "تقييمات النجوم",
+  "adminRatingsCount": "عدد التقييمات",
+  "adminRatingsAvg7": "المتوسط، آخر 7 أيام",
+  "adminRatingsAvg30": "المتوسط، آخر 30 يوم"
 }

@@ -5149,5 +5149,18 @@
   "guestCardClose": "Close",
   "guestStatusLine": "Guest — not signed in",
   "profileHandleLocked": "Your username is fixed and nobody else can take it.",
-  "backAgainToExit": "Press back again to leave the game"
+  "backAgainToExit": "Press back again to leave the game",
+  "onlineNobodyWaiting": "Nobody is waiting right now",
+  "onlineShareWithFriends": "Send to your friends",
+  "onlineRemindMe": "Remind me when people gather",
+  "onlineRemindOn": "We'll tell you when people gather",
+  "ratingTitle": "What do you think of the game?",
+  "ratingStars": "{count, plural, =1{1 star} other{{count} stars}}",
+  "@ratingStars": {"placeholders": {"count": {"type": "int"}}},
+  "ratingHint": "Anything to add? (optional)",
+  "ratingThanks": "Thanks!",
+  "adminRatingsTitle": "Star ratings",
+  "adminRatingsCount": "Ratings in total",
+  "adminRatingsAvg7": "Average, last 7 days",
+  "adminRatingsAvg30": "Average, last 30 days"
 }

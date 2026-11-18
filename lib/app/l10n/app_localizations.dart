@@ -14430,6 +14430,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Press back again to leave the game'**
   String get backAgainToExit;
+
+  /// No description provided for @onlineNobodyWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody is waiting right now'**
+  String get onlineNobodyWaiting;
+
+  /// No description provided for @onlineShareWithFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to your friends'**
+  String get onlineShareWithFriends;
+
+  /// No description provided for @onlineRemindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me when people gather'**
+  String get onlineRemindMe;
+
+  /// No description provided for @onlineRemindOn.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll tell you when people gather'**
+  String get onlineRemindOn;
+
+  /// No description provided for @ratingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you think of the game?'**
+  String get ratingTitle;
+
+  /// No description provided for @ratingStars.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 star} other{{count} stars}}'**
+  String ratingStars(int count);
+
+  /// No description provided for @ratingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything to add? (optional)'**
+  String get ratingHint;
+
+  /// No description provided for @ratingThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks!'**
+  String get ratingThanks;
+
+  /// No description provided for @adminRatingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Star ratings'**
+  String get adminRatingsTitle;
+
+  /// No description provided for @adminRatingsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratings in total'**
+  String get adminRatingsCount;
+
+  /// No description provided for @adminRatingsAvg7.
+  ///
+  /// In en, this message translates to:
+  /// **'Average, last 7 days'**
+  String get adminRatingsAvg7;
+
+  /// No description provided for @adminRatingsAvg30.
+  ///
+  /// In en, this message translates to:
+  /// **'Average, last 30 days'**
+  String get adminRatingsAvg30;
 }
 
 class _AppLocalizationsDelegate

@@ -9,6 +9,7 @@
  *   hello { name, gender, tz, locale } / me / setHandle { handle } / prefs
  *   search { query, page } / discover { filter, page }
  *   registerPush { token, platform }
+ *   watchRooms { on } / watchRoomsStatus   «فكّرني لما ناس تتجمع» → { on }
  * Routing and validation: _shared/friends_actions.ts. All rules live in SQL
  * (20260928000300_friends.sql, 20260930000100_invites_push.sql).
  */
@@ -80,5 +81,6 @@ Deno.serve(handler(async (req, userId, db) => {
   }
   // The inbox is a list and the name rule a boolean; every answer is an object.
   if (call.fn === "safety_name_allowed") return ok({ allowed: data === true });
+  if (call.fn === "room_watch_set" || call.fn === "room_watch_get") return ok({ on: data === true });
   return ok(call.fn === "invites_inbox" ? { invites: data } : data);
 }));

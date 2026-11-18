@@ -3596,6 +3596,23 @@ abstract final class AddToHomeTokens {
   static const double mark = 28;
 }
 
+/// «إيه رأيك في اللعبة؟»: the star sheet after a finished match.
+abstract final class FeedbackSheetTokens {
+  /// After the result screen appears, so the sheet never covers who won.
+  static const Duration delay = Duration(seconds: 2);
+
+  /// Finished matches on this device before the first and the second showing.
+  static const int firstAtFinished = 2;
+  static const int secondAtFinished = 5;
+
+  static const double starTarget = 48;
+  static const double starIcon = 34;
+  static const int fieldMinLines = 2;
+  static const int fieldMaxLines = 4;
+  static const int maxLength = 500;
+  static const double sheetMaxWidth = 520;
+}
+
 abstract final class FeedbackTokens {
   static const double tileHeight = 74;
   static const double tileIcon = 25;

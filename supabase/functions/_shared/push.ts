@@ -23,7 +23,7 @@ export interface PushTarget {
 }
 
 /** Kinds written by the push outbox (20261002000100_push_outbox.sql). */
-export type EventKind = "room_start" | "night" | "daily" | "thursday" | "comeback";
+export type EventKind = "room_start" | "night" | "daily" | "thursday" | "comeback" | "rooms_gathering";
 
 export interface PushDeps {
   /** The secret's value, or undefined when it is not set. */
@@ -214,6 +214,13 @@ export const EVENT_TEXT: Record<EventKind, {
     lines: [
       { title: "الليل نزل", body: "الليل بدأ في أوضتك. ارجع للعبة." },
       { title: "المدينة نامت", body: "الليل بدأ عند الكل. افتح الأوضة." },
+    ],
+  },
+  rooms_gathering: {
+    channel: "mafia_game",
+    image: false,
+    lines: [
+      { title: "الناس بتتجمع", body: "فيه أوضة عامة فيها ناس مستنية دلوقتي. ادخل قبل ما تكمل." },
     ],
   },
   daily: {

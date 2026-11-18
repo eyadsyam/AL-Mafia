@@ -271,6 +271,14 @@ class DirectoryApi {
   /// The settings switch: this device stops receiving notifications.
   Future<void> unregisterPush(String token) =>
       _call({'action': 'unregisterPush', 'token': token});
+
+  /// «فكّرني لما ناس تتجمع»: turns the watch on or off; answers the new state.
+  Future<bool> watchRooms(bool on) async =>
+      (await _call({'action': 'watchRooms', 'on': on}))['on'] == true;
+
+  /// Whether this player's watch is on.
+  Future<bool> watchRoomsStatus() async =>
+      (await _call({'action': 'watchRoomsStatus'}))['on'] == true;
 }
 
 final directoryApiProvider = Provider<DirectoryApi>(DirectoryApi.new);

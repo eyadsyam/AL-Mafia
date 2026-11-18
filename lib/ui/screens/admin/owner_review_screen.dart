@@ -315,7 +315,9 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
         .whereType<Map>()
         .map((row) => Map<String, dynamic>.from(row))
         .toList();
+    final ratings = _action == 'feedback' ? data['ratings'] : null;
     return [
+      if (ratings is Map) ..._ratingRows(ratings),
       if (rows.isEmpty && grants.isEmpty) Text(l.adminReviewEmpty),
       for (final row in rows) _row(row),
       if (_action == 'store' && grants.isNotEmpty) ...[
@@ -327,6 +329,26 @@ class _OwnerReviewScreenState extends ConsumerState<OwnerReviewScreen> {
             '${l.adminReviewSince}: ${grant['since'] ?? ''}',
           ),
       ],
+    ];
+  }
+
+  /// The star ratings (count, 7 and 30 day averages, the latest lines with
+  /// text). No player id is in the payload.
+  List<Widget> _ratingRows(Map ratings) {
+    final l = context.l10n;
+    final latest = (ratings['latest'] as List? ?? const []).whereType<Map>();
+    String avg(Object? v) => v == null ? '-' : '$v';
+    return [
+      Text(l.adminRatingsTitle, style: context.typography.body),
+      _tile(l.adminRatingsCount, '${ratings['count'] ?? 0}'),
+      _tile(l.adminRatingsAvg7, avg(ratings['avg7'])),
+      _tile(l.adminRatingsAvg30, avg(ratings['avg30'])),
+      for (final row in latest)
+        _tile(
+          '${row['stars']} / 5 · ${row['platform']} · ${l.feedbackBuild} ${row['build']}',
+          '${row['body'] ?? ''}\n${row['createdAt'] ?? ''}',
+        ),
+      SizedBox(height: context.spacing.md),
     ];
   }
 

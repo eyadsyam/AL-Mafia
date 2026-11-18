@@ -8411,4 +8411,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backAgainToExit => 'Press back again to leave the game';
+
+  @override
+  String get onlineNobodyWaiting => 'Nobody is waiting right now';
+
+  @override
+  String get onlineShareWithFriends => 'Send to your friends';
+
+  @override
+  String get onlineRemindMe => 'Remind me when people gather';
+
+  @override
+  String get onlineRemindOn => 'We\'ll tell you when people gather';
+
+  @override
+  String get ratingTitle => 'What do you think of the game?';
+
+  @override
+  String ratingStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars',
+      one: '1 star',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ratingHint => 'Anything to add? (optional)';
+
+  @override
+  String get ratingThanks => 'Thanks!';
+
+  @override
+  String get adminRatingsTitle => 'Star ratings';
+
+  @override
+  String get adminRatingsCount => 'Ratings in total';
+
+  @override
+  String get adminRatingsAvg7 => 'Average, last 7 days';
+
+  @override
+  String get adminRatingsAvg30 => 'Average, last 30 days';
 }

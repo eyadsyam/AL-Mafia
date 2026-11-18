@@ -8286,4 +8286,50 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get backAgainToExit => 'دوس رجوع تاني عشان تخرج من اللعبة';
+
+  @override
+  String get onlineNobodyWaiting => 'مفيش حد مستني دلوقتي';
+
+  @override
+  String get onlineShareWithFriends => 'ابعت لصحابك';
+
+  @override
+  String get onlineRemindMe => 'فكّرني لما ناس تتجمع';
+
+  @override
+  String get onlineRemindOn => 'هنبعتلك لما ناس تتجمع';
+
+  @override
+  String get ratingTitle => 'إيه رأيك في اللعبة؟';
+
+  @override
+  String ratingStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نجمة',
+      few: '$count نجوم',
+      two: 'نجمتين',
+      one: 'نجمة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ratingHint => 'عايز تقول حاجة؟ (مش لازم)';
+
+  @override
+  String get ratingThanks => 'شكرًا!';
+
+  @override
+  String get adminRatingsTitle => 'تقييمات النجوم';
+
+  @override
+  String get adminRatingsCount => 'عدد التقييمات';
+
+  @override
+  String get adminRatingsAvg7 => 'المتوسط، آخر 7 أيام';
+
+  @override
+  String get adminRatingsAvg30 => 'المتوسط، آخر 30 يوم';
 }

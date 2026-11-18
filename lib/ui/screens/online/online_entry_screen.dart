@@ -32,6 +32,7 @@ import '../../widgets/experience_surface.dart';
 import '../setup/profile_screen.dart';
 import '../setup/setup_draft.dart' show setupDraftProvider;
 import '../../../platform/metrics.dart' show metricsClientProvider;
+import 'nobody_waiting_card.dart';
 import 'online_session.dart';
 import 'room_settings_panel.dart';
 import 'terms_sync.dart';
@@ -846,7 +847,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       !_browseFailed &&
                                       !_nearlyReadyOnly &&
                                       _rooms.isEmpty)
-                                    _EmptyRooms(title: l.onlineNoPublicRooms),
+                                    const NobodyWaitingCard(),
                                 ],
                               ),
                             ),

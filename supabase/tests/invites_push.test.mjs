@@ -18,6 +18,15 @@ assert.deepEqual(friendsCall({ action: 'nameCheck', name: '  نور  ', p_user: 
 assert.equal(friendsCall({ action: 'nameCheck', name: '   ' }, me), null);
 assert.equal(friendsCall({ action: 'nameCheck', name: 'x'.repeat(41) }, me), null);
 
+// ── «فكّرني لما ناس تتجمع»: the caller's own watch ───────────────────────────
+assert.deepEqual(friendsCall({ action: 'watchRooms', on: true, p_user: other }, me),
+  { fn: 'room_watch_set', args: { p_user: me, p_on: true } });
+assert.deepEqual(friendsCall({ action: 'watchRooms', on: false }, me).args, { p_user: me, p_on: false });
+assert.equal(friendsCall({ action: 'watchRooms' }, me), null);
+assert.equal(friendsCall({ action: 'watchRooms', on: 'yes' }, me), null);
+assert.deepEqual(friendsCall({ action: 'watchRoomsStatus', userId: other }, me),
+  { fn: 'room_watch_get', args: { p_user: me } });
+
 // ── Routing: the caller is always the session ──────────────────────────────
 assert.deepEqual(friendsCall({ action: 'search', query: 'نور', p_user: other }, me),
   { fn: 'directory_search', args: { p_user: me, p_query: 'نور', p_page: 0 } });

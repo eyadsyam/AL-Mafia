@@ -34,7 +34,9 @@ const Map<String, String> kOwnerPushPaths = {
 class PushOpen {
   PushDestination get destination => switch (kind) {
     'room_start' || 'night' => PushDestination.onlineRoom,
-    'thursday' || 'comeback' => PushDestination.onlineEntry,
+    'thursday' ||
+    'comeback' ||
+    'rooms_gathering' => PushDestination.onlineEntry,
     'daily' => PushDestination.daily,
     'order_paid' || 'order_rejected' => PushDestination.orders,
     'friend_request' || 'friend_accepted' => PushDestination.friends,
@@ -69,6 +71,7 @@ class PushOpen {
         'daily' ||
         'thursday' ||
         'comeback' ||
+        'rooms_gathering' ||
         'order_paid' ||
         'order_rejected' ||
         'friend_request' ||

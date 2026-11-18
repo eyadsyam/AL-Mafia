@@ -5,6 +5,27 @@ const platforms = new Set(["android", "web", "ios"]);
 
 Deno.serve(handler(async (req, userId, db) => {
   const input = await req.json();
+  // The star rating after a finished match: its own validation and table.
+  if (input?.action === "rating") {
+    const stars = input?.stars;
+    const note = input?.body;
+    if (!Number.isInteger(stars) || stars < 1 || stars > 5 ||
+        (note != null && (typeof note !== "string" || note.trim().length > 500)) ||
+        !Number.isInteger(input?.build) || input.build < 0 ||
+        typeof input?.platform !== "string" || !platforms.has(input.platform)) {
+      return fail("BAD_REQUEST", "invalid rating");
+    }
+    const { data, error } = await db.rpc("submit_rating", {
+      p_user: userId, p_stars: stars, p_body: typeof note === "string" ? note.trim() : null,
+      p_build: input.build, p_platform: input.platform,
+    });
+    if (error) {
+      if (error.message.includes("RATE_LIMITED")) return fail("RATE_LIMITED", "try later", 429);
+      if (error.message.includes("BAD_REQUEST")) return fail("BAD_REQUEST", "invalid rating");
+      throw error;
+    }
+    return ok({ id: data?.id ?? null });
+  }
   const kind = input?.kind;
   const body = input?.body;
   const build = input?.build;

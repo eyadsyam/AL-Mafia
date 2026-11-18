@@ -120,6 +120,13 @@ export function friendsCall(body: Record<string, unknown>, userId: string): Frie
       if (token.length < 20 || token.length > 4096) return null;
       return { fn: "push_token_drop", args: { p_token: token } };
     }
+    // «فكّرني لما ناس تتجمع»: the caller's own watch, on or off.
+    case "watchRooms":
+      return typeof body.on === "boolean"
+        ? { fn: "room_watch_set", args: { p_user: userId, p_on: body.on } }
+        : null;
+    case "watchRoomsStatus":
+      return { fn: "room_watch_get", args: { p_user: userId } };
     default:
       return null;
   }

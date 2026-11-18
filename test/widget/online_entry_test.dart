@@ -962,7 +962,9 @@ void main() {
     testWidgets('an empty server says the list is empty', (tester) async {
       await pumpEntry(tester, containerWith());
 
-      expect(find.text(arStrings.onlineNoPublicRooms), findsOneWidget);
+      expect(find.text(arStrings.onlineNobodyWaiting), findsOneWidget);
+      expect(find.text(arStrings.onlineShareWithFriends), findsOneWidget);
+      expect(find.text(arStrings.onlineRemindMe), findsOneWidget);
       expect(find.text(arStrings.publicRoomsUnavailable), findsNothing);
     });
 
@@ -973,7 +975,7 @@ void main() {
 
       expect(find.text(arStrings.publicRoomsUnavailable), findsOneWidget);
       expect(
-        find.text(arStrings.onlineNoPublicRooms),
+        find.text(arStrings.onlineNobodyWaiting),
         findsNothing,
         reason:
             'a server that did not answer has not said there is nothing '

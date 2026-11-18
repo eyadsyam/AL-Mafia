@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/economy/economy_capabilities.dart';
 import '../ui/theme/design_tokens.dart';
+import 'rating_prompt.dart' show ratingPromptProvider;
 
 @immutable
 class ReviewPromptState {
@@ -93,6 +94,7 @@ class ReviewPrompt {
   final ReviewStateStore _store;
   final ReviewRequester _requester;
   final Future<bool> Function() _enabled;
+  final Future<DateTime?> Function()? _ratingShownOn;
   final DateTime Function() _now;
   bool _asking = false;
 
@@ -100,10 +102,12 @@ class ReviewPrompt {
     required ReviewStateStore store,
     required ReviewRequester requester,
     required Future<bool> Function() enabled,
+    Future<DateTime?> Function()? ratingShownOn,
     DateTime Function()? now,
   }) : _store = store,
        _requester = requester,
        _enabled = enabled,
+       _ratingShownOn = ratingShownOn,
        _now = now ?? (() => DateTime.now().toUtc());
 
   Future<void> noteCleanMatch() => _increment(clean: true);
@@ -142,6 +146,15 @@ class ReviewPrompt {
           _now().difference(last) < MafiaTiming.reviewPromptCooldown) {
         return false;
       }
+      // The «إيه رأيك في اللعبة؟» sheet was on screen today: not two asks a day.
+      final ratingDay = await _ratingShownOn?.call();
+      if (ratingDay != null) {
+        final a = ratingDay.toLocal();
+        final b = _now().toLocal();
+        if (a.year == b.year && a.month == b.month && a.day == b.day) {
+          return false;
+        }
+      }
       if (!state.calmHomeSeen) {
         await _store.save(state.copyWith(calmHomeSeen: true));
         return false;
@@ -163,6 +176,7 @@ final reviewPromptProvider = Provider<ReviewPrompt>((ref) {
   return ReviewPrompt(
     store: SharedPreferencesReviewStateStore(),
     requester: const PlayReviewRequester(),
+    ratingShownOn: () => ref.read(ratingPromptProvider).shownDay(),
     // Never fetches: the prompt is a courtesy, so it follows capabilities
     // someone else already loaded rather than starting a request of its own.
     enabled: () async =>

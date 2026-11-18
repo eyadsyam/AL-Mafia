@@ -281,7 +281,7 @@ void main() {
     testWidgets('an empty list has a clear state', (tester) async {
       await pumpEntry(tester, container());
       await tester.pumpAndSettle();
-      expect(find.text(arStrings.onlineNoPublicRooms), findsOneWidget);
+      expect(find.text(arStrings.onlineNobodyWaiting), findsOneWidget);
       expect(find.text(arStrings.onlineNoPublicRoomsHint), findsNothing);
     });
 
