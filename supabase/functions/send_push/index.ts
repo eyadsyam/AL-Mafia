@@ -5,8 +5,8 @@
  * rows, and a 30-second safety sweep) with an empty body. It takes no input and
  * trusts none: it claims pending rows through a service-role-only RPC and
  * sends them over FCM HTTP v1 with the same service account the invite push
- * uses (env `FCM_SERVICE_ACCOUNT_B64`). Calling it by hand only drains the
- * queue earlier, so it is deployed without JWT verification.
+ * uses (env `FCM_SERVICE_ACCOUNT_B64`). It requires the shared cron secret
+ * because it is deployed without JWT verification.
  *
  * Doc 05: the wording lives in `_shared/push.ts` (EVENT_TEXT) and says
  * nothing a single seat alone knows.
@@ -14,6 +14,7 @@
 import { CORS_HEADERS, fail, ok, serviceClient } from "../_shared/api.ts";
 import { sendPush, type PushDeps, type PushTarget } from "../_shared/push.ts";
 import { serviceAccountToken } from "../_shared/play_auth.ts";
+import { sameSecret } from "../_shared/same_secret.ts";
 
 interface Row {
   id: number;
@@ -24,6 +25,10 @@ interface Row {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS_HEADERS });
   if (req.method !== "POST") return fail("BAD_REQUEST", "use POST", 405);
+  const secret = Deno.env.get("PLAY_SYNC_SECRET");
+  if (!secret || !sameSecret(req.headers.get("x-sync-secret") ?? "", secret)) {
+    return new Response("forbidden", { status: 403 });
+  }
   try {
     const db = serviceClient();
     const deps: PushDeps = {

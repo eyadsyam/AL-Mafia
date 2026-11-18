@@ -29,6 +29,7 @@
  *   - a room the caller is not seated in       → 403 NOT_A_MEMBER
  *   - a seat the caller has left or been kicked from → 403 NOT_A_MEMBER
  *   - a match that has finished                → 403 ROOM_FINISHED
+ *   - unreadable seat or restriction checks    → 500, with no voice token
  *
  * ## What comes back
  *
@@ -41,9 +42,9 @@
  * ## Failure is a value
  *
  * Non-negotiable 5: voice is never load-bearing. A deployment with no Realtime
- * key answers 200 with `token: null` and the STUN ladder, and the client falls
- * back to signalling over Postgres exactly as it did before. A 500 here would
- * take the match down with the microphone.
+ * key answers 200 with `token: null` and the STUN ladder. An unreadable
+ * authorization check answers 500; the client treats that as no token and
+ * falls back to text signalling, so the match can still finish.
  */
 import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 import {
@@ -82,13 +83,15 @@ Deno.serve(handler(async (req, userId, db) => {
     .eq("room_id", roomId)
     .eq("user_id", userId)
     .maybeSingle();
+  if (seat.error) throw seat.error;
   if (seat.data?.status === "left") {
     return fail("NOT_A_MEMBER", "you are no longer in that room", 403);
   }
 
   // F11: a voice restriction takes this account off voice, and only voice.
   // The match does not need it (non-negotiable 5).
-  const { data: restricted } = await db.rpc("safety_restricted", { p_user: userId, p_kind: "voice" });
+  const { data: restricted, error: restrictedError } = await db.rpc("safety_restricted", { p_user: userId, p_kind: "voice" });
+  if (restrictedError) throw restrictedError;
   if (restricted === true) {
     return fail("ACCOUNT_RESTRICTED", "voice is restricted for this account", 403);
   }

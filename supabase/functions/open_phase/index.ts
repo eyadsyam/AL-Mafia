@@ -38,7 +38,7 @@ import { clearedFor, deadlineFor, TRANSITIONS } from "../_shared/phases.ts";
 import { discussionComplete, firstDayPhase } from "../_shared/phase_guards.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
-  const { roomId, phase: asked, silent } = await req.json();
+  const { roomId, phase: asked } = await req.json();
   let phase = asked;
   if (!roomId || !phase) return fail("BAD_REQUEST", "roomId and phase required");
 
@@ -92,7 +92,8 @@ Deno.serve(handler(async (req, userId, db) => {
       me.phaseNumber === 1 && firstDayPhase(me.settings) === "opening") {
     return fail("PHASE_CLOSED", "the opening round is enabled");
   }
-  if (me.phase === "morning" && phase !== "result") {
+  // A decided match can open only the result, from any current phase.
+  if (phase !== "result") {
     const { data: state, error } = await db.from("room_state")
       .select("public_data").eq("room_id", roomId).maybeSingle();
     if (error) throw error;
@@ -148,8 +149,7 @@ Deno.serve(handler(async (req, userId, db) => {
     }
   }
 
-  // `result` is only reachable from a morning that already decided the match.
-  // Anything else would be a client ending a game that is still being played.
+  // `result` needs a persisted outcome, never just the client's request.
   let finalStandings: Record<string, unknown>[] | null = null;
   if (phase === "result") {
     const { data: state, error: stateError } = await db.from("room_state")
@@ -199,10 +199,10 @@ Deno.serve(handler(async (req, userId, db) => {
 
   const patch: Record<string, unknown> = { ...clearedFor(phase) };
   if (openingSeat !== null) patch.openingSeat = openingSeat;
-  // C-E5 — a confrontation that ended in silence says so, because the silence
-  // is information the table is entitled to and `C9` reads it later.
+  // Silence is recorded only when the server's clock closed the window. An
+  // early close by the confronted player or host proves no silence.
   if (phase === "discuss" && me.phase === "confront") {
-    patch.confrontationSilent = silent === true;
+    patch.confrontationSilent = expired;
   }
 
   if (finalStandings !== null) patch.standings = finalStandings;

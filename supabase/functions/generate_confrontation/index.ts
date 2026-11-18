@@ -33,11 +33,14 @@ Deno.serve(handler(async (req, userId, db) => {
     return fail("NOT_HOST", "the host advances the day", 403);
   }
 
-  const history = await buildHistory(db, roomId);
-  // Today's silenced seat, as this morning announced it to the table.
   const { data: room, error: roomError } = await db.from("room_state")
     .select("public_data").eq("room_id", roomId).maybeSingle();
   if (roomError) throw roomError;
+  if ((room?.public_data as Record<string, unknown> | null)?.outcome) {
+    return fail("PHASE_CLOSED", "the match has ended");
+  }
+  const history = await buildHistory(db, roomId);
+  // Today's silenced seat, as this morning announced it to the table.
   const morning = (room?.public_data as Record<string, unknown> | null)
     ?.morning as { silencedSeat?: number | null } | null | undefined;
   const confrontation = selectConfrontation({

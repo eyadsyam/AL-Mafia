@@ -21,6 +21,8 @@ import { fail, handler, loadMembership, ok } from "../_shared/api.ts";
 
 /** Matches `ghost_body_length`. Refused, never truncated — see `send_whisper`. */
 const MAX_LENGTH = 240;
+/** Limits one ghost's messages in a rolling minute. */
+const MAX_PER_MINUTE = 8;
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId, body } = await req.json();
@@ -39,6 +41,16 @@ Deno.serve(handler(async (req, userId, db) => {
   // of the function: here it is the *living* who are refused.
   if (me.alive) {
     return fail("NOT_ALIVE", "the living do not speak in the graveyard", 403);
+  }
+  if (me.status !== "playing") return fail("PHASE_CLOSED", "no match is running");
+  const { count, error: countError } = await db.from("ghost_messages")
+    .select("id", { count: "exact", head: true })
+    .eq("room_id", roomId)
+    .eq("author_id", userId)
+    .gte("created_at", new Date(Date.now() - 60_000).toISOString());
+  if (countError) throw countError;
+  if ((count ?? 0) >= MAX_PER_MINUTE) {
+    return fail("RATE_LIMITED", "too many messages, wait a moment", 429);
   }
 
   const { data, error } = await db

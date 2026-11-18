@@ -290,13 +290,6 @@ export function economyCall(
             p_why: body.why ?? null, p_how: body.how ?? null,
           } }
         : null;
-    // «العب ضد البوتات»: a win pays, capped per day by the server.
-    case "botStart":
-      return { rpc: "start_bot_match", args: { p_user: userId } };
-    case "botWin":
-      return typeof body.sessionId === "string" && UUID.test(body.sessionId)
-        ? { rpc: "claim_bot_win", args: { p_user: userId, p_session: body.sessionId } }
-        : null;
     case "toolsGet":
       return { rpc: "table_tools_snapshot", args: { p_user: userId } };
     case "toolBuy":

@@ -545,6 +545,10 @@ def main():
     check("a stale holder cannot release somebody else's floor",
           status == 200 and still and still[0]["active_speaker"] == second["id"], still)
 
+    # Since 2026-10-30 the ballot opens only once every living seat has said
+    # it is ready (or the discussion clock runs out).
+    for p in living:
+        fn("ready_to_vote", {"roomId": room_id, "ready": True}, p)
     fn("open_phase", {"roomId": room_id, "phase": "vote"}, players[0])
     for p in living:
         # The town gets it wrong on day one, on purpose: a match that ends the
@@ -694,6 +698,10 @@ def main():
           bool(state) and state[0]["phase"] == "discuss", state)
 
     # ── day two: the ballot ──────────────────────────────────────
+    # Since 2026-10-30 the ballot opens only once every living seat has said
+    # it is ready (or the discussion clock runs out).
+    for p in alive2:
+        fn("ready_to_vote", {"roomId": room_id, "ready": True}, p)
     fn("open_phase", {"roomId": room_id, "phase": "vote"}, players[0])
     for p in alive2:
         target = detective["seat"] if p is mafia else mafia["seat"]

@@ -53,6 +53,46 @@ Deno.serve(handler(async (req, userId, db) => {
     return fail("PHASE_CLOSED", "the phase has not expired yet");
   }
 
+  // Every transition compares the phase, day and deadline the caller read.
+  const move = async (
+    next: string,
+    patch: Record<string, unknown>,
+    applied: string,
+    extra: Record<string, unknown> = {},
+  ) => {
+    const { data: moved, error } = await db.rpc("commit_phase_open", {
+      p_room: roomId,
+      p_expected: me.phase,
+      p_number: me.phaseNumber,
+      p_expected_deadline: me.phaseEndsAt,
+      p_next: next,
+      p_next_number: me.phaseNumber,
+      p_deadline: deadlineFor(next, me.settings),
+      p_patch: patch,
+      p_require_all_seen: false,
+    });
+    if (error) throw error;
+    if (!moved) return fail("PHASE_CLOSED", "the room has already moved on");
+    return ok({ applied, ...extra });
+  };
+
+  const { data: state, error: stateError } = await db.from("room_state")
+    .select("public_data").eq("room_id", roomId).maybeSingle();
+  if (stateError) throw stateError;
+  const archive = (state?.public_data ?? {}) as Record<string, unknown>;
+  if (archive.outcome) {
+    const eliminations = (archive.eliminations ?? {}) as Record<string, { phase: string; number: number }>;
+    const { data: allPlayers, error: rosterError } = await db.from("room_players")
+      .select("seat, role").eq("room_id", roomId).not("role", "is", null).order("seat");
+    if (rosterError) throw rosterError;
+    const standings = (allPlayers ?? []).map((p) => ({
+      seat: p.seat, role: p.role,
+      eliminatedPhase: eliminations[String(p.seat)]?.phase ?? null,
+      eliminatedNumber: eliminations[String(p.seat)]?.number ?? null,
+    }));
+    return await move("result", { ...clearedFor("result"), standings }, "result-opened");
+  }
+
   const { data: players, error: playersError } = await db
     .from("room_players")
     .select("user_id, seat, alive, role")
@@ -124,9 +164,6 @@ Deno.serve(handler(async (req, userId, db) => {
   }
 
   if (me.phase === "vote") {
-    const { data: state, error: stateError } = await db.from("room_state")
-      .select("public_data").eq("room_id", roomId).maybeSingle();
-    if (stateError) throw stateError;
     // The round is the room's, never inferred from whatever ballots exist: a
     // revote that nobody has voted in yet is still round two.
     const revote = (state?.public_data as Record<string, unknown> | null)
@@ -161,33 +198,6 @@ Deno.serve(handler(async (req, userId, db) => {
     return ok({ applied: "abstentions" });
   }
 
-  // Everything below moves the room, and every move is one compare-and-set on
-  // the phase, day and deadline this caller read (`commit_phase_open`). The
-  // payload lands in the same statement as the phase, so a second driver that
-  // asks a moment later matches nothing — it cannot re-apply the patch to a
-  // phase the room has left, and it cannot reset a clock that already moved.
-  const move = async (
-    next: string,
-    patch: Record<string, unknown>,
-    applied: string,
-    extra: Record<string, unknown> = {},
-  ) => {
-    const { data: moved, error } = await db.rpc("commit_phase_open", {
-      p_room: roomId,
-      p_expected: me.phase,
-      p_number: me.phaseNumber,
-      p_expected_deadline: me.phaseEndsAt,
-      p_next: next,
-      p_next_number: me.phaseNumber,
-      p_deadline: deadlineFor(next, me.settings),
-      p_patch: patch,
-      p_require_all_seen: false,
-    });
-    if (error) throw error;
-    if (!moved) return fail("PHASE_CLOSED", "the room has already moved on");
-    return ok({ applied, ...extra });
-  };
-
   if (me.phase === "confront") {
     // C-E5 — the window closes and the day proceeds. The silence is recorded
     // because it is information, not because something failed.
@@ -195,22 +205,6 @@ Deno.serve(handler(async (req, userId, db) => {
   }
 
   if (me.phase === "morning" && me.phaseNumber === 1) {
-    const { data: state, error } = await db.from("room_state")
-      .select("public_data").eq("room_id", roomId).maybeSingle();
-    if (error) throw error;
-    const archive = (state?.public_data ?? {}) as Record<string, unknown>;
-    if (archive.outcome) {
-      const eliminations = (archive.eliminations ?? {}) as Record<string, { phase: string; number: number }>;
-      const { data: allPlayers, error: rosterError } = await db.from("room_players")
-        .select("seat, role").eq("room_id", roomId).not("role", "is", null).order("seat");
-      if (rosterError) throw rosterError;
-      const standings = (allPlayers ?? []).map((p) => ({
-        seat: p.seat, role: p.role,
-        eliminatedPhase: eliminations[String(p.seat)]?.phase ?? null,
-        eliminatedNumber: eliminations[String(p.seat)]?.number ?? null,
-      }));
-      return await move("result", { ...clearedFor("result"), standings }, "result-opened");
-    }
     if (firstDayPhase(me.settings) === "opening") {
       const first = roster.map((p) => p.seat).sort((a, b) => a - b)[0];
       if (first === undefined) return fail("PHASE_CLOSED", "nobody is alive");
@@ -231,9 +225,6 @@ Deno.serve(handler(async (req, userId, db) => {
     // said nothing looks like, and `C10` reads that silence honestly later.
     // Recording a name nobody said would put a fabricated accusation into the
     // generators' input, which is the one thing rule 4 forbids outright.
-    const { data: state, error: stateError } = await db.from("room_state")
-      .select("public_data").eq("room_id", roomId).maybeSingle();
-    if (stateError) throw stateError;
     const current = Number(
       (state?.public_data as Record<string, unknown> | null)?.openingSeat ?? -1,
     );

@@ -119,8 +119,11 @@ begin
 
   -- confrontation: only from the morning the driver read, and the archive,
   -- the live payload and the phase land together
+  -- (the room above was decided; a decided morning publishes nothing, so the
+  -- fixture forgets the outcome before reusing the room)
   update public.rooms set status='playing' where id=r;
-  update public.room_state set phase='morning',phase_number=2,phase_ends_at=d0 where room_id=r;
+  update public.room_state set phase='morning',phase_number=2,phase_ends_at=d0,
+    public_data=public_data-'outcome' where room_id=r;
   if public.commit_confrontation(r,1,d0,'{"targetSeat":1}','confront',d1) then
     raise exception 'confrontation accepted for the wrong day';
   end if;
