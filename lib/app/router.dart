@@ -52,6 +52,7 @@ import '../ui/screens/setup/setup_draft.dart';
 import '../ui/fun/characters_screen.dart';
 import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
 import '../ui/economy/ad_veil.dart';
+import '../platform/metrics.dart' show metricsClientProvider, tableSizeBucket;
 import '../platform/monetization/rewarded_ads.dart';
 import '../ui/screens/setup/before_start_sheet.dart';
 import '../ui/screens/online/room_closed_notice.dart';
@@ -321,6 +322,13 @@ GoRouter buildRouter(
           roleCounts: roleCounts,
           settings: draft.settings,
         );
+    // Usage counts: a one-phone match started, by table size.
+    ref
+        .read(metricsClientProvider)
+        .record(
+          'match_local_started',
+          prop: tableSizeBucket(draft.names.length),
+        );
 
     // A group that just started a match gets its play count bumped and its
     // configuration remembered, which is what makes the *next* rematch a
@@ -499,9 +507,17 @@ GoRouter buildRouter(
         path: Routes.mode,
         builder: (context, state) => SetupRequired(
           child: ModeScreen(
-            onPlayOffline: () => goOffline(context),
+            onPlayOffline: () {
+              ref.read(metricsClientProvider).record('mode_pick', prop: 'local');
+              goOffline(context);
+            },
             onPlayOnline: SupabaseConfig.isConfigured
-                ? () => forwardTo(context, Routes.online)
+                ? () {
+                    ref
+                        .read(metricsClientProvider)
+                        .record('mode_pick', prop: 'online');
+                    unawaited(forwardTo(context, Routes.online));
+                  }
                 : null,
             onPlayStories: kOfferStories
                 ? () => forwardTo(context, Routes.stories)

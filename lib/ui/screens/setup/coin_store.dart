@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../platform/metrics.dart' show metricsClientProvider;
 import '../../../platform/payment_capabilities.dart';
 import '../../economy/coin_packs.dart';
 import '../../economy/cosmetics.dart';
@@ -195,6 +196,8 @@ class _CoinStoreState extends ConsumerState<CoinStore> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      // Usage counts: the store opened (once per open, not per rebuild).
+      ref.read(metricsClientProvider).record('store_open');
       retryCapabilitiesIfFailed(ref);
       // A shelf that failed to load stays failed until it is asked again.
       if (ref.read(tableToolsProvider).hasError) {

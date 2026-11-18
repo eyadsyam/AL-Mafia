@@ -443,6 +443,9 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
   /// F13/P8 and P9 on arriving home. Both follow capabilities something else
   /// already loaded: `exists` first, so this never starts a request of its
   /// own and never delays a frame.
+  // Usage counts: app_open is recorded once per process.
+  static bool _appOpenRecorded = false;
+
   void _calmHome() {
     // iPhone browser tab only, once, after the first finished match.
     final homeContext = _navigatorKey.currentContext;
@@ -452,7 +455,13 @@ class _MafiaAppState extends ConsumerState<MafiaApp>
     if (!ref.exists(economyCapabilitiesProvider)) return;
     final caps = ref.read(economyCapabilitiesProvider).valueOrNull;
     if (caps == null) return;
-    if (caps.metrics) unawaited(ref.read(firstOpenAttributionProvider).run());
+    if (caps.metrics) {
+      unawaited(ref.read(firstOpenAttributionProvider).run());
+      if (!_appOpenRecorded) {
+        _appOpenRecorded = true;
+        ref.read(metricsClientProvider).record('app_open');
+      }
+    }
     if (caps.reviewPrompt) _maybeAskForReview();
   }
 

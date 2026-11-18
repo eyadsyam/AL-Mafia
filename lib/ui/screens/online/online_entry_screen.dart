@@ -32,6 +32,7 @@ import '../../widgets/player_avatar.dart';
 import '../../widgets/experience_surface.dart';
 import '../setup/profile_screen.dart';
 import '../setup/setup_draft.dart' show setupDraftProvider;
+import '../../../platform/metrics.dart' show metricsClientProvider;
 import 'online_session.dart';
 import 'room_settings_panel.dart';
 import 'safety_center.dart';
@@ -390,6 +391,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
 
   Future<void> _startQuickMatch() async {
     if (_quickMatchBusy || ref.read(onlineSessionProvider).busy) return;
+    ref.read(metricsClientProvider).record('online_action', prop: 'quick');
     setState(() => _quickMatchBusy = true);
     try {
       await _enter(quickMatch: true);
@@ -718,7 +720,17 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                           label: Text(l.onlineCreateRoom),
                                           onPressed: state.busy
                                               ? null
-                                              : () => _go(_Step.create),
+                                              : () {
+                                                  ref
+                                                      .read(
+                                                        metricsClientProvider,
+                                                      )
+                                                      .record(
+                                                        'online_action',
+                                                        prop: 'create',
+                                                      );
+                                                  _go(_Step.create);
+                                                },
                                         ),
                                       ),
                                       SizedBox(width: s.sm),
@@ -899,7 +911,15 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                     room: room,
                                     onTap: state.busy || room.isFull
                                         ? null
-                                        : () => _enter(code: room.code),
+                                        : () {
+                                            ref
+                                                .read(metricsClientProvider)
+                                                .record(
+                                                  'online_action',
+                                                  prop: 'join_public',
+                                                );
+                                            unawaited(_enter(code: room.code));
+                                          },
                                   );
                                 },
                               ),
@@ -1015,7 +1035,15 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
                                       busy: state.busy,
                                       onChanged: () => setState(() {}),
                                       onClose: () => _go(_Step.browse),
-                                      onJoin: () => _enter(),
+                                      onJoin: () {
+                                        ref
+                                            .read(metricsClientProvider)
+                                            .record(
+                                              'online_action',
+                                              prop: 'join_code',
+                                            );
+                                        unawaited(_enter());
+                                      },
                                     ),
                                   ),
                                 ),
