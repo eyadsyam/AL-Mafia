@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import 'audio_director.dart' show webAudioAssetKey;
+import '../ui/theme/design_tokens.dart';
 
 /// Where a narration is. [ended] is its own state: the bar offers «اسمعها
 /// تاني» and never loops or restarts by itself.
@@ -47,7 +48,7 @@ class NarrationController extends ChangeNotifier {
     ];
   }
 
-  static const skipStep = Duration(seconds: 5);
+  static const skipStep = NarrationTimingTokens.skipStep;
 
   final NarrationPlayer _player;
   final bool _web;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +7,7 @@ import '../../data/repository_provider.dart';
 import '../../engine/models/enums.dart' show GamePhase;
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
+import '../theme/design_tokens.dart';
 import 'match_controller.dart';
 import 'online/table/table_scene.dart' show tableIsAvailableFor;
 import 'match_flow.dart';
@@ -149,8 +152,8 @@ class MatchRoute extends ConsumerWidget {
   /// Writes the current match after a confirmed step.
   ///
   /// Fire-and-forget on purpose: a storage hiccup must never block the game in
-  /// front of the players. The cost of a dropped write is one replayed step on
-  /// resume, which the pass screen makes safe.
+  /// front of the players. A failed write gets one delayed attempt with the
+  /// latest match; a second failure is reported without match contents.
   ///
   /// Asks the engine whether there is anything to write rather than asking
   /// which transport is in use. There is no local match in an online room —
@@ -159,11 +162,22 @@ class MatchRoute extends ConsumerWidget {
   /// throw. The failure was silent to the player and total to the log: it
   /// landed on the first night action of every online match.
   void _persist(WidgetRef ref) {
-    final engine = ref.read(matchControllerProvider.notifier).engine;
+    final controller = ref.read(matchControllerProvider.notifier);
+    final engine = controller.engine;
     if (!engine.hasMatch) return;
-    ref
-        .read(matchRepositoryProvider)
-        .persistStep(engine.match)
-        .catchError((_) {});
+    final repository = ref.read(matchRepositoryProvider);
+    unawaited(() async {
+      try {
+        await repository.persistStep(engine.match);
+      } catch (_) {
+        await Future<void>.delayed(ReliabilityTokens.persistRetry);
+        if (!controller.engine.hasMatch) return;
+        try {
+          await repository.persistStep(controller.engine.match);
+        } catch (error) {
+          debugPrint('persistStep retry failed: ${error.runtimeType}');
+        }
+      }
+    }());
   }
 }

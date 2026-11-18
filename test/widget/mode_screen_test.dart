@@ -111,13 +111,11 @@ void main() {
   Widget screen({
     VoidCallback? offline,
     VoidCallback? online,
-    VoidCallback? bots,
     VoidCallback? stories,
   }) => localizedApp(
     ModeScreen(
       onPlayOffline: offline ?? () {},
       onPlayOnline: online ?? () {},
-      onPlayBots: bots ?? () {},
       onPlayStories: stories ?? () {},
       onBack: () {},
     ),
@@ -165,25 +163,19 @@ void main() {
   ) async {
     var offline = 0;
     var online = 0;
-    var bots = 0;
     await tester.pumpWidget(
-      screen(
-        offline: () => offline++,
-        online: () => online++,
-        bots: () => bots++,
-      ),
+      screen(offline: () => offline++, online: () => online++),
     );
     await tester.pumpAndSettle();
     for (final (key, want) in [
-      (ModeScreen.offlineCard, [1, 0, 0]),
-      (ModeScreen.onlineCard, [1, 1, 0]),
-      (ModeScreen.botsCard, [1, 1, 1]),
+      (ModeScreen.offlineCard, [1, 0]),
+      (ModeScreen.onlineCard, [1, 1]),
     ]) {
       await tester.tap(find.byKey(ModeScreen.mafiaCard));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(key));
       await tester.pumpAndSettle();
-      expect([offline, online, bots], want, reason: '$key');
+      expect([offline, online], want, reason: '$key');
       await tester.tap(find.byKey(ModeScreen.closeButton));
       await tester.pumpAndSettle();
       expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsNothing);
@@ -223,7 +215,6 @@ void main() {
       for (final key in [
         ModeScreen.offlineCard,
         ModeScreen.onlineCard,
-        ModeScreen.botsCard,
         ModeScreen.closeButton,
       ]) {
         final rect = tester.getRect(find.byKey(key));
@@ -235,17 +226,14 @@ void main() {
       final ways = [
         ModeScreen.offlineCard,
         ModeScreen.onlineCard,
-        ModeScreen.botsCard,
       ].map((k) => tester.getRect(find.byKey(k))).toList();
       expect(ways[0].overlaps(ways[1]), isFalse);
-      expect(ways[1].overlaps(ways[2]), isFalse);
       expect(
         ways.any(
           (r) => r.overlaps(tester.getRect(find.byKey(ModeScreen.closeButton))),
         ),
         isFalse,
       );
-      expect(find.textContaining('بوت'), findsNothing);
     });
   }
 

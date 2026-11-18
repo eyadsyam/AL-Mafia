@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نماذج الدفعة 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#0F0F0F; --raised:#1A1A1A; --overlay:#252525; --line:#313131;
+  --bone:#C2BDB2; --muted:#908C83; --silver:#67635F; --ink:#141414;
+  --page:#0A0A0A; --pagetext:#C2BDB2; --pagemuted:#908C83;
+  --ad:#1d2a22; --adline:#2f4a39; --pick:#3a3326;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--page:#E9E6E0;--pagetext:#1A1A1A;--pagemuted:#4A4740}}
+:root[data-theme="light"]{--page:#E9E6E0;--pagetext:#1A1A1A;--pagemuted:#4A4740}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--pagetext);font-family:"IBM Plex Sans Arabic",sans-serif;line-height:1.6;letter-spacing:0;padding:24px 16px 48px}
+h1,h2,h3,b,.btn,.title{font-family:Cairo,sans-serif;letter-spacing:0}
+header{max-width:1100px;margin:0 auto 20px}
+header h1{font-size:24px}
+header p{color:var(--pagemuted);font-size:15px;max-width:820px}
+nav{max-width:1100px;margin:0 auto 28px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-family:Cairo;font-weight:700;font-size:14px;color:var(--pagetext);border:1px solid var(--pagemuted);border-radius:999px;padding:4px 14px;text-decoration:none}
+section{max-width:1100px;margin:0 auto 48px}
+section>h2{font-size:20px;margin-bottom:4px}
+section>p.why{color:var(--pagemuted);font-size:14px;margin-bottom:16px;max-width:780px}
+.row{display:flex;gap:20px;flex-wrap:wrap;justify-content:flex-start}
+.col{display:flex;flex-direction:column;gap:8px;align-items:center}
+.tag{font-family:Cairo;font-weight:700;font-size:13px;color:var(--pagemuted)}
+.tag.rec{color:var(--pagetext)}
+.phone{width:300px;max-width:100%;height:620px;background:var(--ground);color:var(--bone);border:1px solid var(--line);border-radius:26px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.screen{flex:1;display:flex;flex-direction:column;gap:12px;padding:18px 16px;min-height:0;position:relative}
+.center{justify-content:center;align-items:center;text-align:center}
+.title{font-size:24px;font-weight:800}
+.title.s{font-size:19px}
+.sub{color:var(--muted);font-size:14px}
+.btn{background:var(--bone);color:var(--ink);border-radius:14px;text-align:center;padding:12px;font-weight:800;font-size:16px;width:100%}
+.btn.sec2{background:var(--raised);color:var(--bone);border:1px solid var(--line);font-weight:700;font-size:15px}
+.btn.ghost{background:transparent;color:var(--muted);font-weight:700;padding:6px}
+.pair{display:flex;gap:8px}
+.pair .btn{padding:10px;font-size:14px}
+.band{height:62px;flex:0 0 62px;border-top:1px solid var(--line);background:var(--ground);display:flex;align-items:center;justify-content:center;padding:6px 10px}
+.band .ad{width:100%;height:100%;border:1px dashed var(--adline);background:var(--ad);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#7fa58c}
+.top{display:flex;justify-content:space-between;color:var(--muted);font-size:18px;align-items:center}
+.corner{display:flex;gap:6px}
+.corner span{width:30px;height:30px;border-radius:9px;background:var(--raised);border:1px solid var(--line)}
+.sec{font-family:Cairo;font-weight:700;font-size:13px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between;align-items:center}
+.chips{display:flex;gap:6px}
+.chip{font-family:Cairo;font-weight:700;font-size:12px;border-radius:8px;padding:2px 10px;background:var(--bone);color:var(--ink)}
+.chip.o{background:transparent;color:var(--bone);border:1px solid var(--line)}
+.empty{border:1px solid var(--line);border-radius:14px;background:var(--raised);padding:14px;display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center}
+.empty .head{font-family:Cairo;font-weight:800;font-size:16px}
+.bare{color:var(--muted);font-size:14px;text-align:center;padding:18px 0}
+.ok{display:flex;justify-content:space-between;align-items:center;background:var(--overlay);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:14px}
+.ok b{font-size:14px}
+.ok small{color:var(--muted);font-size:12px;font-family:Cairo;font-weight:700}
+.hero{flex:1;display:flex;align-items:center;justify-content:center}
+.art{width:150px;height:220px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(170deg,#2a2a2a,#0f0f0f);box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.live{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:var(--bone);font-family:Cairo;font-weight:700;padding:4px 0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bone);box-shadow:0 0 0 3px rgba(194,189,178,.18)}
+.live small{color:var(--muted);font-weight:700}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:3}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--raised);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;z-index:4}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 2px}
+.stars{display:flex;justify-content:center;gap:10px;font-size:30px;direction:ltr}
+.stars span{color:var(--silver)}
+.stars span.on{color:var(--bone)}
+.field{background:var(--overlay);border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--muted);font-size:14px;min-height:64px}
+.res{display:flex;flex-direction:column;gap:6px;opacity:.5}
+.res .win{font-family:Cairo;font-weight:800;font-size:22px;text-align:center}
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--raised);border-bottom:1px solid var(--line);font-family:Cairo;font-weight:700;font-size:15px}
+.item:last-child{border-bottom:0}
+.item small{font-family:"IBM Plex Sans Arabic";font-weight:400;color:var(--muted);font-size:12px}
+.item.done{color:var(--silver)}
+.big{font-family:Cairo;font-weight:800;font-size:34px}
+.count{width:74px;height:74px;border-radius:50%;border:2px solid var(--bone);display:flex;align-items:center;justify-content:center;font-family:Cairo;font-weight:800;font-size:30px;margin:6px auto}
+.sound{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center;justify-content:center}
+.steps{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.step{font-family:Cairo;font-weight:700;font-size:14px;border:1px solid var(--pagemuted);border-radius:10px;padding:6px 12px;color:var(--pagetext)}
+.step.mark{border-width:2px}
+.step small{display:block;font-family:"IBM Plex Sans Arabic";font-weight:400;font-size:12px;color:var(--pagemuted)}
+.arrow{color:var(--pagemuted);font-family:Cairo}
+.notes{color:var(--pagemuted);font-size:14px;margin-top:12px;max-width:820px}
+.notes li{margin:4px 18px 0 0}
+.fix{max-width:1100px;margin:0 auto 32px;border:1px solid var(--pagemuted);border-radius:14px;padding:14px 16px;font-size:15px}
+.fix b{font-size:16px}
+</style>
+</head>
+<body>
+<header>
+  <h1>نماذج الدفعة 2</h1>
+  <p>الشاشات اللي هتتغير في التحديث الجاي. كل حاجة هنا ماكيت بس، ومفيش كود اتكتب لأي شاشة فيهم. وافق أو عدّل على كل جزء، وبعدها أبدأ أنفّذ.</p>
+</header>
+
+<div class="fix">
+  <b>تصحيح لرقم قلته امبارح:</b> قلتلك إن 3 من كل 4 بيقفلوا من أول شاشة. الرقم ده كان غلط مني. الموافقة على الشروط بتتسجل على الموبايل، ومبتوصلش السيرفر غير لما اللاعب يدخل أونلاين أول مرة. فالـ 55 دول هما اللي دخلوا أونلاين، مش اللي وافقوا. الصح إننا لسه منعرفش الناس بتقف فين. الجزء B5 تحت بيصلّح ده.
+</div>
+
+<nav><a href="#b1">B1 مفيش أوض</a><a href="#b2">B2 سطر الأونلاين</a><a href="#b3">B3 رأيك</a><a href="#b4">B4 كارتي</a><a href="#b5">B5 ترتيب أول مرة</a></nav>
+
+<section id="b1">
+  <h2>B1 — شاشة الأونلاين لما مفيش أوض</h2>
+  <p class="why">دلوقتي الشاشة بتقول «مفيش أوض عامة مفتوحة دلوقتي» وبس. الجديد إنها تديله حاجتين يعملهم: يبعت لصحابه، أو يطلب إننا نفكّره لما ناس تتجمع. «فكّرني» إشعار واحد بالكتير في اليوم، بيوصل لما يبقى فيه أوضة عامة فيها 3 مستنيين أو أكتر.</p>
+  <div class="row">
+    <div class="col"><div class="tag">دلوقتي</div>
+      <div class="phone"><div class="screen">
+        <div class="top"><span>→</span><span></span></div>
+        <div class="title s">العب أونلاين</div>
+        <div class="btn">العب مع ناس دلوقتي</div>
+        <div class="pair"><div class="btn sec2">اعمل أوضة</div><div class="btn sec2">ادخل أوضة</div></div>
+        <div class="sec"><span>أوض عامة</span><span class="chips"><span class="chip">الكل</span><span class="chip o">قربت تكمل</span></span></div>
+        <div class="bare">مفيش أوض عامة مفتوحة دلوقتي</div>
+      </div><div class="band"><div class="ad">إعلان</div></div></div></div>
+    <div class="col"><div class="tag rec">الجديد</div>
+      <div class="phone"><div class="screen">
+        <div class="top"><span>→</span><span></span></div>
+        <div class="title s">العب أونلاين</div>
+        <div class="btn">العب مع ناس دلوقتي</div>
+        <div class="pair"><div class="btn sec2">اعمل أوضة</div><div class="btn sec2">ادخل أوضة</div></div>
+        <div class="sec"><span>أوض عامة</span><span class="chips"><span class="chip">الكل</span><span class="chip o">قربت تكمل</span></span></div>
+        <div class="empty">
+          <div class="head">مفيش حد مستني دلوقتي</div>
+          <div class="btn sec2">ابعت لصحابك</div>
+          <div class="btn sec2">فكّرني لما ناس تتجمع</div>
+        </div>
+      </div><div class="band"><div class="ad">إعلان</div></div></div></div>
+    <div class="col"><div class="tag">بعد ما داس «فكّرني»</div>
+      <div class="phone"><div class="screen">
+        <div class="top"><span>→</span><span></span></div>
+        <div class="title s">العب أونلاين</div>
+        <div class="btn">العب مع ناس دلوقتي</div>
+        <div class="pair"><div class="btn sec2">اعمل أوضة</div><div class="btn sec2">ادخل أوضة</div></div>
+        <div class="sec"><span>أوض عامة</span><span class="chips"><span class="chip">الكل</span><span class="chip o">قربت تكمل</span></span></div>
+        <div class="empty">
+          <div class="head">مفيش حد مستني دلوقتي</div>
+          <div class="btn sec2">ابعت لصحابك</div>
+          <div class="ok"><b>هنبعتلك لما ناس تتجمع</b><small>إلغاء</small></div>
+        </div>
+      </div><div class="band"><div class="ad">إعلان</div></div></div></div>
+  </div>
+  <ul class="notes">
+    <li>«ابعت لصحابك» بيفتح نفس شيت المشاركة اللي موجود دلوقتي في اللوبي، ومعاه لينك الدعوة.</li>
+    <li>«فكّرني» محتاج إذن الإشعارات. لو اللاعب رافضه، بنطلبه منه وقت ما يدوس.</li>
+    <li>«فكّرني» بيفضل شغال لحد ما يوصله الإشعار مرة، أو يدوس «إلغاء».</li>
+  </ul>
+</section>
+
+<section id="b2">
+  <h2>B2 — سطر الأونلاين في الهوم</h2>
+  <p class="why">الهوم يفضل بزرار واحد «ابدأ اللعب» زي ما اتفقنا. الإضافة سطر صغير تحت الزرار، بيظهر بس لو فيه أوضة عامة مفتوحة وفيها مكان. لو داس عليه بيروح لشاشة الأونلاين على طول. ولو مفيش أوض، السطر بيختفي خالص.</p>
+  <div class="row">
+    <div class="col"><div class="tag rec">فيه أوض مفتوحة</div>
+      <div class="phone"><div class="screen">
+        <div class="top"><span class="corner"><span></span><span></span></span><span class="corner"><span></span><span></span><span></span></span></div>
+        <div class="sub" style="text-align:center">مساء الخير يا أحمد</div>
+        <div class="title" style="text-align:center">سيد المافيا</div>
+        <div class="hero"><div class="art"></div></div>
+        <div class="btn">ابدأ اللعب</div>
+        <div class="live"><span class="dot"></span>3 أوض أونلاين مستنية ناس<small>←</small></div>
+      </div><div class="band"><div class="ad">إعلان</div></div></div></div>
+    <div class="col"><div class="tag">مفيش أوض</div>
+      <div class="phone"><div class="screen">
+        <div class="top"><span class="corner"><span></span><span></span></span><span class="corner"><span></span><span></span><span></span></span></div>
+        <div class="sub" style="text-align:center">مساء الخير يا أحمد</div>
+        <div class="title" style="text-align:center">سيد المافيا</div>
+        <div class="hero"><div class="art"></div></div>
+        <div class="btn">ابدأ اللعب</div>
+        <div style="height:34px"></div>
+      </div><div class="band"><div class="ad">إعلان</div></div></div></div>
+  </div>
+  <ul class="notes">
+    <li>العدد بيتحدّث لما الهوم يتفتح، وكل دقيقة طول ما الهوم قدامه. مفيش سؤال للسيرفر كل شوية في الخلفية.</li>
+    <li>الأوضة اللي بتتحسب هي الأوضة العامة اللي لسه في اللوبي وفيها مكان.</li>
+  </ul>
+</section>
+
+<section id="b3">
+  <h2>B3 — سؤال «رأيك» بعد الماتش</h2>
+  <p class="why">دلوقتي «رأيك» مستخبي جوه الإعدادات، وموصلناش ولا رأي. الجديد شيت صغير بيطلع على شاشة النتيجة بعد تاني ماتش يخلص (أوفلاين أو أونلاين). لو قفله، بيطلع مرة كمان بعد الماتش الخامس، وبعدها مش هيطلع تاني خالص. الشيت بيطلع بعد ثانيتين من شاشة النتيجة، عشان ميغطيش مين كسب.</p>
+  <div class="row">
+    <div class="col"><div class="tag rec">أول ما يطلع</div>
+      <div class="phone"><div class="screen">
+        <div class="res"><div class="win">الأهالي كسبوا</div><div class="sub" style="text-align:center">في 3 أيام</div></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="title s" style="text-align:center">إيه رأيك في اللعبة؟</div>
+          <div class="stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+          <div class="btn ghost">مش دلوقتي</div>
+        </div>
+      </div></div></div>
+    <div class="col"><div class="tag">بعد ما اختار النجوم</div>
+      <div class="phone"><div class="screen">
+        <div class="res"><div class="win">الأهالي كسبوا</div><div class="sub" style="text-align:center">في 3 أيام</div></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="title s" style="text-align:center">إيه رأيك في اللعبة؟</div>
+          <div class="stars"><span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span><span>★</span></div>
+          <div class="field">عايز تقول حاجة؟ (مش لازم)</div>
+          <div class="btn">ابعت</div>
+          <div class="btn ghost">مش دلوقتي</div>
+        </div>
+      </div></div></div>
+  </div>
+  <ul class="notes">
+    <li>طلب تقييم جوجل بلاي الموجود دلوقتي (بيطلع في الهوم بعد 3 ماتشات) يفضل زي ما هو. الشيت ده مش بيطلب تقييم تاني، وعمر الاتنين ما يطلعوا في نفس اليوم.</li>
+    <li>الرأي بيوصل لشاشة الأدمن اللي موجودة (نفس مكان «رأيك» دلوقتي).</li>
+  </ul>
+</section>
+
+<section id="b4">
+  <h2>B4 — «كارتي» في الأوفلاين</h2>
+  <p class="why">الزرار ده موجود عشان الشيخ يقدر يكشف نفسه، ومتاح للكل عشان محدش يبان إنه الشيخ. المشكلة إن أي حد ماسك الموبايل يقدر يختار اسم حد تاني ويشوف دوره من غير ما الترابيزة تاخد بالها. ده بيكسر أهم قاعدة في اللعبة. محتاج قرارك هنا، لأنه تغيير في طريقة اللعب.</p>
+  <div class="row">
+    <div class="col"><div class="tag rec">(أ) الترابيزة تعرف مين بيبص (أنا شايفه الأحسن)</div>
+      <div class="phone"><div class="screen">
+        <div class="title s">كارتي</div>
+        <div class="list">
+          <div class="item">أحمد</div>
+          <div class="item done">سارة <small>اتشاف النهارده</small></div>
+          <div class="item">محمود</div>
+          <div class="item">نور</div>
+          <div class="item">كريم</div>
+        </div>
+      </div></div></div>
+    <div class="col"><div class="tag">(أ) بعد ما يختار اسم</div>
+      <div class="phone"><div class="screen center">
+        <div class="sub">الكل يبص على الموبايل</div>
+        <div class="big">محمود</div>
+        <div class="sub">هيشوف كارته</div>
+        <div class="count">3</div>
+        <div class="sound">صوت تنبيه قصير، عشان الترابيزة كلها تاخد بالها</div>
+      </div></div></div>
+    <div class="col"><div class="tag">(ب) يفضل زي ما هو</div>
+      <div class="phone"><div class="screen">
+        <div class="title s">كارتي</div>
+        <div class="list">
+          <div class="item">أحمد</div>
+          <div class="item">سارة</div>
+          <div class="item">محمود</div>
+          <div class="item">نور</div>
+          <div class="item">كريم</div>
+        </div>
+        <div class="sub" style="margin-top:6px">أي اسم، وأي عدد مرات، من غير ما حد ياخد باله.</div>
+      </div></div></div>
+  </div>
+  <ul class="notes">
+    <li>(أ): كل اسم يتشاف مرة واحدة في اليوم بس. وقبل ما الكارت يتفتح، الاسم بيظهر كبير قدام الكل 3 ثواني مع صوت. بكده لو حد اختار اسم غيره، الترابيزة كلها هتشوف، وصاحب الاسم هيعترض.</li>
+    <li>(أ): الشيخ يقدر يكشف نفسه زي دلوقتي، والزرار يفضل متاح للكل.</li>
+    <li>الأونلاين مش بيتأثر: هناك كل واحد بيشوف كارته على موبايله.</li>
+  </ul>
+</section>
+
+<section id="b5">
+  <h2>B5 — ترتيب أول مرة يفتح فيها اللعبة</h2>
+  <p class="why">دلوقتي الحساب بيتعمل على السيرفر في خطوة الاسم، قبل ما اللاعب يوافق على الشروط و18 سنة. الجديد إن الشروط تبقى تاني خطوة، فمحدش يتعمله حساب قبل ما يوافق. والموافقة نفسها تتسجل على السيرفر ساعتها، فنبدأ نعرف الناس بتقف فين. الشاشات نفسها مش هتتغير، اللي هيتغير ترتيبها بس.</p>
+  <div class="tag">دلوقتي</div>
+  <div class="steps">
+    <span class="step">البداية</span><span class="arrow">←</span>
+    <span class="step">الحساب<small>لو حب يسجّل</small></span><span class="arrow">←</span>
+    <span class="step">ولد / بنت</span><span class="arrow">←</span>
+    <span class="step mark">الاسم<small>الحساب بيتعمل هنا</small></span><span class="arrow">←</span>
+    <span class="step">الشروط و18 سنة</span>
+  </div>
+  <div class="tag rec" style="margin-top:12px">الجديد</div>
+  <div class="steps">
+    <span class="step">البداية</span><span class="arrow">←</span>
+    <span class="step mark">الشروط و18 سنة<small>تتسجل على السيرفر</small></span><span class="arrow">←</span>
+    <span class="step">الحساب<small>لو حب يسجّل</small></span><span class="arrow">←</span>
+    <span class="step">ولد / بنت</span><span class="arrow">←</span>
+    <span class="step">الاسم</span>
+  </div>
+  <ul class="notes">
+    <li>بنعدّ كل خطوة في الشاشة دي عدّ إجمالي من غير أي بيانات شخصية: كام واحد عدّى البداية، وكام وافق، وكام كتب اسمه، وكام وصل للهوم.</li>
+    <li>نقل «ولد / بنت» لبعد أول ماتش قرار تاني لوحده، ومش داخل هنا.</li>
+  </ul>
+</section>
+</body>
+</html>

@@ -217,14 +217,12 @@ void main() {
   group('mode picker: Stories is «قريبا»', () {
     Widget picker({
       VoidCallback? stories,
-      VoidCallback? bots,
       VoidCallback? offline,
       bool soon = true,
     }) => localizedApp(
       ModeScreen(
         onPlayOffline: offline ?? () {},
         onPlayOnline: () {},
-        onPlayBots: bots,
         onPlayStories: stories,
         storiesSoon: soon,
         onBack: () {},
@@ -268,63 +266,56 @@ void main() {
     });
 
     for (final size in sizes) {
-      for (final withBots in [false, true]) {
-        testWidgets('fits $size closed and open (bots: $withBots)', (
-          tester,
-        ) async {
-          await tester.runAsync(loadAppFonts);
-          await tester.binding.setSurfaceSize(size);
-          addTearDown(() => tester.binding.setSurfaceSize(null));
-          await tester.pumpWidget(picker(bots: withBots ? () {} : null));
-          await tester.pumpAndSettle();
-          expect(tester.takeException(), isNull);
+      testWidgets('fits $size closed and open', (tester) async {
+        await tester.runAsync(loadAppFonts);
+        await tester.binding.setSurfaceSize(size);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        await tester.pumpWidget(picker());
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
 
-          // Closed: both cards, apart, and the cards are not squeezed.
-          final mafia = tester.getRect(find.byKey(ModeScreen.mafiaCard));
-          final mafiaH = tester
-              .getSize(find.byKey(ModeScreen.mafiaCard))
-              .height;
-          final storiesH = tester
-              .getSize(find.byKey(ModeScreen.storiesCard))
-              .height;
-          final stories = tester.getRect(find.byKey(ModeScreen.storiesCard));
-          // Sizes, not the tilted bounds: the cards lean 5 degrees.
-          expect(storiesH, greaterThanOrEqualTo(ModeTokens.cardMinHeight - 1));
-          expect(mafiaH, greaterThanOrEqualTo(ModeTokens.cardMinHeight - 1));
-          for (final r in [mafia, stories]) {
-            expect(r.left, greaterThanOrEqualTo(-1));
-            expect(r.right, lessThanOrEqualTo(size.width + 1));
-          }
-          // The title above the cards is not covered by them.
-          final title = tester.getRect(find.text(arStrings.modeTitle));
-          expect(title.bottom, lessThanOrEqualTo(mafia.top));
-          expect(title.bottom, lessThanOrEqualTo(stories.top));
+        // Closed: both cards, apart, and the cards are not squeezed.
+        final mafia = tester.getRect(find.byKey(ModeScreen.mafiaCard));
+        final mafiaH = tester.getSize(find.byKey(ModeScreen.mafiaCard)).height;
+        final storiesH = tester
+            .getSize(find.byKey(ModeScreen.storiesCard))
+            .height;
+        final stories = tester.getRect(find.byKey(ModeScreen.storiesCard));
+        // Sizes, not the tilted bounds: the cards lean 5 degrees.
+        expect(storiesH, greaterThanOrEqualTo(ModeTokens.cardMinHeight - 1));
+        expect(mafiaH, greaterThanOrEqualTo(ModeTokens.cardMinHeight - 1));
+        for (final r in [mafia, stories]) {
+          expect(r.left, greaterThanOrEqualTo(-1));
+          expect(r.right, lessThanOrEqualTo(size.width + 1));
+        }
+        // The title above the cards is not covered by them.
+        final title = tester.getRect(find.text(arStrings.modeTitle));
+        expect(title.bottom, lessThanOrEqualTo(mafia.top));
+        expect(title.bottom, lessThanOrEqualTo(stories.top));
 
-          // Open: the small cards do not meet each other or the back button.
-          await tester.tap(find.byKey(ModeScreen.mafiaCard));
-          await tester.pumpAndSettle();
-          expect(tester.takeException(), isNull);
-          final ways = [
-            ModeScreen.offlineCard,
-            ModeScreen.onlineCard,
-            if (withBots) ModeScreen.botsCard,
-          ].map((k) => tester.getRect(find.byKey(k))).toList();
-          for (var i = 0; i < ways.length; i++) {
-            expect(ways[i].height, greaterThan(0));
-            for (var j = i + 1; j < ways.length; j++) {
-              expect(ways[i].overlaps(ways[j]), isFalse);
-            }
-            expect(
-              ways[i].overlaps(
-                tester.getRect(find.byKey(ModeScreen.closeButton)),
-              ),
-              isFalse,
-            );
-            expect(ways[i].left, greaterThanOrEqualTo(0));
-            expect(ways[i].right, lessThanOrEqualTo(size.width));
+        // Open: the small cards do not meet each other or the back button.
+        await tester.tap(find.byKey(ModeScreen.mafiaCard));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        final ways = [
+          ModeScreen.offlineCard,
+          ModeScreen.onlineCard,
+        ].map((k) => tester.getRect(find.byKey(k))).toList();
+        for (var i = 0; i < ways.length; i++) {
+          expect(ways[i].height, greaterThan(0));
+          for (var j = i + 1; j < ways.length; j++) {
+            expect(ways[i].overlaps(ways[j]), isFalse);
           }
-        });
-      }
+          expect(
+            ways[i].overlaps(
+              tester.getRect(find.byKey(ModeScreen.closeButton)),
+            ),
+            isFalse,
+          );
+          expect(ways[i].left, greaterThanOrEqualTo(0));
+          expect(ways[i].right, lessThanOrEqualTo(size.width));
+        }
+      });
     }
   });
 
@@ -380,71 +371,61 @@ void main() {
       }
     });
 
-    for (final withBots in [false, true]) {
-      testWidgets(
-        'the turned picker (bots: $withBots): no scroll, no overlap',
-        (tester) async {
-          await tester.runAsync(loadAppFonts);
-          await tester.binding.setSurfaceSize(land);
-          addTearDown(() => tester.binding.setSurfaceSize(null));
-          await tester.pumpWidget(
-            localizedApp(
-              ModeScreen(
-                onPlayOffline: () {},
-                onPlayOnline: () {},
-                onPlayBots: withBots ? () {} : null,
-                storiesSoon: true,
-                onBack: () {},
-              ),
-            ),
-          );
-          await tester.pumpAndSettle();
-          await tester.tap(find.byKey(ModeScreen.mafiaCard));
-          await tester.pumpAndSettle();
-          expect(tester.takeException(), isNull);
-          expect(find.byType(SingleChildScrollView), findsNothing);
-
-          final header = tester.getRect(find.byType(DeckHeader).first);
-          final keys = [
-            ModeScreen.mafiaCard,
-            ModeScreen.offlineCard,
-            ModeScreen.onlineCard,
-            if (withBots) ModeScreen.botsCard,
-            ModeScreen.closeButton,
-          ];
-          final pick = find.text(arStrings.modeMafiaPick);
-          final rects = <String, Rect>{
-            for (final k in keys) '$k': tester.getRect(find.byKey(k)),
-            'pick line': tester.getRect(pick),
-          };
-          for (final e in rects.entries) {
-            expect(screen.contains(e.value.topLeft), isTrue, reason: e.key);
-            expect(screen.contains(e.value.bottomRight), isTrue, reason: e.key);
-            expect(
-              e.value.top,
-              greaterThanOrEqualTo(header.bottom - 0.5),
-              reason: '${e.key} under the header',
-            );
-          }
-          final all = rects.entries.toList();
-          for (var i = 0; i < all.length; i++) {
-            for (var j = i + 1; j < all.length; j++) {
-              expect(
-                all[i].value.overlaps(all[j].value),
-                isFalse,
-                reason: '${all[i].key} on ${all[j].key}',
-              );
-            }
-          }
-          // And «رجوع» works from where it stands.
-          await tester.tap(find.byKey(ModeScreen.closeButton));
-          await tester.pumpAndSettle();
-          expect(
-            find.byKey(ModeScreen.offlineCard).hitTestable(),
-            findsNothing,
-          );
-        },
+    testWidgets('the turned picker: no scroll, no overlap', (tester) async {
+      await tester.runAsync(loadAppFonts);
+      await tester.binding.setSurfaceSize(land);
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        localizedApp(
+          ModeScreen(
+            onPlayOffline: () {},
+            onPlayOnline: () {},
+            storiesSoon: true,
+            onBack: () {},
+          ),
+        ),
       );
-    }
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(ModeScreen.mafiaCard));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SingleChildScrollView), findsNothing);
+
+      final header = tester.getRect(find.byType(DeckHeader).first);
+      final keys = [
+        ModeScreen.mafiaCard,
+        ModeScreen.offlineCard,
+        ModeScreen.onlineCard,
+        ModeScreen.closeButton,
+      ];
+      final pick = find.text(arStrings.modeMafiaPick);
+      final rects = <String, Rect>{
+        for (final k in keys) '$k': tester.getRect(find.byKey(k)),
+        'pick line': tester.getRect(pick),
+      };
+      for (final e in rects.entries) {
+        expect(screen.contains(e.value.topLeft), isTrue, reason: e.key);
+        expect(screen.contains(e.value.bottomRight), isTrue, reason: e.key);
+        expect(
+          e.value.top,
+          greaterThanOrEqualTo(header.bottom - 0.5),
+          reason: '${e.key} under the header',
+        );
+      }
+      final all = rects.entries.toList();
+      for (var i = 0; i < all.length; i++) {
+        for (var j = i + 1; j < all.length; j++) {
+          expect(
+            all[i].value.overlaps(all[j].value),
+            isFalse,
+            reason: '${all[i].key} on ${all[j].key}',
+          );
+        }
+      }
+      // And «رجوع» works from where it stands.
+      await tester.tap(find.byKey(ModeScreen.closeButton));
+      await tester.pumpAndSettle();
+      expect(find.byKey(ModeScreen.offlineCard).hitTestable(), findsNothing);
+    });
   });
 }

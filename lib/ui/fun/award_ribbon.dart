@@ -71,7 +71,7 @@ final onlineAwardsProvider = FutureProvider.autoDispose
 
 /// How long to wait before asking a not-ready room again. Zero in tests.
 final awardsRetryDelayProvider = Provider<Duration>(
-  (ref) => const Duration(seconds: 2),
+  (ref) => FunTimingTokens.awardRibbon,
 );
 
 /// The online result's awards: skeleton cards while the server answers, then

@@ -21,23 +21,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:mafia_master/stories/story_model.dart';
-import 'package:mafia_master/ui/screens/match_controller.dart';
-import 'package:mafia_master/ui/screens/match_flow.dart';
 import 'package:mafia_master/ui/screens/postgame/result_screen.dart';
-import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/mode_screen.dart';
 import 'package:mafia_master/ui/screens/stories/stories_screen.dart';
 import 'package:mafia_master/ui/screens/stories/story_case_widgets.dart';
 import 'package:mafia_master/ui/screens/stories/story_flow_screen.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
-import 'package:mafia_master/ui/widgets/night_grid.dart';
-import 'package:mafia_master/ui/widgets/player_tile.dart';
-import 'package:mafia_master/ui/widgets/role_card.dart';
-import 'package:mafia_master/ui/widgets/turn_shell.dart';
 
 import 'package:mafia_master/ui/screens/setup/home_screen.dart';
 import 'package:mafia_master/ui/screens/setup/how_to_sheet.dart';
@@ -60,7 +52,6 @@ import 'package:mafia_master/ui/screens/postgame/match_file.dart';
 import '../support/artwork.dart';
 import '../support/casebook_fixture.dart';
 import '../support/localized.dart';
-import '../support/reveal_flow.dart';
 import '../support/platform_channel_mocks.dart';
 import '../support/fake_backend.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
@@ -154,7 +145,6 @@ void main() {
     '00_mode': ModeScreen(
       onPlayOffline: () {},
       onPlayOnline: () {},
-      onPlayBots: () {},
       onPlayStories: () {},
       onBack: () {},
     ),
@@ -373,155 +363,14 @@ void main() {
   testWidgets('mode screen', (tester) async {
     await shoot(
       tester,
-      '04_mode_bots_card',
+      '04_mode_card',
       ModeScreen(
         onPlayOffline: () {},
         onPlayOnline: () {},
-        onPlayBots: () {},
         onPlayStories: () {},
         onBack: () {},
       ),
     );
-  });
-
-  testWidgets('bot match sheet', (tester) async {
-    await shoot(
-      tester,
-      '05_bot_match_sheet',
-      Scaffold(
-        body: Builder(
-          builder: (context) => Center(
-            child: TextButton(
-              onPressed: () => showBotMatchSheet(context),
-              child: const Text('open'),
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
-    await capture(tester, '05_bot_match_sheet');
-    tester.view.physicalSize = const Size(360, 844) * 2;
-    await tester.pump();
-    await capture(tester, '05_bot_match_sheet_360');
-  });
-
-  testWidgets('a match against bots', (tester) async {
-    const names = ['إنت', 'أمينة', 'كريم', 'سارة', 'يوسف', 'ليلى', 'حسن'];
-    await prepare(tester);
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-    final controller = container.read(matchControllerProvider.notifier);
-    GamePhase phase() => controller.engine.match.phase;
-    bool humanTurn() => controller.engine.match.currentActorSeat == 0;
-
-    Future<void> hold() async {
-      final pad = find.byType(HoldPad).first;
-      final gesture = await tester.startGesture(tester.getCenter(pad));
-      await tester.pump();
-      await tester.pump(MafiaTiming.defaults.holdToReveal);
-      await gesture.up();
-      await tester.pumpAndSettle();
-    }
-
-    Future<void> settle() async {
-      await tester.pump(
-        MafiaMotion.defaults.dramatic +
-            MafiaTiming.defaults.phaseHold +
-            MafiaMotion.defaults.dramatic,
-      );
-      await tester.pumpAndSettle();
-    }
-
-    controller.startMatch(
-      names: names,
-      roleCounts: const {
-        Role.mafia: 2,
-        Role.doctor: 1,
-        Role.detective: 1,
-        Role.citizen: 3,
-      },
-      settings: const MatchSettings(discussionMode: DiscussionMode.free),
-      seed: 7,
-      botSeats: const {1, 2, 3, 4, 5, 6},
-    );
-    await tester.pumpWidget(
-      RepaintBoundary(
-        key: const ValueKey('shot'),
-        child: UncontrolledProviderScope(
-          container: container,
-          child: localizedApp(
-            MediaQuery(
-              data: const MediaQueryData(disableAnimations: true),
-              child: MatchFlow(onExit: () {}, onAnalytics: () {}),
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.confirmIdentity(hold: MafiaTiming.defaults.holdToReveal);
-    await tester.swipeToFlip();
-    await tester.awaitConceal();
-    await tester.tap(find.byKey(RoleCard.dismiss));
-    await tester.pumpAndSettle();
-
-    var talked = false;
-    var guard = 0;
-    while (phase() != GamePhase.result && guard++ < 400) {
-      await tester.pumpAndSettle();
-      switch (phase()) {
-        case GamePhase.night when humanTurn():
-          await hold();
-          await tester.tap(
-            find
-                .byWidgetPredicate((w) => w is NightGridTile && w.onTap != null)
-                .first,
-          );
-          await tester.pump();
-          await tester.pump(MafiaTiming.defaults.dwellGate);
-          await tester.pumpAndSettle();
-          await tester.tap(find.byKey(TurnShell.actionButton));
-          await tester.pumpAndSettle();
-          await tester.pump(MafiaTiming.defaults.turnFloor);
-          await tester.pumpAndSettle();
-          await tester.tap(find.byKey(TurnShell.actionButton));
-          await tester.pumpAndSettle();
-        case GamePhase.morning:
-          if (find.text('ابدأ النقاش').evaluate().isNotEmpty) {
-            await tester.tap(find.text('ابدأ النقاش'));
-          }
-          await settle();
-        case GamePhase.openingRound when humanTurn():
-          await tester.tap(find.byType(PlayerTile).first);
-        case GamePhase.confrontation:
-          await tester.tap(find.text('خلصت'));
-        case GamePhase.discussion:
-          if (!talked) {
-            talked = true;
-            await capture(tester, '06_bots_table_talk');
-          }
-          await tester.tap(find.text('خلص النقاش'));
-          await tester.pump();
-          await settle();
-        case GamePhase.voting when humanTurn():
-          await hold();
-          await tester.tap(find.byType(PlayerTile).first);
-          await tester.pump();
-          await tester.tap(find.text('أكد صوتك'));
-        case GamePhase.reveal:
-          await tester.tap(find.text('كمل'));
-        default:
-          await settle();
-      }
-    }
-    await tester.pump();
-    await tester.pump(MafiaTiming.victoryReveal);
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(ResultScreen.playAgainKey));
-    await tester.pumpAndSettle();
-    await capture(tester, '07_bots_result_play_again');
   });
 
   // P10/P11: the dark case file at both phone sizes (end state, reduced motion).
@@ -636,7 +485,6 @@ void main() {
           rows: rows,
           viewerSeat: 0,
           matchFile: file,
-          onPlayAgain: () {},
           onHome: () {},
         ),
       );

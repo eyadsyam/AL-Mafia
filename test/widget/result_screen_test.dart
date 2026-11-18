@@ -81,7 +81,6 @@ Widget _screen({
   MatchFile? file = _file,
   bool reduced = false,
   List<MatchAward> awards = const [],
-  VoidCallback? onPlayAgain,
   VoidCallback? onAnalytics,
 }) {
   final screen = ResultScreen(
@@ -91,7 +90,6 @@ Widget _screen({
     coinRows: coins,
     matchFile: file,
     awards: awards,
-    onPlayAgain: onPlayAgain,
     onAnalytics: onAnalytics,
     onHome: () {},
   );
@@ -115,13 +113,10 @@ void main() {
       ) async {
         await tester.binding.setSurfaceSize(size);
         addTearDown(() => tester.binding.setSurfaceSize(null));
-        await tester.pumpWidget(
-          _screen(winner: winner, onPlayAgain: () {}, onAnalytics: () {}),
-        );
+        await tester.pumpWidget(_screen(winner: winner, onAnalytics: () {}));
         await loadArtwork(tester);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        expect(find.byKey(ResultScreen.playAgainKey), findsOneWidget);
         expect(find.byKey(ResultScreen.youKey), findsOneWidget);
         for (final r in _rows) {
           expect(

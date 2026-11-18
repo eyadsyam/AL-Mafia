@@ -15,10 +15,7 @@ import '../../widgets/experience_surface.dart';
 ///
 /// Two playing cards, fanned like Home's: the Mafia and the stories. The
 /// stories card opens its hub. The Mafia card lifts to the top, turns over,
-/// and deals the ways to play out of itself as three small cards — with
-/// friends on one phone, online on everyone's own phone, alone against the
-/// computer — each saying how many can play. Back (the header arrow, the
-/// rim button, or the turned card itself) runs it all in reverse.
+/// and deals the one-phone and online choices. Back closes the choices.
 ///
 /// Motion is transform and opacity only, over repaint boundaries, so the
 /// cards are painted once and the compositor moves them. With animations
@@ -31,9 +28,6 @@ class ModeScreen extends StatefulWidget {
   /// Everybody on their own phone. Null only when this build has no project,
   /// which draws the card explained rather than absent.
   final VoidCallback? onPlayOnline;
-
-  /// Alone, the other seats played by the computer.
-  final VoidCallback? onPlayBots;
 
   /// «قصص وتحقيقات»: a case to crack. Null hides the card.
   final VoidCallback? onPlayStories;
@@ -50,7 +44,6 @@ class ModeScreen extends StatefulWidget {
     super.key,
     required this.onPlayOffline,
     required this.onPlayOnline,
-    this.onPlayBots,
     this.onPlayStories,
     this.storiesSoon = false,
     required this.onBack,
@@ -59,7 +52,6 @@ class ModeScreen extends StatefulWidget {
   static const Key mafiaCard = ValueKey('mode_mafia');
   static const Key offlineCard = ValueKey('mode_offline');
   static const Key onlineCard = ValueKey('mode_online');
-  static const Key botsCard = ValueKey('mode_bots');
   static const Key storiesCard = ValueKey('mode_stories');
   static const Key unavailableText = ValueKey('mode_unavailable');
   static const Key soonLabel = ValueKey('mode_stories_soon');
@@ -265,15 +257,6 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
           title: l.modeStoriesSoonName,
           body: l.modeStoriesSoon,
           onTap: null,
-        )
-      else if (widget.onPlayBots != null)
-        _Way(
-          key: ModeScreen.botsCard,
-          art: AppImages.cardFaceCitizen,
-          face: true,
-          title: l.modeBotsCardTitle,
-          body: l.modeBotsBody,
-          onTap: widget.onPlayBots,
         ),
     ];
   }
@@ -438,15 +421,6 @@ class _ModeScreenState extends State<ModeScreen> with TickerProviderStateMixin {
         onTap: widget.onPlayOnline,
         lockedReason: widget.onPlayOnline == null ? l10n.modeNoServer : null,
       ),
-      if (widget.onPlayBots != null)
-        _Way(
-          key: ModeScreen.botsCard,
-          art: AppImages.cardFaceCitizen,
-          face: true,
-          title: l10n.modeBotsCardTitle,
-          body: l10n.modeBotsBody,
-          onTap: widget.onPlayBots,
-        ),
     ];
     // Where the turned Mafia card comes to rest, the ways, the line that names
     // them and the way back. Portrait: the card at the top, the ways under

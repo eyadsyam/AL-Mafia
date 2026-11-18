@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../data/online_session_store.dart';
-import '../ui/theme/design_tokens.dart' show AccountTokens;
+import '../ui/theme/design_tokens.dart' show AccountTokens, AccountTimingTokens;
 import 'account_service.dart';
 import 'native_google.dart';
 
@@ -400,7 +400,7 @@ class AccountAuth {
   /// How long after one automatic switch a second refusal is left to the
   /// player instead: a server that kept refusing would otherwise bounce the
   /// browser forever.
-  static const switchCooldown = Duration(minutes: 2);
+  static const switchCooldown = AccountTimingTokens.switchCooldown;
 
   /// A guest's Google link came back refused because that Google account is
   /// already a player's. The player tapped Google to be that player, so this

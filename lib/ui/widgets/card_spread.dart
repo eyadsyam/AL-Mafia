@@ -218,10 +218,7 @@ class _CardSpreadState extends State<CardSpread> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _deal = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
+    _deal = AnimationController(vsync: this, duration: MotionTokens.cardSpread);
     _flip = AnimationController(vsync: this, duration: Duration.zero);
     _idle = createTicker((elapsed) {
       _seconds.value = elapsed.inMicroseconds / 1e6;

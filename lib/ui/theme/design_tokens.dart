@@ -678,6 +678,12 @@ class MafiaSpacing extends ThemeExtension<MafiaSpacing> {
 /// that rises out of it, how far it rises, and how long the one-shot burst
 /// file plays (20 frames at 24 fps).
 abstract final class MotionTokens {
+  // Time between tilt sensor samples.
+  static const Duration tiltSample = Duration(milliseconds: 33);
+  // Time for cards to spread.
+  static const Duration cardSpread = Duration(milliseconds: 1500);
+  // Time used for an effectively instant trace line.
+  static const Duration traceLineInstant = Duration(milliseconds: 1);
   static const double burst = 220;
   static const double coin = 64;
   static const double coinRise = 72;
@@ -832,6 +838,7 @@ abstract final class CouncilTokens {
 
   static const double curtainDarkness = 0.82;
   static const double curtainVeil = 0.82;
+
   /// The words wait for the veil to be fully down (it is at 0.3 of the run):
   /// first the light changes, then the table reads the night's name. Words
   /// arriving over a half-dark table read as one more thing happening at once.
@@ -3221,7 +3228,6 @@ abstract final class StoryTokens {
 /// The discussion screen's extras.
 abstract final class DiscussionTokens {
   /// The bots' lines card stops growing here and scrolls.
-  static const double tableTalkMaxHeight = 160.0;
 }
 
 /// A hand of cards fanned out (the roles screen, the computer's table).
@@ -3363,21 +3369,7 @@ abstract final class RoomLookTokens {
   static const double mySheetHeight = 0.82;
 }
 
-/// «العب ضد الكمبيوتر»: the table, the levels.
-abstract final class BotTokens {
-  static const Size tableCard = Size(52, 78);
-  static const double tableStep = 30;
-  static const double tableHeight = 118;
-  static const double tableLift = 6;
-  static const double youLabel = 10;
-  static const double levelGap = 10;
-  static const double levelLift = 0.04; // of the card's height
-  static const Duration levelMove = Duration(milliseconds: 200);
-}
-
-/// First run: the deck fans into the logo, «نكلّمك إزاي؟», «اسمك إيه؟»,
-/// «نحفظ لعبك؟».
-/// The lobby's «المايك مقفول» card and its small in-match chip.
+/// The lobby's microphone-off card and its small in-match chip.
 abstract final class MicOffTokens {
   /// The crimson wash behind the card, as an alpha over the accent.
   static const double tintAlpha = 0.14;
@@ -3609,4 +3601,75 @@ abstract final class FeedbackTokens {
   /// A real message: at least this many words and non-space characters.
   static const int minWords = 3;
   static const int minLetters = 10;
+}
+
+/// Retries that keep a dropped network call or storage write from costing the
+/// room or the match anything the player can see.
+abstract final class ReliabilityTokens {
+  /// Wait before the second leave_room attempt after the network dropped the first.
+  static const Duration leaveRetryFirst = Duration(seconds: 2);
+
+  /// Wait before the third and last leave_room attempt.
+  static const Duration leaveRetrySecond = Duration(seconds: 6);
+
+  /// Wait before an offline match step is written a second time.
+  static const Duration persistRetry = Duration(milliseconds: 500);
+}
+
+/// Durations for network polling and reconnection.
+abstract final class NetworkTokens {
+  // Time between ballot updates.
+  static const Duration ballotInterval = Duration(seconds: 2);
+  // Initial wait before reconnecting.
+  static const Duration initialBackoff = Duration(seconds: 1);
+  // Longest wait between reconnect attempts.
+  static const Duration maximumBackoff = Duration(seconds: 30);
+}
+
+/// Durations for visible day timers.
+abstract final class CountdownTokens {
+  // Time between countdown updates.
+  static const Duration tick = Duration(seconds: 1);
+}
+
+/// Durations for voice transport and call setup.
+abstract final class VoiceTimingTokens {
+  // Maximum age of a received voice envelope.
+  static const Duration envelopeMaxAge = Duration(minutes: 2);
+  // Time allowed for the voice welcome message.
+  static const Duration welcomeTimeout = Duration(seconds: 6);
+  // Time allowed for a voice connection rung.
+  static const Duration rungTimeout = Duration(seconds: 8);
+}
+
+/// Durations for account interactions.
+abstract final class AccountTimingTokens {
+  // Time between account sheet countdown updates.
+  static const Duration countdownTick = Duration(seconds: 1);
+  // Cooldown before switching accounts again.
+  static const Duration switchCooldown = Duration(minutes: 2);
+}
+
+/// Durations for store interactions.
+abstract final class StoreTimingTokens {
+  // Pause before the scenario store advances.
+  static const Duration scenarioDelay = Duration(seconds: 1);
+}
+
+/// Durations for award presentation.
+abstract final class FunTimingTokens {
+  // Time an award ribbon remains visible.
+  static const Duration awardRibbon = Duration(seconds: 2);
+}
+
+/// Durations for narration controls.
+abstract final class NarrationTimingTokens {
+  // Amount skipped by a narration seek action.
+  static const Duration skipStep = Duration(seconds: 5);
+}
+
+/// Durations for advertising policy windows.
+abstract final class AdPolicyTokens {
+  // Length of one policy day.
+  static const Duration day = Duration(days: 1);
 }

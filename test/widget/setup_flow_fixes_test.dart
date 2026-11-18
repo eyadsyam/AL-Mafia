@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mafia_master/data/player_group.dart';
-import 'package:mafia_master/engine/bots/bot_brain.dart';
 import 'package:mafia_master/engine/models/enums.dart';
 import 'package:mafia_master/engine/models/match_settings.dart';
 import 'package:mafia_master/engine/models/player.dart';
@@ -10,7 +9,6 @@ import 'package:mafia_master/engine/presets.dart';
 import 'package:mafia_master/ui/economy/pass_table_dress.dart';
 import 'package:mafia_master/ui/economy/wallet.dart';
 import 'package:mafia_master/ui/screens/setup/add_players_screen.dart';
-import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/optional_roles.dart';
 import 'package:mafia_master/ui/screens/setup/player_name.dart';
 import 'package:mafia_master/ui/screens/setup/role_deal_grid.dart';
@@ -409,37 +407,6 @@ void main() {
       await tester.tap(find.byKey(SettingsScreen.saveButton));
       await tester.pump();
       expect(saved!.elderEnabled, isTrue);
-    });
-  });
-
-  group('bot match settings', () {
-    test('saved defaults are the base; the preset goes on top', () {
-      const saved = MatchSettings(
-        narrationEnabled: false,
-        scoreEnabled: false,
-        identityHoldSeconds: 8,
-        elderEnabled: true,
-      );
-      const pick = (
-        players: 10,
-        preset: MatchPreset.brutal,
-        level: BotLevel.normal,
-        roles: <OptionalRole>{OptionalRole.sniper},
-      );
-      final s = pick.settingsOver(saved);
-      // The player own choices survive...
-      expect(s.narrationEnabled, isFalse);
-      expect(s.scoreEnabled, isFalse);
-      expect(s.identityHoldSeconds, 8);
-      // ...the preset speaks for the shape of the game...
-      expect(s.speechSeconds, MatchPreset.brutal.settings.speechSeconds);
-      expect(
-        s.discussionSeconds,
-        MatchPreset.brutal.settings.discussionSeconds,
-      );
-      // ...and only the roles picked for this table are on.
-      expect(s.sniperEnabled, isTrue);
-      expect(s.elderEnabled, isFalse);
     });
   });
 }

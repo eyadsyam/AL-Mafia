@@ -322,7 +322,7 @@ class WebRtcVoiceEngine implements VoiceEngine, VoicePlayout {
     required String selfId,
     required IceConfig ice,
     required List<VoicePeer> peers,
-    Duration timeout = const Duration(seconds: 8),
+    Duration timeout = VoiceTimingTokens.rungTimeout,
   }) async {
     // Claimed before the first await, so a second climb entering here also
     // retires the first one rather than racing it.

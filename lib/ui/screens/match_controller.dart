@@ -9,7 +9,6 @@ import '../../data/whisper_store.dart';
 import '../../transport/game_snapshot.dart';
 import '../../transport/game_transport.dart';
 import '../../transport/local_transport.dart';
-import '../../engine/bots/bot_brain.dart';
 import '../../engine/bullets.dart';
 import '../../engine/match_engine.dart';
 import '../../engine/models/enums.dart';
@@ -255,8 +254,6 @@ class MatchController extends Notifier<MatchUiState?> {
     required Map<Role, int> roleCounts,
     required MatchSettings settings,
     int? seed,
-    Set<int> botSeats = const {},
-    BotLevel botLevel = BotLevel.normal,
   }) {
     engine.start(
       names: names,
@@ -268,93 +265,10 @@ class MatchController extends Notifier<MatchUiState?> {
       // replay - gets exactly that match back.
       seed: seed ?? newMatchSeed(),
     );
-    // «العب ضد البوتات»: the computer seats play inside the local transport.
-    _lastBotTable = botSeats.isEmpty
-        ? null
-        : (
-            names: names,
-            roleCounts: roleCounts,
-            settings: settings,
-            botSeats: botSeats,
-            botLevel: botLevel,
-          );
-    if (transport case final LocalTransport local) {
-      local.bots = botSeats.isEmpty
-          ? null
-          : BotBrain(
-              match: engine.match,
-              botSeats: botSeats,
-              seed: engine.match.seed ^ 0x5eed,
-              level: botLevel,
-            );
-    }
     // The engine was written to directly, so the transport's snapshot is a
     // match behind. Everything the screens read comes off that snapshot now.
     transport.resync();
     state = MatchUiState(public: transport.snapshot.public);
-  }
-
-  ({
-    List<String> names,
-    Map<Role, int> roleCounts,
-    MatchSettings settings,
-    Set<int> botSeats,
-    BotLevel botLevel,
-  })?
-  _lastBotTable;
-
-  /// «ماتش تاني»: the same bot table, a new deal. False when the last match
-  /// was not against bots.
-  bool restartBotMatch() {
-    final table = _lastBotTable;
-    if (table == null) return false;
-    startMatch(
-      names: table.names,
-      roleCounts: table.roleCounts,
-      settings: table.settings,
-      botSeats: table.botSeats,
-      botLevel: table.botLevel,
-    );
-    return true;
-  }
-
-  /// The ad hint at a bot table: whether [seat] is on the Mafia side. Only
-  /// ever asked for a bot seat, and only at a bot table.
-  bool botIsMafia(int seat) =>
-      playingWithBots &&
-      seat != 0 &&
-      engine.match.players[seat].role.alignment == Alignment.mafia;
-
-  /// Whether the human at a bot table (seat 0) is on the winning side.
-  bool get humanWonBotMatch {
-    if (!playingWithBots || !engine.hasMatch) return false;
-    final winner = engine.match.outcome?.winner;
-    return winner != null && engine.match.players[0].role.alignment == winner;
-  }
-
-  /// Whether the computer plays some seats («العب ضد البوتات»).
-  bool get playingWithBots =>
-      transport is LocalTransport && (transport as LocalTransport).bots != null;
-
-  /// What each living bot says out loud in today's discussion: who it
-  /// suspects, as an opinion (never a fact the app knows). Empty at an
-  /// all-human table.
-  List<({int speaker, int target, int variant})> botTalk() {
-    final local = transport;
-    if (local is! LocalTransport) return const [];
-    final brain = local.bots;
-    if (brain == null || !engine.hasMatch) return const [];
-    final match = engine.match;
-    return [
-      for (final p in match.players)
-        if (brain.botSeats.contains(p.seat) && p.status == PlayerStatus.alive)
-          if (brain.suspectOf(match, p.seat) case final target?)
-            (
-              speaker: p.seat,
-              target: target,
-              variant: (p.seat + match.dayNumber) % 3,
-            ),
-    ];
   }
 
   /// Loads a match that was restored from storage.

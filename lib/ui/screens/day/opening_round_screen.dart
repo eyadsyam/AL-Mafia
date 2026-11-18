@@ -8,6 +8,7 @@ import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/player_tile.dart';
 import '../../widgets/textured_surface.dart';
+import '../../theme/design_tokens.dart';
 
 /// Day 1's «اسم واحد» round (doc 09 §2.2).
 ///
@@ -73,10 +74,10 @@ class _OpeningRoundScreenState extends State<OpeningRoundScreen> {
   void _restart() {
     _ticker?.cancel();
     setState(() => _remaining = context.timing.openingRoundPerPlayer);
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+    _ticker = Timer.periodic(CountdownTokens.tick, (_) {
       if (!mounted) return;
       setState(() {
-        final next = _remaining - const Duration(seconds: 1);
+        final next = _remaining - CountdownTokens.tick;
         _remaining = next.isNegative ? Duration.zero : next;
       });
     });

@@ -14,7 +14,6 @@ import 'package:mafia_master/ui/screens/stories/story_case_widgets.dart';
 import 'package:mafia_master/ui/screens/stories/story_flow_screen.dart';
 import 'package:mafia_master/ui/screens/stories/v2/lamp_kit.dart';
 import 'package:mafia_master/ui/screens/stories/story_rewards.dart';
-import 'package:mafia_master/ui/economy/bot_rewards.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart';
 import 'package:mafia_master/ui/widgets/hold_pad.dart';
 
@@ -49,7 +48,7 @@ void main() {
     );
   });
 
-  test('economy requests include the solve picks and bot session', () {
+  test('economy requests include the solve picks', () {
     final correct = StoryAccusation(
       culprit: cafe.truth.primaryCulprit,
       motive: cafe.truth.motive,
@@ -79,10 +78,6 @@ void main() {
       ),
       isNull,
     );
-    expect(botWinRequest('session-1'), {
-      'action': 'botWin',
-      'sessionId': 'session-1',
-    });
   });
 
   void size(WidgetTester tester, Size s) {

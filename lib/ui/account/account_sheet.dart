@@ -277,7 +277,7 @@ class _AccountSheetState extends ConsumerState<AccountSheet> {
   void _startCooldown() {
     _timer?.cancel();
     setState(() => _cooldown = AccountTokens.resendSeconds);
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+    _timer = Timer.periodic(AccountTimingTokens.countdownTick, (t) {
       if (!mounted) return t.cancel();
       setState(() => _cooldown = _cooldown > 0 ? _cooldown - 1 : 0);
       if (_cooldown == 0) t.cancel();

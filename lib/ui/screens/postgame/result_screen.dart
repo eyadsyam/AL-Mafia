@@ -90,10 +90,6 @@ class ResultScreen extends StatelessWidget {
   /// Callback when "الرئيسية" is tapped.
   final VoidCallback onHome;
 
-  /// «ماتش تاني»: a fresh match at the same bot table. Null elsewhere.
-  final VoidCallback? onPlayAgain;
-
-  static const playAgainKey = ValueKey('result_play_again');
   static const openFileKey = ValueKey('result_open_file');
   static const youKey = ValueKey('result_you');
   static const coinTotalKey = ValueKey('result_coin_total');
@@ -133,7 +129,7 @@ class ResultScreen extends StatelessWidget {
   final Widget? eventStamps;
   final bool tabletop;
 
-  /// The seat this phone plays (online, or the human at a bot table). Null at
+  /// The seat this phone plays online. Null at
   /// a shared phone, where nobody is "you": the «كنت …» card is left out.
   final int? viewerSeat;
 
@@ -151,7 +147,6 @@ class ResultScreen extends StatelessWidget {
     required this.rows,
     this.onAnalytics,
     required this.onHome,
-    this.onPlayAgain,
     this.coaching = const {},
     this.awards = const [],
     this.inventory,
@@ -404,20 +399,8 @@ class _ResultStageState extends State<_ResultStage>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (screen.onPlayAgain != null) ...[
-            BoneButton(
-              key: ResultScreen.playAgainKey,
-              label: context.l10n.botPlayAgain,
-              onPressed: screen.onPlayAgain,
-            ),
-            SizedBox(height: spacing.sm),
-          ] else ...[
-            BoneButton(
-              label: context.l10n.homeAction,
-              onPressed: screen.onHome,
-            ),
-            SizedBox(height: spacing.sm),
-          ],
+          BoneButton(label: context.l10n.homeAction, onPressed: screen.onHome),
+          SizedBox(height: spacing.sm),
           Row(
             children: [
               if (screen.onAnalytics != null) ...[
@@ -429,13 +412,6 @@ class _ResultStageState extends State<_ResultStage>
                 ),
                 SizedBox(width: spacing.sm),
               ],
-              if (screen.onPlayAgain != null)
-                Expanded(
-                  child: RimButton(
-                    label: context.l10n.homeAction,
-                    onPressed: screen.onHome,
-                  ),
-                ),
             ],
           ),
         ],
@@ -1071,7 +1047,10 @@ class _ResultStageState extends State<_ResultStage>
                 ),
               ),
               // Forward, toward the reading end: Flutter mirrors it in Arabic.
-              Icon(Icons.chevron_right_rounded, color: context.colors.textMuted),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: context.colors.textMuted,
+              ),
             ],
           ),
         ),

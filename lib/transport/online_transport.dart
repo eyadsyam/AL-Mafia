@@ -131,7 +131,7 @@ class OnlineTransport implements GameTransport {
   bool _deltaDuringRead = false;
   static const int _maxSupersededReads = 2;
 
-  static const Duration _ballotInterval = Duration(seconds: 2);
+  static const Duration _ballotInterval = NetworkTokens.ballotInterval;
 
   /// The connection map as it stood when the night began, or null outside one.
   ///
@@ -144,7 +144,7 @@ class OnlineTransport implements GameTransport {
   /// serverNow − localNow at the last read. Added to nothing but a deadline.
   Duration _skew = Duration.zero;
   ConnectionQuality _connection = ConnectionQuality.connected;
-  Duration _backoff = const Duration(seconds: 1);
+  Duration _backoff = NetworkTokens.initialBackoff;
 
   /// Whispers this client has already been shown. Online delivery is instant,
   /// so "delivered" is a fact about this screen, not about the server.
@@ -692,7 +692,7 @@ class OnlineTransport implements GameTransport {
 
   /// Back to connected, and the backoff forgotten.
   void _restore() {
-    _backoff = const Duration(seconds: 1);
+    _backoff = NetworkTokens.initialBackoff;
     _retry?.cancel();
     _retry = null;
     if (_connection != ConnectionQuality.connected) {
@@ -715,8 +715,8 @@ class OnlineTransport implements GameTransport {
     _retry = Timer(_backoff, () async {
       _retry = null;
       _backoff = _backoff * 2;
-      if (_backoff > const Duration(seconds: 30)) {
-        _backoff = const Duration(seconds: 30);
+      if (_backoff > NetworkTokens.maximumBackoff) {
+        _backoff = NetworkTokens.maximumBackoff;
         _connection = ConnectionQuality.offline;
         _publish();
       }

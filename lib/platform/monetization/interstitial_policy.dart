@@ -80,7 +80,7 @@ class InterstitialRules {
   static final _minGap = AdTokens.fullScreenMinGap.inSeconds;
   static final _minAfter = MafiaTiming.interstitialAfterReward.inSeconds;
   static final _minSession = AdTokens.sessionInterstitialAfter.inSeconds;
-  static final _day = const Duration(days: 1).inSeconds;
+  static final _day = AdPolicyTokens.day.inSeconds;
 
   /// The server's numbers, clamped to the product rules whatever it says.
   /// A missing key is off (or the safe default for a number).

@@ -33,7 +33,7 @@ class AppOpenRules {
   );
 
   static final _minResume = AdTokens.appOpenResumeAfter.inSeconds;
-  static final _day = const Duration(days: 1).inSeconds;
+  static final _day = AdPolicyTokens.day.inSeconds;
 
   /// The server's numbers, clamped to the product rules whatever it says.
   factory AppOpenRules.fromJson(Object? json) {

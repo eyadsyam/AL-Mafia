@@ -800,50 +800,53 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       onTap: () => _pick(g),
       child: Semantics(
         button: true,
+        selected: _gender == g,
         label: label,
-        child: AnimatedBuilder(
-          animation: Listenable.merge([_shake, _flip]),
-          builder: (context, _) {
-            final dx = _shake.isAnimating
-                ? math.sin(_shake.value * math.pi * 4) *
-                      FirstRunTokens.shakeShift
-                : 0.0;
-            final turn = chosen
-                ? Curves.easeInOutCubic.transform(
-                    (_flip.value *
-                            (FirstRunTokens.flip + FirstRunTokens.hold)
-                                .inMilliseconds /
-                            FirstRunTokens.flip.inMilliseconds)
-                        .clamp(0.0, 1.0),
-                  )
-                : 0.0;
-            final angle = turn * math.pi;
-            final front = angle <= math.pi / 2;
-            final card = RepaintBoundary(
-              child: front
-                  ? SeatCard(name: label, seat: 0, gender: g, showSeat: false)
-                  : Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.rotationY(math.pi),
-                      child: _welcomeBack(male),
-                    ),
-            );
-            return Opacity(
-              opacity: other
-                  ? FirstRunTokens.passedAlpha
-                  : (_agreed ? 1 : FirstRunTokens.dimmedAlpha),
-              child: Transform.translate(
-                offset: Offset(dx, -turn * FirstRunTokens.chosenLift),
-                child: Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()
-                    ..setEntry(3, 2, ModeTokens.perspective)
-                    ..rotateY(angle),
-                  child: card,
+        child: ExcludeSemantics(
+          child: AnimatedBuilder(
+            animation: Listenable.merge([_shake, _flip]),
+            builder: (context, _) {
+              final dx = _shake.isAnimating
+                  ? math.sin(_shake.value * math.pi * 4) *
+                        FirstRunTokens.shakeShift
+                  : 0.0;
+              final turn = chosen
+                  ? Curves.easeInOutCubic.transform(
+                      (_flip.value *
+                              (FirstRunTokens.flip + FirstRunTokens.hold)
+                                  .inMilliseconds /
+                              FirstRunTokens.flip.inMilliseconds)
+                          .clamp(0.0, 1.0),
+                    )
+                  : 0.0;
+              final angle = turn * math.pi;
+              final front = angle <= math.pi / 2;
+              final card = RepaintBoundary(
+                child: front
+                    ? SeatCard(name: label, seat: 0, gender: g, showSeat: false)
+                    : Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(math.pi),
+                        child: _welcomeBack(male),
+                      ),
+              );
+              return Opacity(
+                opacity: other
+                    ? FirstRunTokens.passedAlpha
+                    : (_agreed ? 1 : FirstRunTokens.dimmedAlpha),
+                child: Transform.translate(
+                  offset: Offset(dx, -turn * FirstRunTokens.chosenLift),
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()
+                      ..setEntry(3, 2, ModeTokens.perspective)
+                      ..rotateY(angle),
+                    child: card,
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -962,13 +965,17 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
               child: Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text(l.firstRunAgreePrefix, style: body),
+                  ExcludeSemantics(
+                    child: Text(l.firstRunAgreePrefix, style: body),
+                  ),
                   linkText(
                     FirstRunScreen.termsLinkKey,
                     l.firstRunAgreeTerms,
                     () => showTermsDocument(context),
                   ),
-                  Text(l.firstRunAgreeAnd, style: body),
+                  ExcludeSemantics(
+                    child: Text(l.firstRunAgreeAnd, style: body),
+                  ),
                   linkText(
                     FirstRunScreen.privacyLinkKey,
                     l.firstRunAgreePrivacy,
@@ -1339,10 +1346,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
           child: Row(
             textDirection: TextDirection.ltr,
             children: [
-              Text(
-                '@',
-                style: type.title.copyWith(color: colors.textMuted),
-              ),
+              Text('@', style: type.title.copyWith(color: colors.textMuted)),
               SizedBox(width: s.xs),
               Expanded(
                 child: TextField(

@@ -8,6 +8,7 @@ import 'package:metered_realtime/metered_realtime.dart';
 import 'online_backend.dart';
 import 'voice_envelope.dart';
 import 'voice_link.dart';
+import '../ui/theme/design_tokens.dart';
 
 /// The call's signalling, over Metered Realtime.
 ///
@@ -79,7 +80,7 @@ class MeteredVoiceLink implements VoiceLink {
   /// How long [iceServers] waits for the welcome frame before answering with
   /// what it already has. The mesh must not stall on a socket: a call that
   /// comes up on STUN is better than a call that comes up late.
-  static const Duration welcomeTimeout = Duration(seconds: 6);
+  static const Duration welcomeTimeout = VoiceTimingTokens.welcomeTimeout;
 
   final _signals = StreamController<VoiceSignal>.broadcast();
   final _subscriptions = <StreamSubscription<dynamic>>[];

@@ -11,9 +11,7 @@ import 'package:mafia_master/transport/game_snapshot.dart';
 import 'package:mafia_master/ui/economy/wallet.dart';
 import 'package:mafia_master/ui/screens/online/online_session.dart';
 import 'package:mafia_master/ui/screens/online/room_settings_panel.dart';
-import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/setup/optional_roles.dart';
-import 'package:mafia_master/ui/screens/setup/role_rows.dart';
 import 'package:mafia_master/ui/screens/setup/role_deal_grid.dart';
 import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/setup_draft.dart';
@@ -134,55 +132,6 @@ void main() {
       expect(on.sniperEnabled, isTrue);
       expect(on.silencerEnabled, isFalse);
       expect(OptionalRole.flags(on, const {}).sniperEnabled, isFalse);
-    });
-  });
-
-  group('bots', () {
-    Future<List<BotMatchPick?>> open(
-      WidgetTester tester,
-      Set<String> owns,
-    ) async {
-      final out = <BotMatchPick?>[];
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: _overrides(owns),
-          child: localizedApp(
-            Builder(
-              builder: (context) => Scaffold(
-                body: TextButton(
-                  key: const ValueKey('open'),
-                  onPressed: () async =>
-                      out.add(await showBotMatchSheet(context)),
-                  child: const Text('open'),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.byKey(const ValueKey('open')));
-      await tester.pumpAndSettle();
-      return out;
-    }
-
-    testWidgets('not owned: locked rows, the pick carries no new role', (
-      tester,
-    ) async {
-      await loadArtwork(tester);
-      phone(tester);
-      final out = await open(tester, const {});
-      await tester.tap(find.byKey(BotMatchBody.rolesLineKey));
-      await tester.pumpAndSettle();
-      for (final r in OptionalRole.values) {
-        expect(find.byKey(OptionalRoleRows.switchKey(r)), findsNothing);
-      }
-      await tester.tap(find.byKey(BotMatchBody.startKey));
-      await tester.pumpAndSettle();
-      final pick = out.single!;
-      expect(pick.settings.silencerEnabled, isFalse);
-      expect(pick.settings.elderEnabled, isFalse);
-      expect(pick.settings.sniperEnabled, isFalse);
-      expect(pick.roleCounts.containsKey(Role.sniper), isFalse);
     });
   });
 

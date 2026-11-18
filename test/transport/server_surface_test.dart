@@ -107,9 +107,13 @@ void main() {
         // Answers the welcome-mail script yes/no on an HMAC only the server
         // can mint; it reads one row and changes nothing.
         'tester_mail_check': 'sameText(await mailToken(secret, email), token)',
-        // Takes no input: it only drains rows Postgres already queued, through
-        // a service-role-only RPC. Calling it by hand just sends them sooner.
-        'send_push': 'db.rpc("push_outbox_claim"',
+        // Drains rows Postgres already queued; since 2026-11-18 only the
+        // database's own wake call, which carries the scheduler's secret.
+        'send_push':
+            'sameSecret(req.headers.get("x-sync-secret") ?? "", secret)',
+        // The daily sweep of order screenshots, called by pg_cron.
+        'proof_sweep':
+            'sameSecret(req.headers.get("x-sync-secret") ?? "", secret)',
       };
       final bare = <String>[];
       for (final dir in edgeFunctions()) {

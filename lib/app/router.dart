@@ -12,7 +12,7 @@ import '../data/match_seed.dart';
 import '../data/online_session_store.dart';
 import '../data/player_profile.dart';
 import '../ui/economy/pass_table_dress.dart';
-import '../engine/models/enums.dart' show DiscussionMode, Role;
+import '../engine/models/enums.dart' show Role;
 import '../engine/models/match_settings.dart';
 import '../platform/audio_director.dart';
 import '../ui/screens/stories/widgets/story_palette.dart';
@@ -48,14 +48,12 @@ import '../ui/screens/setup/settings_sheet.dart';
 import '../ui/screens/stories/stories_screen.dart' deferred as stories;
 import '../ui/screens/stories/story_rewards.dart';
 import '../ui/screens/stories/v2/story_table_screen.dart' show StoryExitGuard;
-import '../ui/economy/bot_rewards.dart';
 import '../ui/screens/setup/setup_draft.dart';
 import '../ui/fun/characters_screen.dart';
 import '../ui/economy/council_hub.dart' show pendingInviteCodeProvider;
 import '../ui/economy/ad_veil.dart';
 import '../platform/monetization/rewarded_ads.dart';
 import '../ui/screens/setup/before_start_sheet.dart';
-import '../ui/screens/setup/bot_match_sheet.dart';
 import '../ui/screens/online/room_closed_notice.dart';
 import '../ui/widgets/warmup_gate.dart' show DeferredRouteLoading;
 
@@ -230,10 +228,6 @@ void _previewAudio(WidgetRef ref, MatchSettings settings) {
 /// time, so one guard).
 final _storiesExit = StoryExitGuard();
 
-/// Whether the mode screen offers «العب ضد الكمبيوتر». Off for the stable
-/// release; the bot match itself is untouched.
-const _offerBotMatch = false;
-
 /// Whether Stories is open. Closed for now (owner, 2026-10-23: «اقفل القصص
 /// مؤقتا»): no card on the mode screen, `/stories` goes back to it, and the
 /// cases are not read in the background. Its screens and server stay as they
@@ -301,46 +295,6 @@ GoRouter buildRouter(
     }
     if (!context.mounted) return;
     context.go(to);
-  }
-
-  /// «العب ضد البوتات»: seat 0 is the player, every other seat a bot.
-  Future<void> startBotMatch(BuildContext context) async {
-    final pick = await showBotMatchSheet(context);
-    if (pick == null || dealing || !context.mounted) return;
-    final you = context.l10n.botYou;
-    dealing = true;
-    try {
-      await ref.read(interstitialCoordinatorProvider).beforeDeal();
-    } finally {
-      dealing = false;
-    }
-    if (!context.mounted) return;
-    // The player saved defaults (narration, audio) are the base; the picked
-    // preset and roles go on top.
-    MatchSettings saved;
-    try {
-      saved = await ref.read(matchRepositoryProvider).loadDefaultSettings();
-    } catch (_) {
-      saved = ref.read(setupDraftProvider).settings;
-    }
-    if (!context.mounted) return;
-    await startBotRewardSession(ProviderScope.containerOf(context));
-    if (!context.mounted) return;
-    ref
-        .read(matchControllerProvider.notifier)
-        .startMatch(
-          names: [you, ...kBotNames.take(pick.players - 1)],
-          roleCounts: pick.roleCounts,
-          settings: pick
-              .settingsOver(saved)
-              .copyWith(
-                whisperEnabled: false,
-                discussionMode: DiscussionMode.free,
-              ),
-          botSeats: {for (var i = 1; i < pick.players; i++) i},
-          botLevel: pick.level,
-        );
-    context.go(Routes.match);
   }
 
   Future<void> startMatch(BuildContext context) async {
@@ -549,10 +503,6 @@ GoRouter buildRouter(
             onPlayOnline: SupabaseConfig.isConfigured
                 ? () => forwardTo(context, Routes.online)
                 : null,
-            // Vs computer is hidden for the stable release (owner, 2026-10-17:
-            // «مش حاسسها منطقية»). The mode and its code stay; flipping
-            // [_offerBotMatch] brings the card back.
-            onPlayBots: _offerBotMatch ? () => startBotMatch(context) : null,
             onPlayStories: kOfferStories
                 ? () => forwardTo(context, Routes.stories)
                 : null,

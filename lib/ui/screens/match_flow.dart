@@ -54,9 +54,6 @@ import '../widgets/phase_transition.dart';
 import '../widgets/voice_controls.dart';
 import '../widgets/victory_reveal.dart';
 import 'online/voice_session.dart';
-import '../economy/bot_rewards.dart';
-import '../economy/ad_veil.dart';
-import '../../platform/monetization/rewarded_ads.dart';
 
 /// Drives a whole match from role distribution to the result screen.
 ///
@@ -591,14 +588,6 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       GamePhase.openingRound => _openingRound(state),
       GamePhase.confrontation => _confrontation(state),
       GamePhase.discussion => _discussion(state),
-      // Every ballot already in (the last ones a bot's): nobody holds the
-      // phone, so the tally follows on its own.
-      GamePhase.voting || GamePhase.voteResolving
-          when _controller.playingWithBots && state.currentActorSeat == null =>
-        _AutoAdvance(
-          key: ValueKey('tally_${state.dayNumber}_${state.phase.name}'),
-          onReady: _resolveDayVote,
-        ),
       GamePhase.voting || GamePhase.voteResolving => VotingScreen(
         allowAbstain: _controller.settings.abstainAllowed,
         onVotingComplete: _resolveDayVote,
@@ -714,15 +703,6 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     // still has to identify themselves before anything appears (L-13).
     if (state.actorTurn == null && state.currentActorSeat != null) {
       return _AutoAdvance(onReady: _controller.openActorTurn);
-    }
-    // Every night turn already taken (the last ones a bot's).
-    if (_controller.playingWithBots &&
-        state.actorTurn == null &&
-        state.currentActorSeat == null) {
-      return _AutoAdvance(
-        key: ValueKey('night_done_${state.dayNumber}'),
-        onReady: _resolveNight,
-      );
     }
     return NightActionScreen(
       onNightComplete: _resolveNight,
@@ -893,86 +873,8 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       // online-only now, and offline there is nothing to hide behind a flag —
       // the button is not built and the graph is not drawn.
       onWhisper: null,
-      tableTalk: [
-        for (final t in _controller.botTalk())
-          _botLine(
-            state.public.players[t.speaker].name,
-            state.public.players[t.target].name,
-            t.variant,
-          ),
-      ],
-      onTalkHint:
-          _controller.playingWithBots &&
-              !_hintUsed &&
-              ref.read(rewardedAdsProvider).configured
-          ? () => _adHint(state)
-          : null,
       onFinished: _startVoting,
     );
-  }
-
-  bool _hintUsed = false;
-
-  /// Once a match at a bot table: pick a player, watch an ad, learn whether
-  /// they are Mafia.
-  Future<void> _adHint(MatchUiState state) async {
-    final l = context.l10n;
-    final living = [
-      for (final p in state.public.players)
-        if (p.seat != 0 && p.status == PlayerStatus.alive) p,
-    ];
-    final seat = await showModalBottomSheet<int>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheet) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            ListTile(title: Text(l.botHintPick)),
-            for (final p in living)
-              ListTile(
-                title: Text(p.name),
-                onTap: () => Navigator.of(sheet).pop(p.seat),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (seat == null || !mounted) return;
-    final outcome = await showRewardedWith(
-      ref.read,
-      customData: 'l1:bot_hint',
-      userId: '',
-      placement: RewardedPlacement.extra,
-    );
-    if (outcome != RewardedAdOutcome.earned || !mounted) return;
-    setState(() => _hintUsed = true);
-    final name = state.public.players[seat].name;
-    await showDialog<void>(
-      context: context,
-      builder: (dialog) => AlertDialog(
-        content: Text(
-          _controller.botIsMafia(seat)
-              ? l.botHintMafia(name)
-              : l.botHintTown(name),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialog).pop(),
-            child: Text(l.gotIt),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _botLine(String speaker, String target, int variant) {
-    final l = context.l10n;
-    return switch (variant) {
-      0 => l.botSaysSuspect(speaker, target),
-      1 => l.botSaysDoubt(speaker, target),
-      _ => l.botSaysWatch(speaker, target),
-    };
   }
 
   Widget _voteResult(MatchUiState state) {
@@ -994,21 +896,9 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     );
   }
 
-  bool _botRewardAsked = false;
-  int _botCoins = 0;
-
   Widget _result(MatchUiState state) {
     final outcome = state.public.outcome;
     if (outcome == null) return const SizedBox.shrink();
-    if (!_botRewardAsked && _controller.humanWonBotMatch) {
-      _botRewardAsked = true;
-      final container = ProviderScope.containerOf(context);
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final granted = await claimBotWin(container);
-        // The result screen lists it as a coin row and flies it to the pill.
-        if (granted > 0 && mounted) setState(() => _botCoins = granted);
-      });
-    }
     if (!_webResultQueued) {
       _webResultQueued = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1025,19 +915,11 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
       child: ResultScreen(
         tabletop: _controller.settings.tabletopPresentation,
         winner: outcome.winner,
-        // The human at a bot table is seat 0; online it is this device's seat.
-        // A shared phone has no "you".
+        // A shared phone has no "you"; online uses this device's seat.
         viewerSeat: switch (_controller.transport) {
-          LocalTransport() => _controller.playingWithBots ? 0 : null,
+          LocalTransport() => null,
           _ => snapshot.viewerSeat,
         },
-        coinRows: [
-          if (_botCoins > 0)
-            ResultCoinRow(
-              label: context.l10n.resultCoinBotWin,
-              coins: _botCoins,
-            ),
-        ],
         matchFile: switch (_controller.transport) {
           final LocalTransport local when local.engine.hasMatch => matchFileOf(
             local.engine.match,
@@ -1095,7 +977,6 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
         // is what stops the heartbeat, the channel and the voice link of a
         // match that is over — they used to outlive the result screen until
         // the next room was entered.
-        onPlayAgain: _controller.playingWithBots ? _playAgainVsBots : null,
         onHome: () async {
           // Ads v3 (phase 110): a finished pass-and-play match is counted and
           // may be followed by one ad, after Home is already on screen —
@@ -1116,32 +997,6 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
     );
   }
 
-  /// «ماتش تاني» at a bot table: the finished match is counted (and may be
-  /// followed by its one ad), then a new deal starts on this same screen.
-  Future<void> _playAgainVsBots() async {
-    final localId = switch (_controller.transport) {
-      final LocalTransport local when local.engine.hasMatch =>
-        'local-${local.engine.match.seed}',
-      _ => null,
-    };
-    if (localId != null) {
-      await ref
-          .read(interstitialCoordinatorProvider)
-          .leftPassAndPlayResult(localId);
-    }
-    if (!mounted || !_controller.restartBotMatch()) return;
-    await startBotRewardSession(ProviderScope.containerOf(context));
-    setState(() {
-      _victorySeen = false;
-      _webResultQueued = false;
-      _morningAcknowledgedFor = null;
-      _revoteNext = false;
-      _botRewardAsked = false;
-      _botCoins = 0;
-      _hintUsed = false;
-    });
-  }
-
   String? _eliminationLabel(PhaseRef? eliminatedOn) {
     if (eliminatedOn == null) return null;
     final l10n = context.l10n;
@@ -1158,7 +1013,7 @@ class MatchFlowState extends ConsumerState<MatchFlow> {
 class _AutoAdvance extends StatefulWidget {
   final VoidCallback onReady;
 
-  const _AutoAdvance({super.key, required this.onReady});
+  const _AutoAdvance({required this.onReady});
 
   @override
   State<_AutoAdvance> createState() => _AutoAdvanceState();

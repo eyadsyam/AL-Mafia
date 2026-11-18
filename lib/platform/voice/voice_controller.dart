@@ -194,7 +194,7 @@ class VoiceController {
     required this.engine,
     required this.link,
     IceConfig? relay,
-    this.rungTimeout = const Duration(seconds: 8),
+    this.rungTimeout = VoiceTimingTokens.rungTimeout,
     this.statsInterval = MafiaTiming.voiceStatsSample,
     this.microphoneReady,
   }) : relay = relay ?? IceConfig.relay();

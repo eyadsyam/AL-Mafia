@@ -546,18 +546,23 @@ class OnlineSession extends Notifier<OnlineSessionState> {
 
   /// Leaves the room. In the lobby that is a departure and the seats re-pack;
   /// mid-match it is only a disconnection and the seat is kept (O4, O5).
-  Future<void> leave() async {
+  Future<void> leave({
+    Duration retryFirst = ReliabilityTokens.leaveRetryFirst,
+    Duration retrySecond = ReliabilityTokens.leaveRetrySecond,
+  }) async {
     await _history?.cancel();
     _history = null;
     final room = state.room;
     final backend = _backend;
+    final roomId = room?.roomId;
     final transport = state.transport;
-    if (room != null && backend != null) {
+    if (roomId != null && backend != null) {
       try {
-        await backend.call('leave_room', {'roomId': room.roomId});
+        await backend.call('leave_room', {'roomId': roomId});
+      } on BackendUnreachable {
+        unawaited(_retryLeave(backend, roomId, retryFirst, retrySecond));
       } catch (_) {
-        // Leaving is not a thing that can fail in a way the player can act on.
-        // If the call did not land, the room notices in thirty seconds.
+        // A server refusal means the seat is already gone; local exit continues.
       }
     }
     // Said before the transport goes, so the room learns it from this device
@@ -572,6 +577,31 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     await OnlineSessionStore.clear();
     _backend = null;
     state = const OnlineSessionState();
+  }
+
+  Future<void> _retryLeave(
+    OnlineBackend backend,
+    String roomId,
+    Duration retryFirst,
+    Duration retrySecond,
+  ) async {
+    try {
+      for (final delay in [retryFirst, retrySecond]) {
+        await Future<void>.delayed(delay);
+        try {
+          await backend.call('leave_room', {'roomId': roomId});
+          return;
+        } on BackendException {
+          return;
+        } on BackendUnreachable {
+          // The second delay precedes the last attempt.
+        } catch (_) {
+          return;
+        }
+      }
+    } catch (_) {
+      // Background leave must never surface an unhandled error.
+    }
   }
 
   _PresenceObserver? _lifecycle;

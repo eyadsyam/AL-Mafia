@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../platform/reduce_motion.dart';
 import '../theme/mafia_theme.dart';
+import '../theme/design_tokens.dart';
 
 /// The morning's trace, arriving a beat after the death line (doc 09 §1.7).
 ///
@@ -56,7 +57,7 @@ class _TraceLineState extends State<TraceLine>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1),
+      duration: MotionTokens.traceLineInstant,
     );
   }
 

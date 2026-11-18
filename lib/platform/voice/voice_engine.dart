@@ -2,6 +2,7 @@ import 'dart:async';
 
 import '../../transport/voice_link.dart' show VoicePeer;
 import 'voice_diagnostics.dart';
+import '../../ui/theme/design_tokens.dart';
 
 /// [VoicePeer] is a fact about the room rather than about the call, so it is
 /// declared with the link and re-exported here for the engines that consume it.
@@ -204,7 +205,7 @@ class NullVoiceEngine implements VoiceEngine {
     required String selfId,
     required IceConfig ice,
     required List<VoicePeer> peers,
-    Duration timeout = const Duration(seconds: 8),
+    Duration timeout = VoiceTimingTokens.rungTimeout,
   }) async => false;
 
   @override

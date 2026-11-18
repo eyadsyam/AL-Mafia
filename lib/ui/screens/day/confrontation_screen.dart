@@ -7,6 +7,7 @@ import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/phase_timer.dart';
 import '../../widgets/textured_surface.dart';
+import '../../theme/design_tokens.dart';
 
 /// The day's one confrontation (doc 09 §2.6).
 ///
@@ -69,9 +70,9 @@ class _ConfrontationScreenState extends State<ConfrontationScreen> {
   @override
   void initState() {
     super.initState();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+    _ticker = Timer.periodic(CountdownTokens.tick, (_) {
       if (!mounted) return;
-      final next = _remaining - const Duration(seconds: 1);
+      final next = _remaining - CountdownTokens.tick;
       if (next <= Duration.zero) {
         setState(() => _remaining = Duration.zero);
         // Expired with nothing said. Recorded as silence, not as a failure.

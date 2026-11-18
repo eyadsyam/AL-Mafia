@@ -50,7 +50,6 @@ import 'package:mafia_master/ui/screens/setup/roles_screen.dart';
 import 'package:mafia_master/ui/screens/setup/settings_screen.dart';
 import 'package:mafia_master/ui/screens/setup/store_shop.dart';
 import 'package:mafia_master/ui/screens/setup/settings_sheet.dart';
-import 'package:mafia_master/ui/screens/setup/bot_match_sheet.dart';
 import 'package:mafia_master/ui/screens/onboarding/first_run_screen.dart';
 import 'package:mafia_master/ui/social/friends.dart';
 import 'package:mafia_master/ui/theme/design_tokens.dart' show AdTokens;
@@ -611,7 +610,6 @@ List<SweepCase> sweepCases() => [
       ModeScreen(
         onPlayOffline: () {},
         onPlayOnline: () {},
-        onPlayBots: () {},
         storiesSoon: true,
         onBack: () {},
       ),
@@ -622,12 +620,7 @@ List<SweepCase> sweepCases() => [
   SweepCase(
     '01a_mode_stories_hidden',
     (_) => _plain(
-      ModeScreen(
-        onPlayOffline: () {},
-        onPlayOnline: () {},
-        onPlayBots: () {},
-        onBack: () {},
-      ),
+      ModeScreen(onPlayOffline: () {}, onPlayOnline: () {}, onBack: () {}),
     ),
     action: _settleLong,
     banner: true,
@@ -638,7 +631,6 @@ List<SweepCase> sweepCases() => [
       ModeScreen(
         onPlayOffline: () {},
         onPlayOnline: () {},
-        onPlayBots: () {},
         onPlayStories: () {},
         onBack: () {},
       ),
@@ -864,11 +856,6 @@ List<SweepCase> sweepCases() => [
     (_) => _launcher(
       (c, _) => showFriendsSheet(c, onJoin: (_) {}, inviteRoomId: 'room-1'),
     ),
-    action: _openLauncher,
-  ),
-  SweepCase(
-    '24_bot_sheet',
-    (_) => _launcher((c, _) => showBotMatchSheet(c)),
     action: _openLauncher,
   ),
   SweepCase(

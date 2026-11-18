@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import '../ui/theme/design_tokens.dart';
 
 /// How far the phone is leaning, as a pair of −1..1 fractions.
 ///
@@ -59,7 +60,7 @@ class SensorTiltSource implements TiltSource {
   /// Readings per second. 30 is well under a 60fps frame budget and far more
   /// than a hand-held lean needs; the sensor's own rate is typically much
   /// higher and sampling all of it would burn battery for motion nobody sees.
-  static const Duration _interval = Duration(milliseconds: 33);
+  static const Duration _interval = MotionTokens.tiltSample;
 
   /// Gravity is ~9.81 m/s². Dividing by half of it means a lean of about 30°
   /// reaches the full parallax range, which is roughly the most someone tilts a

@@ -10,6 +10,7 @@ import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../widgets/settings_kit.dart';
 import '../online/online_session.dart';
+import '../../theme/design_tokens.dart';
 
 class ScenarioPurchaseState {
   final bool configured;
@@ -148,7 +149,7 @@ class ScenarioPurchaseController extends Notifier<ScenarioPurchaseState> {
     state = state.copyWith(busy: true, failed: false);
     try {
       await ref.read(purchaseStoreProvider).restore();
-      await Future<void>.delayed(const Duration(seconds: 1));
+      await Future<void>.delayed(StoreTimingTokens.scenarioDelay);
       if (!state.pending) state = state.copyWith(busy: false);
     } catch (_) {
       state = state.copyWith(busy: false, failed: true);

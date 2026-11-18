@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'online_backend.dart' show VoiceSignal;
+import '../ui/theme/design_tokens.dart';
 
 /// The wrapper every signalling message wears on the Metered wire, and the
 /// eight questions it has to answer before the mesh is allowed to see it.
@@ -59,7 +60,7 @@ class VoiceEnvelopes {
   /// wider than any honest message needs. It is that wide because the number is
   /// bounding a *replay window*, not a network delay, and a device whose clock
   /// is a minute off is a support ticket rather than an attack.
-  static const Duration maxAge = Duration(minutes: 2);
+  static const Duration maxAge = VoiceTimingTokens.envelopeMaxAge;
 
   /// How many recent nonces to remember. Enough to cover a whole match's
   /// negotiation several times over; small enough that it cannot grow into a

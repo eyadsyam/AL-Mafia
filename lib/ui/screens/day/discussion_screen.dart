@@ -80,11 +80,6 @@ class DiscussionScreen extends StatefulWidget {
   /// anything goes in it. See [HintSlot].
   final bool interfaceHintsEnabled;
 
-  /// «العب ضد البوتات»: what the computer players are saying, one line each.
-  final List<String> tableTalk;
-
-  /// At a bot table: watch an ad to learn whether one player is Mafia.
-  final VoidCallback? onTalkHint;
   final bool tabletop;
 
   const DiscussionScreen({
@@ -99,8 +94,6 @@ class DiscussionScreen extends StatefulWidget {
     this.onTimerEnded,
     this.onSpoke,
     this.onWhisper,
-    this.tableTalk = const [],
-    this.onTalkHint,
     this.whisperGraph = const [],
     this.tabletop = false,
   });
@@ -137,13 +130,13 @@ class _DiscussionScreenState extends State<DiscussionScreen>
   }
 
   void _startCountdown() {
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+    _countdownTimer = Timer.periodic(CountdownTokens.tick, (_) {
       if (!mounted) return;
       if (_isPaused) return;
 
       setState(() {
         if (_remaining.inSeconds > 0) {
-          _remaining -= const Duration(seconds: 1);
+          _remaining -= CountdownTokens.tick;
         } else {
           _handlePhaseEnd();
         }
@@ -281,13 +274,6 @@ class _DiscussionScreenState extends State<DiscussionScreen>
                             // it was, so the timer under it does not jump.
                             SizedBox(height: HintSlot.reservedHeight(context)),
                             SizedBox(height: spacing.sm),
-                            if (widget.tableTalk.isNotEmpty) ...[
-                              _TableTalk(
-                                lines: widget.tableTalk,
-                                onHint: widget.onTalkHint,
-                              ),
-                              SizedBox(height: spacing.md),
-                            ],
 
                             // Speaker info (structured mode only)
                             if (widget.mode == DiscussionMode.structured) ...[
@@ -451,60 +437,6 @@ class _DiscussionScreenState extends State<DiscussionScreen>
 /// Shows the day's edges — «أحمد ← سارة» — and the control that opens the
 /// composer. It never shows a body, and it has no way to reach one: the graph
 /// arrives as display names and the store is not wired into this widget at all.
-/// The bots' spoken lines, in a short scrolling card.
-class _TableTalk extends StatelessWidget {
-  final List<String> lines;
-  final VoidCallback? onHint;
-  const _TableTalk({required this.lines, this.onHint});
-
-  static const hintKey = ValueKey('discussion_ad_hint');
-
-  static const talkKey = ValueKey('discussion_table_talk');
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    final type = context.typography;
-    return Container(
-      key: talkKey,
-      constraints: const BoxConstraints(
-        maxHeight: DiscussionTokens.tableTalkMaxHeight,
-      ),
-      padding: EdgeInsets.all(spacing.md),
-      decoration: BoxDecoration(
-        color: colors.surfaceRaised,
-        borderRadius: BorderRadius.circular(context.radii.card),
-        border: Border.all(color: colors.borderSubtle),
-      ),
-      // A scroll view that can say how tall it is (a shrink-wrapped list
-      // cannot), because the screen around it scrolls on a short phone.
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final line in lines)
-              Padding(
-                padding: EdgeInsets.only(bottom: spacing.xs),
-                child: Text(
-                  line,
-                  style: type.bodySmall.copyWith(color: colors.textSecondary),
-                ),
-              ),
-            if (onHint != null)
-              TextButton.icon(
-                key: hintKey,
-                onPressed: onHint,
-                icon: const Icon(Icons.ondemand_video_rounded),
-                label: Text(context.l10n.botHintOffer),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _WhisperPanel extends StatelessWidget {
   final List<(String, String)> graph;
   final VoidCallback onCompose;
