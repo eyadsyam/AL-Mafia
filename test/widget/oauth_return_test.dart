@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mafia_master/ui/screens/online/online_session.dart'
+    show onlineBackendFactoryProvider;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,6 +114,9 @@ void main() {
         matchRepositoryProvider.overrideWithValue(MemoryMatchRepository(store)),
         audioDirectorProvider.overrideWithValue(AudioDirector()),
         accountsAvailableProvider.overrideWithValue(true),
+        onlineBackendFactoryProvider.overrideWithValue(
+          () async => throw StateError('no server in this test'),
+        ),
         accountAuthProvider.overrideWithValue(auth),
         directoryApiProvider.overrideWith(_NewAccountDirectory.new),
         accountProfileProvider.overrideWith((ref) async* {
@@ -134,7 +139,10 @@ void main() {
   }
 
   /// The account is the first question after the intro.
-  Future<void> toAccountStep(WidgetTester tester) => passIntro(tester);
+  Future<void> toAccountStep(WidgetTester tester) async {
+    await passIntro(tester);
+    await acceptTerms(tester);
+  }
 
   group('bug 1: Google during onboarding', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -329,6 +337,9 @@ void main() {
       ProviderScope(
         overrides: [
           accountsAvailableProvider.overrideWithValue(true),
+          onlineBackendFactoryProvider.overrideWithValue(
+            () async => throw StateError('no server in this test'),
+          ),
           accountAuthProvider.overrideWithValue(auth),
           accountProfileProvider.overrideWith(
             (ref) => Stream.value(AccountProfile.guest),
@@ -338,8 +349,9 @@ void main() {
       ),
     );
     await passIntro(tester);
+    await acceptTerms(tester);
     await _tap(tester, FirstRunScreen.guestKey);
-    await answerKind(tester);
+    await answerKind(tester, terms: false);
     await typeName(tester, 'Mona');
 
     await tester.pumpWidget(const SizedBox.shrink());
@@ -347,6 +359,9 @@ void main() {
       ProviderScope(
         overrides: [
           accountsAvailableProvider.overrideWithValue(true),
+          onlineBackendFactoryProvider.overrideWithValue(
+            () async => throw StateError('no server in this test'),
+          ),
           accountAuthProvider.overrideWithValue(auth),
           accountProfileProvider.overrideWith(
             (ref) => Stream.value(AccountProfile.guest),

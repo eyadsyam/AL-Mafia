@@ -2757,6 +2757,15 @@
   "firstRunAgreeAnd": " و",
   "firstRunAgreePrivacy": "الخصوصية",
   "firstRunKindNote": "تقدر تغيّر الصيغة بعدين من بروفايلك",
+  "firstRunTermsTitle": "قبل ما نبدأ",
+  "homeOnlineRooms": "{count, plural, =1{أوضة أونلاين مستنية ناس} =2{أوضتين أونلاين مستنيين ناس} few{{count} أوض أونلاين مستنية ناس} other{{count} أوضة أونلاين مستنية ناس}}",
+  "@homeOnlineRooms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "firstRunLangOther": "English",
   "firstRunNameTitle": "اسمك إيه؟",
   "firstRunNameHint": "ده اللي هيتكتب على كارتك وصحابك هيشوفوه",

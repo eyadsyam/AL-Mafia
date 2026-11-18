@@ -11,9 +11,19 @@ Future<void> tapKey(WidgetTester tester, Key key) async {
   await tester.pumpAndSettle();
 }
 
-/// Ticks the one box and picks a card; the card flips and the name step opens.
-Future<void> answerKind(WidgetTester tester, {bool boy = true}) async {
+/// The terms step: tick the one box, continue.
+Future<void> acceptTerms(WidgetTester tester) async {
   await tapKey(tester, FirstRunScreen.agreeKey);
+  await tapKey(tester, FirstRunScreen.continueKey);
+}
+
+/// Accepts the terms and picks a card; the card flips and the name step opens.
+Future<void> answerKind(
+  WidgetTester tester, {
+  bool boy = true,
+  bool terms = true,
+}) async {
+  if (terms) await acceptTerms(tester);
   await tapKey(tester, boy ? FirstRunScreen.boyKey : FirstRunScreen.girlKey);
 }
 

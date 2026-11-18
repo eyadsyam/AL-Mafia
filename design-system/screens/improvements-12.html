@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>12 تحسين زيادة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#0F0F0F; --raised:#1A1A1A; --overlay:#252525; --line:#313131;
+  --bone:#C2BDB2; --muted:#908C83; --silver:#67635F; --ink:#141414;
+  --page:#0A0A0A; --pagetext:#C2BDB2; --pagemuted:#908C83;
+  --ad:#1d2a22; --adline:#2f4a39; --pick:#3a3326;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--page:#E9E6E0;--pagetext:#1A1A1A;--pagemuted:#4A4740}}
+:root[data-theme="light"]{--page:#E9E6E0;--pagetext:#1A1A1A;--pagemuted:#4A4740}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--pagetext);font-family:"IBM Plex Sans Arabic",sans-serif;line-height:1.6;letter-spacing:0;padding:24px 16px 48px}
+h1,h2,h3,b,.btn,.title{font-family:Cairo,sans-serif;letter-spacing:0}
+header{max-width:1100px;margin:0 auto 20px}
+header h1{font-size:24px}
+header p{color:var(--pagemuted);font-size:15px;max-width:820px}
+nav{max-width:1100px;margin:0 auto 28px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-family:Cairo;font-weight:700;font-size:14px;color:var(--pagetext);border:1px solid var(--pagemuted);border-radius:999px;padding:4px 14px;text-decoration:none}
+section{max-width:1100px;margin:0 auto 48px}
+section>h2{font-size:20px;margin-bottom:4px}
+section>p.why{color:var(--pagemuted);font-size:14px;margin-bottom:16px;max-width:780px}
+.row{display:flex;gap:20px;flex-wrap:wrap;justify-content:flex-start}
+.col{display:flex;flex-direction:column;gap:8px;align-items:center}
+.tag{font-family:Cairo;font-weight:700;font-size:13px;color:var(--pagemuted)}
+.tag.rec{color:var(--pagetext)}
+.phone{width:300px;max-width:100%;height:620px;background:var(--ground);color:var(--bone);border:1px solid var(--line);border-radius:26px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.screen{flex:1;display:flex;flex-direction:column;gap:12px;padding:18px 16px;min-height:0;position:relative}
+.center{justify-content:center;align-items:center;text-align:center}
+.title{font-size:24px;font-weight:800}
+.title.s{font-size:19px}
+.sub{color:var(--muted);font-size:14px}
+.btn{background:var(--bone);color:var(--ink);border-radius:14px;text-align:center;padding:12px;font-weight:800;font-size:16px;width:100%}
+.btn.sec2{background:var(--raised);color:var(--bone);border:1px solid var(--line);font-weight:700;font-size:15px}
+.btn.ghost{background:transparent;color:var(--muted);font-weight:700;padding:6px}
+.pair{display:flex;gap:8px}
+.pair .btn{padding:10px;font-size:14px}
+.band{height:62px;flex:0 0 62px;border-top:1px solid var(--line);background:var(--ground);display:flex;align-items:center;justify-content:center;padding:6px 10px}
+.band .ad{width:100%;height:100%;border:1px dashed var(--adline);background:var(--ad);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#7fa58c}
+.top{display:flex;justify-content:space-between;color:var(--muted);font-size:18px;align-items:center}
+.corner{display:flex;gap:6px}
+.corner span{width:30px;height:30px;border-radius:9px;background:var(--raised);border:1px solid var(--line)}
+.sec{font-family:Cairo;font-weight:700;font-size:13px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between;align-items:center}
+.chips{display:flex;gap:6px}
+.chip{font-family:Cairo;font-weight:700;font-size:12px;border-radius:8px;padding:2px 10px;background:var(--bone);color:var(--ink)}
+.chip.o{background:transparent;color:var(--bone);border:1px solid var(--line)}
+.empty{border:1px solid var(--line);border-radius:14px;background:var(--raised);padding:14px;display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center}
+.empty .head{font-family:Cairo;font-weight:800;font-size:16px}
+.bare{color:var(--muted);font-size:14px;text-align:center;padding:18px 0}
+.ok{display:flex;justify-content:space-between;align-items:center;background:var(--overlay);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:14px}
+.ok b{font-size:14px}
+.ok small{color:var(--muted);font-size:12px;font-family:Cairo;font-weight:700}
+.hero{flex:1;display:flex;align-items:center;justify-content:center}
+.art{width:150px;height:220px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(170deg,#2a2a2a,#0f0f0f);box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.live{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:var(--bone);font-family:Cairo;font-weight:700;padding:4px 0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bone);box-shadow:0 0 0 3px rgba(194,189,178,.18)}
+.live small{color:var(--muted);font-weight:700}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:3}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--raised);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;z-index:4}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 2px}
+.stars{display:flex;justify-content:center;gap:10px;font-size:30px;direction:ltr}
+.stars span{color:var(--silver)}
+.stars span.on{color:var(--bone)}
+.field{background:var(--overlay);border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--muted);font-size:14px;min-height:64px}
+.res{display:flex;flex-direction:column;gap:6px;opacity:.5}
+.res .win{font-family:Cairo;font-weight:800;font-size:22px;text-align:center}
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--raised);border-bottom:1px solid var(--line);font-family:Cairo;font-weight:700;font-size:15px}
+.item:last-child{border-bottom:0}
+.item small{font-family:"IBM Plex Sans Arabic";font-weight:400;color:var(--muted);font-size:12px}
+.item.done{color:var(--silver)}
+.big{font-family:Cairo;font-weight:800;font-size:34px}
+.count{width:74px;height:74px;border-radius:50%;border:2px solid var(--bone);display:flex;align-items:center;justify-content:center;font-family:Cairo;font-weight:800;font-size:30px;margin:6px auto}
+.sound{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center;justify-content:center}
+.steps{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.step{font-family:Cairo;font-weight:700;font-size:14px;border:1px solid var(--pagemuted);border-radius:10px;padding:6px 12px;color:var(--pagetext)}
+.step.mark{border-width:2px}
+.step small{display:block;font-family:"IBM Plex Sans Arabic";font-weight:400;font-size:12px;color:var(--pagemuted)}
+.arrow{color:var(--pagemuted);font-family:Cairo}
+.notes{color:var(--pagemuted);font-size:14px;margin-top:12px;max-width:820px}
+.notes li{margin:4px 18px 0 0}
+.fix{max-width:1100px;margin:0 auto 32px;border:1px solid var(--pagemuted);border-radius:14px;padding:14px 16px;font-size:15px}
+.fix b{font-size:16px}
+</style>
+<style>
+.minicard{width:84px;height:124px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(170deg,#2a2a2a,#111);margin:0 auto}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pills span{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-family:Cairo;font-weight:700}
+.pills span.sel{background:var(--bone);color:var(--ink)}
+.toggle{display:flex;justify-content:space-between;align-items:center;background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-family:Cairo;font-weight:700;font-size:14px}
+.sw{width:38px;height:22px;border-radius:999px;background:var(--overlay);border:1px solid var(--line);position:relative}
+.sw::after{content:"";position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--silver)}
+.sw.on{background:var(--bone)}
+.sw.on::after{right:auto;left:2px;background:var(--ink)}
+.announce{border:1px solid var(--bone);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:4px;width:100%}
+.big2{font-family:Cairo;font-weight:800;font-size:28px}
+.ident{display:flex;gap:12px;align-items:center}
+.av{width:62px;height:84px;border-radius:10px;background:linear-gradient(180deg,#2c2c2c,#121212);border:2px solid var(--bone);flex:0 0 auto}
+.name{font-family:Cairo;font-weight:800;font-size:20px}
+.handle{font-family:Cairo;font-weight:700;font-size:15px}
+.handle small{font-size:12px;color:var(--muted);margin-inline-start:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:6px;text-align:center}
+.stat b{display:block;font-size:18px}
+.stat span{font-size:11px;color:var(--muted)}
+.badge{background:var(--bone);color:var(--ink);border-radius:999px;font-size:11px;padding:0 8px;font-family:Cairo;font-weight:800}
+.qr{width:170px;height:170px;margin:0 auto;border-radius:12px;background:repeating-conic-gradient(var(--bone) 0 25%,var(--raised) 0 50%) 0 0/22px 22px;border:8px solid var(--bone)}
+.search{background:var(--overlay);border:1px solid var(--line);border-radius:10px;padding:8px 10px;color:var(--muted);font-size:14px}
+.frow{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.fav{width:36px;height:36px;border-radius:50%;background:#333;flex:0 0 auto;position:relative}
+.fav.on::after{content:"";position:absolute;bottom:0;left:0;width:10px;height:10px;border-radius:50%;background:var(--bone);border:2px solid var(--ground)}
+.fbody{flex:1;min-width:0}
+.fname{font-family:Cairo;font-weight:700;font-size:14px}
+.toast{background:var(--raised);border:1px solid var(--bone);border-radius:14px;padding:12px;font-size:14px}
+.feed{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:9px 11px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.feed small{width:100%;color:var(--muted);font-size:11px}
+.re{font-size:12px;color:var(--muted)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg span{flex:1;text-align:center;padding:7px 4px;font-family:Cairo;font-weight:700;font-size:12.5px;border-inline-start:1px solid var(--line)}
+.seg span:first-child{border-inline-start:0}
+.seg span.sel{background:var(--bone);color:var(--ink)}
+.ideas{display:flex;flex-direction:column;gap:10px;max-width:820px;font-size:15px}
+.ideas div{border:1px solid var(--pagemuted);border-radius:12px;padding:10px 14px}
+</style>
+<style>
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;max-width:1100px}
+.card{border:1px solid var(--pagemuted);border-radius:12px;padding:12px 14px;font-size:14.5px}
+.card b{display:block;font-size:16px;margin-bottom:4px}
+.stack{display:flex;flex:0 0 auto}
+.stack span{width:26px;height:26px;border-radius:50%;background:#333;border:2px solid var(--ground);margin-inline-start:-8px}
+.stack span:first-child{margin-inline-start:0}
+.recap{border:1px solid var(--bone);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.notif{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13.5px;display:flex;flex-direction:column;gap:2px}
+.ntop{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+.ntop small{font-size:11px}
+</style>
+</head>
+<body>
+<header>
+  <h1>12 تحسين زيادة</h1>
+  <p>فوق اللي وافقت عليه: الشاشات B1 وB2 وB3 وB5، والأصحاب S1 لـ S6، والشيخ بالليل في الأوفلاين والأونلاين. كل تحسين له رقم، فرد على كل واحد لوحده: موافق أو لأ. واللي ليه شاشة جديدة رسمته تحت.</p>
+</header>
+
+<div class="fix">
+  <b>إزاي الشيخ هيكشف نفسه بالليل من غير ما يبان:</b> في الليل، كل دور ليه في آخر ليستة الأسامي خانة واحدة بتاعته هو. المافيا خانتها «مفيش قتل الليلة»، والدكتور «احمي نفسك»، والمواطن «مش هختار حد». خانة الشيخ هتبقى «اكشف نفسي الصبح». يعني نفس الشاشة، ونفس عدد الدوسات، ونفس المكان لكل الأدوار، فاللي بيبص من بعيد مش هيعرف حاجة. ده بيمشي على قواعد اللعبة (Doc 05) من غير ما نضيف أي زرار جديد.
+</div>
+
+<nav><a href="#i1">1–4 الأصحاب</a><a href="#i5">5–7 ملء الأوض</a><a href="#i8">8–9 الشيخ</a><a href="#i10">10–12 جودة وأمان</a></nav>
+
+<section id="i1">
+  <h2>الأصحاب</h2>
+  <div class="cards">
+    <div class="card"><b>1. «الشلة»</b> تحفظ مجموعة أصحاب باسم (مثلًا «شلة الشغل»)، وتدعيهم كلهم لأوضتك بدوسة واحدة. اللعبة دي بتتلعب مع نفس الناس كل مرة، فده بيوفّر دعوة كل واحد لوحده.</div>
+    <div class="card"><b>2. اقتراحات أصحاب</b> «لعبت معاه 3 مرات» و«صاحب سارة وكريم». من ماتشات حقيقية بس، ومش بنقترح حد قافل «اظهر في البحث».</div>
+    <div class="card"><b>3. ملخص الأسبوع</b> كارت كل جمعة في «أخبار الشلة»: لعبت كام ماتش، وكسبت كام، وأكتر حد لعبت معاه. ومعاه زرار «ابعته» يطلّع صورة لواتساب أو انستجرام.</div>
+    <div class="card"><b>4. ساعات هدوء</b> مفيش «يلا نلعب؟» ولا أخبار من 1 بالليل لـ 10 الصبح بتوقيت اللاعب. وكل صاحب يبعتلك 3 «يلا نلعب؟» بالكتير في اليوم، والرسالة تختفي بعد نص ساعة.</div>
+  </div>
+  <div class="row" style="margin-top:16px">
+    <div class="col"><div class="tag">1 — ادعي الشلة</div>
+      <div class="phone"><div class="screen">
+        <div class="title s">ادعي لأوضتك</div>
+        <div class="sec"><span>الشلل</span></div>
+        <div class="frow"><div class="stack"><span></span><span></span><span></span></div><div class="fbody"><div class="fname">شلة الشغل</div><div class="sub" style="font-size:12px">5 أصحاب · 3 أونلاين</div></div><span class="chip">ادعيهم</span></div>
+        <div class="frow"><div class="stack"><span></span><span></span></div><div class="fbody"><div class="fname">ولاد العم</div><div class="sub" style="font-size:12px">7 أصحاب · 1 أونلاين</div></div><span class="chip">ادعيهم</span></div>
+        <div class="sec"><span>أصحاب لوحدهم</span></div>
+        <div class="frow"><div class="fav on"></div><div class="fbody"><div class="fname">سارة</div></div><span class="chip o">ادعي</span></div>
+        <div class="btn sec2" style="margin-top:auto">اعمل شلة جديدة</div>
+      </div></div></div>
+    <div class="col"><div class="tag">3 — ملخص الأسبوع</div>
+      <div class="phone"><div class="screen">
+        <div class="chips"><span class="chip o">أصحابك</span><span class="chip">الأخبار</span></div>
+        <div class="recap">
+          <div class="sub">أسبوعك</div>
+          <div class="stats"><div class="stat"><b>9</b><span>ماتش</span></div><div class="stat"><b>5</b><span>فوز</span></div><div class="stat"><b>3</b><span>مافيا</span></div></div>
+          <div style="font-size:14px">أكتر حد لعبت معاه: <b>سارة</b> (7 ماتشات)</div>
+          <div class="btn sec2">ابعته</div>
+        </div>
+        <div class="feed"><b>كريم</b> فتح أوضة عامة <span class="chip">ادخل</span><small>من دقيقتين</small></div>
+      </div></div></div>
+  </div>
+</section>
+
+<section id="i5">
+  <h2>ملء الأوض</h2>
+  <div class="cards">
+    <div class="card"><b>5. «ناقص واحد»</b> لما أوضة عامة يبقى ناقصها لاعب أو اتنين، أصحاب اللي جوه يوصلهم إشعار «ناقص واحد في أوضة سارة». مرة واحدة لكل أوضة، ومع ساعات الهدوء.</div>
+    <div class="card"><b>6. «أصحابك أونلاين» في شاشة مفيش أوض وفي الهوم</b> (B1 وB2) لو صاحبك في أوضة، السطر يبقى «سارة في أوضة · ادخل معاها». ولو أصحابك أونلاين ومفيش أوض، تظهر «2 من صحابك أونلاين · اعزمهم».</div>
+    <div class="card"><b>7. «العب مع ناس دلوقتي» تفضّل أصحابك</b> اللعب السريع بيدخلك الأول أوضة فيها صاحبك لو فيه، وبعدها أي أوضة قربت تكمل.</div>
+  </div>
+  <div class="row" style="margin-top:16px">
+    <div class="col"><div class="tag">6 — الهوم لما صاحبك في أوضة</div>
+      <div class="phone"><div class="screen">
+        <div class="sub" style="text-align:center">مساء الخير يا أحمد</div>
+        <div class="title" style="text-align:center">سيد المافيا</div>
+        <div class="hero"><div class="art"></div></div>
+        <div class="btn">ابدأ اللعب</div>
+        <div class="live"><span class="dot"></span>سارة في أوضة · ادخل معاها<small>←</small></div>
+      </div><div class="band"><div class="ad">إعلان</div></div></div></div>
+    <div class="col"><div class="tag">5 — الإشعار</div>
+      <div class="phone"><div class="screen">
+        <div class="notif"><div class="ntop"><span>سيد المافيا</span><small>دلوقتي</small></div><b>ناقص واحد في أوضة سارة</b><div>ادخل والماتش يبدأ على طول.</div></div>
+      </div></div></div>
+  </div>
+</section>
+
+<section id="i8">
+  <h2>الشيخ</h2>
+  <div class="cards">
+    <div class="card"><b>8. صوت الشيخ ظاهر وقت التصويت</b> بعد ما الشيخ يكشف نفسه، جنب اسمه «×3» في شاشة التصويت، وفي عدّ الأصوات. بكده الكل يفهم ليه النتيجة طلعت كده.</div>
+    <div class="card"><b>9. شرح الشيخ يتحدّث في كل حتة</b> «إزاي تلعب»، وكارت الدور، وشاشة الأدوار، والشرح اللي بيظهر أول ماتش. كلهم يقولوا القاعدة الجديدة: «بالليل تقدر تختار تكشف نفسك الصبح». القديم بيقول «بالنهار في أي وقت»، ولازم يتغير معاها.</div>
+  </div>
+  <div class="row" style="margin-top:16px">
+    <div class="col"><div class="tag">8 — التصويت بعد ما الشيخ كشف نفسه</div>
+      <div class="phone"><div class="screen">
+        <div class="title s">مين يطلع؟</div>
+        <div class="list">
+          <div class="item">أحمد <small>2</small></div>
+          <div class="item">محمود <span class="badge">×3</span> <small>0</small></div>
+          <div class="item">سارة <small>4</small></div>
+          <div class="item">نور <small>0</small></div>
+        </div>
+        <div class="sub">محمود صوّت على سارة: صوته بـ 3.</div>
+      </div></div></div>
+  </div>
+</section>
+
+<section id="i10">
+  <h2>جودة وأمان</h2>
+  <div class="cards">
+    <div class="card"><b>10. صفحة الخصوصية وبيانات جوجل بلاي</b> الأصحاب والأخبار والتقييم والإشعارات الجديدة بيانات جديدة بنجمعها. لازم صفحة الخصوصية وفورم «Data safety» في جوجل بلاي يتحدّثوا معاها، وإلا جوجل ممكن يوقف التحديث. هجهّز النص، وCodex يحدّث الفورم وانت مسجّل دخول.</div>
+    <div class="card"><b>11. الحظر بيحمي فعلًا</b> اللي حظرته ميقدرش يلاقيك في البحث، ولا يبعتلك طلب أو «يلا نلعب؟»، ولا يشوف أخبارك، ولا يدخل أوضة انت فيها بالكود. وانت كمان مش هتشوفه.</div>
+    <div class="card"><b>12. نعدّ الحاجات الجديدة</b> عدّ إجمالي من غير أسامي: طلبات الصداقة، والقبول، و«يلا نلعب؟»، والدعوات اللي وصلت لماتش، و«فكّرني». بكده نعرف أي حاجة فيهم بتجيب ماتشات بجد.</div>
+  </div>
+</section>
+
+<section>
+  <h2>ترتيب الشغل</h2>
+  <ul class="notes" style="font-size:15px;color:var(--pagetext)">
+    <li><b>شغال دلوقتي:</b> B5 (الشروط الأول) وB2 (سطر الأونلاين)، وبعدهم B1 (مفيش أوض) وB3 (رأيك).</li>
+    <li><b>بعدها:</b> الشيخ بالليل في المحرك والأوفلاين والأونلاين. ده بيلمس قواعد اللعبة، فهراجعه سطر سطر قصاد Doc 05.</li>
+    <li><b>بعدها:</b> الأصحاب، السيرفر الأول (الطلبات باليوزرنيم، والخصوصية، و«يلا نلعب؟»، والأخبار، والإحصائيات، والحظر)، وبعدين الشاشات.</li>
+    <li><b>في الآخر:</b> التحسينات اللي توافق عليها، والخصوصية وData safety، وبعدين نسخة تجربة على الموبايل قبل أي رفع.</li>
+    <li>ولا حاجة من دول بتنزل للاعيبة غير لما تقول «ارفع».</li>
+  </ul>
+</section>
+</body>
+</html>

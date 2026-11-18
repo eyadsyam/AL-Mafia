@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mafia_master/ui/screens/online/online_session.dart'
+    show onlineBackendFactoryProvider;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -82,6 +84,9 @@ Widget _host(
 }) => ProviderScope(
   overrides: [
     accountsAvailableProvider.overrideWithValue(accounts),
+    onlineBackendFactoryProvider.overrideWithValue(
+      () async => throw StateError('no server in this test'),
+    ),
     accountAuthProvider.overrideWithValue(auth),
     accountProfileProvider.overrideWith((ref) => Stream.value(profile)),
     if (directory != null) directoryApiProvider.overrideWith(directory),
@@ -110,16 +115,17 @@ void main() {
     final auth = _FakeAuth();
     await tester.pumpWidget(_host(const FirstRunScreen(), auth: auth));
     await passIntro(tester);
+    await acceptTerms(tester);
     expect(find.byKey(FirstRunScreen.googleKey), findsOneWidget);
     expect(find.byKey(FirstRunScreen.emailKey), findsOneWidget);
     expect(find.byKey(FirstRunScreen.guestKey), findsOneWidget);
     expect(find.text(arStrings.firstRunGuestPlain), findsOneWidget);
     expect(find.text(arStrings.firstRunAccountNote), findsOneWidget);
-    expect(find.bySemanticsLabel(arStrings.arrivalStep(1, 3)), findsOneWidget);
+    expect(find.bySemanticsLabel(arStrings.arrivalStep(2, 4)), findsOneWidget);
 
     // Guest keeps the anonymous session: the profile is saved, nothing signed.
     await _tap(tester, FirstRunScreen.guestKey);
-    await answerKind(tester);
+    await answerKind(tester, terms: false);
     await typeName(tester, 'Eyad');
     expect(find.byKey(FirstRunScreen.handleKey), findsNothing);
     await _tap(tester, FirstRunScreen.continueKey);
@@ -133,6 +139,7 @@ void main() {
     final auth = _FakeAuth();
     await tester.pumpWidget(_host(const FirstRunScreen(), auth: auth));
     await passIntro(tester);
+    await acceptTerms(tester);
     await _tap(tester, FirstRunScreen.emailKey);
     expect(find.byKey(AccountSheet.googleKey), findsOneWidget);
     expect(find.byKey(AccountSheet.createKey), findsOneWidget);
@@ -148,6 +155,7 @@ void main() {
     final auth = _FakeAuth();
     await tester.pumpWidget(_host(const FirstRunScreen(), auth: auth));
     await passIntro(tester);
+    await acceptTerms(tester);
     await _tap(tester, FirstRunScreen.googleKey);
     expect(auth.calls, ['google']);
   });
@@ -174,14 +182,13 @@ void main() {
     );
     // Signed in already: the account step goes on by itself.
     await passIntro(tester);
+    await acceptTerms(tester);
     expect(find.byKey(FirstRunScreen.welcomeKey), findsOneWidget);
     expect(find.text(arStrings.firstRunWelcomeBack('أحمد')), findsOneWidget);
     expect(find.text('@ahmed_mafia'), findsOneWidget);
     expect(find.byKey(FirstRunScreen.boyKey), findsNothing);
     expect(find.byKey(FirstRunScreen.nameKey), findsNothing);
 
-    // The box is still the player's own answer.
-    await _tap(tester, FirstRunScreen.agreeKey);
     await _tap(tester, FirstRunScreen.playKey);
     final saved = (await ProfileStore().load())!;
     expect(saved.name, 'أحمد', reason: 'the account name wins');
@@ -216,6 +223,8 @@ void main() {
     // Signed in already: the account step goes on by itself.
     await passIntro(tester);
     await answerKind(tester, boy: false);
+
+
     await typeName(tester, 'Mona');
     final handle = find.byKey(FirstRunScreen.handleKey);
     expect(handle, findsOneWidget);
@@ -249,7 +258,7 @@ void main() {
     await passIntro(tester);
     expect(find.byKey(FirstRunScreen.googleKey), findsNothing);
     await answerKind(tester);
-    expect(find.bySemanticsLabel(arStrings.arrivalStep(2, 2)), findsOneWidget);
+    expect(find.bySemanticsLabel(arStrings.arrivalStep(3, 3)), findsOneWidget);
     expect(find.byKey(FirstRunScreen.nextKey), findsNothing);
     expect(find.byKey(FirstRunScreen.continueKey), findsOneWidget);
   });

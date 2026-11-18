@@ -27,6 +27,7 @@ import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/play_app_ribbon.dart';
 import '../../account/guest_save_card.dart';
 
+import 'home_online_rooms.dart';
 import 'home_room_return.dart';
 
 /// Home screen (S-01) — the spread.
@@ -68,6 +69,10 @@ class HomeScreen extends ConsumerWidget {
   final VoidCallback onHowToPlay;
   final VoidCallback? onProfile;
 
+  /// Online entry, from the «N أوض أونلاين مستنية ناس» line; null where the
+  /// build has no server (the line is not drawn then).
+  final VoidCallback? onOnlineRooms;
+
   /// The Four Dossiers; the character's line on Home opens them.
   final VoidCallback? onCharacters;
 
@@ -93,6 +98,7 @@ class HomeScreen extends ConsumerWidget {
     required this.onSettings,
     required this.onHowToPlay,
     this.onProfile,
+    this.onOnlineRooms,
     this.onCharacters,
     this.onReturnToRoom,
     this.store,
@@ -420,6 +426,8 @@ class HomeScreen extends ConsumerWidget {
                 label: l10n.startGame,
                 onPressed: onNewMatch,
               ),
+              if (onOnlineRooms != null)
+                HomeOnlineRoomsLine(onTap: onOnlineRooms!),
               // There is no second button here any more. Online used to sit
               // under this one as a quiet text link, offered only when the
               // build had a project — two modes at two weights, one of them

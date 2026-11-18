@@ -451,6 +451,15 @@ GoRouter buildRouter(
                 onVideo: () => context.go(Routes.onboarding),
               ),
               onProfile: () => forwardTo(context, Routes.profile),
+              // Into the online screen, counted apart from the mode screen.
+              onOnlineRooms: SupabaseConfig.isConfigured
+                  ? () {
+                      ref
+                          .read(metricsClientProvider)
+                          .record('online_action', prop: 'home_line');
+                      unawaited(forwardTo(context, Routes.online));
+                    }
+                  : null,
               onCharacters: () => forwardTo(context, Routes.characters),
               onReturnToRoom: SupabaseConfig.isConfigured
                   // Straight there: no break stands between a player and a

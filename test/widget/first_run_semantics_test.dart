@@ -36,9 +36,22 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(
+      tester.getSemantics(find.byKey(FirstRunScreen.agreeKey)),
+      isSemantics(label: agreement, hasCheckedState: true, isChecked: false),
+    );
+    await tester.tap(find.byKey(FirstRunScreen.agreeKey));
+    await tester.pump();
+    expect(
+      tester.getSemantics(find.byKey(FirstRunScreen.agreeKey)),
+      isSemantics(label: agreement, hasCheckedState: true, isChecked: true),
+    );
+    expect(find.byKey(FirstRunScreen.termsLinkKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.privacyLinkKey), findsOneWidget);
+    await tester.tap(find.byKey(FirstRunScreen.continueKey));
+    await tester.pumpAndSettle();
     expect(find.bySemanticsLabel(l.firstRunBoy), findsOneWidget);
     expect(find.bySemanticsLabel(l.firstRunGirl), findsOneWidget);
-    expect(find.bySemanticsLabel(agreement), findsOneWidget);
     expect(
       tester.getSemantics(find.byKey(FirstRunScreen.boyKey)),
       isSemantics(
@@ -55,18 +68,6 @@ void main() {
         isSelected: false,
       ),
     );
-    expect(
-      tester.getSemantics(find.byKey(FirstRunScreen.agreeKey)),
-      isSemantics(label: agreement, hasCheckedState: true, isChecked: false),
-    );
-    await tester.tap(find.byKey(FirstRunScreen.agreeKey));
-    await tester.pump();
-    expect(
-      tester.getSemantics(find.byKey(FirstRunScreen.agreeKey)),
-      isSemantics(label: agreement, hasCheckedState: true, isChecked: true),
-    );
-    expect(find.byKey(FirstRunScreen.termsLinkKey), findsOneWidget);
-    expect(find.byKey(FirstRunScreen.privacyLinkKey), findsOneWidget);
     semantics.dispose();
   });
 }

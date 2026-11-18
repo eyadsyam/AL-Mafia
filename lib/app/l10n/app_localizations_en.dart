@@ -6157,6 +6157,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstRunKindNote => 'You can change this later in your profile';
 
   @override
+  String get firstRunTermsTitle => 'Before we start';
+
+  @override
+  String homeOnlineRooms(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count online rooms waiting for players',
+      one: '1 online room waiting for players',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get firstRunLangOther => 'العربي';
 
   @override

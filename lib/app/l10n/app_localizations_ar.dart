@@ -6057,6 +6057,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get firstRunKindNote => 'تقدر تغيّر الصيغة بعدين من بروفايلك';
 
   @override
+  String get firstRunTermsTitle => 'قبل ما نبدأ';
+
+  @override
+  String homeOnlineRooms(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أوضة أونلاين مستنية ناس',
+      few: '$count أوض أونلاين مستنية ناس',
+      two: 'أوضتين أونلاين مستنيين ناس',
+      one: 'أوضة أونلاين مستنية ناس',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get firstRunLangOther => 'English';
 
   @override

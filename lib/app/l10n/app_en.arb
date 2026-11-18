@@ -3794,6 +3794,15 @@
   "firstRunAgreeAnd": " and ",
   "firstRunAgreePrivacy": "Privacy",
   "firstRunKindNote": "You can change this later in your profile",
+  "firstRunTermsTitle": "Before we start",
+  "homeOnlineRooms": "{count, plural, =1{1 online room waiting for players} other{{count} online rooms waiting for players}}",
+  "@homeOnlineRooms": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "firstRunLangOther": "العربي",
   "firstRunNameTitle": "What is your name?",
   "firstRunNameHint": "It is written on your card and friends will see it",

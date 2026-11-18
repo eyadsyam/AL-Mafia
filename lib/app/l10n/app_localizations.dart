@@ -10555,6 +10555,18 @@ abstract class AppLocalizations {
   /// **'You can change this later in your profile'**
   String get firstRunKindNote;
 
+  /// No description provided for @firstRunTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before we start'**
+  String get firstRunTermsTitle;
+
+  /// No description provided for @homeOnlineRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 online room waiting for players} other{{count} online rooms waiting for players}}'**
+  String homeOnlineRooms(int count);
+
   /// No description provided for @firstRunLangOther.
   ///
   /// In en, this message translates to:

@@ -1,4 +1,4 @@
--- Contract for 20261119000100_usage_events. Rolled back by the harness.
+-- Contract for 20261119000100_usage_events and 20261119000200_first_run_events. Rolled back by the harness.
 begin;
 do $$
 declare
@@ -14,12 +14,16 @@ declare
     ['match_local_started','p10_12'],['match_local_started','p13_plus'],
     ['online_action','quick'],['online_action','create'],
     ['online_action','join_code'],['online_action','join_public'],
-    ['match_local_finished','p4_6']
+    ['online_action','home_line'],
+    ['match_local_finished','p4_6'],
+    ['first_run','terms'],['first_run','account'],['first_run','kind'],
+    ['first_run','name'],['first_run','done']
   ];
   bad text[][]:=array[
     ['app_open','x'],['mode_pick',''],['mode_pick','stories'],
     ['match_local_started',''],['match_local_started','p3'],
-    ['online_action',''],['online_action','host'],['online_action','ABCD']
+    ['online_action',''],['online_action','host'],['online_action','ABCD'],
+    ['first_run',''],['first_run','gender'],['first_run','Terms']
   ];
   i int;
   result jsonb;

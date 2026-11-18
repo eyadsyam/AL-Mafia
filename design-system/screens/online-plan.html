@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>خطة الأونلاين</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#0F0F0F; --raised:#1A1A1A; --overlay:#252525; --line:#313131;
+  --bone:#C2BDB2; --muted:#908C83; --silver:#67635F; --ink:#141414;
+  --page:#0A0A0A; --pagetext:#C2BDB2; --pagemuted:#908C83;
+  --ad:#1d2a22; --adline:#2f4a39; --pick:#3a3326;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--page:#E9E6E0;--pagetext:#1A1A1A;--pagemuted:#4A4740}}
+:root[data-theme="light"]{--page:#E9E6E0;--pagetext:#1A1A1A;--pagemuted:#4A4740}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--pagetext);font-family:"IBM Plex Sans Arabic",sans-serif;line-height:1.6;letter-spacing:0;padding:24px 16px 48px}
+h1,h2,h3,b,.btn,.title{font-family:Cairo,sans-serif;letter-spacing:0}
+header{max-width:1100px;margin:0 auto 20px}
+header h1{font-size:24px}
+header p{color:var(--pagemuted);font-size:15px;max-width:820px}
+nav{max-width:1100px;margin:0 auto 28px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-family:Cairo;font-weight:700;font-size:14px;color:var(--pagetext);border:1px solid var(--pagemuted);border-radius:999px;padding:4px 14px;text-decoration:none}
+section{max-width:1100px;margin:0 auto 48px}
+section>h2{font-size:20px;margin-bottom:4px}
+section>p.why{color:var(--pagemuted);font-size:14px;margin-bottom:16px;max-width:780px}
+.row{display:flex;gap:20px;flex-wrap:wrap;justify-content:flex-start}
+.col{display:flex;flex-direction:column;gap:8px;align-items:center}
+.tag{font-family:Cairo;font-weight:700;font-size:13px;color:var(--pagemuted)}
+.tag.rec{color:var(--pagetext)}
+.phone{width:300px;max-width:100%;height:620px;background:var(--ground);color:var(--bone);border:1px solid var(--line);border-radius:26px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.screen{flex:1;display:flex;flex-direction:column;gap:12px;padding:18px 16px;min-height:0;position:relative}
+.center{justify-content:center;align-items:center;text-align:center}
+.title{font-size:24px;font-weight:800}
+.title.s{font-size:19px}
+.sub{color:var(--muted);font-size:14px}
+.btn{background:var(--bone);color:var(--ink);border-radius:14px;text-align:center;padding:12px;font-weight:800;font-size:16px;width:100%}
+.btn.sec2{background:var(--raised);color:var(--bone);border:1px solid var(--line);font-weight:700;font-size:15px}
+.btn.ghost{background:transparent;color:var(--muted);font-weight:700;padding:6px}
+.pair{display:flex;gap:8px}
+.pair .btn{padding:10px;font-size:14px}
+.band{height:62px;flex:0 0 62px;border-top:1px solid var(--line);background:var(--ground);display:flex;align-items:center;justify-content:center;padding:6px 10px}
+.band .ad{width:100%;height:100%;border:1px dashed var(--adline);background:var(--ad);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#7fa58c}
+.top{display:flex;justify-content:space-between;color:var(--muted);font-size:18px;align-items:center}
+.corner{display:flex;gap:6px}
+.corner span{width:30px;height:30px;border-radius:9px;background:var(--raised);border:1px solid var(--line)}
+.sec{font-family:Cairo;font-weight:700;font-size:13px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between;align-items:center}
+.chips{display:flex;gap:6px}
+.chip{font-family:Cairo;font-weight:700;font-size:12px;border-radius:8px;padding:2px 10px;background:var(--bone);color:var(--ink)}
+.chip.o{background:transparent;color:var(--bone);border:1px solid var(--line)}
+.empty{border:1px solid var(--line);border-radius:14px;background:var(--raised);padding:14px;display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center}
+.empty .head{font-family:Cairo;font-weight:800;font-size:16px}
+.bare{color:var(--muted);font-size:14px;text-align:center;padding:18px 0}
+.ok{display:flex;justify-content:space-between;align-items:center;background:var(--overlay);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:14px}
+.ok b{font-size:14px}
+.ok small{color:var(--muted);font-size:12px;font-family:Cairo;font-weight:700}
+.hero{flex:1;display:flex;align-items:center;justify-content:center}
+.art{width:150px;height:220px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(170deg,#2a2a2a,#0f0f0f);box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.live{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:var(--bone);font-family:Cairo;font-weight:700;padding:4px 0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bone);box-shadow:0 0 0 3px rgba(194,189,178,.18)}
+.live small{color:var(--muted);font-weight:700}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:3}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--raised);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;z-index:4}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 2px}
+.stars{display:flex;justify-content:center;gap:10px;font-size:30px;direction:ltr}
+.stars span{color:var(--silver)}
+.stars span.on{color:var(--bone)}
+.field{background:var(--overlay);border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--muted);font-size:14px;min-height:64px}
+.res{display:flex;flex-direction:column;gap:6px;opacity:.5}
+.res .win{font-family:Cairo;font-weight:800;font-size:22px;text-align:center}
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--raised);border-bottom:1px solid var(--line);font-family:Cairo;font-weight:700;font-size:15px}
+.item:last-child{border-bottom:0}
+.item small{font-family:"IBM Plex Sans Arabic";font-weight:400;color:var(--muted);font-size:12px}
+.item.done{color:var(--silver)}
+.big{font-family:Cairo;font-weight:800;font-size:34px}
+.count{width:74px;height:74px;border-radius:50%;border:2px solid var(--bone);display:flex;align-items:center;justify-content:center;font-family:Cairo;font-weight:800;font-size:30px;margin:6px auto}
+.sound{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center;justify-content:center}
+.steps{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.step{font-family:Cairo;font-weight:700;font-size:14px;border:1px solid var(--pagemuted);border-radius:10px;padding:6px 12px;color:var(--pagetext)}
+.step.mark{border-width:2px}
+.step small{display:block;font-family:"IBM Plex Sans Arabic";font-weight:400;font-size:12px;color:var(--pagemuted)}
+.arrow{color:var(--pagemuted);font-family:Cairo}
+.notes{color:var(--pagemuted);font-size:14px;margin-top:12px;max-width:820px}
+.notes li{margin:4px 18px 0 0}
+.fix{max-width:1100px;margin:0 auto 32px;border:1px solid var(--pagemuted);border-radius:14px;padding:14px 16px;font-size:15px}
+.fix b{font-size:16px}
+</style>
+<style>
+.minicard{width:84px;height:124px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(170deg,#2a2a2a,#111);margin:0 auto}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pills span{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-family:Cairo;font-weight:700}
+.pills span.sel{background:var(--bone);color:var(--ink)}
+.toggle{display:flex;justify-content:space-between;align-items:center;background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-family:Cairo;font-weight:700;font-size:14px}
+.sw{width:38px;height:22px;border-radius:999px;background:var(--overlay);border:1px solid var(--line);position:relative}
+.sw::after{content:"";position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--silver)}
+.sw.on{background:var(--bone)}
+.sw.on::after{right:auto;left:2px;background:var(--ink)}
+.announce{border:1px solid var(--bone);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:4px;width:100%}
+.big2{font-family:Cairo;font-weight:800;font-size:28px}
+.ident{display:flex;gap:12px;align-items:center}
+.av{width:62px;height:84px;border-radius:10px;background:linear-gradient(180deg,#2c2c2c,#121212);border:2px solid var(--bone);flex:0 0 auto}
+.name{font-family:Cairo;font-weight:800;font-size:20px}
+.handle{font-family:Cairo;font-weight:700;font-size:15px}
+.handle small{font-size:12px;color:var(--muted);margin-inline-start:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:6px;text-align:center}
+.stat b{display:block;font-size:18px}
+.stat span{font-size:11px;color:var(--muted)}
+.badge{background:var(--bone);color:var(--ink);border-radius:999px;font-size:11px;padding:0 8px;font-family:Cairo;font-weight:800}
+.qr{width:170px;height:170px;margin:0 auto;border-radius:12px;background:repeating-conic-gradient(var(--bone) 0 25%,var(--raised) 0 50%) 0 0/22px 22px;border:8px solid var(--bone)}
+.search{background:var(--overlay);border:1px solid var(--line);border-radius:10px;padding:8px 10px;color:var(--muted);font-size:14px}
+.frow{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.fav{width:36px;height:36px;border-radius:50%;background:#333;flex:0 0 auto;position:relative}
+.fav.on::after{content:"";position:absolute;bottom:0;left:0;width:10px;height:10px;border-radius:50%;background:var(--bone);border:2px solid var(--ground)}
+.fbody{flex:1;min-width:0}
+.fname{font-family:Cairo;font-weight:700;font-size:14px}
+.toast{background:var(--raised);border:1px solid var(--bone);border-radius:14px;padding:12px;font-size:14px}
+.feed{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:9px 11px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.feed small{width:100%;color:var(--muted);font-size:11px}
+.re{font-size:12px;color:var(--muted)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg span{flex:1;text-align:center;padding:7px 4px;font-family:Cairo;font-weight:700;font-size:12.5px;border-inline-start:1px solid var(--line)}
+.seg span:first-child{border-inline-start:0}
+.seg span.sel{background:var(--bone);color:var(--ink)}
+.ideas{display:flex;flex-direction:column;gap:10px;max-width:820px;font-size:15px}
+.ideas div{border:1px solid var(--pagemuted);border-radius:12px;padding:10px 14px}
+</style>
+<style>
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;max-width:1100px}
+.card{border:1px solid var(--pagemuted);border-radius:12px;padding:12px 14px;font-size:14.5px}
+.card b{display:block;font-size:16px;margin-bottom:4px}
+.stack{display:flex;flex:0 0 auto}
+.stack span{width:26px;height:26px;border-radius:50%;background:#333;border:2px solid var(--ground);margin-inline-start:-8px}
+.stack span:first-child{margin-inline-start:0}
+.recap{border:1px solid var(--bone);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.notif{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13.5px;display:flex;flex-direction:column;gap:2px}
+.ntop{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+.ntop small{font-size:11px}
+</style>
+<style>
+.ring{width:132px;height:132px;border-radius:50%;border:6px solid var(--bone);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:10px auto}
+.ring b{font-family:Cairo;font-size:40px;line-height:1.2}
+.ring span{font-size:13px;color:var(--muted)}
+.night{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--bone);border-radius:14px;padding:10px 12px;font-size:14px}
+.night.on{background:var(--overlay)}
+</style>
+</head>
+<body>
+<header>
+  <h1>خطة الأونلاين</h1>
+  <p>المشكلة بالأرقام، وبعدها الحل. ماكيت بس، ومفيش كود اتكتب.</p>
+</header>
+
+<div class="fix">
+  <b>الأرقام الحقيقية:</b> كل يوم بيتفتح من 6 لـ 25 أوضة. ماتشات اللاعيبة الحقيقيين تقريبًا صفر: الماتشات اللي باينة يوم 9 و10 نوفمبر وامبارح كانت ماتشات تجربة بتاعتي أنا. الماتش محتاج 5 في نفس اللحظة، واللي مستني في الأوضة لازم يفضل فاتح التطبيق، وإلا الأوضة بتطلّعه بعد 90 ثانية. يعني كل واحد بيستنى لوحده دقيقتين ويقفل، والتاني بييجي بعده بساعة ويلاقي الأوضة فاضية. الحل إن الانتظار ميبقاش محتاج حد فاتح الشاشة، وإن الناس تيجي في نفس الوقت.
+</div>
+
+<nav><a href="#o1">O1 الطابور</a><a href="#o2">O2 ليلة اللعب</a><a href="#o3">O3 ماتش أسرع</a><a href="#o4">O4–O6</a></nav>
+
+<section id="o1">
+  <h2>O1 — «استناني»: طابور بيفضل شغال وانت قافل التطبيق (ده أهم حاجة)</h2>
+  <p class="why">«العب مع ناس دلوقتي»: لو فيه أوضة مستنية ناس، بيدخلك فيها زي دلوقتي. لو مفيش، بيدخلك طابور بدل أوضة فاضية. تقدر تقفل التطبيق عادي. أول ما يتجمع 5 في الطابور، كلهم يوصلهم إشعار «الأوضة كملت»، واللي يدوس «جاهز» خلال 60 ثانية يدخل الماتش على طول. واللي ما ردش بيرجع للطابور مرة واحدة، وبعدها بيطلع منه.</p>
+  <div class="row">
+    <div class="col"><div class="tag rec">في الطابور</div>
+      <div class="phone"><div class="screen center">
+        <div class="title s">بندوّرلك على ناس</div>
+        <div class="ring"><b>3</b><span>من 5</span></div>
+        <div class="sub">تقدر تقفل التطبيق. هنبعتلك أول ما الأوضة تكمل.</div>
+        <div class="btn sec2" style="margin-top:auto">ادعي صحابك</div>
+        <div class="btn ghost">اخرج من الطابور</div>
+      </div></div></div>
+    <div class="col"><div class="tag rec">الأوضة كملت</div>
+      <div class="phone"><div class="screen">
+        <div class="notif"><div class="ntop"><span>سيد المافيا</span><small>دلوقتي</small></div><b>الأوضة كملت!</b><div>ادخل خلال دقيقة والماتش يبدأ.</div></div>
+        <div class="screen center" style="padding:0;flex:1">
+          <div class="title s">الأوضة كملت</div>
+          <div class="ring"><b>4</b><span>جاهزين</span></div>
+          <div class="sub">فاضل 0:42</div>
+          <div class="btn" style="margin-top:auto">أنا جاهز</div>
+          <div class="btn ghost">مش دلوقتي</div>
+        </div>
+      </div></div></div>
+  </div>
+  <ul class="notes">
+    <li>لو 5 أو أكتر قالوا «جاهز»، الماتش يبدأ بيهم. لو أقل من 5، اللي قالوا «جاهز» يفضلوا في أول الطابور.</li>
+    <li>مكانك في الطابور بيفضل ساعتين. لو ما اتجمعش حد، بنبعتلك «لسه مفيش ناس كفاية، هنفكّرك في ليلة اللعب» وتطلع من الطابور.</li>
+    <li>ساعات الهدوء مش بتطبّق هنا، لأن اللاعب هو اللي دخل الطابور بنفسه.</li>
+  </ul>
+</section>
+
+<section id="o2">
+  <h2>O2 — «ليلة اللعب» كل يوم في ميعاد ثابت</h2>
+  <p class="why">نفس فكرة «ليلة الخميس» اللي موجودة، بس كل يوم. اقتراحي الساعة 9 بالليل بتوقيت مصر، وقولي لو عايز ميعاد تاني. من الساعة 7، الهوم بيعرض «ليلة اللعب الساعة 9» ومعاها عدّاد وزرار «فكّرني». الساعة 8:45 يوصل إشعار للي داسوا «فكّرني» وللي لعبوا أونلاين قبل كده. ومن 9 لـ 10 الطابور بيتملى بسرعة لأن الكل جاي في نفس الوقت. «ليلة الخميس» تفضل زي ما هي، بس أكبر.</p>
+  <div class="row">
+    <div class="col"><div class="tag rec">الهوم قبل الميعاد</div>
+      <div class="phone"><div class="screen">
+        <div class="sub" style="text-align:center">مساء الخير يا أحمد</div>
+        <div class="title" style="text-align:center">سيد المافيا</div>
+        <div class="hero"><div class="art"></div></div>
+        <div class="night"><div><b>ليلة اللعب الساعة 9</b><div class="sub" style="font-size:12px">فاضل 1:20 · 14 قالوا هييجوا</div></div><span class="chip">فكّرني</span></div>
+        <div class="btn">ابدأ اللعب</div>
+      </div><div class="band"><div class="ad">إعلان</div></div></div></div>
+    <div class="col"><div class="tag">وقت ليلة اللعب</div>
+      <div class="phone"><div class="screen">
+        <div class="sub" style="text-align:center">مساء الخير يا أحمد</div>
+        <div class="title" style="text-align:center">سيد المافيا</div>
+        <div class="hero"><div class="art"></div></div>
+        <div class="night on"><div><b>ليلة اللعب شغالة</b><div class="sub" style="font-size:12px">9 في الطابور دلوقتي</div></div><span class="chip">ادخل</span></div>
+        <div class="btn">ابدأ اللعب</div>
+      </div><div class="band"><div class="ad">إعلان</div></div></div></div>
+  </div>
+  <ul class="notes">
+    <li>«14 قالوا هييجوا» رقم حقيقي (عدد اللي داسوا «فكّرني»)، ومش بيظهر غير لو 5 أو أكتر.</li>
+    <li>ده بيحل محل سطر الأونلاين في الهوم (B2) في الساعتين دول بس. في باقي اليوم، السطر بيظهر عادي.</li>
+  </ul>
+</section>
+
+<section id="o3">
+  <h2>O3 — ماتش أسرع في الأوض العامة</h2>
+  <p class="why">النقاش في الأوض العامة 3 دقايق بدل 5، والتصويت زي ما هو. الناس الغريبة عن بعض بتزهق من النقاش الطويل، والماتش السريع بيخليهم يلعبوا ماتش تاني. الأوض الخاصة (بالكود) تفضل زي ما هي، والهوست بيغيّر الوقت براحته.</p>
+</section>
+
+<section id="o4">
+  <h2>O4–O6</h2>
+  <ul class="notes" style="font-size:15px;color:var(--pagetext)">
+    <li><b>O4 — بعد الماتش «العب تاني بنفس الناس»:</b> أول واحد يدوس بيفتح أوضة جديدة، والباقيين يجيلهم «أحمد عايز يلعب تاني · ادخل». اللي قال «جاهز» ييجي، واللي مشي مكانه يتملى من الطابور. الماتش التاني أسهل بكتير من الأول.</li>
+    <li><b>O5 — الطابور يفضّل أصحابك:</b> لو صاحبك في الطابور أو في أوضة، بتدخل معاه الأول (ده التحسين 7 اللي وافقت عليه، بس على الطابور كمان).</li>
+    <li><b>O6 — أرقام صادقة:</b> ماتشات التجربة بتاعتي بتتحسب في أرقام الأدمن دلوقتي (زي 43 ماتش يوم 10 نوفمبر). هعلّم حسابات التجربة، وأشيلها من الأرقام، عشان تشوف اللاعيبة الحقيقيين بس. وهنعدّ كمان: دخول الطابور، والماتشات اللي اتعملت منه، والوقت لحد ما الماتش يبدأ.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>ترتيب الشغل</h2>
+  <ul class="notes" style="font-size:15px;color:var(--pagetext)">
+    <li>الطابور (O1) الأول، لأنه هو اللي بيخلّي ماتش يبدأ أصلًا. وبعده ليلة اللعب (O2)، لأنها بتجمّع الناس للطابور.</li>
+    <li>O3 وO6 سيرفر بس، فممكن ينزلوا لايف من غير تحديث للتطبيق أول ما توافق.</li>
+    <li>O4 وO5 بعد ما الأصحاب يخلصوا.</li>
+  </ul>
+</section>
+</body>
+</html>

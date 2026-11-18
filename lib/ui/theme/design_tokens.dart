@@ -195,6 +195,15 @@ abstract final class HomeTokens {
   /// «أهلاً يا <name>» after first run: fade in, hold, fade out.
   static const Duration greetingFade = Duration(milliseconds: 600);
   static const Duration greetingHold = Duration(seconds: 4);
+
+  /// «N أوض أونلاين مستنية ناس» under the start button: re-read this often
+  /// while Home is on screen (and once when it opens).
+  static const Duration onlineLineRefresh = Duration(seconds: 60);
+  static const double onlineDot = 8;
+  static const double onlineDotHalo = 3;
+  static const double onlineDotHaloAlpha = 0.18;
+  static const double onlineGap = 8;
+  static const double onlineArrow = 14;
 }
 
 /// Mafia's colours are Home's (owner, 2026-10-15/16: «البرنامج كله بهوية

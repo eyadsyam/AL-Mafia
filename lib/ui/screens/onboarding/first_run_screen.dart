@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -10,8 +11,11 @@ import '../../../data/player_profile.dart';
 import '../../../data/repository_provider.dart';
 import '../../../data/terms_consent.dart';
 import '../../../engine/models/player.dart';
+import '../../../platform/metrics.dart' show metricsClientProvider;
 import '../../../transport/account_auth.dart' show AccountProfile;
 import '../../../transport/account_service.dart' show AccountFailure;
+import '../../economy/economy_capabilities.dart'
+    show economyCapabilitiesProvider;
 import '../../account/embedded_browser_sheet.dart' show sentToRealBrowser;
 import '../../account/account_sheet.dart'
     show accountAuthProvider, accountProfileProvider, showAccountSheet;
@@ -21,6 +25,7 @@ import '../../social/directory.dart'
     show DirectoryMe, HandleRefusal, directoryApiProvider;
 import '../../../platform/device/time_zone.dart';
 import '../../l10n_ext.dart';
+import '../online/terms_sync.dart';
 import '../setup/player_name.dart';
 import '../../theme/design_tokens.dart';
 import '../../theme/mafia_theme.dart';
@@ -66,10 +71,10 @@ class _Waiting extends StatelessWidget {
       const MafiaScaffold(body: Center(child: CircularProgressIndicator()));
 }
 
-/// The first launch, with progress dots: the deck fans into the logo, then,
-/// only where the build has a server, the account (Google, email, or a guest
-/// in plain sight), «نكلّمك إزاي؟» (two big avatar cards and the one box for
-/// 18+ and the terms) and «اسمك إيه؟» (the name is written on the chosen card
+/// The first launch, with progress dots: the deck fans into the logo, then
+/// the one box for 18+ and the terms (before anything can open an account),
+/// then, only where the build has a server, the account (Google, email, or a
+/// guest in plain sight), «نكلّمك إزاي؟» (two big avatar cards) and «اسمك إيه؟» (the name is written on the chosen card
 /// as it is typed; a new account also picks its username there).
 ///
 /// An account that already has a name is welcomed back under it and never
@@ -105,7 +110,7 @@ class FirstRunScreen extends ConsumerStatefulWidget {
   ConsumerState<FirstRunScreen> createState() => _FirstRunScreenState();
 }
 
-enum _Step { intro, account, kind, name }
+enum _Step { intro, terms, account, kind, name }
 
 class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     with TickerProviderStateMixin {
@@ -113,7 +118,13 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   final TextEditingController _handle = TextEditingController();
   PlayerGender _gender = PlayerGender.unspecified;
   bool _agreed = false;
-  bool _highlightAgree = false;
+  /// The terms are recorded on this phone: from here the backend may be used.
+  bool _termsAccepted = false;
+
+  /// Counted already (each step once, however often the player goes back).
+  final Set<String> _counted = {};
+  Future<void> _countReady = Future.value();
+  Future<void> _countChain = Future.value();
   bool _saving = false;
   bool _failed = false;
   bool _googleBusy = false;
@@ -133,6 +144,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   bool _handleTouched = false;
   HandleRefusal? _handleRefusal;
 
+  int get _termsIndex => _steps.indexOf(_Step.terms);
   int get _kindIndex => _steps.indexOf(_Step.kind);
   int get _nameIndex => _steps.indexOf(_Step.name);
 
@@ -146,10 +158,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   bool get _asksHandle => _signedIn && !_returning;
 
   late final AnimationController _intro = AnimationController(vsync: this);
-  late final AnimationController _shake = AnimationController(
-    vsync: this,
-    duration: FirstRunTokens.shake,
-  );
   late final AnimationController _flip = AnimationController(
     vsync: this,
     duration: FirstRunTokens.flip + FirstRunTokens.hold,
@@ -166,6 +174,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     super.initState();
     _steps = [
       _Step.intro,
+      _Step.terms,
       if (ref.read(accountsAvailableProvider)) _Step.account,
       _Step.kind,
       _Step.name,
@@ -218,7 +227,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         (saved.agreed && saved.termsVersion == currentTermsVersion) ||
         ref.read(termsAcceptanceProvider).valueOrNull?.current == true;
     setState(() {
-      _step = agreed ? index : math.min(index, _kindIndex);
+      _step = agreed ? index : math.min(index, _termsIndex);
       _agreed = agreed;
       if (_name.text.trim().isEmpty) {
         _name.text = saved.name.characters
@@ -227,6 +236,11 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       }
       if (_gender == PlayerGender.unspecified) _gender = saved.gender;
     });
+    // A tick made before the terms were recorded on their own (an older
+    // build) is recorded now, before anything past the terms step runs.
+    if (agreed && index > _termsIndex && !_termsAccepted) {
+      await _recordTerms();
+    }
     // Back from the Google browser trip: the account decides what follows.
     if (_steps[_step] == _Step.account && _signedIn) await _adoptAccount();
   }
@@ -235,8 +249,62 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   /// from the browser, or a cold start through the sign-in link) goes on
   /// from the account instead of showing it again.
   void _firstQuestion() {
-    setState(() => _step = 1);
-    if (_steps[1] == _Step.account && _signedIn) _adoptAccount();
+    setState(() => _step = _termsIndex);
+  }
+
+  /// Records the acceptance on this phone, then (unawaited, errors swallowed)
+  /// on the server, and counts the step once a session exists. Nothing in the
+  /// flow touches a backend before this has run.
+  Future<void> _recordTerms() async {
+    if (_termsAccepted) return;
+    final container = ProviderScope.containerOf(context, listen: false);
+    try {
+      await ref.read(termsAcceptanceProvider.notifier).accept(adult: true);
+    } catch (_) {
+      if (mounted) setState(() => _failed = true);
+      return;
+    }
+    if (mounted) setState(() => _termsAccepted = true);
+    // A build without a server has nothing to record on or count against.
+    final online = ref.read(accountsAvailableProvider);
+    final sync = online ? syncTermsToServer(ref) : null;
+    // The capabilities are read once, after the sync has opened a session.
+    _countReady = sync?.then((_) async {
+      try {
+        await container.read(economyCapabilitiesProvider.future);
+      } catch (_) {}
+    }) ?? Future<void>.value();
+    _count('terms');
+  }
+
+  /// One aggregate step count, no personal data. Each value once, in order.
+  void _count(String step) {
+    if (!_counted.add(step)) return;
+    final client = ref.read(metricsClientProvider);
+    final ready = _countReady;
+    _countChain = _countChain.then((_) async {
+      await ready;
+      client.record('first_run', prop: step);
+    });
+  }
+
+  /// The terms step's button. A phone that already recorded them just moves
+  /// on.
+  Future<void> _termsContinue() async {
+    if (!_agreed || _saving) return;
+    setState(() {
+      _saving = true;
+      _failed = false;
+    });
+    await _recordTerms();
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (!_termsAccepted) return;
+    if (widget.termsOnly) {
+      await FirstRunProgress.clear();
+    } else {
+      _move(_termsIndex + 1);
+    }
   }
 
   /// The username suggestion follows the name until the player edits it.
@@ -299,12 +367,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   /// taken one is said here rather than discovered later.
   Future<void> _nameContinue() async {
     if (!_nameOk || _saving) return;
-    // The box can be untouched again on the card behind (a tap that landed
-    // while the card was turning, found in a real web run on 2026-11-10).
-    // Never a silent dead end: back to the card, with the box pointed at.
-    if (!_agreed || _gender == PlayerGender.unspecified) {
+    // Never a silent dead end: back to the card.
+    if (_gender == PlayerGender.unspecified) {
       _move(_kindIndex);
-      setState(() => _highlightAgree = !_agreed);
       return;
     }
     if (_asksHandle) {
@@ -342,6 +407,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         return;
       }
     }
+    _count('name');
     await _finish();
   }
 
@@ -362,7 +428,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     _name.dispose();
     _handle.dispose();
     _intro.dispose();
-    _shake.dispose();
     _flip.dispose();
     super.dispose();
   }
@@ -378,6 +443,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     FocusManager.instance.primaryFocus?.unfocus();
     _touched = true;
     _flip.value = 0;
+    if (_steps[_step] == _Step.account && step > _step) _count('account');
     setState(() => _step = step);
     _saveProgress();
     // Already signed in (the browser trip came back first): nothing to ask.
@@ -387,25 +453,19 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   }
 
   void _toggleAgree() {
-    // A card already turning has been chosen with the box ticked.
-    if (_saving || _flip.isAnimating) return;
+    if (_saving) return;
     _touched = true;
     setState(() {
       _agreed = !_agreed;
-      _highlightAgree = false;
     });
     _saveProgress();
   }
 
   void _pick(PlayerGender gender) {
     if (_flip.isAnimating) return;
-    if (!_agreed) {
-      setState(() => _highlightAgree = true);
-      if (!_still) _shake.forward(from: 0);
-      return;
-    }
     _touched = true;
     setState(() => _gender = gender);
+    _count('kind');
     if (_still) {
       _afterKind();
     } else {
@@ -420,10 +480,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
       _failed = false;
     });
     try {
-      // The consent is recorded first. Saving the profile opens the gate for
-      // the screen behind this one; had the box not been recorded by then, the
-      // gate would flip to the terms-only form in the middle of this save.
-      await ref.read(termsAcceptanceProvider.notifier).accept(adult: true);
+      // The consent was recorded on the terms step. Saving the profile opens
+      // the gate for the screen behind this one; had the box not been
+      // recorded by then, the gate would flip to the terms-only form in the
+      // middle of this save.
       if (!widget.termsOnly) {
         await ref
             .read(playerProfileProvider.notifier)
@@ -439,6 +499,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         } catch (_) {}
       }
       await FirstRunProgress.clear();
+      if (!widget.termsOnly) _count('done');
     } catch (_) {
       if (mounted) setState(() => _failed = true);
     } finally {
@@ -465,7 +526,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    if (_steps.contains(_Step.account) && !widget.termsOnly) {
+    if (_steps.contains(_Step.account) && !widget.termsOnly && _termsAccepted) {
+      // The account is first read only now that the terms are in: an install
+      // already signed in goes on by itself (the check below, or the change).
       ref.listen<AsyncValue<AccountProfile>>(accountProfileProvider, (
         previous,
         next,
@@ -473,10 +536,20 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         final now = next.valueOrNull;
         if (next.hasError || now == null || !now.signedIn) return;
         if (previous?.valueOrNull?.signedIn ?? false) return;
-        if (_steps[_step] == _Step.account) _adoptAccount();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _steps[_step] == _Step.account) _adoptAccount();
+        });
       });
+      if (_steps[_step] == _Step.account &&
+          !_adopted &&
+          !_adopting &&
+          (ref.read(accountProfileProvider).valueOrNull?.signedIn ?? false)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _steps[_step] == _Step.account) _adoptAccount();
+        });
+      }
     }
-    final step = widget.termsOnly ? _Step.kind : _steps[_step];
+    final step = widget.termsOnly ? _Step.terms : _steps[_step];
     return PopScope(
       canPop: widget.termsOnly || _step <= 1,
       onPopInvokedWithResult: (didPop, _) {
@@ -504,6 +577,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                             key: ValueKey(step),
                             child: switch (step) {
                               _Step.intro => _introStep(context, l),
+                              _Step.terms => _termsStep(context, l),
                               _Step.account => _accountStep(context, l),
                               _Step.kind =>
                                 _returning &&
@@ -774,8 +848,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                 ),
               ),
               SizedBox(height: s.lg),
-              _agreeRow(context, l),
-              SizedBox(height: s.sm),
               Text(
                 l.firstRunKindNote,
                 style: type.caption.copyWith(color: context.colors.textMuted),
@@ -804,12 +876,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         label: label,
         child: ExcludeSemantics(
           child: AnimatedBuilder(
-            animation: Listenable.merge([_shake, _flip]),
+            animation: _flip,
             builder: (context, _) {
-              final dx = _shake.isAnimating
-                  ? math.sin(_shake.value * math.pi * 4) *
-                        FirstRunTokens.shakeShift
-                  : 0.0;
               final turn = chosen
                   ? Curves.easeInOutCubic.transform(
                       (_flip.value *
@@ -831,11 +899,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                       ),
               );
               return Opacity(
-                opacity: other
-                    ? FirstRunTokens.passedAlpha
-                    : (_agreed ? 1 : FirstRunTokens.dimmedAlpha),
+                opacity: other ? FirstRunTokens.passedAlpha : 1,
                 child: Transform.translate(
-                  offset: Offset(dx, -turn * FirstRunTokens.chosenLift),
+                  offset: Offset(0, -turn * FirstRunTokens.chosenLift),
                   child: Transform(
                     alignment: Alignment.center,
                     transform: Matrix4.identity()
@@ -911,7 +977,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
         borderRadius: BorderRadius.circular(context.radii.card),
         border: Border.all(
           width: FirstRunTokens.agreeBorder,
-          color: _highlightAgree ? colors.accentCrimson : DeckTokens.line,
+          color: DeckTokens.line,
         ),
       ),
       child: Row(
@@ -1226,7 +1292,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
     final s = context.spacing;
     final type = context.typography;
     final name = cleanPlayerName(_name.text);
-    final terms = ref.watch(termsAcceptanceProvider).valueOrNull?.current;
     return Column(
       key: FirstRunScreen.welcomeKey,
       children: [
@@ -1271,10 +1336,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
                   l.firstRunWelcomeBack(name),
                   l.firstRunWelcomeBackHint,
                 ),
-                if (terms != true) ...[
-                  SizedBox(height: s.lg),
-                  _agreeRow(context, l),
-                ],
                 if (_failed) _failure(context, l),
               ],
             ),
@@ -1288,17 +1349,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
               BoneButton(
                 key: FirstRunScreen.playKey,
                 label: _saving ? l.arrivalSaving : l.firstRunLetsPlay,
-                onPressed: _saving
-                    ? null
-                    : () {
-                        if (terms == true && !_agreed) _agreed = true;
-                        if (!_agreed) {
-                          setState(() => _highlightAgree = true);
-                          if (!_still) _shake.forward(from: 0);
-                          return;
-                        }
-                        _finish();
-                      },
+                onPressed: _saving ? null : _finish,
               ),
               SizedBox(height: s.xs),
               Text(
@@ -1387,7 +1438,18 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
 
   // ── the compact form for installs that predate the terms ───────────────────
 
-  Widget _termsOnly(BuildContext context, AppLocalizations l) {
+  Widget _termsStep(BuildContext context, AppLocalizations l) =>
+      _termsView(context, l, l.firstRunTermsTitle, null);
+
+  Widget _termsOnly(BuildContext context, AppLocalizations l) =>
+      _termsView(context, l, l.termsUpdatedTitle, l.termsUpdatedHint);
+
+  Widget _termsView(
+    BuildContext context,
+    AppLocalizations l,
+    String title,
+    String? hint,
+  ) {
     final s = context.spacing;
     return Column(
       children: [
@@ -1398,7 +1460,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(height: s.xl),
-                _heading(context, l.termsUpdatedTitle, l.termsUpdatedHint),
+                _heading(context, title, hint),
                 SizedBox(height: s.lg),
                 _agreeRow(context, l),
                 if (_failed) _failure(context, l),
@@ -1411,7 +1473,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen>
           child: BoneButton(
             key: FirstRunScreen.continueKey,
             label: _saving ? l.arrivalSaving : l.continueAction,
-            onPressed: _agreed && !_saving ? _finish : null,
+            onPressed: _agreed && !_saving ? _termsContinue : null,
           ),
         ),
       ],

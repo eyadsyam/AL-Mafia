@@ -9,7 +9,6 @@ import '../../economy/economy_capabilities.dart';
 import '../../economy/room_referral.dart';
 import '../../economy/interstitial_coordinator.dart';
 import '../../../data/player_profile.dart';
-import '../../../data/terms_consent.dart';
 import '../../economy/wallet.dart';
 import '../../../data/online_session_store.dart';
 import '../../../engine/models/enums.dart';
@@ -35,6 +34,7 @@ import '../setup/setup_draft.dart' show setupDraftProvider;
 import '../../../platform/metrics.dart' show metricsClientProvider;
 import 'online_session.dart';
 import 'room_settings_panel.dart';
+import 'terms_sync.dart';
 import 'safety_center.dart';
 import '../../economy/waiting_banner.dart';
 import '../../social/friends.dart';
@@ -373,7 +373,7 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
         ),
       );
       // The session exists now, so the queued acceptance can be recorded.
-      unawaited(_syncTerms());
+      unawaited(syncTermsToServer(ref));
       widget.onJoined();
       return;
     }
@@ -398,33 +398,6 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     } finally {
       if (mounted) setState(() => _quickMatchBusy = false);
     }
-  }
-
-  /// Records the setup acceptance on the server once. Never blocks play: a
-  /// failure (or a server without the table yet) is retried on a later entry
-  /// and never makes the player tick the box again.
-  Future<void> _syncTerms() async {
-    // Everything this needs is taken now: it runs on after the screen that
-    // started it has gone.
-    final notifier = ref.read(termsAcceptanceProvider.notifier);
-    final pending = ref.read(termsAcceptanceProvider.future);
-    final connect = ref.read(onlineBackendFactoryProvider);
-    try {
-      final terms = await pending;
-      if (terms == null || !terms.current) return;
-      final backend = await connect();
-      // Recorded per online player: another account on this phone has not
-      // sent it yet.
-      final user = await backend.ensureSession();
-      if (terms.syncedFor == user) return;
-      await backend.call('player_safety', {
-        'action': 'accept_terms',
-        'version': terms.version,
-        'adult': true,
-        'acceptedAt': terms.acceptedAt.toUtc().toIso8601String(),
-      });
-      await notifier.markSynced(user);
-    } catch (_) {}
   }
 
   static const _listRefusals = {

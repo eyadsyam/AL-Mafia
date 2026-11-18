@@ -73,12 +73,9 @@ void main() {
   ) async {
     await tester.pumpWidget(_app());
     await passIntro(tester);
-    await tapKey(tester, FirstRunScreen.agreeKey);
+    await acceptTerms(tester);
     await tester.tap(find.byKey(FirstRunScreen.boyKey));
     await tester.pump(const Duration(milliseconds: 60));
-    if (find.byKey(FirstRunScreen.agreeKey).hitTestable().evaluate().isNotEmpty) {
-      await tester.tap(find.byKey(FirstRunScreen.agreeKey), warnIfMissed: false);
-    }
     await tester.pumpAndSettle();
     await typeName(tester, 'Eyad');
     await tapKey(tester, FirstRunScreen.continueKey);
@@ -90,12 +87,14 @@ void main() {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
     expect(find.byKey(FirstRunScreen.screenKey), findsOneWidget);
-    // The intro handed over to the first question (two dots: no server).
-    expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
-    expect(find.byKey(FirstRunScreen.girlKey), findsOneWidget);
+    // The intro handed over to the terms (three dots: no server).
+    expect(find.byKey(FirstRunScreen.agreeKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.boyKey), findsNothing);
     expect(find.byKey(FirstRunScreen.dotsKey), findsOneWidget);
     expect(find.byKey(FirstRunScreen.languageKey), findsOneWidget);
-    await tapKey(tester, FirstRunScreen.agreeKey);
+    await acceptTerms(tester);
+    expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.girlKey), findsOneWidget);
     await tapKey(tester, FirstRunScreen.girlKey);
     expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
     expect(_continueEnabled(tester), isFalse);
@@ -116,20 +115,20 @@ void main() {
     expect(await WelcomeGreeting.pending(), isTrue);
   });
 
-  testWidgets('the cards stay dimmed and shake until the box is ticked', (
+  testWidgets('terms come right after the intro; continue waits for the box', (
     tester,
   ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(FirstRunScreen.boyKey));
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(find.byKey(FirstRunScreen.nameKey), findsNothing);
-    await tester.pumpAndSettle();
-    expect(find.byKey(FirstRunScreen.nameKey), findsNothing);
+    expect(find.byKey(FirstRunScreen.agreeKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.boyKey), findsNothing);
+    expect(_continueEnabled(tester), isFalse);
     expect(await TermsStore().load(), isNull);
     await tapKey(tester, FirstRunScreen.agreeKey);
-    await tapKey(tester, FirstRunScreen.boyKey);
-    expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
+    expect(_continueEnabled(tester), isTrue);
+    await tapKey(tester, FirstRunScreen.continueKey);
+    expect((await TermsStore().load())!.adult, isTrue);
+    expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
   });
 
   testWidgets('one letter is not a name; two are, and the plate follows', (
@@ -202,13 +201,18 @@ void main() {
       _app(overrides: [termsStoreProvider.overrideWithValue(store)]),
     );
     await tester.pumpAndSettle();
-    await completeFirstRun(tester);
-    expect(find.text('HOME'), findsNothing);
+    await passIntro(tester);
+    await acceptTerms(tester);
     expect(find.byKey(FirstRunScreen.failedKey), findsOneWidget);
-    // Still on the name card, the box still ticked: no loop, one more tap.
+    expect(find.byKey(FirstRunScreen.boyKey), findsNothing);
+    // Still on the terms, the box still ticked: no loop, one more tap.
     expect(_continueEnabled(tester), isTrue);
     await tester.tap(find.byKey(FirstRunScreen.continueKey));
     await tester.pumpAndSettle();
+    expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
+    await tapKey(tester, FirstRunScreen.boyKey);
+    await typeName(tester, 'Eyad');
+    await tapKey(tester, FirstRunScreen.continueKey);
     expect(find.text('HOME'), findsOneWidget);
   });
 
@@ -337,10 +341,11 @@ void main() {
     await tapKey(tester, FirstRunScreen.agreeKey);
     final state = tester.state(find.byKey(FirstRunScreen.screenKey));
     await tapKey(tester, FirstRunScreen.languageKey);
-    expect(find.text('How should we address you?'), findsOneWidget);
+    expect(find.text('Before we start'), findsOneWidget);
     expect(find.text('العربي'), findsOneWidget);
     // Same State object: nothing was torn down or rebuilt from scratch.
     expect(tester.state(find.byKey(FirstRunScreen.screenKey)), same(state));
+    await tapKey(tester, FirstRunScreen.continueKey);
     await tapKey(tester, FirstRunScreen.boyKey);
     expect(find.byKey(FirstRunScreen.nameKey), findsOneWidget);
   });
@@ -393,8 +398,11 @@ void main() {
     await tester.pump();
     await tester.pump(FirstRunTokens.introStill);
     await tester.pump();
-    expect(find.byKey(FirstRunScreen.boyKey), findsOneWidget);
+    expect(find.byKey(FirstRunScreen.agreeKey), findsOneWidget);
     await tester.tap(find.byKey(FirstRunScreen.agreeKey));
+    await tester.pump();
+    await tester.tap(find.byKey(FirstRunScreen.continueKey));
+    await tester.pump();
     await tester.pump();
     await tester.tap(find.byKey(FirstRunScreen.boyKey));
     await tester.pump();
