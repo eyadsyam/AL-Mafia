@@ -12,8 +12,8 @@ Small follow-ups ride with the next planned update (no extra version).
 
 | Item | Note |
 |---|---|
-| Queue room whose host never opens the app | No server-side start yet; the room waits until someone in it opens the lobby (review #3) |
-| Elder night chip | Its on/off state is lost on reconnect; the server keeps the choice (review #10) |
+| Queue room whose host never opens the app | Fixed live 2026-11-19 (server only, 20261119002300): after 30 s the lobby goes to the lowest connected seat, whose phone starts it (review #3) |
+| Elder night chip | Fixed in code 2026-11-19, ships with the next update: a reconnect reads the `reveal` row back and keeps the chip and its undo (review #10) |
 | Friend profile numbers | Cover only what council_match_records keeps (about 21 days) |
 | Device check | 1.7.0 not yet seen on the emulator (low RAM); check the queue, Game Night line, friends tabs and Elder reveal on a phone |
 | public_room_pace.sql on live | Not run on live (its fixture inserts a second system room); PGlite PASS |

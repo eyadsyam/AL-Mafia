@@ -116,15 +116,27 @@ class SkipNightActionMove extends Move {
   /// spending theirs on an otherwise empty turn.
   final bool useBullet;
 
-  const SkipNightActionMove({required this.seat, this.useBullet = false});
+  /// The Elder's tile «اكشف نفسي الصبح» (owner, 2026-11-19): a skip that
+  /// carries the intent to be revealed in the morning.
+  final bool revealElder;
+
+  const SkipNightActionMove({
+    required this.seat,
+    this.useBullet = false,
+    this.revealElder = false,
+  });
 
   @override
-  void apply(MatchEngine engine) =>
-      engine.skipNightAction(seat: seat, useBullet: useBullet);
+  void apply(MatchEngine engine) => engine.skipNightAction(
+    seat: seat,
+    useBullet: useBullet,
+    revealElder: revealElder,
+  );
 
   @override
   String toString() =>
-      'skipNightAction(seat: $seat${useBullet ? ', bullet' : ''})';
+      'skipNightAction(seat: $seat${useBullet ? ', bullet' : ''}'
+      '${revealElder ? ', reveal' : ''})';
 }
 
 /// Tally the night (`nightResolving`).
@@ -415,6 +427,11 @@ List<Move> _nightMoves(Match match) {
 
   final moves = <Move>[
     if (actor.role != Role.doctor) SkipNightActionMove(seat: seat),
+    // The living, unrevealed Elder's night tile: the reveal lands in the
+    // morning, and only if he is still alive then.
+    if (actor.role == Role.elder &&
+        !match.eventLog.any((e) => e is ElderRevealed && e.seat == seat))
+      SkipNightActionMove(seat: seat, revealElder: true),
     if (armable && actor.role != Role.sniper)
       SkipNightActionMove(seat: seat, useBullet: true),
     if (actor.role == Role.silencer && !silencerKills)

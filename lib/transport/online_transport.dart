@@ -1126,6 +1126,9 @@ class OnlineTransport implements GameTransport {
   bool get currentActorBulletSpent => _own?.bulletSpent ?? false;
 
   @override
+  bool get elderRevealChosen => _own?.elderRevealChosen ?? false;
+
+  @override
   Future<void> resolveNight() async {
     await _send('resolve_night', const {}, hostOnly: !_mayDrive);
   }
@@ -1287,6 +1290,8 @@ class OnlineTransport implements GameTransport {
       'targetSeat': null,
       'useBullet': false,
     }, assured: true);
+    final own = _own;
+    if (own != null) _own = own.copyWith(elderRevealChosen: on);
   }
 
   @override

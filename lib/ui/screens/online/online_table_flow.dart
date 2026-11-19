@@ -425,7 +425,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     _ballotRoundAt = snapshot.ballotRound;
     _selected = null;
     _submitted = false;
-    _elderReveals = false;
+    // A new night starts unchosen; a reconnect mid-night reads back the
+    // choice the server kept, so the undo is still there.
+    _elderReveals = _controller.elderRevealChosen;
     _acknowledged = false;
     _actionFailed = false;
     _privateAskedFor = null;

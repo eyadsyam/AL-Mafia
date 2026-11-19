@@ -111,6 +111,10 @@ abstract class GameTransport {
   /// does not care which side answered.
   bool get currentActorBulletSpent;
 
+  /// The online Elder already chose «اكشف نفسي الصبح» tonight, as the server
+  /// keeps it. Offline there is no such choice: always false.
+  bool get elderRevealChosen;
+
   /// Tallies the night.
   Future<void> resolveNight();
 

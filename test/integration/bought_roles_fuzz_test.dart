@@ -20,6 +20,9 @@ void main() {
     var revealed = 0;
     var revealedThenVoted = 0;
     var sniperDealt = 0;
+    var nightReveals = 0;
+    var revealAskedThenKilled = 0;
+    final deadReveals = <String>[];
     var mafiaWins = 0;
     var townWins = 0;
 
@@ -47,6 +50,25 @@ void main() {
         }
       }
       if (match.players.any((p) => p.role == Role.sniper)) sniperDealt++;
+      // The night path (owner 2026-11-19): asked at night, told in the
+      // morning, and only for an Elder still alive after that night.
+      for (final r in log.whereType<ElderRevealed>()) {
+        if (r.phaseRef.phase != GamePhase.morning) continue;
+        nightReveals++;
+        final elder = match.players[r.seat];
+        final diedThatNight =
+            elder.eliminatedOn?.phase == GamePhase.night &&
+            elder.eliminatedOn?.number == r.phaseRef.number;
+        if (diedThatNight) deadReveals.add('seed $seed seat ${r.seat}');
+      }
+      for (final ask in log.whereType<NightActionSkipped>()) {
+        if (!ask.revealElder) continue;
+        final elder = match.players[ask.actorSeat];
+        if (elder.eliminatedOn?.phase == GamePhase.night &&
+            elder.eliminatedOn?.number == ask.phaseRef.number) {
+          revealAskedThenKilled++;
+        }
+      }
       switch (match.outcome!.winner) {
         case Alignment.mafia:
           mafiaWins++;
@@ -65,6 +87,13 @@ void main() {
     expect(revealed, greaterThan(runs ~/ 20), reason: 'elder reveals');
     expect(revealedThenVoted, greaterThan(0), reason: 'revealed elder voted');
     expect(sniperDealt, greaterThan(runs ~/ 10), reason: 'snipers dealt');
+    expect(nightReveals, greaterThan(runs ~/ 50), reason: 'night reveals');
+    expect(
+      revealAskedThenKilled,
+      greaterThan(0),
+      reason: 'an Elder asked to reveal and was killed that night',
+    );
+    expect(deadReveals, isEmpty, reason: 'a dead Elder was revealed');
     expect(mafiaWins, greaterThan(0));
     expect(townWins, greaterThan(0));
   });

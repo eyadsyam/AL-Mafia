@@ -29,6 +29,8 @@ async function boot(db) {
     alter default privileges in schema public grant all on sequences to anon,authenticated,service_role;
     create publication supabase_realtime;
     create schema cron;
+    -- 20261118000100 cleans storage.objects; the platform's schema, as far as it reads it.
+    create schema storage; create function storage.foldername(text) returns text[] language sql as $f$ select string_to_array($1,'/') $f$; create table storage.objects(name text, bucket_id text, created_at timestamptz default now());
     create table cron.job(jobid bigint generated always as identity, jobname text unique, schedule text, command text);
     create function cron.schedule(text,text,text) returns bigint language sql as $$
       insert into cron.job(jobname,schedule,command) values($1,$2,$3)

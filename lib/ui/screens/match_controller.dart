@@ -618,6 +618,9 @@ class MatchController extends Notifier<MatchUiState?> {
   /// The online Elder's night button and its undo.
   Future<void> setElderReveal(bool on) => transport.setElderReveal(on);
 
+  /// What the server kept of that choice tonight (online only).
+  bool get elderRevealChosen => transport.elderRevealChosen;
+
   Future<void> revealElder(int seat) async {
     await transport.revealElder(seat);
     state = _publish(clearSecrets: true);

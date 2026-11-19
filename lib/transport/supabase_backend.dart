@@ -256,8 +256,11 @@ class SupabaseBackend implements OnlineBackend {
         role: identity.role,
         alive: mine.first.alive,
         teammateNames: identity.teammates,
-        actedThisNight: actionRows.any(
-          (row) => (row['night'] as num).toInt() == state.phaseNumber,
+        actedThisNight: ownActedThisNight(actionRows, state.phaseNumber),
+        elderRevealChosen: ownElderRevealChosen(
+          actionRows,
+          state.phase,
+          state.phaseNumber,
         ),
         // Any night, not tonight: a bullet is spent once for the whole match.
         bulletSpent: ownBulletSpent(identity.role, actionRows, teamBulletSpent),
@@ -841,3 +844,24 @@ bool ownBulletSpent(
 ) =>
     actionRows.any((row) => row['used_bullet'] == true) ||
     (role == 'mafia' && teamBulletSpent);
+
+/// Whether this client already made tonight's move. The Elder's `reveal` row
+/// is a choice, not the night's move: the night never waits for it, and
+/// counting it took his chip and its undo away after a reconnect.
+bool ownActedThisNight(List<Map<String, dynamic>> actionRows, int night) =>
+    actionRows.any(
+      (row) =>
+          (row['night'] as num).toInt() == night && row['action'] != 'reveal',
+    );
+
+/// Whether the Elder left «اكشف نفسي الصبح» for tonight.
+bool ownElderRevealChosen(
+  List<Map<String, dynamic>> actionRows,
+  String phase,
+  int night,
+) =>
+    phase == 'night' &&
+    actionRows.any(
+      (row) =>
+          (row['night'] as num).toInt() == night && row['action'] == 'reveal',
+    );

@@ -353,6 +353,11 @@ class OwnSeat {
   final bool bulletSpent;
   final int? lastProtectSeat;
 
+  /// The living Elder left «اكشف نفسي الصبح» for tonight (a `reveal` row in
+  /// `night_actions`, readable by him alone). Read back so a reconnect shows
+  /// the choice he made, with its undo.
+  final bool elderRevealChosen;
+
   const OwnSeat({
     required this.seat,
     this.role,
@@ -362,6 +367,7 @@ class OwnSeat {
     this.votedRound,
     this.bulletSpent = false,
     this.lastProtectSeat,
+    this.elderRevealChosen = false,
   });
 
   OwnSeat copyWith({
@@ -373,6 +379,7 @@ class OwnSeat {
     int? votedRound,
     bool? bulletSpent,
     int? lastProtectSeat,
+    bool? elderRevealChosen,
   }) => OwnSeat(
     seat: seat ?? this.seat,
     role: role ?? this.role,
@@ -384,6 +391,7 @@ class OwnSeat {
     votedRound: votedRound ?? this.votedRound,
     bulletSpent: bulletSpent ?? this.bulletSpent,
     lastProtectSeat: lastProtectSeat ?? this.lastProtectSeat,
+    elderRevealChosen: elderRevealChosen ?? this.elderRevealChosen,
   );
 }
 

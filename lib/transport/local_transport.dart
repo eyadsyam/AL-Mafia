@@ -264,6 +264,9 @@ class LocalTransport implements GameTransport {
   bool get supportsBullets => true;
 
   @override
+  bool get elderRevealChosen => false;
+
+  @override
   bool get currentActorBulletSpent {
     if (!engine.hasMatch) return false;
     final seat = engine.match.currentActorSeat;
