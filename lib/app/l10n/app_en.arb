@@ -5255,5 +5255,71 @@
       }
     }
   },
-  "playNightEnter": "Join"
+  "playNightEnter": "Join",
+  "friendHandleLine": "Send a friend request to this username",
+  "friendHandleSent": "Request sent",
+  "friendHandleRefused": "You can't send a request to this username",
+  "friendLimitReached": "You've reached today's request limit",
+  "friendPingAction": "Let's play?",
+  "friendPingSent": "«Let's play?» sent to {name}",
+  "@friendPingSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "friendPingDelivered": "Sent",
+  "friendPingLimit": "You've asked 3 times today. Try tomorrow.",
+  "friendPingsTitle": "From your friends",
+  "friendPingAsks": "{name} asks: let's play?",
+  "@friendPingAsks": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "friendPingReply": "{name}: {answer}",
+  "@friendPingReply": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "friendPingComing": "Coming",
+  "friendPingFiveMin": "5 minutes",
+  "friendPingNotNow": "Not now",
+  "friendProfileOpen": "Your history",
+  "friendTogetherTitle": "You two",
+  "friendStatTogether": "played together",
+  "friendStatWonTogether": "won together",
+  "friendStatFooledMe": "fooled you",
+  "friendMafiaShare": "Was Mafia in {percent}% of their matches",
+  "@friendMafiaShare": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "friendStatsNote": "Finished online matches only.",
+  "friendShareHandle": "Add me in Mafia Master: @{handle}",
+  "@friendShareHandle": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "friendShareHandleAction": "Share your username",
+  "friendWhoCanAdd": "Who can send you a friend request",
+  "friendWhoEveryone": "Everyone",
+  "friendWhoTablemates": "People I played with",
+  "friendWhoNobody": "Nobody",
+  "friendShowOnline": "Friends see me online"
 }

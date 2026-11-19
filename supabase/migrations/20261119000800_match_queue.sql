@@ -127,7 +127,12 @@ begin
   end if;
   return jsonb_build_object(
     'queued', q.user_id is not null, 'count', waiting,
-    'round', rnd, 'me', me, 'room', public.queue_current_seat(p_user));
+    'round', rnd, 'me', me,
+    -- Only a room the queue itself made (autoStart, still in the lobby): the
+    -- app walks a player into it after his «أنا جاهز», and into nothing else.
+    'room', (select s from (select public.queue_current_seat(p_user) as s) x
+              join public.rooms r on r.id = (x.s->>'roomId')::uuid
+             where r.status = 'lobby' and r.settings->>'autoStart' = 'true'));
 end $$;
 
 create or replace function public.queue_ready(p_user uuid, p_round uuid, p_yes boolean)

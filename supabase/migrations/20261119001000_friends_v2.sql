@@ -91,9 +91,10 @@ begin
   if p_target is null or p_target=p_user then raise exception 'BAD_REQUEST'; end if;
   if public.friends_blocked(p_user, p_target) then raise exception 'NOT_ALLOWED'; end if;
   lo := least(p_user,p_target); hi := greatest(p_user,p_target);
-  -- Their request to me is always mine to accept, whatever my own rule says.
+  -- Any link already between us (theirs waiting, mine pending, or friends)
+  -- is answered as before, whatever either rule says now.
   theirs_waiting := exists(select 1 from public.friend_links
-    where user_lo=lo and user_hi=hi and accepted_at is null and requested_by=p_target);
+    where user_lo=lo and user_hi=hi);
   if not theirs_waiting then
     select who_can_add into rule from public.player_directory where user_id=p_target;
     tablemate := exists(select 1 from public.friends_tablemates(p_user,'30 days')
@@ -152,8 +153,13 @@ returns integer language sql security definer set search_path=public,pg_temp as 
 $$;
 revoke all on function public.friend_requests_purge() from public, anon, authenticated;
 grant execute on function public.friend_requests_purge() to service_role;
-select cron.schedule('friend_requests_purge', '55 4 * * *',
-  $cron$select public.friend_requests_purge()$cron$);
+do $$
+begin
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    perform cron.schedule('friend_requests_purge', '55 4 * * *',
+      $cron$select public.friend_requests_purge()$cron$);
+  end if;
+end $$;
 
 -- ── S3: «يلا نلعب؟» ─────────────────────────────────────────────────────────
 create table if not exists public.friend_pings (

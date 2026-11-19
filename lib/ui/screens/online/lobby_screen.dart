@@ -244,13 +244,25 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
 
   bool _autoReadySent = false;
   bool _autoStartSent = false;
+  Timer? _autoTimer;
 
   /// O1: a queue room. Every seat in it already said «أنا جاهز» on the queue
   /// sheet, so the phone marks the lobby seat ready for him, and the host's
   /// phone starts the match once the ready rule holds. Each happens once; a
   /// refusal leaves the ordinary buttons in place.
+  /// When this phone first saw the queue room; the host waits up to
+  /// [QueueTokens.autoStartGrace] for every seat to arrive.
+  DateTime? _autoSeenAt;
+
   void _autoStart(GameSnapshot snapshot) {
-    if (!snapshot.room.autoStart || snapshot.phase != GamePhase.setup) return;
+    // Only the queue's own rooms: public, «لعب سريع», flagged by the server.
+    if (!snapshot.room.autoStart ||
+        !snapshot.room.isPublic ||
+        snapshot.room.title != 'لعب سريع' ||
+        snapshot.phase != GamePhase.setup) {
+      return;
+    }
+    _autoSeenAt ??= DateTime.now();
     final seat = snapshot.viewerSeat;
     if (seat == null) return;
     final lobbyReadyEnabled =
@@ -271,11 +283,26 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
         )
         .map((p) => p.seat)
         .toSet();
+    // Everybody seated is here, or the grace is over and enough are.
+    final everyone = connected.length == snapshot.public.players.length;
+    final graceOver =
+        DateTime.now().difference(_autoSeenAt!) >= QueueTokens.autoStartGrace;
     final holds =
         connected.length >= PublicRoom.defaultMinPlayers &&
+        (everyone || graceOver) &&
         (!lobbyReadyEnabled ||
             connected.every(snapshot.lobbyReadySeats.contains));
-    if (!holds) return;
+    if (!holds) {
+      if (!everyone && !graceOver) {
+        // Nothing else may arrive to look again once the grace runs out.
+        _autoTimer ??= Timer(QueueTokens.autoStartGrace, () {
+          _autoTimer = null;
+          final latest = _snapshot;
+          if (mounted && latest != null) _autoStart(latest);
+        });
+      }
+      return;
+    }
     _autoStartSent = true;
     unawaited(_start());
   }
@@ -289,6 +316,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
   @override
   void dispose() {
     _feed?.cancel();
+    _autoTimer?.cancel();
     _join.dispose();
     super.dispose();
   }

@@ -8542,4 +8542,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playNightEnter => 'Join';
+
+  @override
+  String get friendHandleLine => 'Send a friend request to this username';
+
+  @override
+  String get friendHandleSent => 'Request sent';
+
+  @override
+  String get friendHandleRefused =>
+      'You can\'t send a request to this username';
+
+  @override
+  String get friendLimitReached => 'You\'ve reached today\'s request limit';
+
+  @override
+  String get friendPingAction => 'Let\'s play?';
+
+  @override
+  String friendPingSent(String name) {
+    return '«Let\'s play?» sent to $name';
+  }
+
+  @override
+  String get friendPingDelivered => 'Sent';
+
+  @override
+  String get friendPingLimit => 'You\'ve asked 3 times today. Try tomorrow.';
+
+  @override
+  String get friendPingsTitle => 'From your friends';
+
+  @override
+  String friendPingAsks(String name) {
+    return '$name asks: let\'s play?';
+  }
+
+  @override
+  String friendPingReply(String name, String answer) {
+    return '$name: $answer';
+  }
+
+  @override
+  String get friendPingComing => 'Coming';
+
+  @override
+  String get friendPingFiveMin => '5 minutes';
+
+  @override
+  String get friendPingNotNow => 'Not now';
+
+  @override
+  String get friendProfileOpen => 'Your history';
+
+  @override
+  String get friendTogetherTitle => 'You two';
+
+  @override
+  String get friendStatTogether => 'played together';
+
+  @override
+  String get friendStatWonTogether => 'won together';
+
+  @override
+  String get friendStatFooledMe => 'fooled you';
+
+  @override
+  String friendMafiaShare(int percent) {
+    return 'Was Mafia in $percent% of their matches';
+  }
+
+  @override
+  String get friendStatsNote => 'Finished online matches only.';
+
+  @override
+  String friendShareHandle(String handle) {
+    return 'Add me in Mafia Master: @$handle';
+  }
+
+  @override
+  String get friendShareHandleAction => 'Share your username';
+
+  @override
+  String get friendWhoCanAdd => 'Who can send you a friend request';
+
+  @override
+  String get friendWhoEveryone => 'Everyone';
+
+  @override
+  String get friendWhoTablemates => 'People I played with';
+
+  @override
+  String get friendWhoNobody => 'Nobody';
+
+  @override
+  String get friendShowOnline => 'Friends see me online';
 }

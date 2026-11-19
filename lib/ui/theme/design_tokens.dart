@@ -2181,6 +2181,10 @@ abstract final class QueueTokens {
   static const Duration roundPoll = Duration(seconds: 2);
   static const Duration countdownTick = Duration(seconds: 1);
 
+  /// A queue room's host starts once every seat is in, or after this long
+  /// with at least five ready.
+  static const Duration autoStartGrace = Duration(seconds: 20);
+
   /// The Home card shows «ليلة اللعب الساعة 9» from this long before it.
   static const Duration playNightLead = Duration(hours: 2);
   static const Duration playNightRefresh = Duration(minutes: 1);

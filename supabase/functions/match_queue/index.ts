@@ -30,6 +30,10 @@ Deno.serve(handler(async (req, userId, db) => {
     }
     if (message.includes("NAME_NOT_ALLOWED")) return fail("NAME_NOT_ALLOWED", "that name is not allowed");
     if (message.includes("ROUND_CLOSED")) return fail("ROUND_CLOSED", "this round is closed");
+    // The lobby filled or started between the pick and the seat: try again.
+    if (message.includes("ROOM_FULL")) return fail("ROOM_FULL", "that room just filled", 409);
+    if (message.includes("ROOM_UNAVAILABLE")) return fail("ROOM_UNAVAILABLE", "that room just closed", 409);
+    if (message.includes("PHASE_CLOSED")) return fail("PHASE_CLOSED", "that room just started", 409);
     if (message.includes("BAD_REQUEST")) return fail("BAD_REQUEST", "invalid request");
     throw error;
   };

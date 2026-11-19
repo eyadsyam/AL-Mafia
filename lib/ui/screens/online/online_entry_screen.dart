@@ -433,14 +433,15 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
   }
 
   Future<void> _resumeQueue() async {
-    if (ref.read(onlineSessionProvider).isInRoom) return;
+    final session = ref.read(onlineSessionProvider);
+    if (session.isInRoom || session.busy) return;
     final QueueStatus status;
     try {
       status = await ref.read(matchQueueApiProvider).status();
     } catch (_) {
       return;
     }
-    if (!mounted) return;
+    if (!mounted || ref.read(onlineSessionProvider).busy) return;
     final room = status.room;
     if (room != null) {
       // Seated by the queue after his «أنا جاهز» (the app was closed or the

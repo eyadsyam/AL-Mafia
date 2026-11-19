@@ -8416,4 +8416,98 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get playNightEnter => 'ادخل';
+
+  @override
+  String get friendHandleLine => 'ابعتله طلب صداقة باليوزرنيم ده';
+
+  @override
+  String get friendHandleSent => 'الطلب اتبعت';
+
+  @override
+  String get friendHandleRefused => 'مش هينفع تبعت لليوزرنيم ده';
+
+  @override
+  String get friendLimitReached => 'وصلت لأقصى عدد طلبات النهارده';
+
+  @override
+  String get friendPingAction => 'يلا نلعب؟';
+
+  @override
+  String friendPingSent(String name) {
+    return '«يلا نلعب؟» وصلت لـ$name';
+  }
+
+  @override
+  String get friendPingDelivered => 'وصلته';
+
+  @override
+  String get friendPingLimit => 'بعتله 3 مرات النهارده. جرّب بكرة.';
+
+  @override
+  String get friendPingsTitle => 'رسايل من أصحابك';
+
+  @override
+  String friendPingAsks(String name) {
+    return '$name بيقولك: يلا نلعب؟';
+  }
+
+  @override
+  String friendPingReply(String name, String answer) {
+    return '$name: $answer';
+  }
+
+  @override
+  String get friendPingComing => 'جاي';
+
+  @override
+  String get friendPingFiveMin => '5 دقايق';
+
+  @override
+  String get friendPingNotNow => 'مش دلوقتي';
+
+  @override
+  String get friendProfileOpen => 'تاريخكم';
+
+  @override
+  String get friendTogetherTitle => 'انتو مع بعض';
+
+  @override
+  String get friendStatTogether => 'ماتش سوا';
+
+  @override
+  String get friendStatWonTogether => 'كسبتوا سوا';
+
+  @override
+  String get friendStatFooledMe => 'خدعك';
+
+  @override
+  String friendMafiaShare(int percent) {
+    return 'كان مافيا في $percent% من ماتشاته';
+  }
+
+  @override
+  String get friendStatsNote => 'من الماتشات الأونلاين اللي خلصت بس.';
+
+  @override
+  String friendShareHandle(String handle) {
+    return 'ضيفني في سيد المافيا: @$handle';
+  }
+
+  @override
+  String get friendShareHandleAction => 'ابعت اليوزرنيم بتاعك';
+
+  @override
+  String get friendWhoCanAdd => 'مين يقدر يبعتلك طلب صداقة';
+
+  @override
+  String get friendWhoEveryone => 'الكل';
+
+  @override
+  String get friendWhoTablemates => 'اللي لعبت معاهم';
+
+  @override
+  String get friendWhoNobody => 'محدش';
+
+  @override
+  String get friendShowOnline => 'أصحابي يشوفوني أونلاين';
 }

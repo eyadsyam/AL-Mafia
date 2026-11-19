@@ -321,6 +321,12 @@ class OnlineSession extends Notifier<OnlineSessionState> {
       state = state.copyWith(busy: false);
       return true;
     }
+    if (result['roomId'] is! String ||
+        result['code'] is! String ||
+        result['seat'] is! num) {
+      state = state.copyWith(busy: false, errorCode: 'BAD_RESPONSE');
+      return false;
+    }
     await _enter(
       (_) async => RoomHandle(
         roomId: result['roomId'] as String,

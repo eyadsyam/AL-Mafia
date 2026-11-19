@@ -66,7 +66,8 @@ begin
   -- Already seated: the seat is the answer.
   r := public.queue_join(u[3],'Omar','male');
   assert (r->>'rejoined')::boolean and r->>'code'='QMQ2AB', r::text;
-  assert (public.queue_status(u[3])->'room'->>'code')='QMQ2AB';
+  -- A plain lobby is not a queue room: status never walks him into it.
+  assert public.queue_status(u[3])->'room' = 'null'::jsonb, public.queue_status(u[3])::text;
   -- A lobby whose only player dropped is not a table to wait at.
   update public.room_players set connected=false where room_id=lobby;
   update public.rooms set visibility='private' where id=lobby;

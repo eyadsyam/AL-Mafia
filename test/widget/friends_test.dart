@@ -43,6 +43,22 @@ class _Fixed extends FriendsController {
   Future<void> refresh() async {}
 }
 
+/// The same people, with two pings waiting.
+class _Pinged extends _Fixed {
+  @override
+  Future<FriendsState?> build() async => FriendsState.fromJson({
+    'friends': [
+      {'id': 'a', 'name': 'ليلى'},
+      {'id': 'b', 'name': 'كريم'},
+    ],
+    'pings': [
+      {'from': 'a', 'name': 'ليلى', 'kind': 'lets_play'},
+      {'from': 'b', 'name': 'كريم', 'kind': 'five_min'},
+      {'from': 'x', 'name': '?', 'kind': 'free text'},
+    ],
+  });
+}
+
 /// Records removals.
 class _Removing extends _Fixed {
   static final removed = <String>[];
@@ -187,5 +203,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('اعزم'), findsNWidgets(2));
     expect(find.text('ليلى عزمك على روم · ادخل'), findsNothing);
+  });
+
+  testWidgets('S3/S2: a «يلا نلعب؟» shows its three answers; @handle can be asked', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(360, 780));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          friendsProvider.overrideWith(_Pinged.new),
+        ],
+        child: localizedApp(Scaffold(body: FriendsSheet(onJoin: (_) {}))),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(arStrings.friendPingAsks('ليلى')), findsOneWidget);
+    for (final kind in ['coming', 'five_min', 'not_now']) {
+      expect(find.byKey(FriendsSheetKeys.answer('a', kind)), findsOneWidget);
+    }
+    expect(
+      find.text(arStrings.friendPingReply('كريم', arStrings.friendPingFiveMin)),
+      findsOneWidget,
+    );
+    expect(find.byKey(FriendsSheetKeys.answer('b', 'coming')), findsNothing);
+
+    await tester.enterText(find.byKey(FriendsSheetKeys.search), '@sara_m');
+    await tester.pumpAndSettle();
+    expect(find.byKey(FriendsSheetKeys.addHandle), findsOneWidget);
+    expect(find.text('@sara_m'), findsWidgets);
+    await tester.enterText(find.byKey(FriendsSheetKeys.search), 'sara');
+    await tester.pumpAndSettle();
+    expect(find.byKey(FriendsSheetKeys.addHandle), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 }

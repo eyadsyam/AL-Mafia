@@ -3938,5 +3938,71 @@
       }
     }
   },
-  "playNightEnter": "ادخل"
+  "playNightEnter": "ادخل",
+  "friendHandleLine": "ابعتله طلب صداقة باليوزرنيم ده",
+  "friendHandleSent": "الطلب اتبعت",
+  "friendHandleRefused": "مش هينفع تبعت لليوزرنيم ده",
+  "friendLimitReached": "وصلت لأقصى عدد طلبات النهارده",
+  "friendPingAction": "يلا نلعب؟",
+  "friendPingSent": "«يلا نلعب؟» وصلت لـ{name}",
+  "@friendPingSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "friendPingDelivered": "وصلته",
+  "friendPingLimit": "بعتله 3 مرات النهارده. جرّب بكرة.",
+  "friendPingsTitle": "رسايل من أصحابك",
+  "friendPingAsks": "{name} بيقولك: يلا نلعب؟",
+  "@friendPingAsks": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "friendPingReply": "{name}: {answer}",
+  "@friendPingReply": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "friendPingComing": "جاي",
+  "friendPingFiveMin": "5 دقايق",
+  "friendPingNotNow": "مش دلوقتي",
+  "friendProfileOpen": "تاريخكم",
+  "friendTogetherTitle": "انتو مع بعض",
+  "friendStatTogether": "ماتش سوا",
+  "friendStatWonTogether": "كسبتوا سوا",
+  "friendStatFooledMe": "خدعك",
+  "friendMafiaShare": "كان مافيا في {percent}% من ماتشاته",
+  "@friendMafiaShare": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "friendStatsNote": "من الماتشات الأونلاين اللي خلصت بس.",
+  "friendShareHandle": "ضيفني في سيد المافيا: @{handle}",
+  "@friendShareHandle": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "friendShareHandleAction": "ابعت اليوزرنيم بتاعك",
+  "friendWhoCanAdd": "مين يقدر يبعتلك طلب صداقة",
+  "friendWhoEveryone": "الكل",
+  "friendWhoTablemates": "اللي لعبت معاهم",
+  "friendWhoNobody": "محدش",
+  "friendShowOnline": "أصحابي يشوفوني أونلاين"
 }

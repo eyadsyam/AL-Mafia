@@ -257,7 +257,7 @@ export const EVENT_TEXT: Record<EventKind, {
     channel: "mafia_game",
     image: false,
     lines: [
-      { title: "ليلة اللعب بدأت", body: "الناس بتتجمع دلوقتي. ادخل الطابور." },
+      { title: "ليلة اللعب الساعة 9", body: "الناس بتتجمع. ادخل الطابور من دلوقتي." },
     ],
   },
   daily: {

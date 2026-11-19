@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/public_web_origin.dart';
+import '../../platform/invite_share.dart';
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
 import 'directory.dart';
@@ -20,6 +22,9 @@ class DirectorySettings extends ConsumerStatefulWidget {
   static const Key handleSave = ValueKey('directory_handle_save');
   static const Key hideSwitch = ValueKey('directory_hide_switch');
   static const Key muteSwitch = ValueKey('directory_mute_switch');
+  static const Key shareHandle = ValueKey('directory_share_handle');
+  static const Key onlineSwitch = ValueKey('directory_online_switch');
+  static Key whoCanAdd(String value) => ValueKey('directory_who_$value');
 
   @override
   ConsumerState<DirectorySettings> createState() => _DirectorySettingsState();
@@ -82,6 +87,45 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
     }
   }
 
+  FriendPrivacy? _privacy;
+
+  Future<void> _setPrivacy({String? whoCanAdd, bool? showOnline}) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final next = await ref
+          .read(directoryApiProvider)
+          .privacy(whoCanAdd: whoCanAdd, showOnline: showOnline);
+      if (mounted) setState(() => _privacy = next);
+    } catch (_) {
+      // The control keeps the server's last answer.
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// S1: «ابعت اليوزرنيم» — the handle and the site, through the share sheet.
+  Future<void> _share(String handle) async {
+    final l = context.l10n;
+    final outcome = await ref
+        .read(inviteSharerProvider)
+        .share(
+          text: '${l.friendShareHandle(handle)}\n$kPublicWebOrigin',
+          subject: l.appTitle,
+        );
+    if (!mounted) return;
+    final note = switch (outcome) {
+      InviteShareOutcome.handedOver => null,
+      InviteShareOutcome.copied => l.shareTextCopied,
+      InviteShareOutcome.failed => l.shareUnavailable,
+    };
+    if (note != null) {
+      ScaffoldMessenger.maybeOf(
+        context,
+      )?.showSnackBar(SnackBar(content: Text(note)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!ref.exists(friendsProvider)) return const SizedBox.shrink();
@@ -128,6 +172,15 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
               ],
             ],
           ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              key: DirectorySettings.shareHandle,
+              onPressed: () => _share(me.handle!),
+              icon: const Icon(Icons.ios_share_rounded),
+              label: Text(l.friendShareHandleAction),
+            ),
+          ),
           SwitchListTile(
             key: DirectorySettings.hideSwitch,
             contentPadding: EdgeInsets.zero,
@@ -152,8 +205,59 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
             value: !me.strangerInvites,
             onChanged: _busy ? null : (mute) => _prefs(strangerInvites: !mute),
           ),
+          ..._privacyControls(context),
         ],
       ),
     );
   }
+
+  /// S6: «مين يقدر يبعتلك طلب صداقة» and «أصحابي يشوفوني أونلاين».
+  List<Widget> _privacyControls(BuildContext context) {
+    final l = context.l10n;
+    final s = context.spacing;
+    final colors = context.colors;
+    final type = context.typography;
+    final privacy =
+        _privacy ?? ref.watch(friendPrivacyProvider).valueOrNull;
+    if (privacy == null) return const [];
+    return [
+      Padding(
+        padding: EdgeInsets.only(top: s.sm, bottom: s.xs),
+        child: Text(
+          l.friendWhoCanAdd,
+          style: type.body.copyWith(color: colors.textPrimary),
+        ),
+      ),
+      Wrap(
+        spacing: s.sm,
+        runSpacing: s.xs,
+        children: [
+          for (final (value, label) in [
+            ('everyone', l.friendWhoEveryone),
+            ('tablemates', l.friendWhoTablemates),
+            ('nobody', l.friendWhoNobody),
+          ])
+            ChoiceChip(
+              key: DirectorySettings.whoCanAdd(value),
+              label: Text(label),
+              selected: privacy.whoCanAdd == value,
+              onSelected: _busy || privacy.whoCanAdd == value
+                  ? null
+                  : (_) => _setPrivacy(whoCanAdd: value),
+            ),
+        ],
+      ),
+      SwitchListTile(
+        key: DirectorySettings.onlineSwitch,
+        contentPadding: EdgeInsets.zero,
+        title: Text(
+          l.friendShowOnline,
+          style: type.body.copyWith(color: colors.textPrimary),
+        ),
+        value: privacy.showOnline,
+        onChanged: _busy ? null : (on) => _setPrivacy(showOnline: on),
+      ),
+    ];
+  }
+
 }

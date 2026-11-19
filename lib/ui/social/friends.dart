@@ -11,9 +11,11 @@ import '../theme/design_tokens.dart';
 import '../theme/mafia_theme.dart';
 import '../widgets/deck/deck_form_sheet.dart';
 import '../widgets/feathered_art.dart';
+import '../../transport/online_backend.dart' show BackendException;
 import '../screens/online/online_session.dart';
 import 'directory.dart';
 import 'directory_settings.dart';
+import 'friend_profile_sheet.dart';
 
 /// «أصحابك» — friends made at the table (`friends` edge function,
 /// 20260928000300_friends.sql). Public facts only: names, whether someone is
@@ -89,6 +91,10 @@ class FriendsState {
   final List<FriendEntry> recent;
   final List<RoomInviteEntry> invites;
 
+  /// S3: my unexpired incoming «يلا نلعب؟» and answers, newest first. The
+  /// `friends` status answer carries them.
+  final List<FriendPing> pings;
+
   /// This player's directory entry (handle and the two switches).
   final DirectoryMe me;
   const FriendsState({
@@ -97,6 +103,7 @@ class FriendsState {
     this.outgoing = const [],
     this.recent = const [],
     this.invites = const [],
+    this.pings = const [],
     this.me = const DirectoryMe(),
   });
 
@@ -125,10 +132,53 @@ class FriendsState {
               name: (row['name'] as String?) ?? '?',
             ),
       ],
+      pings: _pingsFrom(json['pings']),
       me: DirectoryMe.fromJson(json['me']),
     );
   }
 }
+
+enum HandleRequest { sent, refused, limited, failed }
+
+/// S3: the four preset lines between friends; never free text.
+enum FriendPingKind {
+  letsPlay('lets_play'),
+  coming('coming'),
+  fiveMin('five_min'),
+  notNow('not_now');
+
+  final String wire;
+  const FriendPingKind(this.wire);
+
+  static FriendPingKind? fromWire(Object? raw) {
+    for (final k in values) {
+      if (k.wire == raw) return k;
+    }
+    return null;
+  }
+}
+
+class FriendPing {
+  final String fromId;
+  final String name;
+  final FriendPingKind kind;
+  const FriendPing({
+    required this.fromId,
+    required this.name,
+    required this.kind,
+  });
+}
+
+List<FriendPing> _pingsFrom(Object? raw) => [
+  for (final row in (raw is List ? raw : const []))
+    if (row is Map && row['from'] is String)
+      if (FriendPingKind.fromWire(row['kind']) case final kind?)
+        FriendPing(
+          fromId: row['from'] as String,
+          name: (row['name'] as String?) ?? '?',
+          kind: kind,
+        ),
+];
 
 /// Null while the feature is off or the server cannot be asked.
 final friendsProvider = AsyncNotifierProvider<FriendsController, FriendsState?>(
@@ -165,6 +215,43 @@ class FriendsController extends AsyncNotifier<FriendsState?> {
   Future<void> respond(String id, bool accept) =>
       _act({'action': 'respond', 'userId': id, 'accept': accept});
   Future<void> remove(String id) => _act({'action': 'remove', 'userId': id});
+
+  /// S2: a request by exact @handle. The answer is one of three: sent (or
+  /// accepted, when he had asked first), refused (unknown handle, his
+  /// privacy, a block: the server will not say which), or failed.
+  Future<HandleRequest> requestByHandle(String handle) async {
+    try {
+      final next = await _call({'action': 'requestByHandle', 'handle': handle});
+      state = AsyncData(next);
+      return HandleRequest.sent;
+    } on BackendException catch (e) {
+      return e.code == 'RATE_LIMITED'
+          ? HandleRequest.limited
+          : HandleRequest.refused;
+    } catch (_) {
+      return HandleRequest.failed;
+    }
+  }
+
+  /// S3: «يلا نلعب؟» or an answer to one. Null when it went; otherwise the
+  /// refusal code (RATE_LIMITED after three a day).
+  Future<String?> ping(String id, FriendPingKind kind) async {
+    try {
+      final backend = await ref.read(onlineBackendFactoryProvider)();
+      await backend.ensureSession();
+      await backend.call('friends', {
+        'action': 'ping',
+        'userId': id,
+        'kind': kind.wire,
+      });
+      unawaited(refresh());
+      return null;
+    } on BackendException catch (e) {
+      return e.code;
+    } catch (_) {
+      return 'UNREACHABLE';
+    }
+  }
 
   /// True when the invite was delivered.
   Future<bool> invite(String id, String roomId) async {
@@ -337,12 +424,74 @@ class FriendsSheet extends ConsumerStatefulWidget {
 
 class _FriendsSheetState extends ConsumerState<FriendsSheet> {
   final Set<String> _invited = {};
+  final Set<String> _pinged = {};
+  final Set<String> _answered = {};
   final TextEditingController _search = TextEditingController();
+  bool _handleBusy = false;
+  String? _handleNote;
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(friendsProvider.notifier).refresh());
+  }
+
+  void _say(String text) => ScaffoldMessenger.maybeOf(
+    context,
+  )?.showSnackBar(SnackBar(content: Text(text)));
+
+  /// S2: «ضيف @handle» — by the exact username typed.
+  Future<void> _requestHandle(String handle) async {
+    if (_handleBusy) return;
+    final l = context.l10n;
+    setState(() {
+      _handleBusy = true;
+      _handleNote = null;
+    });
+    final result = await ref
+        .read(friendsProvider.notifier)
+        .requestByHandle(handle);
+    if (!mounted) return;
+    setState(() {
+      _handleBusy = false;
+      _handleNote = switch (result) {
+        HandleRequest.sent => l.friendHandleSent,
+        HandleRequest.refused => l.friendHandleRefused,
+        HandleRequest.limited => l.friendLimitReached,
+        HandleRequest.failed => l.inviteFailed,
+      };
+    });
+  }
+
+  Future<void> _ping(String id, String name, FriendPingKind kind) async {
+    final l = context.l10n;
+    final refusal = await ref.read(friendsProvider.notifier).ping(id, kind);
+    if (!mounted) return;
+    if (refusal == null) {
+      setState(() {
+        if (kind == FriendPingKind.letsPlay) {
+          _pinged.add(id);
+        } else {
+          _answered.add(id);
+        }
+      });
+      if (kind == FriendPingKind.letsPlay) _say(l.friendPingSent(name));
+    } else {
+      _say(refusal == 'RATE_LIMITED' ? l.friendPingLimit : l.inviteFailed);
+    }
+  }
+
+  String _pingLine(FriendPing ping) {
+    final l = context.l10n;
+    return switch (ping.kind) {
+      FriendPingKind.letsPlay => l.friendPingAsks(ping.name),
+      FriendPingKind.coming => l.friendPingReply(ping.name, l.friendPingComing),
+      FriendPingKind.fiveMin => l.friendPingReply(
+        ping.name,
+        l.friendPingFiveMin,
+      ),
+      FriendPingKind.notNow => l.friendPingReply(ping.name, l.friendPingNotNow),
+    };
   }
 
   @override
@@ -442,6 +591,55 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
           if (_hit(f.name)) f,
       ];
 
+      final pings = friends.pings;
+      if (!inviting && _needle.isEmpty && pings.isNotEmpty) {
+        children.add(heading(l.friendPingsTitle));
+        for (final ping in pings) {
+          final asks = ping.kind == FriendPingKind.letsPlay;
+          children.add(
+            _Row(
+              name: ping.name,
+              gender: 'unspecified',
+              line: _pingLine(ping),
+              lit: asks,
+              chips: [
+                if (asks && !_answered.contains(ping.fromId))
+                  for (final (kind, label) in [
+                    (FriendPingKind.coming, l.friendPingComing),
+                    (FriendPingKind.fiveMin, l.friendPingFiveMin),
+                    (FriendPingKind.notNow, l.friendPingNotNow),
+                  ])
+                    _Chip(
+                      key: FriendsSheetKeys.answer(ping.fromId, kind.wire),
+                      label: label,
+                      quiet: kind != FriendPingKind.coming,
+                      onPressed: () => _ping(ping.fromId, ping.name, kind),
+                    ),
+              ],
+            ),
+          );
+        }
+      }
+      // S2: a username typed with @ can be asked directly, whoever it is.
+      final typed = _search.text.trim().replaceFirst(RegExp(r'^@'), '');
+      if (!inviting &&
+          _search.text.trim().startsWith('@') &&
+          RegExp(r'^[A-Za-z0-9_ء-ي٠-٩]{3,20}$').hasMatch(typed)) {
+        children.add(
+          _Row(
+            name: '@$typed',
+            gender: 'unspecified',
+            line: _handleNote ?? l.friendHandleLine,
+            chips: [
+              _Chip(
+                key: FriendsSheetKeys.addHandle,
+                label: l.friendsAdd,
+                onPressed: _handleBusy ? () {} : () => _requestHandle(typed),
+              ),
+            ],
+          ),
+        );
+      }
       if (invites.isNotEmpty) {
         children.add(heading(l.friendsInvites));
         for (final invite in invites) {
@@ -548,8 +746,32 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
                     Navigator.of(context).pop();
                     widget.onJoin(f.presence.code!);
                   },
-                ),
+                )
+              else if (f.presence.place == FriendPlace.away)
+                if (_pinged.contains(f.id))
+                  Text(
+                    l.friendPingDelivered,
+                    style: type.caption.copyWith(color: colors.accentGold),
+                  )
+                else
+                  _Chip(
+                    key: FriendsSheetKeys.ping(f.id),
+                    label: l.friendPingAction,
+                    quiet: true,
+                    onPressed: () =>
+                        _ping(f.id, f.name, FriendPingKind.letsPlay),
+                  ),
             ],
+            // S4: the row itself opens «تاريخكم».
+            onTap: inviting
+                ? null
+                : () => showFriendProfileSheet(
+                    context,
+                    friend: f,
+                    onPing: () => _ping(f.id, f.name, FriendPingKind.letsPlay),
+                    onRemove: () => _confirmRemove(f.id, f.name),
+                  ),
+            tapKey: FriendsSheetKeys.profile(f.id),
           ),
         );
       }
@@ -648,6 +870,11 @@ abstract final class FriendsSheetKeys {
   static Key remove(String id) => ValueKey('friend_remove_$id');
   static Key accept(String id) => ValueKey('friend_accept_$id');
   static Key decline(String id) => ValueKey('friend_decline_$id');
+  static Key ping(String id) => ValueKey('friend_ping_$id');
+  static Key profile(String id) => ValueKey('friend_profile_$id');
+  static Key answer(String id, String kind) =>
+      ValueKey('friend_answer_${id}_$kind');
+  static const addHandle = ValueKey('friend_add_handle');
   static const removeYes = ValueKey('friend_remove_yes');
   static const removeCancel = ValueKey('friend_remove_cancel');
   static const search = ValueKey('friends_search');
@@ -708,6 +935,10 @@ class _Row extends StatelessWidget {
   final bool lit;
   final String? frame;
   final String? plate;
+
+  /// The name and avatar open something (a friend's profile), when set.
+  final VoidCallback? onTap;
+  final Key? tapKey;
   const _Row({
     required this.name,
     required this.gender,
@@ -717,6 +948,8 @@ class _Row extends StatelessWidget {
     this.lit = false,
     this.frame,
     this.plate,
+    this.onTap,
+    this.tapKey,
   });
 
   @override
@@ -732,21 +965,30 @@ class _Row extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CosmeticFrameRing(
-            frame: frame,
-            diameter: FriendsTokens.avatar,
-            child: _avatar(colors),
+          InkWell(
+            key: tapKey,
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: CosmeticFrameRing(
+              frame: frame,
+              diameter: FriendsTokens.avatar,
+              child: _avatar(colors),
+            ),
           ),
           SizedBox(width: s.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CosmeticNameplate(
-                  name: name,
-                  plate: plate,
-                  style: type.body.emphasised.copyWith(
-                    color: colors.textPrimary,
+                GestureDetector(
+                  onTap: onTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: CosmeticNameplate(
+                    name: name,
+                    plate: plate,
+                    style: type.body.emphasised.copyWith(
+                      color: colors.textPrimary,
+                    ),
                   ),
                 ),
                 Text(

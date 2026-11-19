@@ -14646,6 +14646,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Join'**
   String get playNightEnter;
+
+  /// No description provided for @friendHandleLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a friend request to this username'**
+  String get friendHandleLine;
+
+  /// No description provided for @friendHandleSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get friendHandleSent;
+
+  /// No description provided for @friendHandleRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t send a request to this username'**
+  String get friendHandleRefused;
+
+  /// No description provided for @friendLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached today\'s request limit'**
+  String get friendLimitReached;
+
+  /// No description provided for @friendPingAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s play?'**
+  String get friendPingAction;
+
+  /// No description provided for @friendPingSent.
+  ///
+  /// In en, this message translates to:
+  /// **'«Let\'s play?» sent to {name}'**
+  String friendPingSent(String name);
+
+  /// No description provided for @friendPingDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get friendPingDelivered;
+
+  /// No description provided for @friendPingLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve asked 3 times today. Try tomorrow.'**
+  String get friendPingLimit;
+
+  /// No description provided for @friendPingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'From your friends'**
+  String get friendPingsTitle;
+
+  /// No description provided for @friendPingAsks.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} asks: let\'s play?'**
+  String friendPingAsks(String name);
+
+  /// No description provided for @friendPingReply.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {answer}'**
+  String friendPingReply(String name, String answer);
+
+  /// No description provided for @friendPingComing.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming'**
+  String get friendPingComing;
+
+  /// No description provided for @friendPingFiveMin.
+  ///
+  /// In en, this message translates to:
+  /// **'5 minutes'**
+  String get friendPingFiveMin;
+
+  /// No description provided for @friendPingNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get friendPingNotNow;
+
+  /// No description provided for @friendProfileOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your history'**
+  String get friendProfileOpen;
+
+  /// No description provided for @friendTogetherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You two'**
+  String get friendTogetherTitle;
+
+  /// No description provided for @friendStatTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'played together'**
+  String get friendStatTogether;
+
+  /// No description provided for @friendStatWonTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'won together'**
+  String get friendStatWonTogether;
+
+  /// No description provided for @friendStatFooledMe.
+  ///
+  /// In en, this message translates to:
+  /// **'fooled you'**
+  String get friendStatFooledMe;
+
+  /// No description provided for @friendMafiaShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Was Mafia in {percent}% of their matches'**
+  String friendMafiaShare(int percent);
+
+  /// No description provided for @friendStatsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished online matches only.'**
+  String get friendStatsNote;
+
+  /// No description provided for @friendShareHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add me in Mafia Master: @{handle}'**
+  String friendShareHandle(String handle);
+
+  /// No description provided for @friendShareHandleAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your username'**
+  String get friendShareHandleAction;
+
+  /// No description provided for @friendWhoCanAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can send you a friend request'**
+  String get friendWhoCanAdd;
+
+  /// No description provided for @friendWhoEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get friendWhoEveryone;
+
+  /// No description provided for @friendWhoTablemates.
+  ///
+  /// In en, this message translates to:
+  /// **'People I played with'**
+  String get friendWhoTablemates;
+
+  /// No description provided for @friendWhoNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody'**
+  String get friendWhoNobody;
+
+  /// No description provided for @friendShowOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends see me online'**
+  String get friendShowOnline;
 }
 
 class _AppLocalizationsDelegate

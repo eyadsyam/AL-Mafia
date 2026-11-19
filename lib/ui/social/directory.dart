@@ -70,6 +70,26 @@ class DirectoryPage {
 enum DiscoverFilter { near, online, played, level }
 
 /// The caller's own entry: handle, the account's name and the two switches.
+/// S6. `whoCanAdd` is everyone | tablemates | nobody.
+class FriendPrivacy {
+  final String whoCanAdd;
+  final bool showOnline;
+  const FriendPrivacy({this.whoCanAdd = 'everyone', this.showOnline = true});
+
+  static FriendPrivacy fromJson(Map<String, dynamic> json) => FriendPrivacy(
+    whoCanAdd: switch (json['whoCanAdd']) {
+      'tablemates' => 'tablemates',
+      'nobody' => 'nobody',
+      _ => 'everyone',
+    },
+    showOnline: json['showOnline'] != false,
+  );
+}
+
+final friendPrivacyProvider = FutureProvider.autoDispose<FriendPrivacy>(
+  (ref) => ref.read(directoryApiProvider).privacy(),
+);
+
 class DirectoryMe {
   final String? handle;
 
@@ -236,6 +256,17 @@ class DirectoryApi {
           'action': 'prefs',
           'searchable': ?searchable,
           'strangerInvites': ?strangerInvites,
+        }),
+      );
+
+  /// S6: who may send me a friend request, and whether friends see me
+  /// online. No argument reads the row as it is.
+  Future<FriendPrivacy> privacy({String? whoCanAdd, bool? showOnline}) async =>
+      FriendPrivacy.fromJson(
+        await _call({
+          'action': 'privacy',
+          'whoCanAdd': ?whoCanAdd,
+          'showOnline': ?showOnline,
         }),
       );
 

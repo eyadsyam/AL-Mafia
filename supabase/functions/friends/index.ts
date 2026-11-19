@@ -102,6 +102,11 @@ Deno.serve(handler(async (req, userId, db) => {
   if (call.fn === "safety_name_allowed") return ok({ allowed: data === true });
   if (call.fn === "room_watch_set" || call.fn === "room_watch_get") return ok({ on: data === true });
   if (call.fn === "friend_pings_inbox") return ok({ pings: data });
+  // S3: the status answer carries my unexpired pings, so one read draws the sheet.
+  if (call.fn === "friends_status" && data && typeof data === "object" && data.enabled !== false) {
+    const { data: pings, error: pingsError } = await db.rpc("friend_pings_inbox", { p_user: userId });
+    return ok({ ...(data as Record<string, unknown>), pings: pingsError ? [] : pings ?? [] });
+  }
   if (call.fn === "friend_request_by_handle" && data && typeof data === "object") {
     // The target's id is for the push above only; the answer is the status.
     const { target: _target, ...status } = data as Record<string, unknown>;

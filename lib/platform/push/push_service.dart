@@ -42,7 +42,9 @@ class PushOpen {
     'play_night' => PushDestination.onlineEntry,
     'daily' => PushDestination.daily,
     'order_paid' || 'order_rejected' => PushDestination.orders,
-    'friend_request' || 'friend_accepted' => PushDestination.friends,
+    'friend_request' ||
+    'friend_accepted' ||
+    'friend_ping' => PushDestination.friends,
     'app_update' => PushDestination.storeUpdate,
     _ when kOwnerPushPaths.containsKey(kind) => PushDestination.ownerAdmin,
     _ => PushDestination.invite,
@@ -82,6 +84,7 @@ class PushOpen {
         'order_rejected' ||
         'friend_request' ||
         'friend_accepted' ||
+        'friend_ping' ||
         'app_update' => PushOpen(kind: kind as String),
         _ => null,
       };

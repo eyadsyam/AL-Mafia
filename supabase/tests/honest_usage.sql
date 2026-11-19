@@ -38,21 +38,21 @@ begin
   harness   := pg_temp.hu_room('QHU2AB', array['Amina','Bassem','Camelia','Dawoud','Enas']);
   real_room := pg_temp.hu_room('QHU2AC', array['Layan','Mostafa','Dalia','Tarek','Mona']);
   mixed     := pg_temp.hu_room('QHU2AD', array['Amina','Layan','Mostafa','Dalia','Tarek']);
-  half      := pg_temp.hu_room('QHU2AE', array['Amina','Bassem','Layan','Mostafa']);
-  hab       := pg_temp.hu_room('QHU2AF', array['Rami','Taha','Wafa','Layan','Mona']);
+  half      := pg_temp.hu_room('QHU2AE', array['Amina','Bassem','Camelia','Dawoud','Layan']);
+  hab       := pg_temp.hu_room('QHU2AF', array['Rami','Taha','Wafa','Uday','Mona']);
   rab       := pg_temp.hu_room('QHU2AG', array['Layan','Mostafa','Dalia','Tarek','Mona']);
   empty_room := gen_random_uuid();
 
   assert public.is_harness_room(harness), 'five harness names';
   assert not public.is_harness_room(real_room), 'real names';
   assert not public.is_harness_room(mixed), 'one harness name among five is a real room';
-  assert public.is_harness_room(half), 'exactly half counts';
-  assert public.is_harness_room(hab), 'three of five';
+  assert public.is_harness_room(half), 'four of five (80%) counts';
+  assert public.is_harness_room(hab), 'four of five';
   assert not public.is_harness_room(empty_room), 'no seats, no harness';
   -- The bot names of play_with_app / new_roles_tools_match count too.
-  update public.room_players set name='LiveBot'||seat where room_id=rab and seat in (0,1,2);
+  update public.room_players set name='LiveBot'||seat where room_id=rab and seat in (0,1,2,3);
   assert public.is_harness_room(rab);
-  update public.room_players set name=(array['Layan','Mostafa','Dalia'])[seat+1] where room_id=rab and seat in (0,1,2);
+  update public.room_players set name=(array['Layan','Mostafa','Dalia','Tarek'])[seat+1] where room_id=rab and seat in (0,1,2,3);
   assert not public.is_harness_room(rab);
 
   assert pg_temp.hu_usage('rooms_created')=b_created+6, 'all six counted when created';

@@ -11,7 +11,9 @@
 
 create or replace function public.is_harness_room(p_room uuid)
 returns boolean language sql stable security definer set search_path = public, pg_temp as $$
-  select coalesce(sum(s.h::int) >= 2 and sum(s.h::int) * 2 >= count(*), false)
+  -- At least four harness names and at least 80% of the seats: common first
+  -- names on the list must not hide a real table.
+  select coalesce(sum(s.h::int) >= 4 and sum(s.h::int) * 5 >= count(*) * 4, false)
     from (
       select (btrim(p.name) = any(array[
           'Amina','Bassem','Camelia','Dawoud','Enas',
