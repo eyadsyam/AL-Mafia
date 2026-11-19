@@ -1,38 +1,27 @@
-# Next update (after 1.6.0 build 22)
+# Next update (after 1.7.0 build 23)
 
-Live today: 1.6.0 (22) on Play production since 2026-11-11; web on saidalmafia.com.
-Everything below is committed and waits for the next planned release (no extra
-version for small fixes, owner rule). Nothing here is built or uploaded yet.
+Live from 2026-11-19: 1.7.0 (23) sent to Play production at 100%; web on
+saidalmafia.com (stamp 20261119-083028); the server half (13 migrations,
+9 functions) live the same morning. Force update: `pending_min_build_android`
+is 23, so the minimum follows as soon as Play publishes build 23
+(play_release_watch raises `latest_build_android`).
 
-## In the app (needs the next Android build)
+Small follow-ups ride with the next planned update (no extra version).
 
-| Change | Commit / files |
+## Open from the 1.7.0 review
+
+| Item | Note |
 |---|---|
-| Home banner no longer misses a capabilities read that starts after its first frame | 73ea9d4c |
-| Microphone asked on the tap that enters an online room, not at launch (Play audio policy) | 54b060b1 |
-| Microphone closes while the app is off screen; the phase decides again on return | 41aca80f |
-| Rewarded ads: the load no longer waits on itself (every tap without a ready ad used to sit out the whole tap budget); failed preloads retry at 15 s, 30 s, 60 s, then 120 s, up to 6 per placement per session; an offer warms its ad on its first frame; a tap joins the load already in flight | lib/platform/monetization/rewarded_ads_mobile.dart, lib/ui/economy/ad_extras.dart |
-| «العب مع ناس دلوقتي»: one tap seats the player in a filling public room or opens one (server `quick_match`, deployed since October, never called before) | lib/ui/screens/online/{online_entry_screen,online_session}.dart |
-| Crash reporting: Firebase Crashlytics on Android only, off in debug, no custom keys or logs | lib/platform/crash_reporting*.dart, lib/main.dart, android/ gradle, pubspec |
+| Queue room whose host never opens the app | No server-side start yet; the room waits until someone in it opens the lobby (review #3) |
+| Elder night chip | Its on/off state is lost on reconnect; the server keeps the choice (review #10) |
+| Friend profile numbers | Cover only what council_match_records keeps (about 21 days) |
+| Device check | 1.7.0 not yet seen on the emulator (low RAM); check the queue, Game Night line, friends tabs and Elder reveal on a phone |
+| public_room_pace.sql on live | Not run on live (its fixture inserts a second system room); PGlite PASS |
 
-## Already live on the server (no build needed)
+## After rollout
 
-- Play products: all five were left inactive by the 2026-09-28 rollback, so the
-  Google Play buy tab never appeared. Switched back on 2026-11-16.
-- Owner alerts: no longer held back by the player-push switch; one reminder a day
-  at 09:00 Cairo while a report waits (20261116000100_owner_alerts).
-
-## Release checklist for this update
-
-1. Play Console › App content › Data safety: add **Crash logs** and
-   **Diagnostics** (App info and performance), collected, not shared, required,
-   purpose App functionality + Analytics; processed by Firebase Crashlytics.
-   Privacy page (web/privacy) gets the same line. Do this in the same release
-   as the build that carries Crashlytics, not before.
-2. Data safety deletion question: the web deletion URL is
-   https://saidalmafia.com/delete-data/ (page live).
-3. After rollout: read Crashlytics for the first crashes, AdMob for the rewarded
-   match rate, and the usage page for quick-match rooms.
-4. The test-ads build (`TEST_ADS_SUFFIX=true`) skips the Google Services plugin
-   (its package is not in google-services.json) and keeps the hand-written
-   Firebase values; it has no Crashlytics mapping upload.
+1. Read Crashlytics for the first crashes of 1.7.0.
+2. Usage page: queue joins, queue_ready pushes, Game Night opens, friend
+   requests / accepts / pings / group invites.
+3. Confirm `min_build_android` became 23 once Play shows 1.7.0 as published.
+4. Play Console: the trader-status declaration banner is the owner's to answer.
