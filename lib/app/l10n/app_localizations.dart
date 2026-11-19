@@ -14814,6 +14814,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Friends see me online'**
   String get friendShowOnline;
+
+  /// No description provided for @friendsTabList.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friendsTabList;
+
+  /// No description provided for @friendsTabNews.
+  ///
+  /// In en, this message translates to:
+  /// **'News'**
+  String get friendsTabNews;
+
+  /// No description provided for @friendSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'People you may know'**
+  String get friendSuggestions;
+
+  /// No description provided for @friendMutual.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 mutual friend} other{{count} mutual friends}}'**
+  String friendMutual(int count);
+
+  /// No description provided for @crewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Crews'**
+  String get crewTitle;
+
+  /// No description provided for @groupNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New crew'**
+  String get groupNew;
+
+  /// No description provided for @groupEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get groupEdit;
+
+  /// No description provided for @groupInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite the crew'**
+  String get groupInvite;
+
+  /// No description provided for @groupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew name'**
+  String get groupName;
+
+  /// No description provided for @groupMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of your friends'**
+  String groupMembers(int count);
+
+  /// No description provided for @groupSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save crew'**
+  String get groupSave;
+
+  /// No description provided for @groupDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete crew'**
+  String get groupDelete;
+
+  /// No description provided for @groupInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a name and pick at least one friend'**
+  String get groupInvalid;
+
+  /// No description provided for @feedWeekTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your week'**
+  String get feedWeekTitle;
+
+  /// No description provided for @feedWeekLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{matches} matches · {wins} wins · {mafia} as Mafia'**
+  String feedWeekLine(int matches, int wins, int mafia);
+
+  /// No description provided for @feedWeekTopFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Played most with: {name} ({count})'**
+  String feedWeekTopFriend(String name, int count);
+
+  /// No description provided for @feedBoardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This week\'s board'**
+  String get feedBoardTitle;
+
+  /// No description provided for @feedBoardYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get feedBoardYou;
+
+  /// No description provided for @feedBoardWins.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} wins'**
+  String feedBoardWins(int count);
+
+  /// No description provided for @feedNewsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends\' news'**
+  String get feedNewsTitle;
+
+  /// No description provided for @feedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No news yet. When a friend wins or reaches a new rank, you\'ll see it here.'**
+  String get feedEmpty;
+
+  /// No description provided for @feedWinStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} won {count} matches in a row'**
+  String feedWinStreak(String name, int count);
+
+  /// No description provided for @feedRankUp.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} reached the rank «{title}»'**
+  String feedRankUp(String name, String title);
+
+  /// No description provided for @friendShareActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'My news shows to my friends'**
+  String get friendShareActivity;
 }
 
 class _AppLocalizationsDelegate

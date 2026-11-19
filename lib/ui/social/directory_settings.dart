@@ -24,6 +24,7 @@ class DirectorySettings extends ConsumerStatefulWidget {
   static const Key muteSwitch = ValueKey('directory_mute_switch');
   static const Key shareHandle = ValueKey('directory_share_handle');
   static const Key onlineSwitch = ValueKey('directory_online_switch');
+  static const Key shareSwitch = ValueKey('directory_share_switch');
   static Key whoCanAdd(String value) => ValueKey('directory_who_$value');
 
   @override
@@ -89,13 +90,21 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
 
   FriendPrivacy? _privacy;
 
-  Future<void> _setPrivacy({String? whoCanAdd, bool? showOnline}) async {
+  Future<void> _setPrivacy({
+    String? whoCanAdd,
+    bool? showOnline,
+    bool? shareActivity,
+  }) async {
     if (_busy) return;
     setState(() => _busy = true);
     try {
       final next = await ref
           .read(directoryApiProvider)
-          .privacy(whoCanAdd: whoCanAdd, showOnline: showOnline);
+          .privacy(
+            whoCanAdd: whoCanAdd,
+            showOnline: showOnline,
+            shareActivity: shareActivity,
+          );
       if (mounted) setState(() => _privacy = next);
     } catch (_) {
       // The control keeps the server's last answer.
@@ -217,8 +226,8 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
     final s = context.spacing;
     final colors = context.colors;
     final type = context.typography;
-    final privacy =
-        _privacy ?? ref.watch(friendPrivacyProvider).valueOrNull;
+    final me = ref.watch(friendsProvider).valueOrNull?.me;
+    final privacy = _privacy ?? me?.privacy;
     if (privacy == null) return const [];
     return [
       Padding(
@@ -256,6 +265,16 @@ class _DirectorySettingsState extends ConsumerState<DirectorySettings> {
         ),
         value: privacy.showOnline,
         onChanged: _busy ? null : (on) => _setPrivacy(showOnline: on),
+      ),
+      SwitchListTile(
+        key: DirectorySettings.shareSwitch,
+        contentPadding: EdgeInsets.zero,
+        title: Text(
+          l.friendShareActivity,
+          style: type.body.copyWith(color: colors.textPrimary),
+        ),
+        value: privacy.shareActivity,
+        onChanged: _busy ? null : (on) => _setPrivacy(shareActivity: on),
       ),
     ];
   }

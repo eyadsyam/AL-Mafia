@@ -10,7 +10,7 @@ const handle = /^[A-Za-z0-9_ء-ي٠-٩]{1,20}$/;
 export type FriendsCall = { fn: string; args: Record<string, unknown> };
 
 /** Actions that seat nobody but still need the caller in the room. */
-export const needsMembership = new Set(["invite"]);
+export const needsMembership = new Set(["invite", "inviteGroup"]);
 
 function page(value: unknown): number | null {
   if (value == null) return 0;
@@ -136,13 +136,17 @@ export function friendsCall(body: Record<string, unknown>, userId: string): Frie
     }
     // S6: the privacy row; no field reads it as it is.
     case "privacy": {
-      const w = body.whoCanAdd, o = body.showOnline, s = body.searchable;
+      const w = body.whoCanAdd, o = body.showOnline, s = body.searchable, a = body.shareActivity;
       if (w != null && !["everyone", "tablemates", "nobody"].includes(String(w))) return null;
       if (o != null && typeof o !== "boolean") return null;
       if (s != null && typeof s !== "boolean") return null;
+      if (a != null && typeof a !== "boolean") return null;
       return {
         fn: "directory_privacy",
-        args: { p_user: userId, p_who_can_add: w ?? null, p_show_online: o ?? null, p_searchable: s ?? null },
+        args: {
+          p_user: userId, p_who_can_add: w ?? null, p_show_online: o ?? null,
+          p_searchable: s ?? null, p_share_activity: a ?? null,
+        },
       };
     }
     // S3: «يلا نلعب؟» and its three answers.
@@ -156,6 +160,35 @@ export function friendsCall(body: Record<string, unknown>, userId: string): Frie
     // S4: a friend's face and our finished-match history.
     case "profile":
       return target ? { fn: "friend_profile", args: { p_user: userId, p_target: target } } : null;
+    // Improvement 5: the news tab, and one emoji on a friend's line.
+    case "feed":
+      return { fn: "friend_feed", args: { p_user: userId } };
+    case "react": {
+      const id = body.activityId, e = body.emoji;
+      if (typeof id !== "number" || !Number.isInteger(id) || id <= 0) return null;
+      if (e != null && !["👏", "🔥", "😂"].includes(String(e))) return null;
+      return { fn: "friend_react", args: { p_user: userId, p_activity: id, p_emoji: e ?? null } };
+    }
+    // Improvement 1: «الشلة».
+    case "groupSave": {
+      const id = body.id == null ? null : String(body.id);
+      const name = typeof body.name === "string" ? body.name.trim() : "";
+      const members = Array.isArray(body.members) ? body.members.map(String) : null;
+      if (id != null && !uuid.test(id)) return null;
+      if (!name || name.length > 40 || !members || members.length === 0 || members.length > 15) return null;
+      if (!members.every((m) => uuid.test(m))) return null;
+      return { fn: "friend_group_save", args: { p_user: userId, p_id: id, p_name: name, p_members: members } };
+    }
+    case "groupDelete": {
+      const id = String(body.id ?? "");
+      return uuid.test(id) ? { fn: "friend_group_delete", args: { p_user: userId, p_id: id } } : null;
+    }
+    case "inviteGroup": {
+      const g = String(body.groupId ?? ""), r = String(body.roomId ?? "");
+      return uuid.test(g) && uuid.test(r)
+        ? { fn: "friend_group_invite", args: { p_user: userId, p_group: g, p_room: r } }
+        : null;
+    }
     default:
       return null;
   }

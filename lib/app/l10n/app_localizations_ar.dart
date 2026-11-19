@@ -8510,4 +8510,99 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get friendShowOnline => 'أصحابي يشوفوني أونلاين';
+
+  @override
+  String get friendsTabList => 'أصحابك';
+
+  @override
+  String get friendsTabNews => 'الأخبار';
+
+  @override
+  String get friendSuggestions => 'ناس ممكن تعرفهم';
+
+  @override
+  String friendMutual(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صاحب مشترك',
+      few: '$count أصحاب مشتركين',
+      two: 'صاحبين مشتركين',
+      one: 'صاحب مشترك واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get crewTitle => 'الشلة';
+
+  @override
+  String get groupNew => 'شلة جديدة';
+
+  @override
+  String get groupEdit => 'عدّل';
+
+  @override
+  String get groupInvite => 'اعزم الشلة';
+
+  @override
+  String get groupName => 'اسم الشلة';
+
+  @override
+  String groupMembers(int count) {
+    return '$count من أصحابك';
+  }
+
+  @override
+  String get groupSave => 'احفظ الشلة';
+
+  @override
+  String get groupDelete => 'امسح الشلة';
+
+  @override
+  String get groupInvalid => 'اكتب اسم واختار صاحب واحد على الأقل';
+
+  @override
+  String get feedWeekTitle => 'أسبوعك';
+
+  @override
+  String feedWeekLine(int matches, int wins, int mafia) {
+    return '$matches ماتش · $wins فوز · $mafia مرة مافيا';
+  }
+
+  @override
+  String feedWeekTopFriend(String name, int count) {
+    return 'أكتر واحد لعبت معاه: $name ($count)';
+  }
+
+  @override
+  String get feedBoardTitle => 'ترتيب الأسبوع';
+
+  @override
+  String get feedBoardYou => 'انت';
+
+  @override
+  String feedBoardWins(int count) {
+    return '$count فوز';
+  }
+
+  @override
+  String get feedNewsTitle => 'أخبار الشلة';
+
+  @override
+  String get feedEmpty =>
+      'لسه مفيش أخبار. لما صاحبك يكسب أو يوصل رتبة جديدة هتلاقيها هنا.';
+
+  @override
+  String feedWinStreak(String name, int count) {
+    return '$name كسب $count ماتشات ورا بعض';
+  }
+
+  @override
+  String feedRankUp(String name, String title) {
+    return '$name وصل رتبة «$title»';
+  }
+
+  @override
+  String get friendShareActivity => 'أخباري تظهر لأصحابي';
 }

@@ -4004,5 +4004,93 @@
   "friendWhoEveryone": "الكل",
   "friendWhoTablemates": "اللي لعبت معاهم",
   "friendWhoNobody": "محدش",
-  "friendShowOnline": "أصحابي يشوفوني أونلاين"
+  "friendShowOnline": "أصحابي يشوفوني أونلاين",
+  "friendsTabList": "أصحابك",
+  "friendsTabNews": "الأخبار",
+  "friendSuggestions": "ناس ممكن تعرفهم",
+  "friendMutual": "{count, plural, =1{صاحب مشترك واحد} =2{صاحبين مشتركين} few{{count} أصحاب مشتركين} other{{count} صاحب مشترك}}",
+  "@friendMutual": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "crewTitle": "الشلة",
+  "groupNew": "شلة جديدة",
+  "groupEdit": "عدّل",
+  "groupInvite": "اعزم الشلة",
+  "groupName": "اسم الشلة",
+  "groupMembers": "{count} من أصحابك",
+  "@groupMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupSave": "احفظ الشلة",
+  "groupDelete": "امسح الشلة",
+  "groupInvalid": "اكتب اسم واختار صاحب واحد على الأقل",
+  "feedWeekTitle": "أسبوعك",
+  "feedWeekLine": "{matches} ماتش · {wins} فوز · {mafia} مرة مافيا",
+  "@feedWeekLine": {
+    "placeholders": {
+      "matches": {
+        "type": "int"
+      },
+      "wins": {
+        "type": "int"
+      },
+      "mafia": {
+        "type": "int"
+      }
+    }
+  },
+  "feedWeekTopFriend": "أكتر واحد لعبت معاه: {name} ({count})",
+  "@feedWeekTopFriend": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedBoardTitle": "ترتيب الأسبوع",
+  "feedBoardYou": "انت",
+  "feedBoardWins": "{count} فوز",
+  "@feedBoardWins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedNewsTitle": "أخبار الشلة",
+  "feedEmpty": "لسه مفيش أخبار. لما صاحبك يكسب أو يوصل رتبة جديدة هتلاقيها هنا.",
+  "feedWinStreak": "{name} كسب {count} ماتشات ورا بعض",
+  "@feedWinStreak": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedRankUp": "{name} وصل رتبة «{title}»",
+  "@feedRankUp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "friendShareActivity": "أخباري تظهر لأصحابي"
 }

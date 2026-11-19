@@ -5321,5 +5321,93 @@
   "friendWhoEveryone": "Everyone",
   "friendWhoTablemates": "People I played with",
   "friendWhoNobody": "Nobody",
-  "friendShowOnline": "Friends see me online"
+  "friendShowOnline": "Friends see me online",
+  "friendsTabList": "Friends",
+  "friendsTabNews": "News",
+  "friendSuggestions": "People you may know",
+  "friendMutual": "{count, plural, =1{1 mutual friend} other{{count} mutual friends}}",
+  "@friendMutual": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "crewTitle": "Crews",
+  "groupNew": "New crew",
+  "groupEdit": "Edit",
+  "groupInvite": "Invite the crew",
+  "groupName": "Crew name",
+  "groupMembers": "{count} of your friends",
+  "@groupMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupSave": "Save crew",
+  "groupDelete": "Delete crew",
+  "groupInvalid": "Write a name and pick at least one friend",
+  "feedWeekTitle": "Your week",
+  "feedWeekLine": "{matches} matches · {wins} wins · {mafia} as Mafia",
+  "@feedWeekLine": {
+    "placeholders": {
+      "matches": {
+        "type": "int"
+      },
+      "wins": {
+        "type": "int"
+      },
+      "mafia": {
+        "type": "int"
+      }
+    }
+  },
+  "feedWeekTopFriend": "Played most with: {name} ({count})",
+  "@feedWeekTopFriend": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedBoardTitle": "This week's board",
+  "feedBoardYou": "You",
+  "feedBoardWins": "{count} wins",
+  "@feedBoardWins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedNewsTitle": "Friends' news",
+  "feedEmpty": "No news yet. When a friend wins or reaches a new rank, you'll see it here.",
+  "feedWinStreak": "{name} won {count} matches in a row",
+  "@feedWinStreak": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedRankUp": "{name} reached the rank «{title}»",
+  "@feedRankUp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "friendShareActivity": "My news shows to my friends"
 }

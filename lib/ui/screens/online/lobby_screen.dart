@@ -256,10 +256,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
 
   void _autoStart(GameSnapshot snapshot) {
     // Only the queue's own rooms: public, «لعب سريع», flagged by the server.
-    if (!snapshot.room.autoStart ||
-        !snapshot.room.isPublic ||
-        snapshot.room.title != 'لعب سريع' ||
-        snapshot.phase != GamePhase.setup) {
+    if (!snapshot.room.isQueueRoom || snapshot.phase != GamePhase.setup) {
       return;
     }
     _autoSeenAt ??= DateTime.now();

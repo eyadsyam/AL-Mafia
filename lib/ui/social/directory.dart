@@ -74,7 +74,14 @@ enum DiscoverFilter { near, online, played, level }
 class FriendPrivacy {
   final String whoCanAdd;
   final bool showOnline;
-  const FriendPrivacy({this.whoCanAdd = 'everyone', this.showOnline = true});
+
+  /// My wins and new ranks show in my friends' news tab.
+  final bool shareActivity;
+  const FriendPrivacy({
+    this.whoCanAdd = 'everyone',
+    this.showOnline = true,
+    this.shareActivity = true,
+  });
 
   static FriendPrivacy fromJson(Map<String, dynamic> json) => FriendPrivacy(
     whoCanAdd: switch (json['whoCanAdd']) {
@@ -83,12 +90,9 @@ class FriendPrivacy {
       _ => 'everyone',
     },
     showOnline: json['showOnline'] != false,
+    shareActivity: json['shareActivity'] != false,
   );
 }
-
-final friendPrivacyProvider = FutureProvider.autoDispose<FriendPrivacy>(
-  (ref) => ref.read(directoryApiProvider).privacy(),
-);
 
 class DirectoryMe {
   final String? handle;
@@ -104,6 +108,9 @@ class DirectoryMe {
 
   /// The player chose this username; it never changes again.
   final bool handleLocked;
+
+  /// S6, carried by the friends status answer (absent from older servers).
+  final FriendPrivacy privacy;
   const DirectoryMe({
     this.handle,
     this.name,
@@ -112,6 +119,7 @@ class DirectoryMe {
     this.strangerInvites = true,
     this.handleChangeAt,
     this.handleLocked = false,
+    this.privacy = const FriendPrivacy(),
   });
 
   static DirectoryMe fromJson(Object? json) {
@@ -131,6 +139,7 @@ class DirectoryMe {
           ? DateTime.tryParse(json['handleChangeAt'] as String)
           : null,
       handleLocked: json['handleLocked'] == true,
+      privacy: FriendPrivacy.fromJson(Map<String, dynamic>.from(json)),
     );
   }
 }
@@ -261,12 +270,16 @@ class DirectoryApi {
 
   /// S6: who may send me a friend request, and whether friends see me
   /// online. No argument reads the row as it is.
-  Future<FriendPrivacy> privacy({String? whoCanAdd, bool? showOnline}) async =>
-      FriendPrivacy.fromJson(
+  Future<FriendPrivacy> privacy({
+    String? whoCanAdd,
+    bool? showOnline,
+    bool? shareActivity,
+  }) async => FriendPrivacy.fromJson(
         await _call({
           'action': 'privacy',
           'whoCanAdd': ?whoCanAdd,
           'showOnline': ?showOnline,
+          'shareActivity': ?shareActivity,
         }),
       );
 

@@ -14,6 +14,8 @@
  *   privacy { whoCanAdd?, showOnline?, searchable? }   S6
  *   ping { userId, kind } / pings          S3: «يلا نلعب؟» and its answers
  *   profile { userId }                     S4: a friend's finished-match history
+ *   feed / react { activityId, emoji }     news tab: my week, the board, friends' wins
+ *   groupSave { id?, name, members } / groupDelete { id } / inviteGroup { groupId, roomId }
  * Routing and validation: _shared/friends_actions.ts. All rules live in SQL
  * (20260928000300_friends.sql, 20260930000100_invites_push.sql).
  */
@@ -116,9 +118,45 @@ Deno.serve(handler(async (req, userId, db) => {
   if (call.fn === "room_watch_set" || call.fn === "room_watch_get") return ok({ on: data === true });
   if (call.fn === "friend_pings_inbox") return ok({ pings: data });
   // S3: the status answer carries my unexpired pings, so one read draws the sheet.
+  // S6, improvements 1 and 2: privacy rides on `me`; suggestions and «الشلة»
+  // ride along, so one read draws the whole sheet. Each extra is best effort.
   if (call.fn === "friends_status" && data && typeof data === "object" && data.enabled !== false) {
-    const { data: pings, error: pingsError } = await db.rpc("friend_pings_inbox", { p_user: userId });
-    return ok({ ...(data as Record<string, unknown>), pings: pingsError ? [] : pings ?? [] });
+    const status = data as Record<string, unknown>;
+    const [pings, privacy, suggestions, groups] = await Promise.all([
+      db.rpc("friend_pings_inbox", { p_user: userId }),
+      db.rpc("directory_privacy", {
+        p_user: userId, p_who_can_add: null, p_show_online: null, p_searchable: null, p_share_activity: null,
+      }),
+      db.rpc("friend_suggestions", { p_user: userId }),
+      db.rpc("friend_groups_list", { p_user: userId }),
+    ]);
+    const me = status.me && typeof status.me === "object" && !privacy.error && privacy.data
+      ? { ...(status.me as Record<string, unknown>), ...(privacy.data as Record<string, unknown>) }
+      : status.me;
+    return ok({
+      ...status,
+      me,
+      pings: pings.error ? [] : pings.data ?? [],
+      suggestions: suggestions.error ? [] : (suggestions.data as { rows?: unknown })?.rows ?? [],
+      groups: groups.error ? [] : (groups.data as { groups?: unknown })?.groups ?? [],
+    });
+  }
+  // Improvement 1: a whole «شلة» invited at once; each fresh invite rings.
+  if (call.fn === "friend_group_invite" && data && typeof data === "object") {
+    const ids = Array.isArray(data.inviteIds) ? data.inviteIds : [];
+    for (const id of ids) {
+      try {
+        const { data: target } = await db.rpc("invite_push_targets", { p_invite: id });
+        await sendPush((target ?? { enabled: false }) as PushTarget, deps);
+      } catch {
+        console.log("push skipped: error");
+      }
+    }
+    if (ids.length > 0) {
+      await db.rpc("metric_note", { p_user: userId, p_event: "friend", p_prop: "group_invite" })
+        .then(() => {}, () => {});
+    }
+    return ok({ invited: Number(data.invited ?? 0) });
   }
   if (call.fn === "friend_request_by_handle" && data && typeof data === "object") {
     // The target's id is for the push above only; the answer is the status.

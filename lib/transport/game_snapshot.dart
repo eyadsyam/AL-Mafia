@@ -64,6 +64,11 @@ class RoomOptions {
 
   bool get isPublic => visibility == 'public';
 
+  /// The server's own matchmaking room (match_queue): public, auto-start, and
+  /// the fixed title the server gives it. The title is data, not UI text.
+  static const queueTitle = 'لعب سريع';
+  bool get isQueueRoom => autoStart && isPublic && title == queueTitle;
+
   RoomOptions copyWith({
     String? visibility,
     String? title,

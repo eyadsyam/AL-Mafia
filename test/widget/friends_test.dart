@@ -148,9 +148,19 @@ void main() {
     expect(find.text('ليلى عزمك على روم · ادخل'), findsOneWidget);
     expect(find.text('قبول'), findsOneWidget);
     expect(find.text('مستني رده'), findsOneWidget); // عمر: already asked
-    expect(find.text('أضف'), findsOneWidget); // نور
     expect(find.text('في ماتش دلوقتي'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    // The recent tablemates sit below «الشلة» now.
+    final list = find
+        .ancestor(
+          of: find.text('في ماتش دلوقتي'),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(find.text('أضف'), 200, scrollable: list);
+    expect(find.text('أضف'), findsOneWidget); // نور
+    await tester.drag(list, const Offset(0, 2000));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('ادخل').first);
     await tester.pumpAndSettle();
     expect(joined, 'ABCDEF');
@@ -205,37 +215,38 @@ void main() {
     expect(find.text('ليلى عزمك على روم · ادخل'), findsNothing);
   });
 
-  testWidgets('S3/S2: a «يلا نلعب؟» shows its three answers; @handle can be asked', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(360, 780));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          friendsProvider.overrideWith(_Pinged.new),
-        ],
-        child: localizedApp(Scaffold(body: FriendsSheet(onJoin: (_) {}))),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(find.text(arStrings.friendPingAsks('ليلى')), findsOneWidget);
-    for (final kind in ['coming', 'five_min', 'not_now']) {
-      expect(find.byKey(FriendsSheetKeys.answer('a', kind)), findsOneWidget);
-    }
-    expect(
-      find.text(arStrings.friendPingReply('كريم', arStrings.friendPingFiveMin)),
-      findsOneWidget,
-    );
-    expect(find.byKey(FriendsSheetKeys.answer('b', 'coming')), findsNothing);
+  testWidgets(
+    'S3/S2: a «يلا نلعب؟» shows its three answers; @handle can be asked',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(360, 780));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [friendsProvider.overrideWith(_Pinged.new)],
+          child: localizedApp(Scaffold(body: FriendsSheet(onJoin: (_) {}))),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(arStrings.friendPingAsks('ليلى')), findsOneWidget);
+      for (final kind in ['coming', 'five_min', 'not_now']) {
+        expect(find.byKey(FriendsSheetKeys.answer('a', kind)), findsOneWidget);
+      }
+      expect(
+        find.text(
+          arStrings.friendPingReply('كريم', arStrings.friendPingFiveMin),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(FriendsSheetKeys.answer('b', 'coming')), findsNothing);
 
-    await tester.enterText(find.byKey(FriendsSheetKeys.search), '@sara_m');
-    await tester.pumpAndSettle();
-    expect(find.byKey(FriendsSheetKeys.addHandle), findsOneWidget);
-    expect(find.text('@sara_m'), findsWidgets);
-    await tester.enterText(find.byKey(FriendsSheetKeys.search), 'sara');
-    await tester.pumpAndSettle();
-    expect(find.byKey(FriendsSheetKeys.addHandle), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
+      await tester.enterText(find.byKey(FriendsSheetKeys.search), '@sara_m');
+      await tester.pumpAndSettle();
+      expect(find.byKey(FriendsSheetKeys.addHandle), findsOneWidget);
+      expect(find.text('@sara_m'), findsWidgets);
+      await tester.enterText(find.byKey(FriendsSheetKeys.search), 'sara');
+      await tester.pumpAndSettle();
+      expect(find.byKey(FriendsSheetKeys.addHandle), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

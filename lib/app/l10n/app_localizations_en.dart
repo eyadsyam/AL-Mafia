@@ -8637,4 +8637,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get friendShowOnline => 'Friends see me online';
+
+  @override
+  String get friendsTabList => 'Friends';
+
+  @override
+  String get friendsTabNews => 'News';
+
+  @override
+  String get friendSuggestions => 'People you may know';
+
+  @override
+  String friendMutual(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mutual friends',
+      one: '1 mutual friend',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get crewTitle => 'Crews';
+
+  @override
+  String get groupNew => 'New crew';
+
+  @override
+  String get groupEdit => 'Edit';
+
+  @override
+  String get groupInvite => 'Invite the crew';
+
+  @override
+  String get groupName => 'Crew name';
+
+  @override
+  String groupMembers(int count) {
+    return '$count of your friends';
+  }
+
+  @override
+  String get groupSave => 'Save crew';
+
+  @override
+  String get groupDelete => 'Delete crew';
+
+  @override
+  String get groupInvalid => 'Write a name and pick at least one friend';
+
+  @override
+  String get feedWeekTitle => 'Your week';
+
+  @override
+  String feedWeekLine(int matches, int wins, int mafia) {
+    return '$matches matches · $wins wins · $mafia as Mafia';
+  }
+
+  @override
+  String feedWeekTopFriend(String name, int count) {
+    return 'Played most with: $name ($count)';
+  }
+
+  @override
+  String get feedBoardTitle => 'This week\'s board';
+
+  @override
+  String get feedBoardYou => 'You';
+
+  @override
+  String feedBoardWins(int count) {
+    return '$count wins';
+  }
+
+  @override
+  String get feedNewsTitle => 'Friends\' news';
+
+  @override
+  String get feedEmpty =>
+      'No news yet. When a friend wins or reaches a new rank, you\'ll see it here.';
+
+  @override
+  String feedWinStreak(String name, int count) {
+    return '$name won $count matches in a row';
+  }
+
+  @override
+  String feedRankUp(String name, String title) {
+    return '$name reached the rank «$title»';
+  }
+
+  @override
+  String get friendShareActivity => 'My news shows to my friends';
 }

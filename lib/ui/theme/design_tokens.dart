@@ -2789,6 +2789,11 @@ abstract final class DeviceClassTokens {
 
 /// «أصحابك» (`lib/ui/screens/online/friends.dart`).
 abstract final class FriendsTokens {
+  /// «الشلة»: at most this many members, and the editor's friend list takes
+  /// at most this share of the screen height.
+  static const int groupMax = 15;
+  static const double groupListMax = 0.4;
+
   /// The «a friend is at a table» dot on the small friends icon.
   static const double presenceDot = 8.0;
 

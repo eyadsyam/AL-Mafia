@@ -16,6 +16,7 @@ import '../screens/online/online_session.dart';
 import 'directory.dart';
 import 'directory_settings.dart';
 import 'friend_profile_sheet.dart';
+import 'friends_extras.dart';
 
 /// «أصحابك» — friends made at the table (`friends` edge function,
 /// 20260928000300_friends.sql). Public facts only: names, whether someone is
@@ -95,6 +96,11 @@ class FriendsState {
   /// `friends` status answer carries them.
   final List<FriendPing> pings;
 
+  /// Improvement 2 and 1: people I may know, and my «الشلة» groups. The
+  /// status answer carries both.
+  final List<FriendSuggestion> suggestions;
+  final List<FriendGroup> groups;
+
   /// This player's directory entry (handle and the two switches).
   final DirectoryMe me;
   const FriendsState({
@@ -104,8 +110,22 @@ class FriendsState {
     this.recent = const [],
     this.invites = const [],
     this.pings = const [],
+    this.suggestions = const [],
+    this.groups = const [],
     this.me = const DirectoryMe(),
   });
+
+  FriendsState withGroups(List<FriendGroup> next) => FriendsState(
+    friends: friends,
+    incoming: incoming,
+    outgoing: outgoing,
+    recent: recent,
+    invites: invites,
+    pings: pings,
+    suggestions: suggestions,
+    groups: next,
+    me: me,
+  );
 
   int get inLobby =>
       friends.where((f) => f.presence.place == FriendPlace.lobby).length;
@@ -133,6 +153,10 @@ class FriendsState {
             ),
       ],
       pings: _pingsFrom(json['pings']),
+      suggestions: [
+        for (final row in rows('suggestions')) ?FriendSuggestion.fromJson(row),
+      ],
+      groups: FriendGroup.listFrom(json['groups']),
       me: DirectoryMe.fromJson(json['me']),
     );
   }
@@ -251,6 +275,12 @@ class FriendsController extends AsyncNotifier<FriendsState?> {
     } catch (_) {
       return 'UNREACHABLE';
     }
+  }
+
+  /// «الشلة» changed: the list the server answered replaces ours.
+  void setGroups(List<FriendGroup> groups) {
+    final current = state.valueOrNull;
+    if (current != null) state = AsyncData(current.withGroups(groups));
   }
 
   /// True when the invite was delivered.
@@ -429,6 +459,8 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
   final TextEditingController _search = TextEditingController();
   bool _handleBusy = false;
   String? _handleNote;
+  bool _news = false;
+  final Set<String> _groupsInvited = {};
 
   @override
   void initState() {
@@ -624,7 +656,7 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
       final typed = _search.text.trim().replaceFirst(RegExp(r'^@'), '');
       if (!inviting &&
           _search.text.trim().startsWith('@') &&
-          RegExp(r'^[A-Za-z0-9_ء-ي٠-٩]{3,20}$').hasMatch(typed)) {
+          RegExp(r'^[A-Za-z0-9_\u0621-\u064A\u0660-\u0669]{3,20}$').hasMatch(typed)) {
         children.add(
           _Row(
             name: '@$typed',
@@ -802,6 +834,107 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
           );
         }
       }
+      // Improvement 2: people I may know.
+      final suggestions = [
+        for (final p in friends.suggestions)
+          if (_hit(p.name) &&
+              !friends.friends.any((f) => f.id == p.userId) &&
+              !friends.recent.any((f) => f.id == p.userId))
+            p,
+      ];
+      if (!inviting && suggestions.isNotEmpty) {
+        children.add(heading(l.friendSuggestions));
+        for (final p in suggestions) {
+          children.add(
+            _Row(
+              name: p.name,
+              gender: p.gender,
+              line: p.matchesTogether != null
+                  ? l.friendsMatchesTogether(p.matchesTogether!)
+                  : l.friendMutual(p.mutualFriends ?? 0),
+              chips: [
+                if (friends.outgoing.any((o) => o.id == p.userId))
+                  Text(
+                    l.friendsPending,
+                    style: type.caption.copyWith(color: colors.textMuted),
+                  )
+                else
+                  _Chip(
+                    key: FriendsSheetKeys.suggest(p.userId),
+                    label: l.friendsAdd,
+                    quiet: true,
+                    onPressed: () => controller.request(p.userId),
+                  ),
+              ],
+            ),
+          );
+        }
+      }
+      // Improvement 1: «الشلة». From the lobby a whole group is invited at once.
+      if (_needle.isEmpty && (friends.groups.isNotEmpty || !inviting)) {
+        children.add(heading(l.crewTitle));
+        for (final g in friends.groups) {
+          children.add(
+            _Row(
+              name: g.name,
+              gender: 'unspecified',
+              line: g.members.map((m) => m.name).join(l.listSeparator),
+              chips: [
+                if (inviting)
+                  if (_groupsInvited.contains(g.id))
+                    Text(
+                      l.friendsInvited,
+                      style: type.caption.copyWith(color: colors.accentGold),
+                    )
+                  else
+                    _Chip(
+                      key: FriendsSheetKeys.inviteGroup(g.id),
+                      label: l.groupInvite,
+                      onPressed: () async {
+                        final sent = await ref
+                            .read(friendsExtrasApiProvider)
+                            .inviteGroup(g.id, widget.inviteRoomId!);
+                        if (!mounted) return;
+                        if (sent != null) {
+                          setState(() => _groupsInvited.add(g.id));
+                        } else {
+                          _say(l.inviteFailed);
+                        }
+                      },
+                    )
+                else
+                  _Chip(
+                    label: l.groupEdit,
+                    quiet: true,
+                    onPressed: () => showGroupEditor(
+                      context,
+                      friends: friends.friends,
+                      group: g,
+                      onSaved: controller.setGroups,
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }
+        if (!inviting && friends.friends.isNotEmpty) {
+          children.add(
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                key: FriendsSheetKeys.newGroup,
+                onPressed: () => showGroupEditor(
+                  context,
+                  friends: friends.friends,
+                  onSaved: controller.setGroups,
+                ),
+                icon: const Icon(Icons.group_add_outlined),
+                label: Text(l.groupNew),
+              ),
+            ),
+          );
+        }
+      }
       // How others find this player: the handle and the two switches.
       if (!inviting && _needle.isEmpty) {
         children.add(SizedBox(height: s.md));
@@ -823,6 +956,20 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
                   style: type.headline.copyWith(color: colors.textPrimary),
                 ),
                 SizedBox(height: s.sm),
+                // S5: «أصحابك» and «الأخبار», a small tab, not a social page.
+                if (!inviting && friends != null) ...[
+                  SegmentedButton<bool>(
+                    key: FriendsSheetKeys.tabs,
+                    segments: [
+                      ButtonSegment(value: false, label: Text(l.friendsTabList)),
+                      ButtonSegment(value: true, label: Text(l.friendsTabNews)),
+                    ],
+                    selected: {_news},
+                    showSelectedIcon: false,
+                    onSelectionChanged: (v) => setState(() => _news = v.first),
+                  ),
+                  SizedBox(height: s.sm),
+                ],
               ],
               TextField(
                 key: FriendsSheetKeys.search,
@@ -856,7 +1003,7 @@ class _FriendsSheetState extends ConsumerState<FriendsSheet> {
                   padding: EdgeInsets.all(s.xl),
                   child: const Center(child: CircularProgressIndicator()),
                 ),
-              ...children,
+              if (_news && !inviting) const FriendsFeedView() else ...children,
             ],
           ),
         ),
@@ -875,6 +1022,10 @@ abstract final class FriendsSheetKeys {
   static Key answer(String id, String kind) =>
       ValueKey('friend_answer_${id}_$kind');
   static const addHandle = ValueKey('friend_add_handle');
+  static const tabs = ValueKey('friends_tabs');
+  static const newGroup = ValueKey('friends_new_group');
+  static Key suggest(String id) => ValueKey('friend_suggest_$id');
+  static Key inviteGroup(String id) => ValueKey('friend_invite_group_$id');
   static const removeYes = ValueKey('friend_remove_yes');
   static const removeCancel = ValueKey('friend_remove_cancel');
   static const search = ValueKey('friends_search');
