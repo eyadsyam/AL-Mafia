@@ -118,6 +118,11 @@ begin
   assert not has_function_privilege('authenticated','public.friend_profile(uuid,uuid)','execute');
   assert not has_function_privilege('authenticated','public.directory_privacy(uuid,text,boolean,boolean)','execute');
   assert not has_table_privilege('authenticated','public.friend_pings','select');
+  -- Improvement 12: the friend counts are on the allow-list.
+  perform public.metric_record(a,'friend','request',gen_random_uuid());
+  perform public.metric_record(a,'friend','ping',gen_random_uuid());
+  begin perform public.metric_record(a,'friend','gossip',gen_random_uuid()); assert false, 'unknown prop';
+  exception when others then assert sqlerrm='BAD_REQUEST', sqlerrm; end;
   raise notice 'friends_v2 PASS';
 end $$;
 rollback;

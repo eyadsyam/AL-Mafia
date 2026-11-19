@@ -72,6 +72,19 @@ Deno.serve(handler(async (req, userId, db) => {
     return ok({ invited: true, inviteId: data.inviteId });
   }
 
+  // Improvement 12: aggregate counts, never worth failing the call.
+  const counted = call.fn === "friend_request" || call.fn === "friend_request_by_handle"
+    ? "request"
+    : call.fn === "friend_respond" && call.args.p_accept === true
+    ? "accept"
+    : call.fn === "friend_ping" && call.args.p_kind === "lets_play" && typeof data?.pingId === "number"
+    ? "ping"
+    : null;
+  if (counted) {
+    await db.rpc("metric_note", { p_user: userId, p_event: "friend", p_prop: counted })
+      .then(() => {}, () => {});
+  }
+
   // S3: a fresh ping rings the friend, outside quiet hours (SQL decides).
   if (call.fn === "friend_ping") {
     if (typeof data?.pingId === "number") {
