@@ -360,18 +360,62 @@ export function handler(
     } else {
       try {
         response = await fn(req, userId, serviceClient());
-      } catch (_) {
-        // Never echo the exception: a stack trace from a function that
-        // touched the role table is a leak of a different kind. A database
-        // error is the server's failure, not the caller's: a generic 500.
-        result = "exception";
-        response = fail("BAD_REQUEST", "request could not be completed", 500);
+      } catch (e) {
+        // A refusal the database raised on purpose (`raise exception
+        // 'PHASE_CLOSED'`) is the caller's late tap, not the server's failure:
+        // answered with its code, as `fail` would have, so the client resyncs
+        // instead of showing «no connection» and retrying four times
+        // (production 2026-11-18: record_speaking after the floor moved on).
+        const refusal = raisedRefusal(e);
+        if (refusal) {
+          response = refusal();
+        } else {
+          // Never echo the exception: a stack trace from a function that
+          // touched the role table is a leak of a different kind. Anything
+          // else is the server's failure, not the caller's: a generic 500.
+          result = "exception";
+          response = fail("BAD_REQUEST", "request could not be completed", 500);
+        }
       }
     }
     if (result === "ok" && response.status >= 400) result = `refused_${response.status}`;
     logRequest(new URL(req.url).pathname, result, Date.now() - started);
     return response;
   }
+}
+
+/**
+ * The refusals SQL raises by name, with the status each function's own `fail`
+ * uses for that code. Only an exact token counts: a message that merely
+ * contains one (a constraint name, a stack) stays a 500.
+ */
+const RAISED_REFUSALS: Record<string, () => Response> = {
+  PHASE_CLOSED: () => fail("PHASE_CLOSED", "refused", 400),
+  NOT_FLOOR_HOLDER: () => fail("PHASE_CLOSED", "refused", 400),
+  ROUND_CLOSED: () => fail("ROUND_CLOSED", "refused", 400),
+  NOT_A_MEMBER: () => fail("NOT_A_MEMBER", "refused", 403),
+  NOT_HOST: () => fail("NOT_HOST", "refused", 403),
+  NOT_ALIVE: () => fail("NOT_ALIVE", "refused", 403),
+  WRONG_ROLE: () => fail("WRONG_ROLE", "refused", 403),
+  SILENCED: () => fail("SILENCED", "refused", 403),
+  ROOM_FULL: () => fail("ROOM_FULL", "refused", 409),
+  ROOM_FINISHED: () => fail("ROOM_FINISHED", "refused", 403),
+  ROOM_NOT_FOUND: () => fail("ROOM_NOT_FOUND", "refused", 404),
+  ACCOUNT_RESTRICTED: () => fail("ACCOUNT_RESTRICTED", "refused", 403),
+  NAME_NOT_ALLOWED: () => fail("NAME_NOT_ALLOWED", "refused", 400),
+  RATE_LIMITED: () => fail("RATE_LIMITED", "refused", 429),
+  NEW_ROOMS_PAUSED: () => fail("NEW_ROOMS_PAUSED", "refused", 503),
+  STALE_REVISION: () => fail("STALE_REVISION", "refused", 409),
+  NOT_READY: () => fail("NOT_READY", "refused", 409),
+  SAME_PROTECT: () => fail("SAME_PROTECT", "refused", 400),
+  INSUFFICIENT_COINS: () => fail("INSUFFICIENT_COINS", "refused", 400),
+  BAD_REQUEST: () => fail("BAD_REQUEST", "refused", 400),
+};
+
+export function raisedRefusal(e: unknown): (() => Response) | null {
+  const message = (e as { message?: unknown } | null)?.message;
+  if (typeof message !== "string") return null;
+  return RAISED_REFUSALS[message.trim()] ?? null;
 }
 
 /**

@@ -51,13 +51,18 @@ begin
     or not has_function_privilege('service_role','public.payment_proof_orphans(integer)','execute') then
     raise exception 'proof orphan privileges are wrong';
   end if;
-  update public.economy_config set lobby_ready_enabled=true where id=true;
-  if not exists(select 1 from cron.job where jobname='expire-lobby-ready') then
-    raise exception 'enabled lobby ready has no cron job';
-  end if;
-  update public.economy_config set lobby_ready_enabled=false where id=true;
-  if exists(select 1 from cron.job where jobname='expire-lobby-ready') then
-    raise exception 'disabled lobby ready still has cron job';
+  -- The job follows the flag only where pg_cron is installed (the function
+  -- returns early without it, as every migration's cron block does); the
+  -- local PGlite runner has a cron schema but no extension.
+  if exists (select 1 from pg_extension where extname='pg_cron') then
+    update public.economy_config set lobby_ready_enabled=true where id=true;
+    if not exists(select 1 from cron.job where jobname='expire-lobby-ready') then
+      raise exception 'enabled lobby ready has no cron job';
+    end if;
+    update public.economy_config set lobby_ready_enabled=false where id=true;
+    if exists(select 1 from cron.job where jobname='expire-lobby-ready') then
+      raise exception 'disabled lobby ready still has cron job';
+    end if;
   end if;
 end $$;
 select 'PASS server guards' as result;

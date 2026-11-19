@@ -13,6 +13,11 @@
       "resumeAfterSeconds": 900
     },
     "fullScreen": {
+      "perMatch": {
+        "session": true,
+        "gapSeconds": 90,
+        "maxPerMatch": 3
+      },
       "maxPerDay": 60,
       "gapSeconds": 60
     }
@@ -72,6 +77,11 @@
     "enabled": true,
     "session": true,
     "version": 3,
+    "perMatch": {
+      "session": true,
+      "gapSeconds": 90,
+      "maxPerMatch": 3
+    },
     "preMatch": true,
     "maxPerDay": 60,
     "gapSeconds": 60,

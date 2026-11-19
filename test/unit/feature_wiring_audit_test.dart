@@ -56,6 +56,15 @@ void main() {
     );
   });
 
+  // The per-match ad budget (owner 2026-11-11) reached this fixture only on
+  // 2026-11-19: until then nothing here read it. The server's own numbers.
+  test('the per-match full-screen budget reaches the client', () {
+    final caps = EconomyCapabilities.fromJson(_allOn());
+    expect(caps.interstitial.maxPerMatch, 3);
+    expect(caps.interstitial.gap, const Duration(seconds: 90));
+    expect(caps.interstitial.session, isTrue);
+  });
+
   test('every true leaf the server sends is a key the client reads', () {
     // The envelope is parsed here, and the interstitial rules in the policy
     // file (read only: that file is not this lane's).

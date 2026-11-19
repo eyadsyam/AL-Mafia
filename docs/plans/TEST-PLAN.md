@@ -17,6 +17,7 @@ plan; **Gap** marks a case still open, with what closes it.
 | Fuzz coverage | Proves the fuzz reaches every phase, rule branch and role move | `test/engine/fuzz_coverage_test.dart` |
 | **New: Elder night move in the fuzz** | The fuzz never chose «اكشف نفسي الصبح» (legal_moves had no such move), so the 1.7.0 night reveal was never fuzzed; it is now a legal move | `lib/engine/legal_moves.dart` |
 | **New: online fuzz** | Whole random matches through the real server functions (every migration, PGlite): random members doing random things, legal or not; after every step no 5xx, a known phase, no living seat's role in the public state, the dead refused, the match reaches «result», the outcome agrees with who is alive | `supabase/tests/online_fuzz.test.mjs` |
+| Online fuzz, results 2026-11-19 | 300 + 400 matches, every one finished with no 5xx, no leak, no stall; reached opening, confrontation, verdict, revotes, silence, Elder reveals, Sniper, whispers, 122 struck guests, 11 hosts leaving, 680 double resolves | `FUZZ_MATCHES=400 node --test supabase/tests/online_fuzz.test.mjs` |
 | Golden vectors | The Dart engine and the server resolve the same nights and ballots the same way | `test/engine/golden_vectors_test.dart`, `night_vectors`, `vote_matrix`, `supabase/tests/run_golden_vectors_node.mjs` |
 | Races on real Postgres | Double taps and two devices at once: charge once, own once, resolve once | `tool/real_pg/races.mjs` (needs the local docker stack) |
 
@@ -117,7 +118,20 @@ plan; **Gap** marks a case still open, with what closes it.
 | `engine_purity_test`, `architecture` tests | `lib/engine` stays pure; one engine, two transports |
 | Server security advisor | Run 2026-11-19: nothing at error level; the warnings are by design (anonymous sign-in, own-row reads, deny-all tables) |
 | Server performance advisor | Run 2026-11-19: one missing index on a new table, added live (20261119002400) |
+| **Fixed: stale capabilities fixture** | `test/fixtures/capabilities_all_on.json` had missed the per-match ad budget since 2026-11-11, so the client parse test never saw it; refreshed, and the client test now checks the budget |
 | **Fixed: both local server runners** | `tool/test_sql_without_docker.mjs` and `tool/edge_harness` stopped booting on 2026-11-18 (`storage.objects` missing), so the function tests had not run since; both boot again |
+
+## 6d. Production signals (read 2026-11-19, last 24 hours)
+
+| Signal | What it was | Done |
+|---|---|---|
+| `record_speaking` 500 ×8 | A speaking report landing after the floor moved on: SQL refuses `NOT_FLOOR_HOLDER`, the function threw it as a 500, the client read «no connection» and retried four times | The shared handler answers a refusal SQL raises by name with its code (`raisedRefusal`, `supabase/tests/raised_refusals.test.mjs`); every function gets it |
+| `play_release_watch` 502 ×5 | Google Play's API answering 503; the next run succeeds | Nothing to fix; the force update still follows Play |
+| `leave_room` 500 ×1 | Three leaves in the same second; no database error logged | Watch; now any named refusal is a 4xx |
+| `browse_rooms` 401 ×29 in one minute, `join_room` 404 ×33, `realtime_token`/`set_presence` 403 | Expired session polling, dead room codes, voice/presence for a room already left | The client backs off or stops on each; check on a phone (section 7) |
+| Security advisor | Nothing at error level | — |
+| Performance advisor | One missing index | Added live (20261119002400) |
+| Live site | Every page 200; the build on the site is the release build; Chromium and WebKit at phone, iPhone and desktop sizes draw the first screen with no errors and no sideways scroll | `tool/verify_web_release.mjs`; first visit downloads ~25 MB, time on a real phone to be measured (section 7) |
 
 ## 7. Needs a real phone (the owner's checklist)
 
@@ -129,6 +143,7 @@ test can stand in for them.
 3. Online match on two phones: turn wifi off on one at night for 20 s, then on: the same screen comes back (with the Elder: the chip and its undo).
 4. «استناني» on 5 phones (or testers): ready, the match starts by itself; one phone closed after «أنا جاهز» still starts it within 30 s.
 5. Home button at night for 2 minutes as a guest: struck, the others go on.
+5b. The web game on a phone from a link, first visit: how many seconds until «كمل» shows.
 6. Push: a friend's invite arrives with the app closed.
 7. Play and pay a tool with a test card (licence tester).
 
