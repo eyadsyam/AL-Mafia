@@ -345,6 +345,7 @@ class MatchCodec {
         'k': 'nightSkipped',
         'actor': e.actorSeat,
         'kind': e.kind.name,
+        if (e.revealElder) 'reveal': true,
       },
       TracePublished() => {
         ...base,
@@ -523,6 +524,7 @@ class MatchCodec {
           phaseRef: ref,
           actorSeat: json['actor'] as int,
           kind: _enumByName(NightActionKind.values, json['kind'] as String),
+          revealElder: json['reveal'] == true,
         );
       case 'trace':
         return TracePublished(

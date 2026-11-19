@@ -155,7 +155,7 @@
   "roleSilencerDescription": "Silence one living player for tomorrow. You inherit the kill after every killer is gone.",
   "roleDoctorDescription": "Each night you protect one player; several doctors protect just one between them. You may protect yourself once per match.",
   "roleDetectiveDescription": "There is only one detective. Each night you uncover one player's role.",
-  "roleElderDescription": "Reveal your card during the day; your vote counts as three for the rest of the match.",
+  "roleElderDescription": "At night you can choose to reveal yourself; in the morning everyone learns you are the Elder and your vote counts three.",
   "roleSniperDescription": "You have one shot. A Mafia target dies; a town target takes you down too.",
   "roleCitizenDescription": "You have no special power: watch and argue. Online, you wait out the night.",
   "gotIt": "Got it",
@@ -1173,6 +1173,18 @@
   "nightSpecialElder": "No read tonight",
   "nightSpecialSniper": "Do not shoot",
   "nightSpecialCitizen": "No read tonight",
+  "nightElderRevealTile": "Reveal myself at dawn",
+  "nightElderRevealNote": "Everyone will learn in the morning that you are the Elder",
+  "nightElderRevealUndo": "Undo",
+  "morningElderRevealed": "{name} revealed themselves: the Elder",
+  "@morningElderRevealed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "morningElderWeight": "Their vote counts three until the end of the match",
   "bulletSniper": "the Sniper shot",
   "silencedCannotVote": "You are silenced today — you cannot vote",
   "continueLabel": "Continue",
@@ -1190,7 +1202,7 @@
   "settingSilencer": "Silencer",
   "settingSilencerHint": "One Mafia silences instead of killing; available with at least two Mafia.",
   "settingElder": "Elder",
-  "settingElderHint": "A citizen may reveal from 6 players; their vote then counts as three.",
+  "settingElderHint": "A citizen who can reveal themselves at night from 6 players; the next morning their vote counts three.",
   "settingSniper": "Sniper",
   "settingSniperHint": "A citizen gets one shot from 7 players; a miss kills both players.",
   "settingsSectionPace": "Pace",
@@ -3876,7 +3888,7 @@
   "howRoleCitizen": "Citizen",
   "howRoleCitizenDo": "Searches and votes",
   "howRoleElder": "Elder",
-  "howRoleElderDo": "Survives one attack",
+  "howRoleElderDo": "Reveals at night; vote counts three",
   "howRoleSilencer": "Silencer",
   "howRoleSilencerDo": "Silences one player by day",
   "howRoleSniper": "Sniper",
@@ -4633,9 +4645,24 @@
   "profileStatHere": "Matches here",
   "profileStatOnlineMatches": "Online matches",
   "profileVoteAccuracy": "Your vote accuracy: {percent}%",
-  "@profileVoteAccuracy": {"placeholders": {"percent": {"type": "int"}}},
+  "@profileVoteAccuracy": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "profileVoteAccuracyDetail": "{onMafia} of {votes} votes you cast as town landed on the mafia",
-  "@profileVoteAccuracyDetail": {"placeholders": {"onMafia": {"type": "int"}, "votes": {"type": "int"}}},
+  "@profileVoteAccuracyDetail": {
+    "placeholders": {
+      "onMafia": {
+        "type": "int"
+      },
+      "votes": {
+        "type": "int"
+      }
+    }
+  },
   "profileStatCoins": "Coins",
   "profileLevel": "Level {level}",
   "@profileLevel": {
@@ -5120,7 +5147,13 @@
   "firstRunAccountNote": "Had an account before? You come back under your old name, no questions asked.",
   "firstRunGuestPlain": "Play as a guest, no account",
   "firstRunWelcomeBack": "Welcome back, {name}",
-  "@firstRunWelcomeBack": {"placeholders": {"name": {"type": "String"}}},
+  "@firstRunWelcomeBack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "firstRunWelcomeBackHint": "We found your account. Your name, coins and level are just as you left them.",
   "firstRunLetsPlay": "Let's play",
   "firstRunSameName": "The same name on the phone and the website. We will not ask again.",
@@ -5156,11 +5189,71 @@
   "onlineRemindOn": "We'll tell you when people gather",
   "ratingTitle": "What do you think of the game?",
   "ratingStars": "{count, plural, =1{1 star} other{{count} stars}}",
-  "@ratingStars": {"placeholders": {"count": {"type": "int"}}},
+  "@ratingStars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "ratingHint": "Anything to add? (optional)",
   "ratingThanks": "Thanks!",
   "adminRatingsTitle": "Star ratings",
   "adminRatingsCount": "Ratings in total",
   "adminRatingsAvg7": "Average, last 7 days",
-  "adminRatingsAvg30": "Average, last 30 days"
+  "adminRatingsAvg30": "Average, last 30 days",
+  "queueTitle": "Finding people for you",
+  "queueOf": "of {total}",
+  "@queueOf": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "queueCanClose": "You can close the app. We'll notify you as soon as the room is full.",
+  "queueInvite": "Invite your friends",
+  "queueLeave": "Leave the queue",
+  "queueReadyTitle": "The room is full!",
+  "queueReadyCount": "ready",
+  "queueTimeLeft": "{time} left",
+  "@queueTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "queueReadyYes": "I'm ready",
+  "queueReadyNo": "Not now",
+  "queueWaitingOthers": "You said ready. Waiting for the others.",
+  "playNightAt": "Game night at 9",
+  "playNightLeft": "{time} to go",
+  "@playNightLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "playNightComing": "{count} said they're coming",
+  "@playNightComing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playNightRemind": "Remind me",
+  "playNightReminded": "We'll remind you",
+  "playNightLive": "Game night is on",
+  "playNightQueue": "{count} in the queue now",
+  "@playNightQueue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playNightEnter": "Join"
 }

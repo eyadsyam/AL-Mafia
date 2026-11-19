@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n_ext.dart';
 import '../../theme/mafia_theme.dart';
 import '../../theme/design_tokens.dart';
+import '../../widgets/elder_reveal_card.dart';
 import '../../widgets/textured_surface.dart';
 import '../../widgets/trace_line.dart';
 
@@ -47,6 +48,12 @@ class MorningScreen extends StatelessWidget {
   /// shot is a night death like any other.
   final List<String> victimRoles;
 
+  /// The Elder who chose «اكشف نفسي الصبح» last night and lived through it, or
+  /// null. Told to the table together with the night's news; his vote counts
+  /// three from here on. Public, and on the table-phase screen only (doc 05
+  /// rule 4).
+  final String? elderRevealedName;
+
   final VoidCallback onContinue;
   final bool tabletop;
 
@@ -59,6 +66,7 @@ class MorningScreen extends StatelessWidget {
     required this.someoneSavedUnnamed,
     this.traceText,
     this.victimRoles = const [],
+    this.elderRevealedName,
     required this.onContinue,
     this.tabletop = false,
   });
@@ -150,6 +158,10 @@ class MorningScreen extends StatelessWidget {
                       style: type.body.copyWith(color: colors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
+                  ],
+                  if (elderRevealedName != null) ...[
+                    SizedBox(height: spacing.lg),
+                    ElderRevealCard(name: elderRevealedName!),
                   ],
                   if (traceText != null) ...[
                     SizedBox(height: spacing.xl),

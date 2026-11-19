@@ -68,6 +68,18 @@ void main() {
       }
     });
 
+    test('the Elder reveal tile is within one glyph of every other tile', () {
+      // The owner's wording «اكشف نفسي الصبح» inks 13 glyphs against the other
+      // tiles' 12. That one glyph is a known, reported deviation from the
+      // exact balance above (the copy is fixed by the brief); this pins it so
+      // the gap cannot grow unnoticed.
+      final expected = inkLength(EngineCopy.nightSpecial(arStrings, Role.mafia));
+      final reveal = inkLength(
+        EngineCopy.nightSpecial(arStrings, Role.elder, elderReveals: true),
+      );
+      expect((reveal - expected).abs(), lessThanOrEqualTo(1));
+    });
+
     test('no special tile gives away the role that holds it', () {
       const roleWords = ['مافيا', 'دكتور', 'طبيب', 'محقق', 'مواطن'];
       for (final role in Role.values) {

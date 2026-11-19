@@ -144,6 +144,7 @@ MorningReport? morningFromJson(Object? value) {
     silencedSeat: (value['silencedSeat'] as num?)?.toInt(),
     someoneSavedUnnamed: saved,
     allSurvived: victim == null && victims.isEmpty && !saved,
+    elderRevealedSeat: (value['elderRevealedSeat'] as num?)?.toInt(),
   );
 }
 
@@ -339,6 +340,7 @@ GameSnapshot snapshotFrom({
       presentationPack:
           state.settings['presentationPack'] as String? ?? 'classic',
       narratorPack: state.settings['narratorPack'] as String? ?? 'classic',
+      autoStart: state.settings['autoStart'] == true,
     ),
     pendingOutcome: switch (data['outcome']) {
       'mafia' => Alignment.mafia,

@@ -13,6 +13,39 @@ import '../../theme/mafia_theme.dart';
 import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/mafia_kit.dart';
 
+/// The app invite: the player's own council code and link when the invite
+/// card has one, otherwise the site. The share sheet, or a copy. Shared by
+/// this card and the queue sheet's «ادعي صحابك».
+Future<void> shareAppInvite(BuildContext context, WidgetRef ref) async {
+  final l = context.l10n;
+  void say(String text) => ScaffoldMessenger.maybeOf(
+    context,
+  )?.showSnackBar(SnackBar(content: Text(text)));
+  String? code;
+  try {
+    final status = await ref.read(inviteProvider.future);
+    if (status.enabled) code = status.code;
+  } catch (_) {
+    // No personal code: the plain link below.
+  }
+  if (!context.mounted) return;
+  final text = code == null
+      ? '${l.appTitle}\n$kPublicWebOrigin'
+      : '${l.inviteShareText(code)}\n${councilInviteLink(code)}';
+  final outcome = await ref
+      .read(inviteSharerProvider)
+      .share(text: text, subject: l.appTitle);
+  if (!context.mounted) return;
+  switch (outcome) {
+    case InviteShareOutcome.handedOver:
+      break;
+    case InviteShareOutcome.copied:
+      say(l.shareTextCopied);
+    case InviteShareOutcome.failed:
+      say(l.shareUnavailable);
+  }
+}
+
 /// «مفيش حد مستني دلوقتي»: the public list, read successfully, with nobody in
 /// it. Two things to do instead of nothing: send the app to friends, or ask to
 /// be told (once) when a public room has people waiting.
@@ -55,34 +88,7 @@ class _NobodyWaitingCardState extends ConsumerState<NobodyWaitingCard> {
     );
   }
 
-  /// The app invite: the player's own council code and link when the invite
-  /// card has one, otherwise the site. The share sheet, or a copy.
-  Future<void> _share() async {
-    final l = context.l10n;
-    String? code;
-    try {
-      final status = await ref.read(inviteProvider.future);
-      if (status.enabled) code = status.code;
-    } catch (_) {
-      // No personal code: the plain link below.
-    }
-    if (!mounted) return;
-    final text = code == null
-        ? '${l.appTitle}\n$kPublicWebOrigin'
-        : '${l.inviteShareText(code)}\n${councilInviteLink(code)}';
-    final outcome = await ref
-        .read(inviteSharerProvider)
-        .share(text: text, subject: l.appTitle);
-    if (!mounted) return;
-    switch (outcome) {
-      case InviteShareOutcome.handedOver:
-        break;
-      case InviteShareOutcome.copied:
-        _say(l.shareTextCopied);
-      case InviteShareOutcome.failed:
-        _say(l.shareUnavailable);
-    }
-  }
+  Future<void> _share() => shareAppInvite(context, ref);
 
   Future<void> _set(bool on) async {
     if (_busy) return;

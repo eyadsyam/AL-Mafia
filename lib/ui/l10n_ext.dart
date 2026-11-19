@@ -97,8 +97,17 @@ abstract final class EngineCopy {
   /// Only for the three roles whose special tile records no target. The
   /// Doctor's tile carries their own name instead, which the night screen
   /// already has and this layer does not.
-  static String nightSpecial(AppLocalizations l10n, Role role) =>
-      switch (role) {
+  ///
+  /// [elderReveals] is true only for a living Elder who has not yet revealed:
+  /// his own tile then reads «اكشف نفسي الصبح» (13 glyphs, like the others)
+  /// instead of the citizen's words.
+  static String nightSpecial(
+    AppLocalizations l10n,
+    Role role, {
+    bool elderReveals = false,
+  }) => elderReveals && role == Role.elder
+      ? l10n.nightElderRevealTile
+      : switch (role) {
         Role.mafia => l10n.nightSpecialMafia,
         Role.silencer => l10n.nightSpecialSilencer,
         Role.doctor => l10n.nightSpecialDoctor,

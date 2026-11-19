@@ -40,6 +40,7 @@ import { isMafiaTeam } from "../_shared/teams.ts";
 import { bulletEnabled, bulletFor, loadTeamBulletSpent } from "../_shared/bullets.ts";
 import {
   bulletActionAllowed,
+  elderRevealedAlready,
   investigationVerdict,
   previousProtectTarget,
   protectsSameTwice,
@@ -54,6 +55,49 @@ Deno.serve(handler(async (req, userId, db) => {
   if (!me) return fail("NOT_A_MEMBER", "you are not in that room", 403);
   if (!me.alive) return fail("NOT_ALIVE", "the dead take no part in the night", 403);
   if (me.phase !== "night") return fail("PHASE_CLOSED", "the night is closed");
+
+  // The Elder's own night choice «اكشف نفسي الصبح» (owner, 2026-11-19): the
+  // living, not yet revealed Elder may leave a `reveal` row for this night, and
+  // take it back with `unreveal` until the night resolves. It names nobody, it
+  // never counts toward the night being complete (the Elder is not waited for)
+  // and nothing about it is readable by anyone else. A citizen sending either
+  // is answered like every other citizen path: ok, nothing stored.
+  if (me.role === "elder" && (action === "reveal" || action === "unreveal")) {
+    const { data: state, error: stateError } = await db.from("room_state")
+      .select("public_data").eq("room_id", roomId).maybeSingle();
+    if (stateError) throw stateError;
+    if (elderRevealedAlready(state?.public_data, me.seat)) {
+      return ok({ bulletSpent: false });
+    }
+    if (action === "unreveal") {
+      const { error: undoError } = await db.from("night_actions").delete()
+        .eq("room_id", roomId)
+        .eq("night", me.phaseNumber)
+        .eq("actor_id", userId)
+        .eq("action", "reveal");
+      if (undoError) throw undoError;
+      return ok({ bulletSpent: false });
+    }
+    const { error: revealError } = await db.from("night_actions").upsert({
+      room_id: roomId,
+      night: me.phaseNumber,
+      actor_id: userId,
+      action: "reveal",
+      target_id: null,
+      action_id: asUuid(actionId),
+      used_bullet: false,
+    });
+    if (revealError) {
+      if (revealError.message?.includes("PHASE_CLOSED")) {
+        return fail("PHASE_CLOSED", "the night is closed");
+      }
+      if (revealError.message?.includes("NOT_A_MEMBER")) {
+        return fail("NOT_A_MEMBER", "you are no longer in that room", 403);
+      }
+      throw revealError;
+    }
+    return ok({ bulletSpent: false });
+  }
 
   // Online a Citizen has no night move (owner, 2026-10-01): they wait while
   // the others act. An older client that still sends a suspicion or a skip is

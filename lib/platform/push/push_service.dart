@@ -36,7 +36,10 @@ class PushOpen {
     'room_start' || 'night' => PushDestination.onlineRoom,
     'thursday' ||
     'comeback' ||
-    'rooms_gathering' => PushDestination.onlineEntry,
+    'rooms_gathering' ||
+    'queue_ready' ||
+    'queue_expired' ||
+    'play_night' => PushDestination.onlineEntry,
     'daily' => PushDestination.daily,
     'order_paid' || 'order_rejected' => PushDestination.orders,
     'friend_request' || 'friend_accepted' => PushDestination.friends,
@@ -72,6 +75,9 @@ class PushOpen {
         'thursday' ||
         'comeback' ||
         'rooms_gathering' ||
+        'queue_ready' ||
+        'queue_expired' ||
+        'play_night' ||
         'order_paid' ||
         'order_rejected' ||
         'friend_request' ||

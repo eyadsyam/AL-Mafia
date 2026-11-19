@@ -181,6 +181,66 @@ class SelectionChip extends StatelessWidget {
   }
 }
 
+/// The online Elder's night control (owner, 2026-11-19), drawn in the night
+/// slot every role already has: one chip «اكشف نفسي الصبح», which after a tap
+/// becomes the line «الصبح الكل هيعرف إنك الشيخ» with an «إلغاء» beside it.
+class ElderRevealChip extends StatelessWidget {
+  final String label;
+  final String? undoLabel;
+  final VoidCallback onTap;
+  final VoidCallback? onUndo;
+
+  const ElderRevealChip({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.undoLabel,
+    this.onUndo,
+  });
+
+  static const Key tile = ValueKey('elder_reveal_chip');
+  static const Key undo = ValueKey('elder_reveal_undo');
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final type = context.typography;
+    final chip = onUndo == null
+        ? GestureDetector(
+            key: tile,
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: SelectionChip(label: label),
+          )
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                key: tile,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: type.caption.copyWith(color: colors.accentGold),
+              ),
+              GestureDetector(
+                key: undo,
+                behavior: HitTestBehavior.opaque,
+                onTap: onUndo,
+                child: Text(
+                  undoLabel ?? '',
+                  style: type.caption.copyWith(
+                    color: colors.textSecondary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          );
+    return chip;
+  }
+}
+
 /// The live tally, as horizontal bars (doc 15 §S-O11).
 ///
 /// Public information only: these are the ballots the server already sent

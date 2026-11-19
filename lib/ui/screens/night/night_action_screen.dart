@@ -123,6 +123,13 @@ class NightActionScreen extends ConsumerWidget {
     final hasAbility = controller.bulletExistsFor(role);
     final spent = hasAbility && controller.currentBulletSpent;
 
+    // The Elder's own tile offers «اكشف نفسي الصبح» until he has revealed; a
+    // revealed Elder is back on the citizen's words. Same tile, same slot,
+    // same size - only the words change (doc 05 rule 6).
+    final elderReveals =
+        role == Role.elder &&
+        !controller.snapshot.revealedElderSeats.contains(actorSeat);
+
     final choices = <NightChoice>[
       for (final seat in turn.targets)
         NightChoice(
@@ -159,7 +166,7 @@ class NightActionScreen extends ConsumerWidget {
       else
         NightChoice(
           seat: NightChoice.skipSeat,
-          label: EngineCopy.nightSpecial(l10n, role),
+          label: EngineCopy.nightSpecial(l10n, role, elderReveals: elderReveals),
           special: true,
           // Only the Mafia's costs anything. The Detective's and the
           // Citizen's are ordinary skips and are available every night.
@@ -199,6 +206,8 @@ class NightActionScreen extends ConsumerWidget {
                 // it is what makes the morning ambiguous. The other two roles are
                 // simply declining to act.
                 useBullet: role == Role.mafia && hasAbility && !spent,
+                // The Elder's tile is the reveal while it reads that way.
+                revealElder: elderReveals,
               )
               .then((_) => onStepCommitted?.call());
           return;

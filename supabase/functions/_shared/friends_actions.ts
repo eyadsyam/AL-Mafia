@@ -127,6 +127,35 @@ export function friendsCall(body: Record<string, unknown>, userId: string): Frie
         : null;
     case "watchRoomsStatus":
       return { fn: "room_watch_get", args: { p_user: userId } };
+    // S2: a request by exact @handle (the leading @ is optional).
+    case "requestByHandle": {
+      const h = typeof body.handle === "string" ? body.handle.trim().replace(/^@/, "") : "";
+      return handle.test(h)
+        ? { fn: "friend_request_by_handle", args: { p_user: userId, p_handle: h } }
+        : null;
+    }
+    // S6: the privacy row; no field reads it as it is.
+    case "privacy": {
+      const w = body.whoCanAdd, o = body.showOnline, s = body.searchable;
+      if (w != null && !["everyone", "tablemates", "nobody"].includes(String(w))) return null;
+      if (o != null && typeof o !== "boolean") return null;
+      if (s != null && typeof s !== "boolean") return null;
+      return {
+        fn: "directory_privacy",
+        args: { p_user: userId, p_who_can_add: w ?? null, p_show_online: o ?? null, p_searchable: s ?? null },
+      };
+    }
+    // S3: «يلا نلعب؟» and its three answers.
+    case "ping": {
+      const kind = String(body.kind ?? "");
+      if (!target || !["lets_play", "coming", "five_min", "not_now"].includes(kind)) return null;
+      return { fn: "friend_ping", args: { p_user: userId, p_target: target, p_kind: kind } };
+    }
+    case "pings":
+      return { fn: "friend_pings_inbox", args: { p_user: userId } };
+    // S4: a friend's face and our finished-match history.
+    case "profile":
+      return target ? { fn: "friend_profile", args: { p_user: userId, p_target: target } } : null;
     default:
       return null;
   }

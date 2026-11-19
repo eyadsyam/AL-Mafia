@@ -45,6 +45,11 @@ class RoomOptions {
   /// The host's narrator pack ('classic' = none). Same rules.
   final String narratorPack;
 
+  /// A room the «استناني» queue built from five players who each said «أنا
+  /// جاهز»: their phones mark the seat ready and the host's starts the match
+  /// as soon as the table holds (online-plan.html §O1).
+  final bool autoStart;
+
   const RoomOptions({
     this.visibility = 'private',
     this.title,
@@ -54,6 +59,7 @@ class RoomOptions {
     this.scenarioCode = 'classic',
     this.presentationPack = 'classic',
     this.narratorPack = 'classic',
+    this.autoStart = false,
   });
 
   bool get isPublic => visibility == 'public';
@@ -76,6 +82,7 @@ class RoomOptions {
     scenarioCode: scenarioCode ?? this.scenarioCode,
     presentationPack: presentationPack ?? this.presentationPack,
     narratorPack: narratorPack ?? this.narratorPack,
+    autoStart: autoStart,
   );
 }
 

@@ -7,6 +7,8 @@ import {
   defaultProtectTargets,
   nightDefaultFor,
   bulletActionAllowed,
+  elderRevealedAlready,
+  elderRevealedThisMorning,
 } from '../functions/_shared/night_rules.ts';
 
 test('night default: an idle Mafioso follows an acted teammate, including a skip', () => {
@@ -219,4 +221,19 @@ test('surviving save: the record keeps the save unless the covered seat dies', (
   assert.equal(survivingSave(0, [0]), null);
   assert.equal(survivingSave(null, [1]), null);
   assert.equal(survivingSave(undefined, []), null);
+});
+
+test('elder night reveal: alive Elder reveals, a dead one or a citizen does not', () => {
+  const roster = [
+    { user_id: 'e', seat: 2, alive: true, role: 'elder' },
+    { user_id: 'c', seat: 1, alive: true, role: 'citizen' },
+  ];
+  const base = { roster, revealedSeats: [], deathIds: new Set() };
+  assert.equal(elderRevealedThisMorning({ ...base, actions: [{ actor_id: 'e', action: 'reveal' }] }), 2);
+  assert.equal(elderRevealedThisMorning({ ...base, actions: [{ actor_id: 'c', action: 'reveal' }] }), null);
+  assert.equal(elderRevealedThisMorning({ ...base, actions: [{ actor_id: 'e', action: 'skip' }] }), null);
+  assert.equal(elderRevealedThisMorning({ ...base, deathIds: new Set(['e']), actions: [{ actor_id: 'e', action: 'reveal' }] }), null);
+  assert.equal(elderRevealedThisMorning({ ...base, revealedSeats: [2], actions: [{ actor_id: 'e', action: 'reveal' }] }), null);
+  assert.equal(elderRevealedAlready({ elderRevealedSeats: [2] }, 2), true);
+  assert.equal(elderRevealedAlready({}, 2), false);
 });

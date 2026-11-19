@@ -349,7 +349,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleElderDescription =>
-      'Reveal your card during the day; your vote counts as three for the rest of the match.';
+      'At night you can choose to reveal yourself; in the morning everyone learns you are the Elder and your vote counts three.';
 
   @override
   String get roleSniperDescription =>
@@ -1950,6 +1950,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nightSpecialCitizen => 'No read tonight';
 
   @override
+  String get nightElderRevealTile => 'Reveal myself at dawn';
+
+  @override
+  String get nightElderRevealNote =>
+      'Everyone will learn in the morning that you are the Elder';
+
+  @override
+  String get nightElderRevealUndo => 'Undo';
+
+  @override
+  String morningElderRevealed(String name) {
+    return '$name revealed themselves: the Elder';
+  }
+
+  @override
+  String get morningElderWeight =>
+      'Their vote counts three until the end of the match';
+
+  @override
   String get bulletSniper => 'the Sniper shot';
 
   @override
@@ -1984,7 +2003,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingElderHint =>
-      'A citizen may reveal from 6 players; their vote then counts as three.';
+      'A citizen who can reveal themselves at night from 6 players; the next morning their vote counts three.';
 
   @override
   String get settingSniper => 'Sniper';
@@ -6353,7 +6372,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howRoleElder => 'Elder';
 
   @override
-  String get howRoleElderDo => 'Survives one attack';
+  String get howRoleElderDo => 'Reveals at night; vote counts three';
 
   @override
   String get howRoleSilencer => 'Silencer';
@@ -8455,4 +8474,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminRatingsAvg30 => 'Average, last 30 days';
+
+  @override
+  String get queueTitle => 'Finding people for you';
+
+  @override
+  String queueOf(int total) {
+    return 'of $total';
+  }
+
+  @override
+  String get queueCanClose =>
+      'You can close the app. We\'ll notify you as soon as the room is full.';
+
+  @override
+  String get queueInvite => 'Invite your friends';
+
+  @override
+  String get queueLeave => 'Leave the queue';
+
+  @override
+  String get queueReadyTitle => 'The room is full!';
+
+  @override
+  String get queueReadyCount => 'ready';
+
+  @override
+  String queueTimeLeft(String time) {
+    return '$time left';
+  }
+
+  @override
+  String get queueReadyYes => 'I\'m ready';
+
+  @override
+  String get queueReadyNo => 'Not now';
+
+  @override
+  String get queueWaitingOthers => 'You said ready. Waiting for the others.';
+
+  @override
+  String get playNightAt => 'Game night at 9';
+
+  @override
+  String playNightLeft(String time) {
+    return '$time to go';
+  }
+
+  @override
+  String playNightComing(int count) {
+    return '$count said they\'re coming';
+  }
+
+  @override
+  String get playNightRemind => 'Remind me';
+
+  @override
+  String get playNightReminded => 'We\'ll remind you';
+
+  @override
+  String get playNightLive => 'Game night is on';
+
+  @override
+  String playNightQueue(int count) {
+    return '$count in the queue now';
+  }
+
+  @override
+  String get playNightEnter => 'Join';
 }

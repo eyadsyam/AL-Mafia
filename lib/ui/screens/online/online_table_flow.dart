@@ -32,6 +32,7 @@ import '../../widgets/hold_pad.dart';
 import '../../widgets/role_card.dart';
 import '../day/whisper_compose_screen.dart';
 import '../day/day_card_check.dart';
+import '../../widgets/elder_reveal_card.dart';
 import '../../widgets/whisper_card.dart';
 import '../match_controller.dart';
 import 'council/card_rise.dart';
@@ -151,6 +152,9 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   /// Reset on every phase change rather than tracked per phase, so a client
   /// that reconnects into a new phase is never left holding a stale "done".
   bool _submitted = false;
+
+  /// The online Elder has left the intent to reveal at dawn this night.
+  bool _elderReveals = false;
   bool _acknowledged = false;
   bool _actionFailed = false;
   String? _actionFailureCode;
@@ -421,6 +425,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
     _ballotRoundAt = snapshot.ballotRound;
     _selected = null;
     _submitted = false;
+    _elderReveals = false;
     _acknowledged = false;
     _actionFailed = false;
     _privateAskedFor = null;
@@ -1690,6 +1695,44 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
   /// it ended up overlapping. [CouncilVoice] is the layout contract that
   /// replaced it: a headline and a single support slot, with no third place to
   /// put anything.
+  /// The Elder's one button on the waiting screen: shown to a living Elder who
+  /// has not revealed yet, to nobody else.
+  Widget? _elderChip(
+    BuildContext context,
+    GameSnapshot snapshot,
+    MatchUiState state,
+  ) {
+    final seat = snapshot.viewerSeat;
+    if (snapshot.phase != GamePhase.night ||
+        state.actorTurn?.actorRole != Role.elder ||
+        seat == null ||
+        _viewerIsDead(snapshot) ||
+        snapshot.revealedElderSeats.contains(seat)) {
+      return null;
+    }
+    final l10n = context.l10n;
+    Future<void> send(bool on) async {
+      setState(() => _elderReveals = on);
+      try {
+        await _controller.setElderReveal(on);
+      } catch (_) {
+        if (mounted) setState(() => _elderReveals = !on);
+      }
+    }
+
+    return _elderReveals
+        ? ElderRevealChip(
+            label: l10n.nightElderRevealNote,
+            undoLabel: l10n.nightElderRevealUndo,
+            onTap: () {},
+            onUndo: () => send(false),
+          )
+        : ElderRevealChip(
+            label: l10n.nightElderRevealTile,
+            onTap: () => send(true),
+          );
+  }
+
   Widget? _centre(
     BuildContext context,
     GameSnapshot snapshot,
@@ -1790,7 +1833,7 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
               turn.actorRole,
               bulletInHand: !_sniperSpent(turn.actorRole),
             ),
-            chosen: chosen(),
+            chosen: _elderChip(context, snapshot, state) ?? chosen(),
           ),
         );
 
@@ -1806,7 +1849,10 @@ class _OnlineTableFlowState extends ConsumerState<OnlineTableFlow>
             : [?morning.victimSeat];
         final silenced = morning?.silencedSeat;
         final trace = InformationText.trace(l10n, snapshot.trace, names);
+        final revealed = morning?.elderRevealedSeat;
         final support = <Widget>[
+          if (revealed != null && names[revealed] != null)
+            ElderRevealCard(name: names[revealed]!),
           if (silenced != null && names[silenced] != null)
             caption(l10n.silencedAnnouncement(names[silenced]!)),
           // The trace does not arrive with the body. Doc 15 §S-O6 beat 5:

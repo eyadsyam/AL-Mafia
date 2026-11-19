@@ -8,13 +8,12 @@ import 'package:mafia_master/ui/screens/match_route.dart';
 
 import '../support/localized.dart';
 
-/// The day's «كارتي» and the match's end cross share a corner in Arabic.
-///
-/// Drawn on top of each other, the cross took the card's label and its taps:
-/// a player reaching for their card got the end-match dialog instead.
+/// The offline day no longer carries a «كارتي» button: the Elder's reveal moved
+/// to his night tile, and the button (offered to everyone so nobody stood out)
+/// went with it. The end-match cross stays where it was.
 void main() {
   for (final phase in [GamePhase.morning, GamePhase.voting]) {
-    testWidgets('your card and the end cross both answer in ${phase.name}', (
+    testWidgets('there is no card button, only the end cross, in ${phase.name}', (
       tester,
     ) async {
       await tester.binding.setSurfaceSize(const Size(390, 844));
@@ -51,17 +50,10 @@ void main() {
       );
       await tester.pump();
 
-      final card = find.ancestor(
-        of: find.text(arStrings.myCard),
-        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
-      );
-      final end = find.byKey(MatchRoute.endMatchButton);
-      expect(tester.getRect(card).overlaps(tester.getRect(end)), isFalse);
-
-      await tester.tap(card);
-      await tester.pumpAndSettle();
-      expect(find.byType(SimpleDialog), findsOneWidget);
-      expect(find.byKey(MatchRoute.endMatchCancel), findsNothing);
+      // The offline day has no «كارتي» button at all (owner, 2026-11-19): the
+      // Elder reveals at night, so nothing is left for it to open.
+      expect(find.text(arStrings.myCard), findsNothing);
+      expect(find.byKey(MatchRoute.endMatchButton), findsOneWidget);
     });
   }
 }

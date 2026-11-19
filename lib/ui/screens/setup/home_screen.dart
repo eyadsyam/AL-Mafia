@@ -27,7 +27,7 @@ import '../../widgets/deck/deck_buttons.dart';
 import '../../widgets/play_app_ribbon.dart';
 import '../../account/guest_save_card.dart';
 
-import 'home_online_rooms.dart';
+import 'home_play_night.dart';
 import 'home_room_return.dart';
 
 /// Home screen (S-01) — the spread.
@@ -427,7 +427,7 @@ class HomeScreen extends ConsumerWidget {
                 onPressed: onNewMatch,
               ),
               if (onOnlineRooms != null)
-                HomeOnlineRoomsLine(onTap: onOnlineRooms!),
+                HomeTonightLine(onOpenOnline: onOnlineRooms!),
               // There is no second button here any more. Online used to sit
               // under this one as a quiet text link, offered only when the
               // build had a project — two modes at two weights, one of them

@@ -22,6 +22,7 @@ import { isMafiaTeam } from "../_shared/teams.ts";
 import { halfDoorSeats, loadToolUses, lockedSeats, unsilenceable } from "../_shared/tools.ts";
 import { resolveNightCore } from "../_shared/night_core.ts";
 import { nightComplete } from "../_shared/phase_guards.ts";
+import { elderRevealedThisMorning } from "../_shared/night_rules.ts";
 
 Deno.serve(handler(async (req, userId, db) => {
   const { roomId } = await req.json();
@@ -129,12 +130,24 @@ Deno.serve(handler(async (req, userId, db) => {
       ? "mafia"
       : null);
 
+    const revealSeat = elderRevealedThisMorning({
+      roster,
+      actions: actions ?? [],
+      deathIds: deaths,
+      revealedSeats: (((state?.public_data as Record<string, unknown> | null)
+        ?.elderRevealedSeats as number[] | undefined) ?? []),
+    });
     const morning = {
       victimSeat: deathIds[0] ? seatOf.get(deathIds[0]) ?? null : null,
       victimSeats: deathIds.map((id) => seatOf.get(id) ?? -1).filter((seat) => seat >= 0),
       silencedSeat: silencedId ? seatOf.get(silencedId) ?? null : null,
       someoneSavedUnnamed: saveTold,
       trace,
+      // The Elder's night choice «اكشف نفسي الصبح»: the SQL commit decides it
+      // again under the room lock and writes the same seat; this mirrors it for
+      // the response. Absent when nobody reveals or he did not live to see it (the key is never
+      // written as null: its mere presence would say an Elder is in the match).
+      ...(revealSeat === null ? {} : { elderRevealedSeat: revealSeat }),
     };
 
     const { data: committed, error } = await db.rpc("commit_night_roles_resolution", {

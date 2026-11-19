@@ -10,6 +10,10 @@
  *   search { query, page } / discover { filter, page }
  *   registerPush { token, platform }
  *   watchRooms { on } / watchRoomsStatus   «فكّرني لما ناس تتجمع» → { on }
+ *   requestByHandle { handle }            S2: ask anyone by exact @handle
+ *   privacy { whoCanAdd?, showOnline?, searchable? }   S6
+ *   ping { userId, kind } / pings          S3: «يلا نلعب؟» and its answers
+ *   profile { userId }                     S4: a friend's finished-match history
  * Routing and validation: _shared/friends_actions.ts. All rules live in SQL
  * (20260928000300_friends.sql, 20260930000100_invites_push.sql).
  */
@@ -68,11 +72,26 @@ Deno.serve(handler(async (req, userId, db) => {
     return ok({ invited: true, inviteId: data.inviteId });
   }
 
+  // S3: a fresh ping rings the friend, outside quiet hours (SQL decides).
+  if (call.fn === "friend_ping") {
+    if (typeof data?.pingId === "number") {
+      try {
+        const { data: target } = await db.rpc("friend_ping_push_targets", { p_ping: data.pingId });
+        await sendPush((target ?? { enabled: false }) as PushTarget, deps);
+      } catch {
+        console.log("push skipped: error");
+      }
+    }
+    return ok({ sent: true });
+  }
+
   // D: a friend request, or accepting one, reaches the other phone quietly.
-  if (call.fn === "friend_request" || (call.fn === "friend_respond" && call.args.p_accept === true)) {
+  const requested = call.fn === "friend_request_by_handle" ? data?.target : call.args.p_target;
+  if (call.fn === "friend_request" || call.fn === "friend_request_by_handle" ||
+    (call.fn === "friend_respond" && call.args.p_accept === true)) {
     try {
       const { data: target } = await db.rpc("friend_push_targets", {
-        p_from: userId, p_to: call.args.p_target,
+        p_from: userId, p_to: requested,
       });
       await sendPush((target ?? { enabled: false }) as PushTarget, deps);
     } catch {
@@ -82,5 +101,11 @@ Deno.serve(handler(async (req, userId, db) => {
   // The inbox is a list and the name rule a boolean; every answer is an object.
   if (call.fn === "safety_name_allowed") return ok({ allowed: data === true });
   if (call.fn === "room_watch_set" || call.fn === "room_watch_get") return ok({ on: data === true });
+  if (call.fn === "friend_pings_inbox") return ok({ pings: data });
+  if (call.fn === "friend_request_by_handle" && data && typeof data === "object") {
+    // The target's id is for the push above only; the answer is the status.
+    const { target: _target, ...status } = data as Record<string, unknown>;
+    return ok(status);
+  }
   return ok(call.fn === "invites_inbox" ? { invites: data } : data);
 }));

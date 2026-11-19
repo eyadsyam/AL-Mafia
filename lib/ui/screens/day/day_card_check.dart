@@ -61,8 +61,6 @@ class _DayCardCheckScreenState extends State<_DayCardCheckScreen> {
     final spacing = context.spacing;
     final colors = context.colors;
     final type = context.typography;
-    final alreadyRevealed = widget.controller.snapshot.revealedElderSeats
-        .contains(widget.seat);
     return Scaffold(
       backgroundColor: colors.surfaceBase,
       body: SafeArea(
@@ -96,29 +94,8 @@ class _DayCardCheckScreenState extends State<_DayCardCheckScreen> {
                 style: type.body.copyWith(color: colors.textSecondary),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: spacing.md),
-              SizedBox(
-                height: spacing.xxl,
-                child: card.role == Role.elder
-                    ? FilledButton(
-                        onPressed: alreadyRevealed
-                            ? null
-                            : () async {
-                                await widget.controller.revealElder(
-                                  widget.seat,
-                                );
-                                if (context.mounted) {
-                                  Navigator.of(context).pop();
-                                }
-                              },
-                        child: Text(
-                          alreadyRevealed
-                              ? context.l10n.elderRevealedMark
-                              : context.l10n.elderRevealAction,
-                        ),
-                      )
-                    : const SizedBox.expand(),
-              ),
+              // The Elder reveals himself at night now (his night tile, or the
+              // waiting screen's button online), never from this card.
             ],
           ),
         ),

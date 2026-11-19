@@ -149,7 +149,7 @@
   "roleSilencerDescription": "كل ليلة بتسكّت لاعب لبكرة. لو مافيا القتل خرجوا كلهم، بتورث القتل من الليلة الجاية",
   "roleDoctorDescription": "كل ليلة بتحمي لاعب، بس مش نفس اللاعب ليلتين ورا بعض. تقدر تحمي نفسك مرة واحدة في الماتش، ولو انتوا أكتر من دكتور بتحموا واحد بس",
   "roleDetectiveDescription": "المحقق واحد بس في اللعبة. كل ليلة بتكشف شخصية لاعب واحد",
-  "roleElderDescription": "تكشف كارتك في أي وقت بالنهار، ومن ساعتها صوتك يتحسب بثلاثة",
+  "roleElderDescription": "بالليل تقدر تختار تكشف نفسك، والصبح الكل يعرف إنك الشيخ وصوتك يبقى بـ 3.",
   "roleSniperDescription": "معاك طلقة واحدة. لو ضربت مافيا يموت، ولو أخطأت تموتوا إنتوا الاتنين",
   "roleCitizenDescription": "ملكش ميزة خاصة، سلاحك عينك وكلامك. في الأونلاين بتستنى بالليل",
   "gotIt": "فهمت",
@@ -952,6 +952,18 @@
   "nightSpecialElder": "مش شاكك الليلة",
   "nightSpecialSniper": "مش هضرب الليلة",
   "nightSpecialCitizen": "مش شاكك الليلة",
+  "nightElderRevealTile": "اكشف نفسي الصبح",
+  "nightElderRevealNote": "الصبح الكل هيعرف إنك الشيخ",
+  "nightElderRevealUndo": "إلغاء",
+  "morningElderRevealed": "{name} كشف نفسه: شيخ الصالحين",
+  "@morningElderRevealed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "morningElderWeight": "صوته بـ 3 أصوات لحد آخر الماتش",
   "bulletSniper": "طلقة القناص",
   "silencedCannotVote": "إنت متسكّت النهارده — مينفعش تصوّت",
   "continueLabel": "كمّل",
@@ -969,7 +981,7 @@
   "settingSilencer": "مافيا التسكيت",
   "settingSilencerHint": "واحد من المافيا بيسكّت بدل ما يقتل، ومحتاج مافيا اتنين على الأقل.",
   "settingElder": "شيخ الصالحين",
-  "settingElderHint": "مواطن يقدر يكشف من 6 لاعبين، وبعدها صوته يتحسب بثلاثة.",
+  "settingElderHint": "مواطن يقدر يكشف نفسه بالليل من 6 لاعبين، والصبح صوته يبقى بـ 3.",
   "settingSniper": "القناص",
   "settingSniperHint": "مواطن معاه طلقة واحدة من 7 لاعبين، ولو أخطأ الاتنين بيخرجوا.",
   "settingsSectionPace": "وقت اللعب",
@@ -2839,7 +2851,7 @@
   "howRoleCitizen": "المواطن",
   "howRoleCitizenDo": "بيدوّر ويصوّت",
   "howRoleElder": "الكبير",
-  "howRoleElderDo": "بيستحمل ضربة واحدة",
+  "howRoleElderDo": "بالليل يكشف نفسه، وصوته بـ 3",
   "howRoleSilencer": "الساكت",
   "howRoleSilencerDo": "بيسكّت واحد في النهار",
   "howRoleSniper": "القناص",
@@ -3358,9 +3370,24 @@
   "profileStatHere": "ماتش هنا",
   "profileStatOnlineMatches": "ماتش أونلاين",
   "profileVoteAccuracy": "دقة تصويتك: {percent}٪",
-  "@profileVoteAccuracy": {"placeholders": {"percent": {"type": "int"}}},
+  "@profileVoteAccuracy": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "profileVoteAccuracyDetail": "{onMafia} من {votes} صوت إديتهم وإنت من البلد وقعوا على مافيا",
-  "@profileVoteAccuracyDetail": {"placeholders": {"onMafia": {"type": "int"}, "votes": {"type": "int"}}},
+  "@profileVoteAccuracyDetail": {
+    "placeholders": {
+      "onMafia": {
+        "type": "int"
+      },
+      "votes": {
+        "type": "int"
+      }
+    }
+  },
   "profileStatCoins": "عملة",
   "profileLevel": "المستوى {level}",
   "@profileLevel": {
@@ -3857,5 +3884,59 @@
   "adminRatingsTitle": "تقييمات النجوم",
   "adminRatingsCount": "عدد التقييمات",
   "adminRatingsAvg7": "المتوسط، آخر 7 أيام",
-  "adminRatingsAvg30": "المتوسط، آخر 30 يوم"
+  "adminRatingsAvg30": "المتوسط، آخر 30 يوم",
+  "queueTitle": "بندوّرلك على ناس",
+  "queueOf": "من {total}",
+  "@queueOf": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "queueCanClose": "تقدر تقفل التطبيق. هنبعتلك أول ما الأوضة تكمل.",
+  "queueInvite": "ادعي صحابك",
+  "queueLeave": "اخرج من الطابور",
+  "queueReadyTitle": "الأوضة كملت!",
+  "queueReadyCount": "جاهزين",
+  "queueTimeLeft": "فاضل {time}",
+  "@queueTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "queueReadyYes": "أنا جاهز",
+  "queueReadyNo": "مش دلوقتي",
+  "queueWaitingOthers": "قلت جاهز. مستنيين الباقيين.",
+  "playNightAt": "ليلة اللعب الساعة 9",
+  "playNightLeft": "فاضل {time}",
+  "@playNightLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "playNightComing": "{count} قالوا هييجوا",
+  "@playNightComing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playNightRemind": "فكّرني",
+  "playNightReminded": "هنفكّرك",
+  "playNightLive": "ليلة اللعب شغالة",
+  "playNightQueue": "{count} في الطابور دلوقتي",
+  "@playNightQueue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playNightEnter": "ادخل"
 }

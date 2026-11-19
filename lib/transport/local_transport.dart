@@ -239,10 +239,15 @@ class LocalTransport implements GameTransport {
     required NightActionKind kind,
     required int? targetSeat,
     bool useBullet = false,
+    bool revealElder = false,
   }) async {
     InvestigateResult? result;
     if (targetSeat == null) {
-      engine.skipNightAction(seat: seat, useBullet: useBullet);
+      engine.skipNightAction(
+        seat: seat,
+        useBullet: useBullet,
+        revealElder: revealElder,
+      );
     } else {
       result = engine.submitNightAction(
         seat: seat,
@@ -361,6 +366,9 @@ class LocalTransport implements GameTransport {
     engine.submitVote(seat: seat, voterSeat: seat, targetSeat: targetSeat);
     _publish();
   }
+
+  @override
+  Future<void> setElderReveal(bool on) async {}
 
   @override
   Future<void> revealElder(int seat) async {

@@ -8,8 +8,9 @@ import { EVENT_TEXT, messageFor, sendPush } from '../functions/_shared/push.ts';
 const forbidden = ['دكتور', 'محقق', 'مواطن', 'قتل', 'اتقتل', 'مات', 'اتنقذ', 'حماية', 'دورك', 'ضحية', 'مشتبه'];
 
 for (const [kind, spec] of Object.entries(EVENT_TEXT)) {
-  // 'rooms_gathering' is one game line by design (a game kind always shows line 0).
-  assert.ok(spec.lines.length >= (kind === 'rooms_gathering' ? 1 : 2), `${kind}: more than one wording`);
+  // These game kinds are one line by design (a game kind always shows line 0).
+  const oneLine = ['rooms_gathering', 'queue_ready', 'queue_expired', 'play_night'].includes(kind);
+  assert.ok(spec.lines.length >= (oneLine ? 1 : 2), `${kind}: more than one wording`);
   for (const line of spec.lines) {
     for (const word of forbidden) {
       assert.ok(!line.title.includes(word) && !line.body.includes(word), `${kind} leaks "${word}"`);

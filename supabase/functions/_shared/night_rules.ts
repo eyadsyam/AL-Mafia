@@ -106,3 +106,38 @@ export function bulletActionAllowed(
 ): boolean {
   return bullet !== "selfProtect" || (action === "protect" && targetSeat === ownSeat);
 }
+
+/**
+ * The Elder's night choice «اكشف نفسي الصبح» (owner, 2026-11-19).
+ *
+ * Online the Elder has no night move, but he may leave a `reveal` row in
+ * `night_actions`; the morning acts on it only if he is alive once the night's
+ * deaths are settled. Pure over rows the caller already read, so the commit in
+ * SQL (`commit_night_roles_resolution`) and the response of `resolve_night`
+ * tell the same story.
+ */
+export function elderRevealedAlready(
+  publicData: unknown,
+  seat: number,
+): boolean {
+  const seats = (publicData as { elderRevealedSeats?: unknown } | null)
+    ?.elderRevealedSeats;
+  return Array.isArray(seats) && seats.includes(seat);
+}
+
+/** The seat of the Elder who reveals this morning, or null. */
+export function elderRevealedThisMorning(input: {
+  roster: readonly { user_id: string; seat: number; alive: boolean; role: string | null }[];
+  actions: readonly { actor_id: string; action: string }[];
+  deathIds: ReadonlySet<string>;
+  revealedSeats: readonly number[];
+}): number | null {
+  for (const a of input.actions) {
+    if (a.action !== "reveal") continue;
+    const p = input.roster.find((r) => r.user_id === a.actor_id);
+    if (!p || p.role !== "elder" || !p.alive || input.deathIds.has(p.user_id)) continue;
+    if (input.revealedSeats.includes(p.seat)) continue;
+    return p.seat;
+  }
+  return null;
+}

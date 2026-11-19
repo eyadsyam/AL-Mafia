@@ -12,18 +12,21 @@
 
 export interface PushTarget {
   enabled: boolean;
-  kind?: "invite" | "friend_request" | "friend_accepted" | "order_paid" | "order_rejected" | EventKind | OwnerKind | "app_update";
+  kind?: "invite" | "friend_request" | "friend_accepted" | "friend_ping" | "order_paid" | "order_rejected" | EventKind | OwnerKind | "app_update";
   /** Stable number that picks one of an event's wordings (the outbox row id). */
   variant?: number;
   inviteId?: string;
   code?: string;
   fromName?: string;
   fromHandle?: string;
+  /** friend_ping only: lets_play | coming | five_min | not_now. */
+  ping?: string;
   tokens?: { token: string; platform: "android" | "web"; build?: number | null }[];
 }
 
 /** Kinds written by the push outbox (20261002000100_push_outbox.sql). */
-export type EventKind = "room_start" | "night" | "daily" | "thursday" | "comeback" | "rooms_gathering";
+export type EventKind = "room_start" | "night" | "daily" | "thursday" | "comeback" | "rooms_gathering"
+  | "queue_ready" | "queue_expired" | "play_night";
 
 export interface PushDeps {
   /** The secret's value, or undefined when it is not set. */
@@ -121,6 +124,14 @@ export function inviteMessage(t: PushTarget, token: string, platform: "android" 
   };
 }
 
+/** S3: the four preset pings between friends. */
+export const PING_TEXT: Record<string, string> = {
+  lets_play: "يلا نلعب؟",
+  coming: "جاي",
+  five_min: "5 دقايق",
+  not_now: "مش دلوقتي",
+};
+
 /**
  * D: a friend request or an accepted request, on the quieter `mafia_social`
  * channel (default sound, short vibration). Only the kind and the sender's
@@ -129,9 +140,14 @@ export function inviteMessage(t: PushTarget, token: string, platform: "android" 
 export function socialMessage(t: PushTarget, token: string, platform: "android" | "web") {
   const name = String(t.fromName ?? "").slice(0, 40);
   const accepted = t.kind === "friend_accepted";
-  const title = accepted ? "بقيتوا أصحاب" : "طلب صداقة";
-  const body = accepted ? `${name} قبل طلب الصداقة` : `${name} عايز يبقى صاحبك`;
-  const data = { kind: accepted ? "friend_accepted" : "friend_request", fromName: name };
+  // S3 «يلا نلعب؟»: the friend's name and one of four preset lines, nothing else.
+  const pingLine = t.kind === "friend_ping" ? PING_TEXT[String(t.ping ?? "")] : undefined;
+  const title = pingLine ? name : accepted ? "بقيتوا أصحاب" : "طلب صداقة";
+  const body = pingLine ?? (accepted ? `${name} قبل طلب الصداقة` : `${name} عايز يبقى صاحبك`);
+  const data = {
+    kind: pingLine ? "friend_ping" : accepted ? "friend_accepted" : "friend_request",
+    fromName: name,
+  };
   const link = `${WEB_ORIGIN}/online`;
   if (platform === "android") {
     return {
@@ -221,6 +237,27 @@ export const EVENT_TEXT: Record<EventKind, {
     image: false,
     lines: [
       { title: "الناس بتتجمع", body: "فيه أوضة عامة فيها ناس مستنية دلوقتي. ادخل قبل ما تكمل." },
+    ],
+  },
+  queue_ready: {
+    channel: "mafia_game",
+    image: false,
+    lines: [
+      { title: "الأوضة كملت!", body: "ادخل خلال دقيقة واللعب يبدأ." },
+    ],
+  },
+  queue_expired: {
+    channel: "mafia_game",
+    image: false,
+    lines: [
+      { title: "لسه مفيش ناس كفاية", body: "هنفكّرك في ليلة اللعب الساعة 9." },
+    ],
+  },
+  play_night: {
+    channel: "mafia_game",
+    image: false,
+    lines: [
+      { title: "ليلة اللعب بدأت", body: "الناس بتتجمع دلوقتي. ادخل الطابور." },
     ],
   },
   daily: {
@@ -408,7 +445,7 @@ export function messageFor(t: PushTarget, token: string, platform: "android" | "
   if (t.kind === "order_paid" || t.kind === "order_rejected") return paymentMessage(t, token, platform);
   if (isOwnerKind(t.kind)) return ownerMessage(t, token, platform);
   if (t.kind && t.kind in EVENT_TEXT) return eventMessage(t, token, platform);
-  return t.kind === "friend_request" || t.kind === "friend_accepted"
+  return t.kind === "friend_request" || t.kind === "friend_accepted" || t.kind === "friend_ping"
     ? socialMessage(t, token, platform)
     : inviteMessage(t, token, platform);
 }

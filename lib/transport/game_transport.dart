@@ -76,11 +76,17 @@ abstract class GameTransport {
   /// this call and the pass, in the hand of one player, and nowhere else. A
   /// snapshot that carried it would be a snapshot that could be rebuilt with it
   /// still in place.
+  ///
+  /// [revealElder] is the Elder's own tile «اكشف نفسي الصبح»: a turn with no
+  /// target that also records the intent to reveal in the morning. Online the
+  /// Elder has no night turn to take; he sends it through the waiting screen's
+  /// own button instead.
   Future<InvestigateResult?> submitNightAction({
     required int seat,
     required NightActionKind kind,
     required int? targetSeat,
     bool useBullet = false,
+    bool revealElder = false,
   });
 
   /// Whether this transport can carry «الطلقة الواحدة» (doc 13 §2).
@@ -160,6 +166,11 @@ abstract class GameTransport {
 
   /// Publicly reveals the living Elder from their private card view.
   Future<void> revealElder(int seat);
+
+  /// The online Elder's night button «اكشف نفسي الصبح» (and its undo): leaves
+  /// or withdraws the intent to reveal in the morning. Offline the Elder uses
+  /// his night tile instead, so there it does nothing.
+  Future<void> setElderReveal(bool on);
 
   /// Advances a ballot without accepting a ballot from today's silenced seat.
   Future<void> skipSilencedVote(int seat);

@@ -189,7 +189,10 @@ class FirebasePushService implements PushService {
       'invite' => (invitesChannel, text.invites, text.invitesDescription),
       'room_start' ||
       'night' ||
-      'rooms_gathering' => (gameChannel, text.game, text.gameDescription),
+      'rooms_gathering' ||
+      'queue_ready' ||
+      'queue_expired' ||
+      'play_night' => (gameChannel, text.game, text.gameDescription),
       'daily' ||
       'thursday' ||
       'comeback' => (dailyChannel, text.daily, text.dailyDescription),

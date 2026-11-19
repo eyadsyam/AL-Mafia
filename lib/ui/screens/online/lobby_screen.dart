@@ -228,8 +228,56 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
       setState(() => _snapshot = snapshot);
       // The host started it; every other device finds out here, from the same
       // push, and goes to the same screen. Nobody is told anything early.
-      if (snapshot.phase != GamePhase.setup) widget.onStarted();
+      if (snapshot.phase != GamePhase.setup) {
+        widget.onStarted();
+        return;
+      }
+      _autoStart(snapshot);
     });
+    final first = _snapshot;
+    if (first != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _autoStart(first);
+      });
+    }
+  }
+
+  bool _autoReadySent = false;
+  bool _autoStartSent = false;
+
+  /// O1: a queue room. Every seat in it already said «أنا جاهز» on the queue
+  /// sheet, so the phone marks the lobby seat ready for him, and the host's
+  /// phone starts the match once the ready rule holds. Each happens once; a
+  /// refusal leaves the ordinary buttons in place.
+  void _autoStart(GameSnapshot snapshot) {
+    if (!snapshot.room.autoStart || snapshot.phase != GamePhase.setup) return;
+    final seat = snapshot.viewerSeat;
+    if (seat == null) return;
+    final lobbyReadyEnabled =
+        ref.read(economyCapabilitiesProvider).valueOrNull?.lobbyReady ?? false;
+    if (lobbyReadyEnabled &&
+        !_autoReadySent &&
+        !snapshot.lobbyReadySeats.contains(seat)) {
+      _autoReadySent = true;
+      unawaited(_setReady(true));
+      return;
+    }
+    if (!snapshot.canAdvance || _autoStartSent) return;
+    final connected = snapshot.public.players
+        .where(
+          (p) =>
+              snapshot.presence[p.seat] == SeatPresence.connected &&
+              snapshot.connectedSeats[p.seat] != false,
+        )
+        .map((p) => p.seat)
+        .toSet();
+    final holds =
+        connected.length >= PublicRoom.defaultMinPlayers &&
+        (!lobbyReadyEnabled ||
+            connected.every(snapshot.lobbyReadySeats.contains));
+    if (!holds) return;
+    _autoStartSent = true;
+    unawaited(_start());
   }
 
   @override

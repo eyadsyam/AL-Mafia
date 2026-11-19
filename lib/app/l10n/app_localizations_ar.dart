@@ -343,7 +343,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get roleElderDescription =>
-      'تكشف كارتك في أي وقت بالنهار، ومن ساعتها صوتك يتحسب بثلاثة';
+      'بالليل تقدر تختار تكشف نفسك، والصبح الكل يعرف إنك الشيخ وصوتك يبقى بـ 3.';
 
   @override
   String get roleSniperDescription =>
@@ -1903,6 +1903,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nightSpecialCitizen => 'مش شاكك الليلة';
 
   @override
+  String get nightElderRevealTile => 'اكشف نفسي الصبح';
+
+  @override
+  String get nightElderRevealNote => 'الصبح الكل هيعرف إنك الشيخ';
+
+  @override
+  String get nightElderRevealUndo => 'إلغاء';
+
+  @override
+  String morningElderRevealed(String name) {
+    return '$name كشف نفسه: شيخ الصالحين';
+  }
+
+  @override
+  String get morningElderWeight => 'صوته بـ 3 أصوات لحد آخر الماتش';
+
+  @override
   String get bulletSniper => 'طلقة القناص';
 
   @override
@@ -1937,7 +1954,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingElderHint =>
-      'مواطن يقدر يكشف من 6 لاعبين، وبعدها صوته يتحسب بثلاثة.';
+      'مواطن يقدر يكشف نفسه بالليل من 6 لاعبين، والصبح صوته يبقى بـ 3.';
 
   @override
   String get settingSniper => 'القناص';
@@ -6252,7 +6269,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get howRoleElder => 'الكبير';
 
   @override
-  String get howRoleElderDo => 'بيستحمل ضربة واحدة';
+  String get howRoleElderDo => 'بالليل يكشف نفسه، وصوته بـ 3';
 
   @override
   String get howRoleSilencer => 'الساكت';
@@ -8332,4 +8349,71 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminRatingsAvg30 => 'المتوسط، آخر 30 يوم';
+
+  @override
+  String get queueTitle => 'بندوّرلك على ناس';
+
+  @override
+  String queueOf(int total) {
+    return 'من $total';
+  }
+
+  @override
+  String get queueCanClose => 'تقدر تقفل التطبيق. هنبعتلك أول ما الأوضة تكمل.';
+
+  @override
+  String get queueInvite => 'ادعي صحابك';
+
+  @override
+  String get queueLeave => 'اخرج من الطابور';
+
+  @override
+  String get queueReadyTitle => 'الأوضة كملت!';
+
+  @override
+  String get queueReadyCount => 'جاهزين';
+
+  @override
+  String queueTimeLeft(String time) {
+    return 'فاضل $time';
+  }
+
+  @override
+  String get queueReadyYes => 'أنا جاهز';
+
+  @override
+  String get queueReadyNo => 'مش دلوقتي';
+
+  @override
+  String get queueWaitingOthers => 'قلت جاهز. مستنيين الباقيين.';
+
+  @override
+  String get playNightAt => 'ليلة اللعب الساعة 9';
+
+  @override
+  String playNightLeft(String time) {
+    return 'فاضل $time';
+  }
+
+  @override
+  String playNightComing(int count) {
+    return '$count قالوا هييجوا';
+  }
+
+  @override
+  String get playNightRemind => 'فكّرني';
+
+  @override
+  String get playNightReminded => 'هنفكّرك';
+
+  @override
+  String get playNightLive => 'ليلة اللعب شغالة';
+
+  @override
+  String playNightQueue(int count) {
+    return '$count في الطابور دلوقتي';
+  }
+
+  @override
+  String get playNightEnter => 'ادخل';
 }

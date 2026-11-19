@@ -32,7 +32,9 @@ import '../../widgets/experience_surface.dart';
 import '../setup/profile_screen.dart';
 import '../setup/setup_draft.dart' show setupDraftProvider;
 import '../../../platform/metrics.dart' show metricsClientProvider;
+import 'match_queue.dart';
 import 'nobody_waiting_card.dart';
+import 'queue_sheet.dart';
 import 'online_session.dart';
 import 'room_settings_panel.dart';
 import 'terms_sync.dart';
@@ -143,6 +145,12 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     _refresh();
     _loadResume();
     unawaited(_loadSafetyNotice());
+    // O1: a player still in the queue (a «الأوضة كملت» push, or the app
+    // reopened) sees the queue sheet again, or walks into the room the queue
+    // already seated him in.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_resumeQueue());
+    });
     // Invites reach a closed app only through a registered device: ask here,
     // where an invite is the next thing that can happen, not only when this
     // player first invites someone or catches one with the app open.
@@ -343,7 +351,14 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     unawaited(primeWebPlayout());
     final online = ref.read(onlineSessionProvider.notifier);
     if (quickMatch) {
-      await online.quickMatch(name: profile.name, gender: profile.gender.name);
+      final queued = await online.queueJoin(
+        name: profile.name,
+        gender: profile.gender.name,
+      );
+      if (queued) {
+        await _openQueue();
+        return;
+      }
     } else if (thursday) {
       await online.hostThursday();
     } else if (host) {
@@ -399,6 +414,47 @@ class _OnlineEntryScreenState extends ConsumerState<OnlineEntryScreen> {
     } finally {
       if (mounted) setState(() => _quickMatchBusy = false);
     }
+  }
+
+  /// O1: the queue sheet, and the room it ends in.
+  Future<void> _openQueue() async {
+    if (!mounted) return;
+    // The queue's whole point is the push: ask for it, in context.
+    unawaited(ref.read(pushPromptProvider).askInContext());
+    final room = await showQueueSheet(context);
+    if (room == null || !mounted) return;
+    await ref
+        .read(onlineSessionProvider.notifier)
+        .enterQueuedRoom(roomId: room.roomId, code: room.code, seat: room.seat);
+    if (mounted && ref.read(onlineSessionProvider).isInRoom) {
+      unawaited(syncTermsToServer(ref));
+      widget.onJoined();
+    }
+  }
+
+  Future<void> _resumeQueue() async {
+    if (ref.read(onlineSessionProvider).isInRoom) return;
+    final QueueStatus status;
+    try {
+      status = await ref.read(matchQueueApiProvider).status();
+    } catch (_) {
+      return;
+    }
+    if (!mounted) return;
+    final room = status.room;
+    if (room != null) {
+      // Seated by the queue after his «أنا جاهز» (the app was closed or the
+      // sheet dismissed since): that table is where he said he would be. The
+      // phone never stored it, so the resume banner cannot offer it.
+      await ref
+          .read(onlineSessionProvider.notifier)
+          .enterQueuedRoom(roomId: room.roomId, code: room.code, seat: room.seat);
+      if (mounted && ref.read(onlineSessionProvider).isInRoom) {
+        widget.onJoined();
+      }
+      return;
+    }
+    if (status.queued) await _openQueue();
   }
 
   static const _listRefusals = {

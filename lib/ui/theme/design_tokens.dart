@@ -2168,6 +2168,24 @@ abstract final class WinTokens {
 }
 
 /// F9 Thursday Night's public online-entry banner.
+/// O1 «استناني» queue sheet and O2 «ليلة اللعب» (online-plan.html).
+abstract final class QueueTokens {
+  /// A public match starts with this many confirmed players.
+  static const int matchSize = 5;
+  static const double ring = 132;
+  static const double ringStroke = 6;
+
+  /// How often the sheet asks while waiting, and while a «جاهز؟» round is
+  /// open (its 60 seconds need a fresher count).
+  static const Duration statusPoll = Duration(seconds: 5);
+  static const Duration roundPoll = Duration(seconds: 2);
+  static const Duration countdownTick = Duration(seconds: 1);
+
+  /// The Home card shows «ليلة اللعب الساعة 9» from this long before it.
+  static const Duration playNightLead = Duration(hours: 2);
+  static const Duration playNightRefresh = Duration(minutes: 1);
+}
+
 abstract final class ThursdayTokens {
   static const double bannerHeight = 104.0;
   static const double borderWidth = 1.0;

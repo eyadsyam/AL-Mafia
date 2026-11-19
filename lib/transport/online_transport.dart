@@ -1052,6 +1052,7 @@ class OnlineTransport implements GameTransport {
     required NightActionKind kind,
     required int? targetSeat,
     bool useBullet = false,
+    bool revealElder = false,
   }) async {
     // The seat is not sent. The server takes the actor from the JWT, and a
     // client that could name one would be O17 with a different noun.
@@ -1274,6 +1275,18 @@ class OnlineTransport implements GameTransport {
       _own = own.copyWith(votedRound: _round(state));
       _publish();
     }
+  }
+
+  @override
+  Future<void> setElderReveal(bool on) async {
+    // The server takes the actor from the JWT and stores the row only for the
+    // living, unrevealed Elder; anybody else is answered ok and nothing is
+    // kept. It never delays the night.
+    await _send('submit_night_action', {
+      'action': on ? 'reveal' : 'unreveal',
+      'targetSeat': null,
+      'useBullet': false,
+    }, assured: true);
   }
 
   @override

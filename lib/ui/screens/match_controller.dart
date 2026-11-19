@@ -427,7 +427,10 @@ class MatchController extends Notifier<MatchUiState?> {
   /// action rather than an absence — the engine turns it into one. For every
   /// other role this is the empty turn it has always been, with the bullet
   /// spent alongside it.
-  Future<void> skipNightAction({bool useBullet = false}) async {
+  Future<void> skipNightAction({
+    bool useBullet = false,
+    bool revealElder = false,
+  }) async {
     final seat = transport.snapshot.currentActorSeat;
     if (seat == null) return;
     // The role comes off the turn view this screen is already holding, not off
@@ -439,6 +442,7 @@ class MatchController extends Notifier<MatchUiState?> {
       kind: kind,
       targetSeat: null,
       useBullet: useBullet,
+      revealElder: revealElder,
     );
     state = _publish().copyWith(actorTurn: state?.actorTurn);
     await pending;
@@ -610,6 +614,9 @@ class MatchController extends Notifier<MatchUiState?> {
     await transport.skipSilencedVote(seat);
     state = _publish(clearSecrets: true);
   }
+
+  /// The online Elder's night button and its undo.
+  Future<void> setElderReveal(bool on) => transport.setElderReveal(on);
 
   Future<void> revealElder(int seat) async {
     await transport.revealElder(seat);

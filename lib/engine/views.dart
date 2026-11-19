@@ -30,12 +30,17 @@ class MorningReport {
   final bool someoneSavedUnnamed; // true if mafia target was protected
   final bool allSurvived; // true if no one died
 
+  /// The seat of the Elder who chose «اكشف نفسي الصبح» last night and is still
+  /// alive this morning; null otherwise. Public: the table is told his name.
+  final int? elderRevealedSeat;
+
   const MorningReport({
     this.victimSeat,
     this.victimSeats = const [],
     this.silencedSeat,
     this.someoneSavedUnnamed = false,
     this.allSurvived = false,
+    this.elderRevealedSeat,
   });
 
   @override
@@ -47,7 +52,8 @@ class MorningReport {
           _sameSeats(victimSeats, other.victimSeats) &&
           silencedSeat == other.silencedSeat &&
           someoneSavedUnnamed == other.someoneSavedUnnamed &&
-          allSurvived == other.allSurvived;
+          allSurvived == other.allSurvived &&
+          elderRevealedSeat == other.elderRevealedSeat;
 
   @override
   int get hashCode =>
@@ -55,7 +61,8 @@ class MorningReport {
       Object.hashAll(victimSeats) ^
       silencedSeat.hashCode ^
       someoneSavedUnnamed.hashCode ^
-      allSurvived.hashCode;
+      allSurvived.hashCode ^
+      elderRevealedSeat.hashCode;
 
   static bool _sameSeats(List<int> a, List<int> b) {
     if (a.length != b.length) return false;

@@ -281,6 +281,68 @@ class OnlineSession extends Notifier<OnlineSessionState> {
     );
   });
 
+  /// O1 «استناني». A public room somebody is waiting in seats the player
+  /// right away, exactly as [quickMatch]; otherwise the server puts him in
+  /// the queue and nothing is entered. Returns true only when queued; a room
+  /// entered or a refusal is in [state] as usual.
+  Future<bool> queueJoin({
+    required String name,
+    String gender = 'unspecified',
+  }) async {
+    state = state.copyWith(busy: true, clearError: true);
+    final Map<String, dynamic> result;
+    try {
+      // The tap that may seat him at once: the microphone dialog comes first,
+      // before the network, exactly as for quick match.
+      await askMicrophoneForRoom(ref.read(microphoneAccessProvider));
+      final backend = await _ensureBackend();
+      await backend.ensureSession();
+      result = await backend.call('match_queue', {
+        'action': 'join',
+        'name': name.trim(),
+        'gender': gender,
+      });
+    } on BackendException catch (e) {
+      state = state.copyWith(busy: false, errorCode: e.code);
+      return false;
+    } on BackendUnreachable catch (e) {
+      state = state.copyWith(
+        busy: false,
+        errorCode: 'UNREACHABLE',
+        unreachable: true,
+        projectPaused: e.projectPaused,
+      );
+      return false;
+    } catch (_) {
+      state = state.copyWith(busy: false, errorCode: 'BAD_RESPONSE');
+      return false;
+    }
+    if (result['queued'] == true) {
+      state = state.copyWith(busy: false);
+      return true;
+    }
+    await _enter(
+      (_) async => RoomHandle(
+        roomId: result['roomId'] as String,
+        code: result['code'] as String,
+        seat: (result['seat'] as num).toInt(),
+        rejoined: result['rejoined'] as bool? ?? false,
+      ),
+      askMicrophone: false,
+    );
+    return false;
+  }
+
+  /// The room the queue seated this player in (its status said so).
+  Future<void> enterQueuedRoom({
+    required String roomId,
+    required String code,
+    required int seat,
+  }) => _enter(
+    (_) async =>
+        RoomHandle(roomId: roomId, code: code, seat: seat, rejoined: true),
+  );
+
   static const _obsoleteAfter = {
     'ROOM_NOT_FOUND',
     'ROOM_FINISHED',
@@ -345,13 +407,16 @@ class OnlineSession extends Notifier<OnlineSessionState> {
   }
 
   Future<void> _enter(
-    Future<RoomHandle> Function(OnlineBackend backend) action,
-  ) async {
+    Future<RoomHandle> Function(OnlineBackend backend) action, {
+    bool askMicrophone = true,
+  }) async {
     state = state.copyWith(busy: true, clearError: true);
     try {
       // On the tap that enters the room, before the network: the phone's own
       // microphone dialog, now that the player is going where the voice is.
-      await askMicrophoneForRoom(ref.read(microphoneAccessProvider));
+      if (askMicrophone) {
+        await askMicrophoneForRoom(ref.read(microphoneAccessProvider));
+      }
       await _teardown();
       final backend = await _ensureBackend();
       await backend.ensureSession();

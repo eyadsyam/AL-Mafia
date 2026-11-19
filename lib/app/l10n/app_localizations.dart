@@ -725,7 +725,7 @@ abstract class AppLocalizations {
   /// No description provided for @roleElderDescription.
   ///
   /// In en, this message translates to:
-  /// **'Reveal your card during the day; your vote counts as three for the rest of the match.'**
+  /// **'At night you can choose to reveal yourself; in the morning everyone learns you are the Elder and your vote counts three.'**
   String get roleElderDescription;
 
   /// No description provided for @roleSniperDescription.
@@ -3464,6 +3464,36 @@ abstract class AppLocalizations {
   /// **'No read tonight'**
   String get nightSpecialCitizen;
 
+  /// No description provided for @nightElderRevealTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal myself at dawn'**
+  String get nightElderRevealTile;
+
+  /// No description provided for @nightElderRevealNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone will learn in the morning that you are the Elder'**
+  String get nightElderRevealNote;
+
+  /// No description provided for @nightElderRevealUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get nightElderRevealUndo;
+
+  /// No description provided for @morningElderRevealed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} revealed themselves: the Elder'**
+  String morningElderRevealed(String name);
+
+  /// No description provided for @morningElderWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Their vote counts three until the end of the match'**
+  String get morningElderWeight;
+
   /// No description provided for @bulletSniper.
   ///
   /// In en, this message translates to:
@@ -3527,7 +3557,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingElderHint.
   ///
   /// In en, this message translates to:
-  /// **'A citizen may reveal from 6 players; their vote then counts as three.'**
+  /// **'A citizen who can reveal themselves at night from 6 players; the next morning their vote counts three.'**
   String get settingElderHint;
 
   /// No description provided for @settingSniper.
@@ -10906,7 +10936,7 @@ abstract class AppLocalizations {
   /// No description provided for @howRoleElderDo.
   ///
   /// In en, this message translates to:
-  /// **'Survives one attack'**
+  /// **'Reveals at night; vote counts three'**
   String get howRoleElderDo;
 
   /// No description provided for @howRoleSilencer.
@@ -14502,6 +14532,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Average, last 30 days'**
   String get adminRatingsAvg30;
+
+  /// No description provided for @queueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding people for you'**
+  String get queueTitle;
+
+  /// No description provided for @queueOf.
+  ///
+  /// In en, this message translates to:
+  /// **'of {total}'**
+  String queueOf(int total);
+
+  /// No description provided for @queueCanClose.
+  ///
+  /// In en, this message translates to:
+  /// **'You can close the app. We\'ll notify you as soon as the room is full.'**
+  String get queueCanClose;
+
+  /// No description provided for @queueInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite your friends'**
+  String get queueInvite;
+
+  /// No description provided for @queueLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the queue'**
+  String get queueLeave;
+
+  /// No description provided for @queueReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The room is full!'**
+  String get queueReadyTitle;
+
+  /// No description provided for @queueReadyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'ready'**
+  String get queueReadyCount;
+
+  /// No description provided for @queueTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String queueTimeLeft(String time);
+
+  /// No description provided for @queueReadyYes.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m ready'**
+  String get queueReadyYes;
+
+  /// No description provided for @queueReadyNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get queueReadyNo;
+
+  /// No description provided for @queueWaitingOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'You said ready. Waiting for the others.'**
+  String get queueWaitingOthers;
+
+  /// No description provided for @playNightAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Game night at 9'**
+  String get playNightAt;
+
+  /// No description provided for @playNightLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} to go'**
+  String playNightLeft(String time);
+
+  /// No description provided for @playNightComing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} said they\'re coming'**
+  String playNightComing(int count);
+
+  /// No description provided for @playNightRemind.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get playNightRemind;
+
+  /// No description provided for @playNightReminded.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll remind you'**
+  String get playNightReminded;
+
+  /// No description provided for @playNightLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Game night is on'**
+  String get playNightLive;
+
+  /// No description provided for @playNightQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in the queue now'**
+  String playNightQueue(int count);
+
+  /// No description provided for @playNightEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get playNightEnter;
 }
 
 class _AppLocalizationsDelegate

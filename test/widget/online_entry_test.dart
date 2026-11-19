@@ -155,7 +155,8 @@ void main() {
         final order = <String>[];
         final mic = _QuickMatchMic(onAsk: () => order.add('microphone'));
         final container = containerWith(microphone: mic);
-        backend.responders['quick_match'] = (body) {
+        backend.responders['match_queue'] = (body) {
+          if (body['action'] != 'join') return {'queued': false};
           order.add('network');
           return {
             'roomId': 'room-1',
@@ -174,10 +175,13 @@ void main() {
         expect(order, ['microphone', 'network']);
         expect(mic.asks, 1);
         expect(
-          backend.calls.where((c) => c.function == 'quick_match'),
+          backend.calls.where(
+            (c) => c.function == 'match_queue' && c.body['action'] == 'join',
+          ),
           hasLength(1),
         );
-        expect(backend.lastCall('quick_match')!.body, {
+        expect(backend.lastCall('match_queue')!.body, {
+          'action': 'join',
           'name': 'A',
           'gender': 'male',
         });
@@ -191,8 +195,8 @@ void main() {
     ) async {
       final pending = Completer<Map<String, dynamic>>();
       final container = containerWith();
-      backend.delayedResponses['quick_match'] = pending.future;
       await pumpEntry(tester, container);
+      backend.delayedResponses['match_queue'] = pending.future;
 
       await tester.tap(find.byKey(OnlineEntryScreen.quickMatchButton));
       await tester.pump();
@@ -200,7 +204,9 @@ void main() {
       await tester.tap(find.byKey(OnlineEntryScreen.quickMatchButton));
       await tester.pump();
       expect(
-        backend.calls.where((c) => c.function == 'quick_match'),
+        backend.calls.where(
+          (c) => c.function == 'match_queue' && c.body['action'] == 'join',
+        ),
         hasLength(1),
       );
 
@@ -223,9 +229,9 @@ void main() {
         tester,
       ) async {
         final container = containerWith();
-        backend.refusals['quick_match'] = BackendException(code, 'refused');
         var joined = false;
         await pumpEntry(tester, container, onJoined: () => joined = true);
+        backend.refusals['match_queue'] = BackendException(code, 'refused');
 
         await tester.tap(find.byKey(OnlineEntryScreen.quickMatchButton));
         await tester.pump();
@@ -501,7 +507,9 @@ void main() {
         backend.calls.map((call) => call.function),
         // `economy` is the Casebook door asking what the feature flags say —
         // a read, never a seat.
-        everyElement(isIn(['browse_rooms', 'economy'])),
+        // `match_queue` is the «استناني» status read: is this player still
+        // queued? Also a read, never a seat.
+        everyElement(isIn(['browse_rooms', 'economy', 'match_queue'])),
         reason: 'looking is not joining, and there is no quick match',
       );
       expect(container.read(onlineSessionProvider).isInRoom, isFalse);

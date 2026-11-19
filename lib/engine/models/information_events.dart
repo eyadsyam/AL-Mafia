@@ -27,11 +27,17 @@ class NightActionSkipped extends TimelineEvent {
   final int actorSeat;
   final NightActionKind kind;
 
+  /// The Elder's night choice «اكشف نفسي الصبح»: the skip tile doubles as the
+  /// reveal intent. It is the Elder's own tile, so it changes nothing about
+  /// the grid; the morning acts on it only if the Elder is still alive.
+  final bool revealElder;
+
   const NightActionSkipped({
     required super.at,
     required super.phaseRef,
     required this.actorSeat,
     required this.kind,
+    this.revealElder = false,
   });
 
   @override
@@ -42,15 +48,20 @@ class NightActionSkipped extends TimelineEvent {
           at == other.at &&
           phaseRef == other.phaseRef &&
           actorSeat == other.actorSeat &&
-          kind == other.kind;
+          kind == other.kind &&
+          revealElder == other.revealElder;
 
   @override
   int get hashCode =>
-      at.hashCode ^ phaseRef.hashCode ^ actorSeat.hashCode ^ kind.hashCode;
+      at.hashCode ^
+      phaseRef.hashCode ^
+      actorSeat.hashCode ^
+      kind.hashCode ^
+      revealElder.hashCode;
 
   @override
   String toString() =>
-      'NightActionSkipped(at=$at, phaseRef=$phaseRef, actorSeat=$actorSeat, kind=$kind)';
+      'NightActionSkipped(at=$at, phaseRef=$phaseRef, actorSeat=$actorSeat, kind=$kind, revealElder=$revealElder)';
 }
 
 /// The trace that was published on a given morning.

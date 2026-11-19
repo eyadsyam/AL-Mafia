@@ -619,9 +619,25 @@ class MatchEngine {
   /// [useBullet] arms the bullet without choosing anybody, which is the whole
   /// of the Mafia's «الليلة الهادية» and of a Detective who opens a file and
   /// investigates nobody else tonight.
-  void skipNightAction({required int seat, bool useBullet = false}) {
+  ///
+  /// [revealElder] is the Elder's own tile «اكشف نفسي الصبح»: it is recorded as
+  /// this night's skip with the reveal intent. The reveal itself happens in
+  /// [resolveNight], and only if the Elder is still alive then.
+  void skipNightAction({
+    required int seat,
+    bool useBullet = false,
+    bool revealElder = false,
+  }) {
     if (match.phase != GamePhase.night) {
       throw StateError('skipNightAction: not in night phase');
+    }
+    if (revealElder) {
+      if (match.players[seat].role != Role.elder || useBullet) {
+        throw StateError('skipNightAction: only the Elder may reveal');
+      }
+      if (isElderRevealed(seat)) {
+        throw StateError('skipNightAction: the Elder is already revealed');
+      }
     }
     if (match.players[seat].role == Role.doctor && !useBullet) {
       // Expiry and legacy callers still need a deterministic action. The UI
@@ -684,6 +700,7 @@ class MatchEngine {
           phaseRef: phaseRef,
           actorSeat: seat,
           kind: match.players[seat].role.nightAction,
+          revealElder: revealElder,
         ),
       ],
     );
@@ -753,7 +770,7 @@ class MatchEngine {
 
     final now = clock();
     final resolution = NightResolver.resolveNight(match: match, now: now);
-    final report = resolution.report;
+    var report = resolution.report;
 
     // Update players if there's a victim
     List<Player> updatedPlayers = match.players;
@@ -775,6 +792,31 @@ class MatchEngine {
       }).toList();
     }
 
+    // The Elder's night choice «اكشف نفسي الصبح»: it counts only if he is alive
+    // after the night settles; a dead Elder reveals nothing and the intent is
+    // dropped without a trace.
+    int? revealSeat;
+    for (final event in match.eventLog) {
+      if (event is NightActionSkipped &&
+          event.revealElder &&
+          event.phaseRef.number == match.dayNumber &&
+          updatedPlayers[event.actorSeat].status == PlayerStatus.alive &&
+          updatedPlayers[event.actorSeat].role == Role.elder &&
+          !isElderRevealed(event.actorSeat)) {
+        revealSeat = event.actorSeat;
+      }
+    }
+    if (revealSeat != null) {
+      report = MorningReport(
+        victimSeat: report.victimSeat,
+        victimSeats: report.victimSeats,
+        silencedSeat: report.silencedSeat,
+        someoneSavedUnnamed: report.someoneSavedUnnamed,
+        allSurvived: report.allSurvived,
+        elderRevealedSeat: revealSeat,
+      );
+    }
+
     match = match.copyWith(
       phase: GamePhase.morning,
       players: updatedPlayers,
@@ -790,6 +832,15 @@ class MatchEngine {
           // save meant nobody died, so reading it back here recorded nothing.
           savedSeat: resolution.savedSeat,
         ),
+        if (revealSeat != null)
+          ElderRevealed(
+            at: now,
+            phaseRef: PhaseRef(
+              phase: GamePhase.morning,
+              number: match.dayNumber,
+            ),
+            seat: revealSeat,
+          ),
       ],
     );
 

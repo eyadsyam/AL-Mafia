@@ -153,6 +153,11 @@ void main() {
                 File('supabase/migrations/20260921000800_ad_rewards.sql')
                     .readAsStringSync()
                     .contains('where r.id=p_room and p.user_id=p_user')) ||
+            // O1: the queue only names a room in its answer (the seat the
+            // server itself gave the caller); no request field is a room.
+            (name == 'match_queue' &&
+                !source.contains('body.roomId') &&
+                !source.contains('body?.roomId')) ||
             (name == 'player_safety' &&
                 source.contains('submit_player_safety') &&
                 File('supabase/migrations/20260920000200_player_safety.sql')

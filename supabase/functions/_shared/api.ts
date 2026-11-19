@@ -113,6 +113,7 @@ export type ErrorCode =
   | "SIGN_IN_REQUIRED"
   | "TOO_SHORT"
   | "HANDLE_LOCKED"
+  | "ROUND_CLOSED"
   | "BAD_REQUEST";
 
 export function ok(body: unknown = { ok: true }): Response {
