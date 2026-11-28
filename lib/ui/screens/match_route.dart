@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/repository_provider.dart';
 import '../../engine/models/enums.dart' show GamePhase;
+import '../../platform/crash_reporting.dart' show reportNonFatal;
 import '../l10n_ext.dart';
 import '../theme/mafia_theme.dart';
 import '../theme/design_tokens.dart';
@@ -174,8 +175,14 @@ class MatchRoute extends ConsumerWidget {
         if (!controller.engine.hasMatch) return;
         try {
           await repository.persistStep(controller.engine.match);
-        } catch (error) {
+        } catch (error, stack) {
           debugPrint('persistStep retry failed: ${error.runtimeType}');
+          // Only the type leaves the device: the error itself may quote
+          // match contents.
+          await reportNonFatal(
+            StateError('persistStep retry failed: ${error.runtimeType}'),
+            stack,
+          );
         }
       }
     }());

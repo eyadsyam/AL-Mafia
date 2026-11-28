@@ -13,6 +13,25 @@ typedef CrashErrorRecorder =
       required bool fatal,
     });
 
+CrashErrorRecorder? _installedRecorder;
+
+/// Records a handled failure as non-fatal once crash reporting is installed.
+/// Before installation, and on web, iOS and in tests, it does nothing.
+/// Callers pass an error that carries no match contents.
+Future<void> reportNonFatal(Object error, StackTrace stack) async {
+  final record = _installedRecorder;
+  if (record == null) return;
+  try {
+    await record(error, stack, fatal: false);
+  } catch (_) {
+    // Reporting must never surface as a second failure.
+  }
+}
+
+/// Clears the recorder [reportNonFatal] uses. Tests only.
+@visibleForTesting
+void resetCrashReportingForTest() => _installedRecorder = null;
+
 /// Installs Android crash forwarding after Firebase is ready. The optional
 /// recorder and guards keep the handlers testable without a Firebase channel.
 Future<void> installCrashReporting({
@@ -28,6 +47,7 @@ Future<void> installCrashReporting({
   }
 
   final record = recorder ?? await platform.createCrashRecorder();
+  _installedRecorder = record;
   final previousFlutterHandler = FlutterError.onError;
   FlutterError.onError = (details) {
     unawaited(
